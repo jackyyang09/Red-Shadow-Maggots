@@ -1,5 +1,92 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6688271959698916124
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5977089838088471384}
+  - component: {fileID: 9025851100625959126}
+  - component: {fileID: 958049437815601297}
+  m_Layer: 0
+  m_Name: Arrow
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5977089838088471384
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6688271959698916124}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 1709073516516835314}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 56.8}
+  m_SizeDelta: {x: 50, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &9025851100625959126
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6688271959698916124}
+  m_CullTransparentMesh: 0
+--- !u!114 &958049437815601297
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6688271959698916124}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.9433962, g: 0.37824848, b: 0.37824848, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 80d90daf47d54df4b8d6185195410e86, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2043616713973197758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2219931443410329829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4410225546256028140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,10 +99,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84221cb8e6961d3419f2ddb54e23a5bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterReference: {fileID: 0}
-  health: 0
-  attack: 0
+  characterReference: {fileID: 11400000, guid: 40f5811e8fd93314d84ab7d5aeb91d7c, type: 2}
+  health: 3000
+  maxHealth: 3000
+  attack: 500
+  range: 0
   sprite: {fileID: 5682078996674765464}
+  card: {fileID: 0}
+  deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
+  onDeath:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2043616713973197758}
+        m_TargetAssemblyTypeName: JSAM.AudioEvents, Assembly-CSharp
+        m_MethodName: PlaySoundByEnum
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: JSAM.Sounds.KillSound
+          m_BoolArgument: 0
+        m_CallState: 2
+  selectionPointer: {fileID: 958049437815601297}
 --- !u!1001 &7220211722835729592
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23,6 +130,14 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3092166380502253088, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3092166380502253088, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: m_WasSpriteAssigned
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4496977095213217934, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -67,6 +182,22 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4570166828208922877, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 3d61587c312b83a47a90d2e1c84b74fe, type: 2}
+    - target: {fileID: 5334888889145887616, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4ae83c8f34b76d44db23448768e1ebee, type: 2}
+    - target: {fileID: 7284231548158314945, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7975943090999187380, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: baseCharacter
+      value: 
+      objectReference: {fileID: 4410225546256028140}
     - target: {fileID: 8862415204572298333, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
       propertyPath: m_Name
       value: EnemyCharacter
@@ -82,5 +213,10 @@ GameObject:
 --- !u!212 &5682078996674765464 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 3092166380502253088, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &1709073516516835314 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 8323919849793217354, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}

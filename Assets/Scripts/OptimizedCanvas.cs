@@ -36,7 +36,8 @@ public class OptimizedCanvas : MonoBehaviour
     public void SetActive(bool active)
     {
         canvas.enabled = active;
-        caster.enabled = active;
+        if (caster) caster.enabled = active;
+
         foreach (OptimizedCanvas canvas in children)
         {
             canvas.SetActive(active);

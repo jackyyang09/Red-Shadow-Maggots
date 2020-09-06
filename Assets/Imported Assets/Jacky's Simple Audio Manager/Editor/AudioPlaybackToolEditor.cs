@@ -423,7 +423,7 @@ namespace JSAM
                 {
                     helperHelper = helperObject.GetComponent<AudioChannelHelper>();
                 }
-                //helperObject.hideFlags = HideFlags.HideAndDontSave;
+                helperObject.hideFlags = HideFlags.HideAndDontSave;
             }
 
             if (helperSource == null)

@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class SimpleHealth : MonoBehaviour
 {
     [SerializeField]
     float updateDelay = 0.5f;
+
+    [SerializeField]
+    float catchupTime = 0.5f;
 
     [SerializeField]
     Image healthBar;
@@ -26,29 +30,10 @@ public class SimpleHealth : MonoBehaviour
     }
 
     // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
-
     public void UpdateValue()
     {
         tweenBar.fillAmount = healthBar.fillAmount;
         healthBar.fillAmount = baseCharacter.GetHealthPercent();
-        if (IsInvoking("CatchUp"))
-        {
-            CancelInvoke("CatchUp");
-        }
-        Invoke("CatchUp", updateDelay);
+        tweenBar.DOFillAmount(healthBar.fillAmount, catchupTime).SetEase(Ease.OutCubic).SetDelay(updateDelay);
     }
-
-    void CatchUp()
-    {
-        tweenBar.fillAmount = healthBar.fillAmount;
-    }
-
-    //private void OnEnable()
-    //{
-    //    
-    //}
 }
