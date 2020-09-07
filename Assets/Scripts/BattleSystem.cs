@@ -133,6 +133,11 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    public void ActivateSkill(int index)
+    {
+        playerTargets.player.UseSkill(index);
+    }
+
     public void SetActivePlayer(PlayerCharacter player)
     {
         switch (currentPhase)

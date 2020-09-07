@@ -5,9 +5,10 @@ using UnityEngine;
 public enum TargetMode
 {
     None,
-    Allies,
-    Enemies,
-    AlliesAndEnemies
+    OneAlly,
+    OneEnemy,
+    AllAllies,
+    AllEnemies
 }
 
 [CreateAssetMenu(fileName = "New Skill", menuName = "ScriptableObjects/Skill Object", order = 1)]
@@ -20,6 +21,15 @@ public class SkillObject : ScriptableObject
     public TargetMode targetMode;
 
     public BaseGameEffect[] effects;
+
+    public int skillCooldown;
+}
+
+
+public class AppliedEffect
+{
+    public BaseGameEffect effect;
+    public int remainingTurns;
 }
 
 public class GameSkill
@@ -27,29 +37,38 @@ public class GameSkill
     /// <summary>
     /// How long to wait before skill recharges
     /// </summary>
-    int cooldownTimer;
+    public int cooldownTimer;
 
     /// <summary>
     /// Destroys itself when it runs out of these
     /// </summary>
-    List<BaseGameEffect> effects;
+    public List<AppliedEffect> effects = new List<AppliedEffect>();
 
-    SkillObject referenceSkill;
+    public SkillObject referenceSkill { get; private set; }
 
     public void InitWithSkill(SkillObject reference)
     {
         referenceSkill = reference;
-        cooldownTimer = 0;
-        //reference.effects
     }
 
-    public void Activate()
+    public void Activate(List<BaseCharacter> characters)
     {
-
+        cooldownTimer = referenceSkill.skillCooldown;
+        foreach (BaseGameEffect effect in referenceSkill.effects)
+        {
+            AppliedEffect newEffect = new AppliedEffect();
+            newEffect.effect = effect;
+            newEffect.remainingTurns = effect.effectDuration;
+            effect.Activate(characters);
+            effects.Add(newEffect);
+        }
     }
 
     public void Tick()
     {
-
+        foreach (AppliedEffect effect in effects)
+        {
+            effect.remainingTurns--;
+        }
     }
 }

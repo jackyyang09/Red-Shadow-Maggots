@@ -64,6 +64,7 @@ public class EnemyCharacter : BaseCharacter
     {
         if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
         {
+            GlobalEvents.onSelectCharacter?.Invoke(this);
             if (BattleSystem.instance.GetActiveEnemy() == this) return;
             BattleSystem.instance.SetActiveEnemy(this);
             onSelectedEnemyCharacterChange?.Invoke(this);
