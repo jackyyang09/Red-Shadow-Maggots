@@ -20,6 +20,11 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             return characterReference;
         }
+
+        set
+        {
+            Reference = value;
+        }
     }
 
     [SerializeField]
