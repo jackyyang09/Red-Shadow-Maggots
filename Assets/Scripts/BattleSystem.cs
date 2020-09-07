@@ -52,6 +52,20 @@ public class BattleSystem : MonoBehaviour
     [SerializeField]
     TargettedCharacters enemyTargets = new TargettedCharacters();
 
+    [SerializeField]
+    GameObject playerPrefab;
+
+    [SerializeField]
+    Transform leftSpawnPos;
+
+    [SerializeField]
+    Transform middleSpawnPos;
+
+    [SerializeField]
+    Transform rightSpawnPos;
+
+    List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
+
     public static System.Action onStartPlayerTurn;
     public static System.Action onStartEnemyTurn;
 
@@ -60,36 +74,71 @@ public class BattleSystem : MonoBehaviour
     private void Awake()
     {
         EstablishSingletonDominance();
-
-        ScreenEffects.instance.FadeFromBlack();
-
-        playerCharacters = new List<PlayerCharacter>(FindObjectsOfType<PlayerCharacter>());
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void GameStart()
     {
         playerTargets.player = playerCharacters[0];
         playerTargets.player.ShowCharacterUI();
 
+        InitiateNextBattle();
+    }
+
+    private void OnEnable()
+    {
+        GlobalEvents.onAnyPlayerDeath += SwitchTargets;
+        GlobalEvents.onAnyEnemyDeath += SwitchTargets;
+    }
+
+    private void OnDisable()
+    {
+        GlobalEvents.onAnyPlayerDeath -= SwitchTargets;
+        GlobalEvents.onAnyEnemyDeath += SwitchTargets;
+    }
+
+    public void InitiateNextBattle()
+    {
         var enemies = EnemyWaveManager.instance.SetupNextWave();
         EnemyController.instance.AssignEnemies(enemies);
         playerTargets.enemy = enemies[0];
         playerTargets.enemy.ShowCharacterUI();
 
-        GlobalEvents.onPlayerDeath += SwitchTargets;
-        GlobalEvents.onEnemyDeath += SwitchTargets;
+        foreach (PlayerCharacter deadSon in deadMaggots)
+        {
+            Destroy(deadSon.gameObject);
+        }
+
+        SceneTweener.instance.EnterBattle();
     }
 
     // Update is called once per frame
-    void Update()
-    {
+    //void Update()
+    //{
+    //
+    //}
 
+    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity)
+    {
+        Transform spawnPos = null;
+        switch (playerCharacters.Count)
+        {
+            case 0:
+                spawnPos = leftSpawnPos;
+                break;
+            case 1:
+                spawnPos = middleSpawnPos;
+                break;
+            case 2:
+                spawnPos = rightSpawnPos;
+                break;
+        }
+        PlayerCharacter player = Instantiate(playerPrefab, spawnPos).GetComponent<PlayerCharacter>();
+        player.SetCharacterAndRarity(character, rarity);
+        playerCharacters.Add(player);
     }
 
     public void ExecutePlayerAttack()
     {
-        GlobalEvents.onPlayerStartAttack?.Invoke(playerTargets.player);
         playerTargets.player.PlayAttackAnimation();
         SceneTweener.instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
     }
@@ -109,12 +158,19 @@ public class BattleSystem : MonoBehaviour
                 if (EnemyController.instance.enemies.Count > 0)
                 {
                     playerTargets.enemy = EnemyController.instance.RandomEnemy;
+                    playerTargets.enemy.ShowCharacterUI();
                 }
                 break;
             case BattlePhases.EnemyTurn:
                 if (playerCharacters.Count > 0)
                 {
+                    foreach (PlayerCharacter player in playerCharacters)
+                    {
+                        player.ForceDeselct();
+                    }
                     enemyTargets.player = RandomPlayerCharacter;
+                    playerTargets.player = enemyTargets.player;
+                    enemyTargets.player.ForceSelect();
                 }
                 break;
         }
@@ -228,8 +284,15 @@ public class BattleSystem : MonoBehaviour
                 EnemyController.instance.MakeYourMove();
                 break;
             case BattlePhases.BattleWin:
-                SceneTweener.instance.WaveClearSequence();
-                GlobalEvents.onWaveClear?.Invoke();
+                if (EnemyWaveManager.instance.IsLastWave)
+                {
+                    GlobalEvents.onFinalWaveClear?.Invoke();
+                }
+                else
+                {
+                    SceneTweener.instance.WaveClearSequence();
+                    GlobalEvents.onWaveClear?.Invoke();
+                }
                 break;
             case BattlePhases.BattleLose:
                 GlobalEvents.onPlayerDefeat?.Invoke();
@@ -239,6 +302,8 @@ public class BattleSystem : MonoBehaviour
 
     public void RegisterPlayerDeath(PlayerCharacter player)
     {
+        deadMaggots.Add(player);
+        player.transform.parent = null;
         playerCharacters.Remove(player);
     }
 

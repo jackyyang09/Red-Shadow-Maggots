@@ -75,18 +75,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &2043616713973197758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2219931443410329829}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &4410225546256028140
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,13 +92,19 @@ MonoBehaviour:
   maxHealth: 3000
   attack: 500
   range: 0
+  rarity: 0
   sprite: {fileID: 5682078996674765464}
-  card: {fileID: 0}
+  ui: {fileID: 2169230848768444556}
+  card: {fileID: 4362054818328706029}
   deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
+  rarityMat: []
+  rarityBackground: []
+  cardMesh: {fileID: 0}
+  cardBackground: {fileID: 0}
   onDeath:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2043616713973197758}
+      - m_Target: {fileID: 8454151441353560275}
         m_TargetAssemblyTypeName: JSAM.AudioEvents, Assembly-CSharp
         m_MethodName: PlaySoundByEnum
         m_Mode: 5
@@ -120,6 +114,30 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: JSAM.Sounds.KillSound
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 5946936230252345003}
+        m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 7984885393301723762}
+        m_TargetAssemblyTypeName: UnityEngine.Collider, UnityEngine
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
   selectionPointer: {fileID: 958049437815601297}
@@ -210,9 +228,30 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8862415204572298333, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8454151441353560275 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1252130160103148651, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2219931443410329829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &4362054818328706029 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6393556700221106005, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
 --- !u!212 &5682078996674765464 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 3092166380502253088, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &7984885393301723762 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 784570519856367306, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &1709073516516835314 stripped
@@ -220,3 +259,19 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 8323919849793217354, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
+--- !u!223 &5946936230252345003 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 3941945658800040467, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2169230848768444556 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8802848114526753844, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3bf1af12dda3a94abb21a1f96ebf232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -9,7 +9,7 @@ public enum AttackRange
     LongRange
 }
 
-public enum Class
+public enum CharacterClass
 {
     Offense,
     Defense,
@@ -23,6 +23,7 @@ public class CharacterObject : ScriptableObject
     public float attack;
     public float maxHealth;
     public Sprite sprite;
+    public CharacterClass characterClass;
     public AttackRange range;
     [Range(0, 1)]
     public float attackLeniency;
@@ -34,7 +35,51 @@ public class CharacterObject : ScriptableObject
     [Header("Audio File Voice Objects")]
     public AudioFileObject voiceEntry;
     public AudioFileObject voiceAttack;
+    public AudioFileObject voiceSelected;
     public AudioFileObject voiceHurt;
     public AudioFileObject voiceDeath;
     public AudioFileObject voiceVictory;
+
+    [Header("Audio File Sound Objects")]
+    public AudioFileObject weaponSound;
+}
+
+public enum DamageEffectivess
+{
+    Normal,
+    Resist,
+    Effective
+}
+
+public static class DamageTriangle
+{
+    public const float EFFECTIVE = 2;
+    public const float RESIST = 0.5f;
+    public const float NORMAL = 1;
+
+    /// <summary>
+    /// Offense = 0
+    /// Defense = 0
+    /// Support = 0
+    /// Horizontal is attacker
+    /// Vertical is defender
+    /// </summary>
+    public static float[,] matrix = new float[,]
+    {   /*           Offense    Defense    Support */
+        /*Offense*/{ NORMAL,    RESIST,    EFFECTIVE },
+        /*Defense*/{ EFFECTIVE, NORMAL,    RESIST },
+        /*Support*/{ RESIST,    EFFECTIVE, NORMAL }
+    };
+
+    public static float GetEffectiveness(CharacterClass attacker, CharacterClass defender)
+    {
+        return matrix[(int)attacker, (int)defender];
+    }
+
+    public static DamageEffectivess EffectiveFloatToEnum(float val)
+    {
+        if (val == EFFECTIVE) return DamageEffectivess.Effective;
+        else if (val == RESIST) return DamageEffectivess.Resist;
+        else return DamageEffectivess.Normal;
+    }
 }

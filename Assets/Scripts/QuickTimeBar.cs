@@ -114,6 +114,7 @@ public class QuickTimeBar : QuickTimeBase
         if (BattleSystem.instance.CurrentPhase == BattlePhases.EnemyTurn)
         {
             newStruct.damageType -= DamageType.Heavy;
+            newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
         }
 
         return newStruct;

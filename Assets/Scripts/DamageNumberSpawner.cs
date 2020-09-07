@@ -10,6 +10,14 @@ public enum DamageType
     Heavy
 }
 
+[System.Serializable]
+public struct DamageNumberProperties
+{
+    public float textSize;
+    public TMPro.TMP_FontAsset font;
+    public TMPro.FontStyles textStyle;
+}
+
 public class DamageNumberSpawner : MonoBehaviour
 {
     [SerializeField]
@@ -21,23 +29,19 @@ public class DamageNumberSpawner : MonoBehaviour
     [SerializeField]
     float numberLifetime = 3;
 
-    [Header("Light Damage Properties")]
     [SerializeField]
-    float lightTextSize = 0.05f;
-    [SerializeField]
-    Color lightColor = Color.gray;
+    DamageNumberProperties[] damageNumberProps;
 
-    [Header("Medium Damage Properties")]
+    [Header("Effectiveness Properties")]
     [SerializeField]
-    float mediumTextSize = 0.075f;
+    string resistDescriptor = "RESIST!";
     [SerializeField]
-    Color mediumColor = Color.yellow;
+    Color resistColor = Color.blue;
 
-    [Header("Heavy Damage Properties")]
     [SerializeField]
-    float heavyTextSize = 0.1f;
+    string effectiveDescriptor = "EFFECTIVE!";
     [SerializeField]
-    Color heavyColor = Color.red;
+    Color effectiveColor = Color.red;
 
     public static DamageNumberSpawner instance;
 
@@ -51,27 +55,36 @@ public class DamageNumberSpawner : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void SpawnDamageNumberAt(float damageValue, Vector3 position, DamageType damageType = DamageType.Light)
+    public void SpawnDamageNumberAt(float damageValue, Vector3 position, DamageType damageType = DamageType.Light, DamageEffectivess effectivity = DamageEffectivess.Normal)
     {
         GameObject number = Instantiate(damageNumberPrefab, position + spawnOffset, Quaternion.identity);
 
-        TMPro.TextMeshProUGUI numberText = number.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        TMPro.TextMeshProUGUI[] texts = number.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+        TMPro.TextMeshProUGUI numberText = texts[0];
+        TMPro.TextMeshProUGUI effectiveness = texts[1];
 
         numberText.text = "-" + Mathf.RoundToInt(damageValue).ToString();
 
-        switch (damageType)
+        numberText.font = damageNumberProps[(int)damageType].font;
+        numberText.fontStyle = damageNumberProps[(int)damageType].textStyle;
+        numberText.fontSize = damageNumberProps[(int)damageType].textSize;
+
+        switch (effectivity)
         {
-            case DamageType.Light:
-                numberText.color = lightColor;
-                numberText.fontSize = lightTextSize;
+            case DamageEffectivess.Normal:
+                effectiveness.text = "";
+                numberText.color = Color.white;
                 break;
-            case DamageType.Medium:
-                numberText.color = mediumColor;
-                numberText.fontSize = mediumTextSize;
+            case DamageEffectivess.Resist:
+                effectiveness.text = resistDescriptor;
+                effectiveness.color = resistColor;
+                numberText.color = resistColor;
                 break;
-            case DamageType.Heavy:
-                numberText.color = heavyColor;
-                numberText.fontSize = heavyTextSize;
+            case DamageEffectivess.Effective:
+                effectiveness.text = effectiveDescriptor;
+                effectiveness.color = effectiveColor;
+                numberText.color = effectiveColor;
                 break;
         }
 

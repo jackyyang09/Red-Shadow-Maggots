@@ -1,14 +1,20 @@
 ﻿using System;
 
-public static class GlobalEvents
+public class GlobalEvents
 {
     public static Action onEnterWave;
-    public static Action onPlayerDeath;
-    public static Action onEnemyDeath;
+    public static Action onAnyEnemyDeath;
     public static Action onWaveClear;
+    public static Action onEnterFinalWave;
+    public static Action onFinalWaveClear;
+    public static Action onPlayerCrit;
     public static Action onPlayerDefeat;
+    public static Action onAnyPlayerDeath;
 
-    public static Action<PlayerCharacter> onPlayerStartAttack;
+    public static Action<BaseCharacter> onCharacterStartAttack;
+    public static Action<BaseCharacter> onCharacterAttacked;
+    public static Action<BaseCharacter> onCharacterDeath;
 
     public static Action<BaseCharacter> onSelectCharacter;
+    public static Action<BaseCharacter> onCharacterExecuteAttack;
 }

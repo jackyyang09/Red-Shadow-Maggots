@@ -1,8 +1,44 @@
 namespace JSAM {
     public enum Sounds {
-        KillSound
+        ArmsGuy_Voice_Attack,
+        ArmsGuy_Voice_Death,
+        ArmsGuy_Voice_Entry,
+        ArmsGuy_Voice_Hurt,
+        ArmsGuy_Voice_Selected,
+        ArmsGuy_Voice_Victory,
+        ArmsGuy_Weapon,
+        BombingMann_Voice_Attack1,
+        BombingMann_Voice_Death,
+        BombingMann_Voice_Entry,
+        BombingMann_Voice_Hurt,
+        BombingMann_Voice_Selected,
+        BombingMann_Voice_Victory,
+        BombingMann_Weapon,
+        Critical,
+        Duelist_Voice_Attack,
+        Duelist_Voice_Death,
+        Duelist_Voice_Entry,
+        Duelist_Voice_Hurt,
+        Duelist_Voice_Selected,
+        Duelist_Voice_Victory,
+        Duelist_Weapon,
+        Footsteps,
+        KillSound,
+        MagicScout_Voice_Attack,
+        MagicScout_Voice_Death,
+        MagicScout_Voice_Entry,
+        MagicScout_Voice_Hurt,
+        MagicScout_Voice_Selected,
+        MagicScout_Voice_Victory,
+        MagicScout_Weapon,
+        Moorshoo_Weapon,
+        Pisspenser_Weapon,
+        PlayerDefeat,
+        PlayerVictory,
+        UIClick
     }
     public enum Music {
-        BattleTheme
+        BattleTheme,
+        BossTheme
     }
 }

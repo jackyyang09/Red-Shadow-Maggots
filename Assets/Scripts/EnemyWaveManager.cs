@@ -7,6 +7,14 @@ public class EnemyWaveManager : MonoBehaviour
     [SerializeField]
     int waveCount;
 
+    public bool IsLastWave
+    {
+        get
+        {
+            return waveCount == waves.Length - 1;
+        }
+    }
+
     [SerializeField]
     WaveObject[] waves;
 
@@ -22,6 +30,9 @@ public class EnemyWaveManager : MonoBehaviour
     [SerializeField]
     GameObject enemyPrefab;
 
+    [SerializeField]
+    GameObject bossPrefab;
+
     public static EnemyWaveManager instance;
 
     private void Awake()
@@ -32,7 +43,7 @@ public class EnemyWaveManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        waveCount = -1;
+        //waveCount = -1;
     }
 
     // Update is called once per frame
@@ -43,10 +54,13 @@ public class EnemyWaveManager : MonoBehaviour
 
     public List<EnemyCharacter> SetupNextWave()
     {
+        RemoveDeadEnemies();
+
         var enemies = new List<EnemyCharacter>();
 
         waveCount++;
         GlobalEvents.onEnterWave?.Invoke();
+        if (IsLastWave) GlobalEvents.onEnterFinalWave?.Invoke();
 
         WaveObject newWave = waves[waveCount];
 
@@ -57,7 +71,14 @@ public class EnemyWaveManager : MonoBehaviour
         
         if (newWave.middleEnemy)
         {
-            enemies.Add(SpawnEnemy(newWave.middleEnemy, middleSpawnPos));
+            if (newWave.isBossWave)
+            {
+                enemies.Add(SpawnBoss(newWave.middleEnemy, middleSpawnPos));
+            }
+            else
+            {
+                enemies.Add(SpawnEnemy(newWave.middleEnemy, middleSpawnPos));
+            }
         }
         
         if (newWave.rightEnemy)
@@ -68,9 +89,25 @@ public class EnemyWaveManager : MonoBehaviour
         return enemies;
     }
 
+    public void RemoveDeadEnemies()
+    {
+        if (leftSpawnPos.childCount > 0) Destroy(leftSpawnPos.GetChild(0).gameObject);
+        if (middleSpawnPos.childCount > 0) Destroy(middleSpawnPos.GetChild(0).gameObject);
+        if (rightSpawnPos.childCount > 0) Destroy(rightSpawnPos.GetChild(0).gameObject);
+    }
+
     public EnemyCharacter SpawnEnemy(CharacterObject character, Transform spawnPos)
     {
         EnemyCharacter newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
+        newEnemy.SetReference(character);
+        newEnemy.ApplyReferenceProperties();
+
+        return newEnemy;
+    }
+
+    public EnemyCharacter SpawnBoss(CharacterObject character, Transform spawnPos)
+    {
+        EnemyCharacter newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
         newEnemy.SetReference(character);
         newEnemy.ApplyReferenceProperties();
 

@@ -80,7 +80,9 @@ public class EnemyCharacter : BaseCharacter
     public void DeathEffects()
     {
         onDeath?.Invoke();
-        GlobalEvents.onEnemyDeath?.Invoke();
+        EnemyController.instance.RegisterEnemyDeath(this);
+        GlobalEvents.onAnyEnemyDeath?.Invoke();
+        GlobalEvents.onCharacterDeath?.Invoke(this);
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         anim.SetTrigger("Death");
         //Destroy(gameObject);

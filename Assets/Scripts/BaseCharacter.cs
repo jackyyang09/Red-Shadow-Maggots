@@ -8,6 +8,7 @@ public struct DamageStruct
 {
     public float damage;
     public DamageType damageType;
+    public DamageEffectivess effectivity;
 }
 
 public abstract class BaseCharacter : MonoBehaviour
@@ -34,10 +35,15 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     AttackRange range;
 
+    [SerializeField]
+    Rarity rarity;
     [Header("Object References")]
 
     [SerializeField]
     SpriteRenderer sprite;
+
+    [SerializeField]
+    CharacterUI ui;
 
     [SerializeField]
     protected Transform card;
@@ -45,9 +51,23 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     protected GameObject deathParticles;
 
+    [Header("Rarity Properties")]
+
+    [SerializeField]
+    Material[] rarityMat;
+
+    [SerializeField]
+    Sprite[] rarityBackground;
+
+    [SerializeField]
+    MeshRenderer cardMesh;
+
+    [SerializeField]
+    SpriteRenderer cardBackground;
+
     List<BaseGameEffect> appliedEffects;
 
-    List<GameSkill> gameSkills;
+    List<GameSkill> gameSkills = new List<GameSkill>();
 
     protected Animator anim;
 
@@ -60,12 +80,28 @@ public abstract class BaseCharacter : MonoBehaviour
     public void ApplyReferenceProperties()
     {
         if (characterReference == null) return;
-        maxHealth = characterReference.maxHealth;
-        attack = characterReference.attack;
+
+        float rarityMultiplier = 1 + 0.5f * (int)rarity;
+
+        maxHealth = characterReference.maxHealth * rarityMultiplier;
+        attack = characterReference.attack * rarityMultiplier;
+
         sprite.sprite = characterReference.sprite;
         range = characterReference.range;
+        ui.SetClassIcon(characterReference.characterClass);
 
         health = maxHealth;
+    }
+
+    public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
+    {
+        characterReference = newRef;
+        rarity = newRarity;
+
+        cardMesh.material = rarityMat[(int)rarity];
+        cardBackground.sprite = rarityBackground[(int)rarity];
+
+        ApplyReferenceProperties();
     }
 
     public void SetReference(CharacterObject newRef)
@@ -76,6 +112,7 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void Awake()
     {
         anim = GetComponent<Animator>();
+        ApplyReferenceProperties();
     }
 
     // Start is called before the first frame update
@@ -95,12 +132,14 @@ public abstract class BaseCharacter : MonoBehaviour
         UIManager.onAttackCommit += HideCharacterUI;
         BattleSystem.onStartPlayerTurn += ShowCharacterUI;
         BattleSystem.onStartPlayerTurn += TickSkills;
+        onTakeDamage += () => GlobalEvents.onCharacterAttacked?.Invoke(this);
     }
 
     protected virtual void OnDisable()
     {
         UIManager.onAttackCommit -= HideCharacterUI;
         BattleSystem.onStartPlayerTurn -= ShowCharacterUI;
+        onTakeDamage -= () => GlobalEvents.onCharacterAttacked?.Invoke(this);
     }
 
     public abstract void ShowCharacterUI();
@@ -115,6 +154,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void PlayAttackAnimation()
     {
+        GlobalEvents.onCharacterStartAttack?.Invoke(this);
         QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
     }
 
@@ -124,11 +164,18 @@ public abstract class BaseCharacter : MonoBehaviour
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
         SceneTweener.instance.ReturnToPosition(transform);
         BattleSystem.instance.EndTurn();
+        GlobalEvents.onCharacterExecuteAttack?.Invoke(this);
     }
 
     public virtual DamageStruct CalculateAttackDamage(DamageStruct damageStruct)
     {
-        damageStruct.damage *= attack;
+        var playerClass = characterReference.characterClass;
+        var enemyClass = BattleSystem.instance.GetActiveEnemy().characterReference.characterClass;
+
+        float effectiveness = DamageTriangle.GetEffectiveness(playerClass, enemyClass);
+        damageStruct.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
+
+        damageStruct.damage *= attack * effectiveness;
         return damageStruct;
     }
 
@@ -173,7 +220,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void AddTarget(BaseCharacter newTarget)
     {
-        switch (skill.referenceSkill.targetMode)
+        switch (currentSkill.referenceSkill.targetMode)
         {
             case TargetMode.OneAlly:
                 break;
@@ -204,7 +251,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         float trueDamage = CalculateDefenseDamage(damage.damage);
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
-        DamageNumberSpawner.instance.SpawnDamageNumberAt(damage.damage, transform.position, damage.damageType);
+        DamageNumberSpawner.instance.SpawnDamageNumberAt(damage.damage, transform.position, damage.damageType, damage.effectivity);
 
         onTakeDamage?.Invoke();
         transform.DOShakePosition(0.75f, 0.25f, 30, 90, false, true);

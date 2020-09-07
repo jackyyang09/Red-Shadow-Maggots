@@ -49,14 +49,21 @@ public class SceneTweener : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    //void Start()
-    //{
-    //}
+    void Start()
+    {
+        //EnterBattle();
+    }
 
     // Update is called once per frame
     void Update()
     {
         dolly.m_PathPosition = lerpValue;
+    }
+
+    public void EnterBattle()
+    {
+        anim.SetTrigger("EnterBattle");
+        ScreenEffects.instance.FadeFromBlack();
     }
 
     float lerpValue;
@@ -117,6 +124,11 @@ public class SceneTweener : MonoBehaviour
         anim.enabled = true;
         ScreenEffects.instance.FadeToBlack(1.5f);
         anim.SetTrigger("OpenGate");
+    }
+
+    public void GateEntered()
+    {
+        BattleSystem.instance.InitiateNextBattle();
     }
 
     void EstablishSingletonDominance()

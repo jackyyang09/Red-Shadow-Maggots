@@ -8,4 +8,5 @@ public class WaveObject : ScriptableObject
     public CharacterObject leftEnemy;
     public CharacterObject middleEnemy;
     public CharacterObject rightEnemy;
+    public bool isBossWave;
 }

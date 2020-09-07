@@ -13,6 +13,12 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     QuickTimeBar defenseBar;
 
+    [SerializeField]
+    OptimizedCanvas winCanvas;
+
+    [SerializeField]
+    OptimizedCanvas loseCanvas;
+
     public static bool CanSelect = true;
 
     public static System.Action onAttackCommit;
@@ -32,6 +38,8 @@ public class UIManager : MonoBehaviour
     private void OnEnable()
     {
         BattleSystem.onStartPlayerTurn += ResumePlayerControl;
+        GlobalEvents.onPlayerDefeat += ShowLoseCanvas;
+        GlobalEvents.onFinalWaveClear += ShowWinCanvas;
 
         onAttackCommit += RemovePlayerControl;
     }
@@ -39,15 +47,17 @@ public class UIManager : MonoBehaviour
     private void OnDisable()
     {
         BattleSystem.onStartPlayerTurn -= ResumePlayerControl;
+        GlobalEvents.onPlayerDefeat -= ShowLoseCanvas;
+        GlobalEvents.onFinalWaveClear -= ShowWinCanvas;
 
         onAttackCommit -= RemovePlayerControl;
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //void Update()
+    //{
+    //    
+    //}
 
     public void ResumePlayerControl()
     {
@@ -71,6 +81,16 @@ public class UIManager : MonoBehaviour
     public void StartDefending()
     {
         defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer().GetDefenseLeniency());
+    }
+
+    public void ShowWinCanvas()
+    {
+        winCanvas.SetActive(true);
+    }
+
+    public void ShowLoseCanvas()
+    {
+        loseCanvas.SetActive(true);
     }
 
     void EstablishSingletonDominance()
