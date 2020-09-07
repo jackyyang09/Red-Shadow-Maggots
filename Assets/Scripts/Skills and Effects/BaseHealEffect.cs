@@ -18,6 +18,6 @@ public class BaseHealEffect : BaseGameEffect
 
     public override void Tick()
     {
-        throw new System.NotImplementedException();
+
     }
 }

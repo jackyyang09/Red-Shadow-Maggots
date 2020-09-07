@@ -49,6 +49,7 @@ public class PlayerCharacter : BaseCharacter
     {
         if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
         {
+            GlobalEvents.onSelectCharacter?.Invoke(this);
             if (BattleSystem.instance.GetActivePlayer() == this) return;
             BattleSystem.instance.SetActivePlayer(this);
             onSelectedPlayerCharacterChange?.Invoke(this);

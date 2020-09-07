@@ -52,6 +52,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     List<BaseGameEffect> appliedEffects;
 
+    List<GameSkill> gameSkills;
+
     protected Animator anim;
 
     public Action onHeal;
@@ -85,6 +87,12 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void Start()
     {
         health = maxHealth;
+
+        foreach (SkillObject skillObject in characterReference.skills)
+        {
+            GameSkill newSkill = new GameSkill();
+            newSkill.InitWithSkill(skillObject);
+        }
     }
 
     protected virtual void OnEnable()
@@ -134,8 +142,61 @@ public abstract class BaseCharacter : MonoBehaviour
         return damage;
     }
 
+    public void UseSkill(int index)
+    {
+        currentSkill = gameSkills[index];
+        StartCoroutine(SkillRoutine());
+
+        GlobalEvents.onSelectCharacter += AddTarget;
+    }
+
+    List<BaseCharacter> targets;
+
+    GameSkill currentSkill;
+
+    IEnumerator SkillRoutine()
+    {
+        targets = new List<BaseCharacter>();
+
+        GlobalEvents.onSelectCharacter += (x) => targets.Add(x);
+
+        if (currentSkill.referenceSkill.targetMode == TargetMode.None)
+        {
+            targets.Add(this);
+        }
+
+        while (targets == null)
+        {
+            yield return null;
+        }
+
+        GlobalEvents.onSelectCharacter -= (x) => targets.Add(x);
+
+        currentSkill.Activate(targets);
+    }
+
+
+    public void AddTarget(BaseCharacter newTarget)
+    {
+        switch (skill.referenceSkill.targetMode)
+        {
+            case TargetMode.OneAlly:
+                break;
+            case TargetMode.OneEnemy:
+                break;
+            case TargetMode.AllAllies:
+                break;
+            case TargetMode.AllEnemies:
+                break;
+        }
+    }
+
     private void TickSkills()
     {
+        foreach (GameSkill skill in gameSkills)
+        {
+            skill.Tick();
+        }
     }
 
     public virtual void Heal(float healthGain)

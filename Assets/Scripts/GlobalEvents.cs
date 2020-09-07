@@ -9,4 +9,6 @@ public static class GlobalEvents
     public static Action onPlayerDefeat;
 
     public static Action<PlayerCharacter> onPlayerStartAttack;
+
+    public static Action<BaseCharacter> onSelectCharacter;
 }
