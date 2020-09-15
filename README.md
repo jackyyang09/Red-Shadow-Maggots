@@ -1,4 +1,4 @@
-# Red-Shadow-Maggots
+# RED: Shadow Maggots
 
 ## Overview
 You control three menacing mercenaries on your quest to defeat the boss in this fan-adaption of Eltorro64Rus's spoof of a Raid: Shadow Legends ad!
