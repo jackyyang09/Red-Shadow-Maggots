@@ -357,6 +357,11 @@ namespace JSAM
                     AudioPlaybackToolEditor.helperSource.Stop();
                     if (playingClip != null && !clipPlaying)
                     {
+                        if (playingRandom)
+                        {
+                            AudioPlaybackToolEditor.DoForceRepaint(true);
+                            playingRandom = false;
+                        }
                         StartFading(myScript);
                     }
                     else
@@ -398,7 +403,7 @@ namespace JSAM
             }
         }
 
-        public void DesignateRandomAudioClip(AudioFileObject myScript)
+        public AudioClip DesignateRandomAudioClip(AudioFileObject myScript)
         {
             AudioClip theClip = playingClip;
             if (!myScript.IsLibraryEmpty())
@@ -412,6 +417,7 @@ namespace JSAM
             playingClip = theClip;
             playingRandom = true;
             AudioPlaybackToolEditor.DoForceRepaint(true);
+            return playingClip;
         }
 
         void Update()
@@ -420,16 +426,19 @@ namespace JSAM
             AudioClip clip = myScript.GetFirstAvailableFile();
             if (playingClip != null && clip != null)
             {
-                if (clip != cachedClip)
+                if (!AudioPlaybackToolEditor.WindowOpen)
                 {
-                    AudioPlaybackToolEditor.DoForceRepaint(true);
-                    cachedClip = myScript.GetFirstAvailableFile();
-                    playingClip = cachedClip;
-                }
+                    if (clip != cachedClip)
+                    {
+                        AudioPlaybackToolEditor.DoForceRepaint(true);
+                        cachedClip = myScript.GetFirstAvailableFile();
+                        playingClip = cachedClip;
+                    }
 
-                if (!clipPlaying && playingRandom)
-                {
-                    DesignateActiveAudioClip(myScript);
+                    if (!clipPlaying && playingRandom)
+                    {
+                        DesignateActiveAudioClip(myScript);
+                    }
                 }
 
                 if (clipPlaying)
@@ -521,6 +530,15 @@ namespace JSAM
         public void CheckIfNameChanged()
         {
             myName = AudioManagerEditor.ConvertToAlphanumeric(target.name);
+            if (myName == "")
+            {
+                target.name = "NEW AUDIO FILE";
+                myName = "NEWAUDIOFILE";
+                AssetDatabase.RenameAsset(AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]), "NEW AUDIO FILE");
+                EditorUtility.DisplayDialog("Audio File Warning!", "Due to the limitations of C#, " +
+                    "the names of your Audio File Objects cannot start with a number. Certain symbols (+, -) cannot be used " +
+                    "and will be stripped from the name entirely. Additionally, you must include letters in your name.", "OK");
+            }
 
             List<string> names = new List<string>();
             names.AddRange(AudioManager.instance.GetSceneSoundEnum().GetEnumNames());
@@ -598,15 +616,19 @@ namespace JSAM
             }
         }
 
-        public void StartFading(AudioFileObject myScript)
+        public void StartFading(AudioFileObject myScript, AudioClip overrideClip = null)
         {
             fadeMode = myScript.fadeMode;
-            fadeInTime = myScript.fadeInDuration * playingClip.length;
-            fadeOutTime = myScript.fadeOutDuration * playingClip.length;
+            if (!overrideClip)
+                AudioPlaybackToolEditor.helperSource.clip = playingClip;
+            else
+                AudioPlaybackToolEditor.helperSource.clip = overrideClip;
+            fadeInTime = myScript.fadeInDuration * AudioPlaybackToolEditor.helperSource.clip.length;
+            fadeOutTime = myScript.fadeOutDuration * AudioPlaybackToolEditor.helperSource.clip.length;
             // To prevent divisions by 0
             if (fadeInTime == 0) fadeInTime = float.Epsilon;
             if (fadeOutTime == 0) fadeOutTime = float.Epsilon;
-            AudioPlaybackToolEditor.helperSource.clip = playingClip;
+            
             AudioPlaybackToolEditor.helperHelper.PlayDebug(myScript, false);
         }
 

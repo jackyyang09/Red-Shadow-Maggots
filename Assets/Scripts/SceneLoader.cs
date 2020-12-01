@@ -13,7 +13,7 @@ public class SceneLoader : MonoBehaviour
 
     private void OnDisable()
     {
-        
+        SceneManager.sceneLoaded -= OnSceneLoad;
     }
 
     private void OnSceneLoad(Scene arg0, LoadSceneMode arg1)
@@ -34,5 +34,10 @@ public class SceneLoader : MonoBehaviour
     public void SwitchScene(int scene)
     {
         SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

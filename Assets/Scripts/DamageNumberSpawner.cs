@@ -7,7 +7,8 @@ public enum DamageType
 {
     Light,
     Medium,
-    Heavy
+    Heavy,
+    Heal
 }
 
 [System.Serializable]
@@ -20,6 +21,8 @@ public struct DamageNumberProperties
 
 public class DamageNumberSpawner : MonoBehaviour
 {
+    [SerializeField] Camera cam;
+
     [SerializeField]
     GameObject damageNumberPrefab;
 
@@ -55,22 +58,26 @@ public class DamageNumberSpawner : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public void SpawnDamageNumberAt(float damageValue, Vector3 position, DamageType damageType = DamageType.Light, DamageEffectivess effectivity = DamageEffectivess.Normal)
+    public void SpawnDamageNumberAt(Transform trans, DamageStruct damage)
     {
-        GameObject number = Instantiate(damageNumberPrefab, position + spawnOffset, Quaternion.identity);
+        GameObject number = Instantiate(damageNumberPrefab, transform.GetChild(0));
+        var billboard = number.GetComponent<ViewportBillboard>();
+        billboard.EnableWithSettings(cam, trans);
 
         TMPro.TextMeshProUGUI[] texts = number.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 
         TMPro.TextMeshProUGUI numberText = texts[0];
         TMPro.TextMeshProUGUI effectiveness = texts[1];
 
-        numberText.text = "-" + Mathf.RoundToInt(damageValue).ToString();
+        numberText.text = "-" + Mathf.RoundToInt(damage.damage).ToString();
 
-        numberText.font = damageNumberProps[(int)damageType].font;
-        numberText.fontStyle = damageNumberProps[(int)damageType].textStyle;
-        numberText.fontSize = damageNumberProps[(int)damageType].textSize;
+        numberText.font = damageNumberProps[(int)damage.damageType].font;
+        numberText.fontStyle = damageNumberProps[(int)damage.damageType].textStyle;
+        numberText.fontSize = damageNumberProps[(int)damage.damageType].textSize;
 
-        switch (effectivity)
+        if (damage.isCritical) EffectTextSpawner.instance.SpawnCriticalHitAt(trans);
+
+        switch (damage.effectivity)
         {
             case DamageEffectivess.Normal:
                 effectiveness.text = "";
@@ -88,7 +95,9 @@ public class DamageNumberSpawner : MonoBehaviour
                 break;
         }
 
-        number.transform.DOMoveY(number.transform.position.y + 0.3f, numberLifetime).SetEase(Ease.OutCubic);
+        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + 0.5f, numberLifetime).SetEase(Ease.OutCubic);
+        numberText.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
+        effectiveness.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
 
         Destroy(number, numberLifetime);
     }

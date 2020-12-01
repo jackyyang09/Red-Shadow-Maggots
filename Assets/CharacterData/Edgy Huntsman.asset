@@ -12,19 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4844cc75892397d49b6003873f335868, type: 3}
   m_Name: Edgy Huntsman
   m_EditorClassIdentifier: 
-  characterName: Dualing Duelist
+  characterName: Edgy Huntsman
   attack: 1300
   maxHealth: 11000
+  critChance: 0.02
   sprite: {fileID: 21300000, guid: 9c271d861b0f8ce49853478d32a2013c, type: 3}
+  headshotSprite: {fileID: 21300000, guid: fbebecd47255cc741b87d51dd85fd930, type: 3}
   characterClass: 0
   range: 0
   attackLeniency: 0.6
-  defenseLeniency: 0.3
-  skills: []
+  defenceLeniency: 0.3
+  skills:
+  - {fileID: 11400000, guid: bd8f7af94c7485e4f96d1ff1a02ae24e, type: 2}
+  - {fileID: 11400000, guid: c206849fa761d0b46946715cf1be1e81, type: 2}
   voiceEntry: {fileID: 11400000, guid: 9204ad7805e8c4f4fbc9352d66e49006, type: 2}
   voiceAttack: {fileID: 11400000, guid: 0ceb9e32b4ffda74a978ddae66f0bb2c, type: 2}
   voiceSelected: {fileID: 11400000, guid: 20eff98d874673c48b462ce093b5e548, type: 2}
+  voiceFirstSkill: {fileID: 0}
+  voiceSecondSkill: {fileID: 0}
   voiceHurt: {fileID: 11400000, guid: 08414f331995bcd4c91bf591c006956e, type: 2}
   voiceDeath: {fileID: 11400000, guid: 87070225c14accc42857b5a3e20bb73c, type: 2}
   voiceVictory: {fileID: 11400000, guid: 1fa1f32edaee40a42ac30edcd6c55989, type: 2}
-  weaponSound: {fileID: 11400000, guid: b70dfe175eff1074f80babb51b0490de, type: 2}
+  weaponSound: {fileID: 11400000, guid: 0d555614fc4cc1643bbf78fd55e9b578, type: 2}

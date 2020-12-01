@@ -22,20 +22,26 @@ public class CharacterObject : ScriptableObject
     public string characterName;
     public float attack;
     public float maxHealth;
+    [Range(0, 1)] public float critChance;
     public Sprite sprite;
+    public Sprite headshotSprite;
     public CharacterClass characterClass;
     public AttackRange range;
-    [Range(0, 1)]
-    public float attackLeniency;
-    [Range(0, 1)]
-    public float defenseLeniency;
+
+    [Range(0, 1)] public float attackLeniency;
+    [Range(0, 1)] public float defenceLeniency;
 
     public SkillObject[] skills;
+
+    public GameObject spriteObject;
+    public AnimatorOverrideController animator;
 
     [Header("Audio File Voice Objects")]
     public AudioFileObject voiceEntry;
     public AudioFileObject voiceAttack;
     public AudioFileObject voiceSelected;
+    public AudioFileObject voiceFirstSkill;
+    public AudioFileObject voiceSecondSkill;
     public AudioFileObject voiceHurt;
     public AudioFileObject voiceDeath;
     public AudioFileObject voiceVictory;
@@ -53,8 +59,8 @@ public enum DamageEffectivess
 
 public static class DamageTriangle
 {
-    public const float EFFECTIVE = 2;
-    public const float RESIST = 0.5f;
+    public const float EFFECTIVE = 1.25f;
+    public const float RESIST = 0.75f;
     public const float NORMAL = 1;
 
     /// <summary>

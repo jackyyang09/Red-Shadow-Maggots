@@ -7,6 +7,9 @@ using DG.Tweening;
 public class QuickTimeBar : QuickTimeBase
 {
     [SerializeField]
+    protected Image backgroundBar;
+
+    [SerializeField]
     protected Image fillBar;
 
     [SerializeField]
@@ -44,10 +47,10 @@ public class QuickTimeBar : QuickTimeBase
     float barMissValue = 0;
 
     // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    //void Start()
+    //{
+    //    
+    //}
 
     private void OnValidate()
     {
@@ -67,15 +70,28 @@ public class QuickTimeBar : QuickTimeBase
     public void ExecuteAction()
     {
         enabled = false;
-        onExecuteQuickTime?.Invoke(GetMultiplier());
+        DamageStruct dmg = GetMultiplier();
+        onExecuteQuickTime?.Invoke(dmg);
+        BonusFeedback(dmg);
         Invoke("Hide", hideDelay);
         DOTween.Kill(barTweenID);
     }
 
+    void BonusFeedback(DamageStruct damage)
+    {
+        if (damage.quickTimeSuccess)
+        {
+            backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector(0.075f), 0.25f);
+        }
+        backgroundBar.DOColor(fillBar.color, 0.1f).OnComplete(() => backgroundBar.DOColor(Color.white, 0.1f));
+    }
+
     public override void StartTicking()
     {
-        DOTween.To(() => fillBar.fillAmount, x => fillBar.fillAmount = x, 1, barFillTime).SetDelay(barFillDelay).intId = barTweenID;
-        fillBar.DOGradientColor(barGradient, barFillTime).SetDelay(barFillDelay).intId = barTweenID;
+        DOTween.To(() => fillBar.fillAmount, x => fillBar.fillAmount = x, 1, barFillTime).SetUpdate(true).SetDelay(barFillDelay).intId = barTweenID;
+
+        float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
+        fillBar.DOGradientColor(barGradient, Mathf.Lerp(0, barFillTime, targetMin)).SetUpdate(true).SetDelay(barFillDelay).intId = barTweenID;
         Invoke("Enable", barFillDelay);
     }
 
@@ -97,17 +113,20 @@ public class QuickTimeBar : QuickTimeBase
 
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            newStruct.damage = barSuccessValue;
+            newStruct.damageNormalized = barSuccessValue;
             newStruct.damageType = DamageType.Heavy;
+            newStruct.quickTimeSuccess = true;
+            if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.onPlayerQuickTimeAttackSuccess?.Invoke();
+            else GlobalEvents.onPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            newStruct.damage = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            newStruct.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
             newStruct.damageType = DamageType.Medium;
         }
         else
         {
-            newStruct.damage = barMissValue;
+            newStruct.damageNormalized = barMissValue;
             newStruct.damageType = DamageType.Light;
         }
 

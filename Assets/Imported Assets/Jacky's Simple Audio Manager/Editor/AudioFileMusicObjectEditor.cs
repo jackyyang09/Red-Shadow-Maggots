@@ -169,10 +169,14 @@ namespace JSAM
                 EditorGUILayout.PropertyField(loopMode);
                 if (EditorGUI.EndChangeCheck())
                 {
+                    // This won't do, reset loop point positions
                     if (myScript.loopStart >= myScript.loopEnd)
                     {
-                        loopStart = 0;
-                        loopEnd = music.length;
+                        loopStartProperty.floatValue = 0;
+                        loopEndProperty.floatValue = music.length;
+                        loopStart = myScript.loopStart;
+                        loopEnd = myScript.loopEnd;
+                        serializedObject.ApplyModifiedProperties();
                     }
                 }
                 using (new EditorGUI.DisabledScope(myScript.loopMode != LoopMode.LoopWithLoopPoints))
@@ -219,15 +223,15 @@ namespace JSAM
                             case LoopPointTool.TimeInput:
                                 EditorGUILayout.Space();
 
+                                // int casts are used instead of Mathf.RoundToInt so that we truncate the floats instead of rounding up
                                 GUILayout.BeginHorizontal();
                                 float theTime = loopStart * 1000f;
                                 GUILayout.Label("Loop Point Start:");
-                                int minutes = EditorGUILayout.IntField(Mathf.RoundToInt(theTime / 60000f));
+                                int minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
                                 GUILayout.Label(":");
-                                int seconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt((theTime % 60000) / 1000f - 0.5f)), 0, 59);
+                                int seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
                                 GUILayout.Label(":");
                                 float milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                //milliseconds = float.Parse("0." + milliseconds.ToString("0.####")); // Ensures that our milliseconds never leave their decimal place
                                 milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
                                 loopStart = (float)minutes * 60f + (float)seconds + milliseconds;
                                 GUILayout.EndHorizontal();
@@ -235,12 +239,11 @@ namespace JSAM
                                 GUILayout.BeginHorizontal();
                                 theTime = loopEnd * 1000f;
                                 GUILayout.Label("Loop Point End:  ");
-                                minutes = EditorGUILayout.IntField(Mathf.RoundToInt(theTime / 60000f));
+                                minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
                                 GUILayout.Label(":");
-                                seconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt((theTime % 60000) / 1000f - 0.5f)), 0, 59);
+                                seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
                                 GUILayout.Label(":");
                                 milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                //milliseconds = float.Parse("0." + milliseconds.ToString("0.####")); // Ensures that our milliseconds never leave their decimal place
                                 milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
                                 loopEnd = (float)minutes * 60f + (float)seconds + milliseconds;
                                 GUILayout.EndHorizontal();
@@ -502,7 +505,9 @@ namespace JSAM
                             AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp((newProgress * music.length), 0, music.length - AudioManager.EPSILON);
                             if (myScript.loopMode == LoopMode.LoopWithLoopPoints && myScript.clampToLoopPoints)
                             {
-                                AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp(AudioPlaybackToolEditor.helperSource.time, myScript.loopStart, myScript.loopEnd - AudioManager.EPSILON);
+                                float start = myScript.loopStart * myScript.GetFile().frequency;
+                                float end = myScript.loopEnd * myScript.GetFile().frequency;
+                                AudioPlaybackToolEditor.helperSource.timeSamples = (int)Mathf.Clamp(AudioPlaybackToolEditor.helperSource.timeSamples, start, end - AudioManager.EPSILON);
                             }
                             break;
                     }
@@ -803,6 +808,15 @@ namespace JSAM
         public void CheckIfNameChanged()
         {
             myName = AudioManagerEditor.ConvertToAlphanumeric(target.name);
+            if (myName == "")
+            {
+                target.name = "NEW AUDIO FILE";
+                myName = "NEWAUDIOFILE";
+                AssetDatabase.RenameAsset(AssetDatabase.GUIDToAssetPath(Selection.assetGUIDs[0]), "NEW AUDIO FILE");
+                EditorUtility.DisplayDialog("Audio File Warning!", "Due to the limitations of C#, " +
+                    "the names of your Audio File Objects cannot start with a number. Certain symbols (+, -) cannot be used " +
+                    "and will be stripped from the name entirely. Additionally, you must include letters in your name.", "OK");
+            }
 
             List<string> names = new List<string>();
             names.AddRange(AudioManager.instance.GetSceneMusicEnum().GetEnumNames());

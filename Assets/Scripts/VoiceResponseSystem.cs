@@ -17,12 +17,14 @@ public class VoiceResponseSystem : MonoBehaviour
         GlobalEvents.onCharacterStartAttack += Attack;
         GlobalEvents.onCharacterAttacked += PlayerAttacked;
         GlobalEvents.onCharacterExecuteAttack += WeaponHit;
+        GlobalEvents.onCharacterActivateSkill += UsedSkill;
         GlobalEvents.onCharacterDeath += CharacterDeath;
-        GlobalEvents.onPlayerCrit += WeaponCrit;
         GlobalEvents.onPlayerDefeat += PlayerLose;
+        GlobalEvents.onPlayerQuickTimeAttackSuccess += HitEffective;
+        GlobalEvents.onPlayerQuickTimeBlockSuccess += BlockEffective;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange += (x) => AudioManager.PlaySound(Sounds.UIClick);
-        EnemyCharacter.onSelectedEnemyCharacterChange += (x) => AudioManager.PlaySound(Sounds.UIClick);
+        PlayerCharacter.onSelectedPlayerCharacterChange += UIClick;
+        EnemyCharacter.onSelectedEnemyCharacterChange += UIClick;
 
         PlayerCharacter.onSelectedPlayerCharacterChange += Select;
     }
@@ -37,14 +39,31 @@ public class VoiceResponseSystem : MonoBehaviour
         GlobalEvents.onCharacterStartAttack -= Attack;
         GlobalEvents.onCharacterAttacked -= PlayerAttacked;
         GlobalEvents.onCharacterExecuteAttack -= WeaponHit;
+        GlobalEvents.onCharacterActivateSkill -= UsedSkill;
         GlobalEvents.onCharacterDeath -= CharacterDeath;
-        GlobalEvents.onPlayerCrit -= WeaponCrit;
         GlobalEvents.onPlayerDefeat -= PlayerLose;
+        GlobalEvents.onPlayerQuickTimeAttackSuccess -= HitEffective;
+        GlobalEvents.onPlayerQuickTimeBlockSuccess -= BlockEffective;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange -= (x) => AudioManager.PlaySound(Sounds.UIClick);
-        EnemyCharacter.onSelectedEnemyCharacterChange -= (x) => AudioManager.PlaySound(Sounds.UIClick);
+        PlayerCharacter.onSelectedPlayerCharacterChange -= UIClick;
+        EnemyCharacter.onSelectedEnemyCharacterChange -= UIClick;
 
         PlayerCharacter.onSelectedPlayerCharacterChange -= Select;
+    }
+
+    void HitEffective()
+    {
+        AudioManager.PlaySound(Sounds.Hit_Effective);
+    }
+
+    void BlockEffective()
+    {
+        AudioManager.PlaySound(Sounds.Block_Success);
+    }
+
+    void UIClick(BaseCharacter obj)
+    {
+        AudioManager.PlaySound(Sounds.UIClick);
     }
 
     public void Entry()
@@ -86,27 +105,28 @@ public class VoiceResponseSystem : MonoBehaviour
         AudioManager.instance.PlaySoundInternal(audio);
     }
 
+    private void UsedSkill(BaseCharacter character)
+    {
+        AudioManager.PlaySound(Sounds.SkillGeneral);
+    }
+
     public void Select(PlayerCharacter character)
     {
         var audio = character.Reference.voiceSelected;
         AudioManager.instance.PlaySoundInternal(audio);
     }
 
-    private void WeaponHit(BaseCharacter character)
+    private void WeaponHit(BaseCharacter character, DamageStruct damage)
     {
         var audio = character.Reference.weaponSound;
         AudioManager.instance.PlaySoundInternal(audio);
+        if (damage.isCritical) AudioManager.PlaySound(Sounds.Hit_Critical);
     }
 
     private void CharacterDeath(BaseCharacter character)
     {
         var audio = character.Reference.voiceDeath;
         AudioManager.instance.PlaySoundInternal(audio);
-    }
-
-    private void WeaponCrit()
-    {
-        AudioManager.PlaySound(Sounds.Critical);
     }
 
     void PlayerLose()

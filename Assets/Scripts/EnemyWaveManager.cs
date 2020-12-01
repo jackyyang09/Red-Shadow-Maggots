@@ -15,6 +15,22 @@ public class EnemyWaveManager : MonoBehaviour
         }
     }
 
+    public int CurrentWave
+    {
+        get
+        {
+            return waveCount;
+        }
+    }
+
+    public int TotalWaves
+    {
+        get
+        {
+            return waves.Length;
+        }
+    }
+
     [SerializeField]
     WaveObject[] waves;
 

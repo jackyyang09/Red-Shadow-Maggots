@@ -19,6 +19,19 @@ public struct TargettedCharacters
 
 public class BattleSystem : MonoBehaviour
 {
+    public static float QuickTimeCritModifier = 0.15f;
+
+    [SerializeField]
+    List<float> gameSpeeds = new List<float>();
+    public int CurrentGameSpeed = 0;
+    public float CurrentGameSpeedTime
+    {
+        get
+        {
+            return gameSpeeds[CurrentGameSpeed];
+        }
+    }
+
     [SerializeField]
     BattlePhases currentPhase;
     public BattlePhases CurrentPhase
@@ -42,6 +55,7 @@ public class BattleSystem : MonoBehaviour
     {
         get
         {
+            if (priorityPlayers.Count > 0) return priorityPlayers[0];
             return playerCharacters[Random.Range(0, PlayerCharacters.Count)];
         }
     }
@@ -64,9 +78,16 @@ public class BattleSystem : MonoBehaviour
     [SerializeField]
     Transform rightSpawnPos;
 
+    List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
+    List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
+    
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
 
     public static System.Action onStartPlayerTurn;
+    /// <summary>
+    /// Invokes after onStartPlayerTurn
+    /// </summary>
+    public static System.Action onStartPlayerTurnLate;
     public static System.Action onStartEnemyTurn;
 
     public static BattleSystem instance;
@@ -93,7 +114,7 @@ public class BattleSystem : MonoBehaviour
     private void OnDisable()
     {
         GlobalEvents.onAnyPlayerDeath -= SwitchTargets;
-        GlobalEvents.onAnyEnemyDeath += SwitchTargets;
+        GlobalEvents.onAnyEnemyDeath -= SwitchTargets;
     }
 
     public void InitiateNextBattle()
@@ -112,10 +133,17 @@ public class BattleSystem : MonoBehaviour
     }
 
     // Update is called once per frame
-    //void Update()
-    //{
-    //
-    //}
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Equals))
+        {
+            Time.timeScale = 2;
+        }
+        else if (Input.GetKeyDown(KeyCode.Minus))
+        {
+            Time.timeScale = 1;
+        }
+    }
 
     public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity)
     {
@@ -168,7 +196,6 @@ public class BattleSystem : MonoBehaviour
                     {
                         player.ForceDeselct();
                     }
-                    enemyTargets.player = RandomPlayerCharacter;
                     playerTargets.player = enemyTargets.player;
                     enemyTargets.player.ForceSelect();
                 }
@@ -191,7 +218,45 @@ public class BattleSystem : MonoBehaviour
 
     public void ActivateSkill(int index)
     {
+        if (playerTargets.player.CanUseSkill(index))
+        {
+            StartCoroutine(SkillUseSequence(index));
+        }
+    }
+
+
+
+    IEnumerator SkillUseSequence(int index)
+    {
+        bool finished = false;
+        float skillUseTime = 1.5f;
+
+        // Listen for if Player activates skills
+        playerTargets.player.RegisterOnSkillFoundTargets(() => finished = true);
+
+        // Activate Skill
         playerTargets.player.UseSkill(index);
+
+        // Wait for player to activate skills
+        while (!finished) yield return null;
+
+        UIManager.instance.RemovePlayerControl();
+
+        SceneTweener.instance.SkillTween(playerTargets.player.transform, skillUseTime);
+
+        yield return new WaitForSeconds(skillUseTime);
+
+        SceneTweener.instance.SkillUntween();
+
+        finished = false;
+
+        playerTargets.player.RegisterOnFinishApplyingSkillEffects(() => finished = true);
+
+        playerTargets.player.ResolveSkill();
+
+        while (!finished) yield return null;
+
+        UIManager.instance.ResumePlayerControl();
     }
 
     public void SetActivePlayer(PlayerCharacter player)
@@ -275,12 +340,13 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.Entry:
-                onStartEnemyTurn?.Invoke();
                 break;
             case BattlePhases.PlayerTurn:
                 onStartPlayerTurn?.Invoke();
+                onStartPlayerTurnLate?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
+                onStartEnemyTurn?.Invoke();
                 EnemyController.instance.MakeYourMove();
                 break;
             case BattlePhases.BattleWin:
@@ -307,6 +373,33 @@ public class BattleSystem : MonoBehaviour
         playerCharacters.Remove(player);
     }
 
+    public void ApplyTargetFocus(PlayerCharacter player)
+    {
+        priorityPlayers.Add(player);
+    }
+
+    public void RemoveTargetFocus(PlayerCharacter player)
+    {
+        priorityPlayers.Remove(player);
+    }
+
+    public void ApplyTargetFocus(EnemyCharacter enemy)
+    {
+        priorityEnemies.Add(enemy);
+    }
+
+    public void RemoveTargetFocus(EnemyCharacter enemy)
+    {
+        priorityEnemies.Remove(enemy);
+    }
+
+    public void ToggleGameSpeed()
+    {
+        CurrentGameSpeed = (int)Mathf.Repeat(CurrentGameSpeed + 1, gameSpeeds.Count);
+        Time.timeScale = gameSpeeds[CurrentGameSpeed];
+        GlobalEvents.onModifyGameSpeed?.Invoke();
+    }
+
     public PlayerCharacter GetActivePlayer()
     {
         switch (currentPhase)
@@ -325,6 +418,16 @@ public class BattleSystem : MonoBehaviour
                 return playerTargets.enemy;
         }
         return enemyTargets.enemy;
+    }
+
+    public BaseCharacter GetOpposingCharacter()
+    {
+        switch (currentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                return playerTargets.enemy;
+        }
+        return enemyTargets.player;
     }
 
     void EstablishSingletonDominance()

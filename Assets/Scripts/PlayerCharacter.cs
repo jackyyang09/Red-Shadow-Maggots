@@ -9,6 +9,7 @@ public class PlayerCharacter : BaseCharacter
     [SerializeField]
     SpriteRenderer selectionCircle;
 
+    public static Action<PlayerCharacter> onSelectPlayer;
     public static Action<PlayerCharacter> onSelectedPlayerCharacterChange;
 
     // Start is called before the first frame update
@@ -21,7 +22,6 @@ public class PlayerCharacter : BaseCharacter
     {
         base.OnEnable();
         onSelectedPlayerCharacterChange += UpdateSelectedStatus;
-        QuickTimeBase.onExecuteQuickTime += CheckIfCrit;
     }
 
     protected override void OnDisable()
@@ -31,19 +31,10 @@ public class PlayerCharacter : BaseCharacter
     }
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    private void CheckIfCrit(DamageStruct obj)
-    {
-        if (BattleSystem.instance.CurrentPhase != BattlePhases.PlayerTurn) return;
-        if (obj.damageType == DamageType.Heavy)
-        {
-            GlobalEvents.onPlayerCrit?.Invoke();
-        }
-    }
+    //void Update()
+    //{
+    //
+    //}
 
     public void UpdateSelectedStatus(PlayerCharacter newSelection)
     {
@@ -61,7 +52,7 @@ public class PlayerCharacter : BaseCharacter
         selectionCircle.enabled = true;
         anim.SetBool("Selected", true);
     }
-    
+
     public void ForceDeselct()
     {
         selectionCircle.enabled = false;
@@ -70,12 +61,31 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
+        if (UIManager.instance.CharacterPanelOpen) return;
         if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
         {
             GlobalEvents.onSelectCharacter?.Invoke(this);
+            onSelectPlayer?.Invoke(this);
+            if (UIManager.SelectingAllyForSkill) return;
             if (BattleSystem.instance.GetActivePlayer() == this) return;
             BattleSystem.instance.SetActivePlayer(this);
             onSelectedPlayerCharacterChange?.Invoke(this);
+        }
+    }
+
+    const float fingerHoldTime = 0.75f;
+    float fingerHoldTimer = 0;
+
+    private void OnMouseDrag()
+    {
+        if (!UIManager.instance.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
+        {
+            fingerHoldTimer += Time.deltaTime;
+            if (fingerHoldTimer >= fingerHoldTime)
+            {
+                UIManager.instance.OpenCharacterPanel();
+                fingerHoldTimer = 0;
+            }
         }
     }
 
@@ -92,14 +102,16 @@ public class PlayerCharacter : BaseCharacter
         anim.SetBool("Selected", false);
     }
 
+    public float attackLeniencyModifier;
     public float GetAttackLeniency()
     {
-        return characterReference.attackLeniency;
+        return characterReference.attackLeniency + attackLeniencyModifier;
     }
 
-    public float GetDefenseLeniency()
+    public float defenceLeniencyModifier;
+    public float GetDefenceLeniency()
     {
-        return characterReference.defenseLeniency;
+        return characterReference.defenceLeniency + defenceLeniencyModifier;
     }
 
     public override void Die()
@@ -117,5 +129,10 @@ public class PlayerCharacter : BaseCharacter
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         anim.SetTrigger("Death");
         //Destroy(gameObject);
+    }
+
+    public override void HideSelectionPointer()
+    {
+        base.HideSelectionPointer();
     }
 }

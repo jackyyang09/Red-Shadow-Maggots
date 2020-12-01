@@ -6,9 +6,21 @@ using System;
 
 public struct DamageStruct
 {
+    /// <summary>
+    /// Final damage passed to the character for damage calculation
+    /// </summary>
     public float damage;
+    /// <summary>
+    /// QuickTime value
+    /// </summary>
+    public float damageNormalized;
     public DamageType damageType;
     public DamageEffectivess effectivity;
+    public bool isCritical;
+    /// <summary>
+    /// Did the player hit the red zone?
+    /// </summary>
+    public bool quickTimeSuccess;
 }
 
 public abstract class BaseCharacter : MonoBehaviour
@@ -25,12 +37,59 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField]
     float health;
+    public float CurrentHealth
+    {
+        get
+        {
+            return health;
+        }
+    }
 
     [SerializeField]
     float maxHealth;
+    public float MaxHealth
+    {
+        get
+        {
+            return maxHealth;
+        }
+    }
 
     [SerializeField]
     float attack;
+
+    /// <summary>
+    /// Additive modifier from skills
+    /// </summary>
+    [SerializeField]
+    float attackModifier;
+    public float AttackModifier
+    {
+        get
+        {
+            return attackModifier;
+        }
+    }
+
+    /// <summary>
+    /// Additive modifier from skills
+    /// </summary>
+    [SerializeField]
+    float defenseModifier;
+
+    [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
+
+    [SerializeField] float critChanceModifier = 0;
+    public float CritChanceModifier
+    {
+        get
+        {
+            return critChanceModifier;
+        }
+    }
+
+    [SerializeField] float critMultiplier = 3;
+    [SerializeField] float critDamageModifier = 0;
 
     [SerializeField]
     AttackRange range;
@@ -42,14 +101,16 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     SpriteRenderer sprite;
 
-    [SerializeField]
-    CharacterUI ui;
+    [SerializeField] protected Transform card;
 
-    [SerializeField]
-    protected Transform card;
+    [SerializeField] protected Transform spriteHolder;
+    [SerializeField] protected Animator spriteAnim;
 
-    [SerializeField]
-    protected GameObject deathParticles;
+    [SerializeField] protected GameObject skillParticles;
+
+    [SerializeField] protected GameObject deathParticles;
+
+    [SerializeField] protected UnityEngine.UI.Image selectionPointer;
 
     [Header("Rarity Properties")]
 
@@ -65,11 +126,14 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     SpriteRenderer cardBackground;
 
-    List<BaseGameEffect> appliedEffects;
+    public List<AppliedEffect> AppliedEffects { get; } = new List<AppliedEffect>();
 
     List<GameSkill> gameSkills = new List<GameSkill>();
 
     protected Animator anim;
+
+    public Action<BaseGameEffect> onApplyGameEffect;
+    public Action<BaseGameEffect> onRemoveGameEffect;
 
     public Action onHeal;
     public Action onTakeDamage;
@@ -85,10 +149,10 @@ public abstract class BaseCharacter : MonoBehaviour
 
         maxHealth = characterReference.maxHealth * rarityMultiplier;
         attack = characterReference.attack * rarityMultiplier;
+        critChance = characterReference.critChance;
 
         sprite.sprite = characterReference.sprite;
         range = characterReference.range;
-        ui.SetClassIcon(characterReference.characterClass);
 
         health = maxHealth;
     }
@@ -97,6 +161,13 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         characterReference = newRef;
         rarity = newRarity;
+
+        if (newRef.spriteObject != null)
+        {
+            Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
+            spriteAnim.runtimeAnimatorController = newRef.animator;
+            sprite.enabled = false;
+        }
 
         cardMesh.material = rarityMat[(int)rarity];
         cardBackground.sprite = rarityBackground[(int)rarity];
@@ -124,6 +195,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             GameSkill newSkill = new GameSkill();
             newSkill.InitWithSkill(skillObject);
+            gameSkills.Add(newSkill);
         }
     }
 
@@ -131,15 +203,16 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.onAttackCommit += HideCharacterUI;
         BattleSystem.onStartPlayerTurn += ShowCharacterUI;
-        BattleSystem.onStartPlayerTurn += TickSkills;
-        onTakeDamage += () => GlobalEvents.onCharacterAttacked?.Invoke(this);
+        BattleSystem.onStartPlayerTurn += TickEffects;
+        GlobalEvents.onModifyGameSpeed += GameSpeedChanged;
     }
 
     protected virtual void OnDisable()
     {
         UIManager.onAttackCommit -= HideCharacterUI;
         BattleSystem.onStartPlayerTurn -= ShowCharacterUI;
-        onTakeDamage -= () => GlobalEvents.onCharacterAttacked?.Invoke(this);
+        BattleSystem.onStartPlayerTurn -= TickEffects;
+        GlobalEvents.onModifyGameSpeed -= GameSpeedChanged;
     }
 
     public abstract void ShowCharacterUI();
@@ -152,92 +225,273 @@ public abstract class BaseCharacter : MonoBehaviour
     //    
     //}
 
+    public void GameSpeedChanged()
+    {
+        spriteAnim.SetFloat("TimeScale", BattleSystem.instance.CurrentGameSpeedTime);
+    }
+
     public void PlayAttackAnimation()
     {
         GlobalEvents.onCharacterStartAttack?.Invoke(this);
         QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
+        spriteAnim.Play("Attack Windup");
     }
 
     public void ExecuteAttack(DamageStruct damage)
     {
-        BattleSystem.instance.AttackTarget(CalculateAttackDamage(damage));
+        DamageStruct finalDamage = CalculateAttackDamage(damage);
+        BattleSystem.instance.AttackTarget(finalDamage);
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
         SceneTweener.instance.ReturnToPosition(transform);
         BattleSystem.instance.EndTurn();
-        GlobalEvents.onCharacterExecuteAttack?.Invoke(this);
+        GlobalEvents.onCharacterExecuteAttack?.Invoke(this, finalDamage);
+        spriteAnim.Play("Attack Execute");
     }
 
     public virtual DamageStruct CalculateAttackDamage(DamageStruct damageStruct)
     {
         var playerClass = characterReference.characterClass;
-        var enemyClass = BattleSystem.instance.GetActiveEnemy().characterReference.characterClass;
+        var enemyClass = BattleSystem.instance.GetOpposingCharacter().characterReference.characterClass;
 
         float effectiveness = DamageTriangle.GetEffectiveness(playerClass, enemyClass);
         damageStruct.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-        damageStruct.damage *= attack * effectiveness;
+        float finalCritChance = critChance + critChanceModifier;
+        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+            finalCritChance += Convert.ToInt16(damageStruct.quickTimeSuccess) * BattleSystem.QuickTimeCritModifier;
+        damageStruct.isCritical = (UnityEngine.Random.value < finalCritChance);
+
+        damageStruct.damage = damageStruct.damageNormalized * (attack + attackModifier) * effectiveness;
+        if (damageStruct.isCritical) damageStruct.damage *= (critMultiplier + critDamageModifier);
+
         return damageStruct;
     }
 
     public virtual float CalculateDefenseDamage(float damage)
     {
-        return damage;
+        return Mathf.Clamp(damage - (damage * defenseModifier), 1, damage);
     }
 
     public void UseSkill(int index)
     {
         currentSkill = gameSkills[index];
-        StartCoroutine(SkillRoutine());
+        StartCoroutine(SkillRoutine(index));
+    }
 
-        GlobalEvents.onSelectCharacter += AddTarget;
+    public bool CanUseSkill(int index)
+    {
+        return gameSkills[index].CanUse;
+    }
+
+    public GameSkill GetSkill(int index)
+    {
+        return gameSkills[index];
     }
 
     List<BaseCharacter> targets;
 
     GameSkill currentSkill;
 
-    IEnumerator SkillRoutine()
+    List<Action> onSkillFoundTargets = new List<Action>();
+    public void RegisterOnSkillFoundTargets(Action newAction) => onSkillFoundTargets.Add(newAction);
+
+    List<Action> onFinishApplyingSkillEffects = new List<Action>();
+    public void RegisterOnFinishApplyingSkillEffects(Action newAction) => onFinishApplyingSkillEffects.Add(newAction);
+
+    bool cancelSkill;
+
+    IEnumerator SkillRoutine(int skillUsed)
     {
+        cancelSkill = false;
+
         targets = new List<BaseCharacter>();
 
-        GlobalEvents.onSelectCharacter += (x) => targets.Add(x);
+        Action<BaseCharacter> addTarget = (x) => targets.Add(x);
 
-        if (currentSkill.referenceSkill.targetMode == TargetMode.None)
+        switch (currentSkill.referenceSkill.targetMode)
         {
-            targets.Add(this);
+            case TargetMode.None:
+                targets.Add(this);
+                break;
+            case TargetMode.OneAlly:
+                PlayerCharacter.onSelectPlayer += addTarget;
+                UIManager.instance.EnterSkillTargetMode();
+                break;
+            case TargetMode.OneEnemy:
+                EnemyCharacter.onSelectedEnemyCharacterChange += addTarget;
+                break;
+            case TargetMode.AllAllies:
+                foreach (PlayerCharacter player in BattleSystem.instance.PlayerCharacters)
+                {
+                    targets.Add(player);
+                }
+                break;
+            case TargetMode.AllEnemies:
+                foreach (EnemyCharacter enemy in EnemyController.instance.enemies)
+                {
+                    targets.Add(enemy);
+                }
+                break;
         }
 
-        while (targets == null)
+        while (targets.Count == 0)
         {
+            if (cancelSkill)
+            {
+                switch (currentSkill.referenceSkill.targetMode)
+                {
+                    case TargetMode.OneAlly:
+                        PlayerCharacter.onSelectPlayer -= addTarget;
+                        break;
+                    case TargetMode.OneEnemy:
+                        EnemyCharacter.onSelectedEnemyCharacterChange -= addTarget;
+                        break;
+                }
+                UIManager.instance.ExitSkillTargetMode();
+                break;
+            }
             yield return null;
         }
 
-        GlobalEvents.onSelectCharacter -= (x) => targets.Add(x);
-
-        currentSkill.Activate(targets);
-    }
-
-
-    public void AddTarget(BaseCharacter newTarget)
-    {
-        switch (currentSkill.referenceSkill.targetMode)
+        if (!cancelSkill)
         {
-            case TargetMode.OneAlly:
-                break;
-            case TargetMode.OneEnemy:
-                break;
-            case TargetMode.AllAllies:
-                break;
-            case TargetMode.AllEnemies:
-                break;
+            Instantiate(skillParticles, transform);
+
+            switch (currentSkill.referenceSkill.targetMode)
+            {
+                case TargetMode.OneAlly:
+                    PlayerCharacter.onSelectPlayer -= addTarget;
+                    UIManager.instance.ExitSkillTargetMode();
+                    break;
+                case TargetMode.OneEnemy:
+                    EnemyCharacter.onSelectedEnemyCharacterChange -= addTarget;
+                    break;
+            }
+
+            if (skillUsed == 0) JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceFirstSkill);
+            else JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceSecondSkill);
+
+            spriteAnim.Play("Skill");
+
+            GlobalEvents.onCharacterActivateSkill?.Invoke(this);
+            foreach (var subscriber in onSkillFoundTargets) subscriber();
         }
+        onSkillFoundTargets.Clear();
     }
 
-    private void TickSkills()
+    /// <summary>
+    /// Cancels invocation of targetable skill
+    /// </summary>
+    public void CancelSkill()
     {
+        cancelSkill = true;
+    }
+
+    public void ResolveSkill()
+    {
+        StartCoroutine(ActivateSkill());
+    }
+
+    void ApplyEffectToCharacter(SkillObject.EffectProperties effectAndDuration, BaseCharacter character)
+    {
+        Instantiate(effectAndDuration.effect.particlePrefab, character.transform);
+        effectAndDuration.effect.Activate(character, effectAndDuration.strength, effectAndDuration.customValues);
+        if (effectAndDuration.effectDuration == 0) return;
+
+        AppliedEffect newEffect = new AppliedEffect();
+
+        newEffect.referenceEffect = effectAndDuration.effect;
+        newEffect.remainingTurns = effectAndDuration.effectDuration;
+        newEffect.strength = effectAndDuration.strength;
+        newEffect.customValues = effectAndDuration.customValues;
+        character.ApplyEffect(newEffect);
+    }
+
+    IEnumerator ActivateSkill()
+    {
+        currentSkill.BeginCooldown();
+
+        foreach (SkillObject.EffectProperties effect in currentSkill.referenceSkill.gameEffects)
+        {
+            if (effect.effect.targetOverride != TargetMode.None)
+            {
+                switch (effect.effect.targetOverride)
+                {
+                    case TargetMode.AllAllies:
+                        foreach (PlayerCharacter player in BattleSystem.instance.PlayerCharacters)
+                        {
+                            ApplyEffectToCharacter(effect, player);
+                        }
+                        break;
+                    case TargetMode.AllEnemies:
+                        foreach (EnemyCharacter enemy in EnemyController.instance.enemies)
+                        {
+                            ApplyEffectToCharacter(effect, enemy);
+                        }
+                        break;
+                    case TargetMode.Self:
+                        ApplyEffectToCharacter(effect, this);
+                        break;
+                }
+            }
+            else
+            {
+                foreach (BaseCharacter character in targets)
+                {
+                    ApplyEffectToCharacter(effect, character);
+                }
+            }
+
+            switch (effect.effect.effectType)
+            {
+                case EffectType.Heal:
+                    JSAM.AudioManager.PlaySound(JSAM.Sounds.HealApplied);
+                    break;
+                case EffectType.Buff:
+                    JSAM.AudioManager.PlaySound(JSAM.Sounds.BuffApplied);
+                    break;
+                case EffectType.Debuff:
+                    JSAM.AudioManager.PlaySound(JSAM.Sounds.DebuffApplied);
+                    break;
+            }
+
+            yield return new WaitForSeconds(0.75f);
+        }
+
+        foreach (var subscriber in onFinishApplyingSkillEffects) subscriber();
+        onFinishApplyingSkillEffects.Clear();
+    }
+
+    public void ApplyEffect(AppliedEffect newEffect)
+    {
+        AppliedEffects.Add(newEffect);
+        EffectTextSpawner.instance.SpawnEffectAt(newEffect.referenceEffect, transform);
+        onApplyGameEffect?.Invoke(newEffect.referenceEffect);
+    }
+
+    public void TickEffects()
+    {
+        List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
+        // Tick cooldown on skills
         foreach (GameSkill skill in gameSkills)
         {
             skill.Tick();
+        }
+
+        foreach (AppliedEffect effect in AppliedEffects)
+        {
+            if (!effect.Tick(this))
+            {
+                // Queue removal of effect
+                effectsToRemove.Add(effect);
+            }
+        }
+
+        foreach (AppliedEffect effect in effectsToRemove)
+        {
+            // Remove the effect
+            AppliedEffects.Remove(effect);
+            onRemoveGameEffect?.Invoke(effect.referenceEffect);
         }
     }
 
@@ -245,18 +499,44 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         health = Mathf.Clamp(health + healthGain, 0, maxHealth);
         onHeal?.Invoke();
+        EffectTextSpawner.instance.SpawnHealNumberAt(healthGain, transform);
+    }
+
+    public void ApplyAttackModifier(float modifier)
+    {
+        attackModifier += modifier;
+    }
+
+    public void ApplyDefenseModifier(float modifier)
+    {
+        defenseModifier += modifier;
+    }
+
+    public void ApplyCritChanceModifier(float modifier)
+    {
+        critChanceModifier += modifier;
+    }
+
+    public void ApplyCritDamageModifier(float modifier)
+    {
+        critDamageModifier += modifier;
     }
 
     public virtual void TakeDamage(DamageStruct damage)
     {
         float trueDamage = CalculateDefenseDamage(damage.damage);
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
-        DamageNumberSpawner.instance.SpawnDamageNumberAt(damage.damage, transform.position, damage.damageType, damage.effectivity);
+
+        DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
+        spriteAnim.Play("Hurt");
 
         onTakeDamage?.Invoke();
-        transform.DOShakePosition(0.75f, 0.25f, 30, 90, false, true);
+        GlobalEvents.onCharacterAttacked?.Invoke(this);
+
+        transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, damage.damageNormalized), 30, 90, false, true);
         if (health == 0)
         {
+            spriteAnim.Play("Death");
             Die();
         }
     }
@@ -266,5 +546,15 @@ public abstract class BaseCharacter : MonoBehaviour
     public float GetHealthPercent()
     {
         return health / maxHealth;
+    }
+
+    public void ShowSelectionPointer()
+    {
+        selectionPointer.enabled = true;
+    }
+
+    public virtual void HideSelectionPointer()
+    {
+        selectionPointer.enabled = false;
     }
 }

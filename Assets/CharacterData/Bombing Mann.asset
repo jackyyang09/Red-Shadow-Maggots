@@ -15,15 +15,23 @@ MonoBehaviour:
   characterName: Bombing Mann
   attack: 1000
   maxHealth: 14000
+  critChance: 0.02
   sprite: {fileID: 21300000, guid: 6c8594d2711a05740a7853ea5b9150ed, type: 3}
+  headshotSprite: {fileID: 21300000, guid: a424070d2b83feb439b4309cc9657a09, type: 3}
   characterClass: 1
   range: 0
   attackLeniency: 0.3
-  defenseLeniency: 0.6
-  skills: []
+  defenceLeniency: 0.6
+  skills:
+  - {fileID: 11400000, guid: 49e73dea9bb7f594185c6645b286edc6, type: 2}
+  - {fileID: 11400000, guid: cd4c5e2968fb3a849a1d878006f94f9f, type: 2}
+  spriteObject: {fileID: 5262785118156938147, guid: ffd58bc2baf941e44861549cbb7604c3, type: 3}
+  animator: {fileID: 22100000, guid: e55e2cb3a5b6ab84084007c60d8aed2c, type: 2}
   voiceEntry: {fileID: 11400000, guid: 833990b71fcccb140bdcd1fe3eae60a4, type: 2}
   voiceAttack: {fileID: 11400000, guid: 7c4ae81f77829944daeaa3d5daa6cca1, type: 2}
   voiceSelected: {fileID: 11400000, guid: 0a7953b6b7a14b340a05dddbb8e34fb8, type: 2}
+  voiceFirstSkill: {fileID: 11400000, guid: f41894c59abac6645aa7f58cbb976280, type: 2}
+  voiceSecondSkill: {fileID: 11400000, guid: e77c647c246cef14caaa76f489eac2ce, type: 2}
   voiceHurt: {fileID: 11400000, guid: 08414f331995bcd4c91bf591c006956e, type: 2}
   voiceDeath: {fileID: 11400000, guid: 87070225c14accc42857b5a3e20bb73c, type: 2}
   voiceVictory: {fileID: 11400000, guid: 1fa1f32edaee40a42ac30edcd6c55989, type: 2}

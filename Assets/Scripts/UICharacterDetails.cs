@@ -1,0 +1,67 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class UICharacterDetails : MonoBehaviour
+{
+    [SerializeField] TMPro.TextMeshProUGUI nameText;
+    [SerializeField] UnityEngine.UI.Image portrait;
+    [SerializeField] TMPro.TextMeshProUGUI health;
+    [SerializeField] TMPro.TextMeshProUGUI attack;
+    [SerializeField] TMPro.TextMeshProUGUI critChance;
+    [SerializeField] List<UIStatusDescription> statusDescriptions;
+    [SerializeField] RectTransform contentRect;
+
+    [SerializeField] OptimizedCanvas canvas;
+
+    [SerializeField] Color positiveModifier = Color.yellow;
+    [SerializeField] Color negativeModifier = Color.red;
+
+    public void DisplayWithCharacter(BaseCharacter character)
+    {
+        nameText.text = character.Reference.characterName;
+        health.text = character.CurrentHealth + "/" + character.MaxHealth;
+
+        portrait.sprite = character.Reference.headshotSprite;
+
+        int modifiedAttack = (int)(character.Reference.attack * character.AttackModifier);
+        attack.text = (character.Reference.attack + modifiedAttack).ToString();
+        if (character.AttackModifier > 0)
+        {
+            attack.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(positiveModifier) + ">(+" + modifiedAttack + ")</color>";
+        }
+        else if (character.AttackModifier < 0)
+        {
+            attack.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(negativeModifier) + ">(" + modifiedAttack + ")</color>";
+        }
+
+        int modifiedCritChance = (int)(Mathf.Clamp01(character.CritChanceModifier) * 100);
+        critChance.text = (character.Reference.critChance * 100 + modifiedCritChance).ToString() + "%";
+        if (character.CritChanceModifier > 0)
+        {
+            critChance.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(positiveModifier) + ">(+" + modifiedCritChance + "%)</color>";
+        }
+        else if (character.CritChanceModifier < 0)
+        {
+            critChance.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(negativeModifier) + ">(" + modifiedCritChance + "%)</color>";
+        }
+
+        for (int i = 0; i < character.AppliedEffects.Count; i++)
+        {
+            statusDescriptions[i].ApplyStatus(character.AppliedEffects[i]);
+        }
+        contentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, character.AppliedEffects.Count * 100);
+
+        for (int i = character.AppliedEffects.Count; i < statusDescriptions.Count; i++)
+        {
+            statusDescriptions[i].Hide();
+        }
+
+        canvas.Show();
+    }
+
+    public void Hide()
+    {
+        canvas.Hide();
+    }
+}

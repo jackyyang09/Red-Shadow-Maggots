@@ -8,41 +8,85 @@ public enum TargetMode
     OneAlly,
     OneEnemy,
     AllAllies,
-    AllEnemies
+    AllEnemies,
+    Self
 }
 
+/// <summary>
+/// The basic definition of a skill recorded in a CharacterObject
+/// </summary>
 [CreateAssetMenu(fileName = "New Skill", menuName = "ScriptableObjects/Skill Object", order = 1)]
 public class SkillObject : ScriptableObject
 {
+    [System.Serializable]
+    public struct EffectProperties
+    {
+        public BaseGameEffect effect;
+        public int effectDuration;
+        public EffectStrength strength;
+        public float[] customValues;
+    }
+
     public string skillName;
-    public string skillDescription;
+    public List<string> skillDescription;
     public Sprite sprite;
 
     public TargetMode targetMode;
 
-    public BaseGameEffect[] effects;
-
     public int skillCooldown;
+
+    public EffectProperties[] gameEffects;
 }
 
-
+/// <summary>
+/// An instance of a GameEffect to be attached to an instanced Character
+/// </summary>
 public class AppliedEffect
 {
-    public BaseGameEffect effect;
+    public BaseGameEffect referenceEffect;
     public int remainingTurns;
+    public EffectStrength strength;
+    public float[] customValues;
+
+    /// <summary>
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns>Is effect still active?</returns>
+    public bool Tick(BaseCharacter target)
+    {
+        remainingTurns--;
+        referenceEffect.Tick();
+        if (remainingTurns == 0)
+        {
+            referenceEffect.OnExpire(target, strength, customValues);
+            return false;
+        }
+        return true;
+    }
+
+    public string GetEffectDescription()
+    {
+        return referenceEffect.GetEffectDescription(strength, customValues);
+    }
 }
 
+/// <summary>
+/// An instanced reference of a SkillObject that's possessed by a Character. 
+/// Activates and applies AppliedEffects to targets upon use. 
+/// </summary>
 public class GameSkill
 {
     /// <summary>
     /// How long to wait before skill recharges
     /// </summary>
-    public int cooldownTimer;
-
-    /// <summary>
-    /// Destroys itself when it runs out of these
-    /// </summary>
-    public List<AppliedEffect> effects = new List<AppliedEffect>();
+    public int cooldownTimer = 0;
+    public bool CanUse
+    {
+        get
+        {
+            return cooldownTimer == 0;
+        }
+    }
 
     public SkillObject referenceSkill { get; private set; }
 
@@ -51,24 +95,13 @@ public class GameSkill
         referenceSkill = reference;
     }
 
-    public void Activate(List<BaseCharacter> characters)
+    public void BeginCooldown()
     {
         cooldownTimer = referenceSkill.skillCooldown;
-        foreach (BaseGameEffect effect in referenceSkill.effects)
-        {
-            AppliedEffect newEffect = new AppliedEffect();
-            newEffect.effect = effect;
-            newEffect.remainingTurns = effect.effectDuration;
-            effect.Activate(characters);
-            effects.Add(newEffect);
-        }
     }
 
     public void Tick()
     {
-        foreach (AppliedEffect effect in effects)
-        {
-            effect.remainingTurns--;
-        }
+        cooldownTimer = Mathf.Clamp(cooldownTimer - 1, 0, referenceSkill.skillCooldown);
     }
 }

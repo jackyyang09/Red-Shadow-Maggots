@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class EnemyCharacter : BaseCharacter
 {
-    [SerializeField]
-    UnityEngine.UI.Image selectionPointer;
-
     public static System.Action<EnemyCharacter> onSelectedEnemyCharacterChange;
 
     // Start is called before the first frame update
@@ -86,5 +83,18 @@ public class EnemyCharacter : BaseCharacter
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         anim.SetTrigger("Death");
         //Destroy(gameObject);
+    }
+
+    public void ForceHideSelectionPointer()
+    {
+        base.HideSelectionPointer();
+    }
+
+    public override void HideSelectionPointer()
+    {
+        if (BattleSystem.instance.GetActiveEnemy() != this)
+        {
+            base.HideSelectionPointer();
+        }
     }
 }

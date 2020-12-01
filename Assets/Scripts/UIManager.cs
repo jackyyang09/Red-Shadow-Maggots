@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,6 +7,13 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField]
     OptimizedButton attackButton;
+
+    [SerializeField]
+    SkillButtonUI[] skillButtons;
+
+    [Header("Skill Target Mode")]
+    [SerializeField] OptimizedCanvas skillTargetMessage;
+    [SerializeField] OptimizedButton skillBackButton;
 
     [SerializeField]
     QuickTimeBar offenseBar;
@@ -16,12 +24,19 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     OptimizedCanvas winCanvas;
 
-    [SerializeField]
-    OptimizedCanvas loseCanvas;
+    [SerializeField] TMPro.TextMeshProUGUI gameSpeedText;
+
+    [SerializeField] OptimizedCanvas loseCanvas;
+    [SerializeField] SkillDetailPanel skillPanel;
+    [SerializeField] UICharacterDetails characterDetailsPanel;
+    public bool CharacterPanelOpen { get; private set; }
+
+    [SerializeField] TMPro.TextMeshProUGUI waveCounter;
 
     public static bool CanSelect = true;
+    public static bool SelectingAllyForSkill = false;
 
-    public static System.Action onAttackCommit;
+    public static Action onAttackCommit;
 
     public static UIManager instance;
 
@@ -37,18 +52,26 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        BattleSystem.onStartPlayerTurn += ResumePlayerControl;
+        BattleSystem.onStartPlayerTurnLate += ResumePlayerControl;
+        PlayerCharacter.onSelectedPlayerCharacterChange += UpdateSkillGraphic;
+
         GlobalEvents.onPlayerDefeat += ShowLoseCanvas;
         GlobalEvents.onFinalWaveClear += ShowWinCanvas;
+        GlobalEvents.onEnterWave += UpdateWaveCounter;
+        GlobalEvents.onModifyGameSpeed += UpdateGameSpeed;
 
         onAttackCommit += RemovePlayerControl;
     }
 
     private void OnDisable()
     {
-        BattleSystem.onStartPlayerTurn -= ResumePlayerControl;
+        BattleSystem.onStartPlayerTurnLate -= ResumePlayerControl;
+        PlayerCharacter.onSelectedPlayerCharacterChange -= UpdateSkillGraphic;
+
         GlobalEvents.onPlayerDefeat -= ShowLoseCanvas;
         GlobalEvents.onFinalWaveClear -= ShowWinCanvas;
+        GlobalEvents.onEnterWave -= UpdateWaveCounter;
+        GlobalEvents.onModifyGameSpeed -= UpdateGameSpeed;
 
         onAttackCommit -= RemovePlayerControl;
     }
@@ -63,12 +86,97 @@ public class UIManager : MonoBehaviour
     {
         attackButton.Show();
         CanSelect = true;
+
+        foreach (SkillButtonUI button in skillButtons)
+        {
+            button.button.Show();
+            UpdateSkillGraphic(BattleSystem.instance.GetActivePlayer());
+        }
     }
 
     public void RemovePlayerControl()
     {
         attackButton.Hide();
         CanSelect = false;
+
+        foreach (SkillButtonUI button in skillButtons)
+        {
+            button.button.Hide();
+        }
+    }
+
+    public void OpenCharacterPanel()
+    {
+        CharacterPanelOpen = true;
+        characterDetailsPanel.DisplayWithCharacter(BattleSystem.instance.GetActivePlayer());
+    }
+
+    public void CloseCharacterPanel()
+    {
+        CharacterPanelOpen = false;
+        characterDetailsPanel.Hide();
+    }
+
+    private void UpdateSkillGraphic(PlayerCharacter obj)
+    {
+        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            for (int i = 0; i < skillButtons.Length; i++)
+            {
+                skillButtons[i].UpdateStatus(obj.GetSkill(i));
+            }
+        }
+    }
+
+    public void EnterSkillTargetMode()
+    {
+        SelectingAllyForSkill = true;
+
+        skillTargetMessage.Show();
+        skillBackButton.Show();
+
+        attackButton.Hide();
+
+        foreach (SkillButtonUI button in skillButtons)
+        {
+            button.button.Hide();
+        }
+
+        foreach (PlayerCharacter p in BattleSystem.instance.PlayerCharacters)
+        {
+            p.ShowSelectionPointer();
+        }
+
+        foreach (EnemyCharacter e in EnemyController.instance.enemies)
+        {
+            e.ForceHideSelectionPointer();
+        }
+    }
+
+    public void CancelSkillInvocation()
+    {
+        BattleSystem.instance.GetActivePlayer().CancelSkill();
+        ResumePlayerControl();
+    }
+
+    public void ExitSkillTargetMode()
+    {
+        SelectingAllyForSkill = false;
+
+        skillBackButton.Hide();
+        skillTargetMessage.Hide();
+
+        foreach (PlayerCharacter p in BattleSystem.instance.PlayerCharacters)
+        {
+            p.HideSelectionPointer();
+        }
+
+        BattleSystem.instance.GetActiveEnemy().ShowSelectionPointer();
+    }
+
+    public void ShowSkillDetails(int index)
+    {
+        skillPanel.UpdateDetails(BattleSystem.instance.GetActivePlayer().GetSkill(index));
     }
 
     public void AttackPress()
@@ -80,7 +188,7 @@ public class UIManager : MonoBehaviour
 
     public void StartDefending()
     {
-        defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer().GetDefenseLeniency());
+        defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer().GetDefenceLeniency());
     }
 
     public void ShowWinCanvas()
@@ -91,6 +199,16 @@ public class UIManager : MonoBehaviour
     public void ShowLoseCanvas()
     {
         loseCanvas.SetActive(true);
+    }
+
+    private void UpdateWaveCounter()
+    {
+        waveCounter.text = (EnemyWaveManager.instance.CurrentWave + 1) + "/" + EnemyWaveManager.instance.TotalWaves;
+    }
+
+    public void UpdateGameSpeed()
+    {
+        gameSpeedText.text = BattleSystem.instance.CurrentGameSpeedTime + "x";
     }
 
     void EstablishSingletonDominance()
