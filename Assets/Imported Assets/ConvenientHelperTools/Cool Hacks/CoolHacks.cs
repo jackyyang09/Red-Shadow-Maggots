@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class CoolHacks : MonoBehaviour
 {
     [System.Serializable]
-    struct Hack
+    public struct Hack
     {
         public string hackText;
         public KeyCode keybind;
@@ -53,19 +53,28 @@ public class CoolHacks : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(hackInput)) hacksEnabled = !hacksEnabled;
+        if (Input.GetKeyDown(hackInput))
+        {
+            hacksEnabled = !hacksEnabled;
+            print("<color=green>Hacks Enabled: " + hacksEnabled + "</color>");
+        }
 
         if (hacksEnabled)
         {
-            foreach (Hack hack in hacks)
+            for (int i = 0; i < hacks.Count; i++)
             {
-                if (Input.GetKeyDown(hack.keybind))
+                if (Input.GetKeyDown(hacks[i].keybind))
                 {
-                    hack.command.Invoke();
-                    LogHack(hack.hackText);
+                    InvokeHack(i);
                 }
             }
         }
+    }
+
+    public void InvokeHack(int index)
+    {
+        hacks[index].command.Invoke();
+        LogHack(hacks[index].hackText);
     }
 
     /// <summary>
@@ -87,6 +96,8 @@ public class CoolHacks : MonoBehaviour
     {
         if (!hackerCanvas)
         {
+            Debug.Log("Uh");
+
             hackerCanvas = GetComponent<Canvas>();
             hackerCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
             hackerCanvas.sortingOrder = 100;

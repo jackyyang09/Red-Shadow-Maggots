@@ -21,16 +21,16 @@ public class EnemyController : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    //void Start()
+    //{
+    //
+    //}
 
     // Update is called once per frame
-    void Update()
-    {
-
-    }
+    //void Update()
+    //{
+    //
+    //}
 
     public void AssignEnemies(List<EnemyCharacter> enemyCharacters)
     {
@@ -48,6 +48,18 @@ public class EnemyController : MonoBehaviour
     {
         enemies.Remove(enemy);
     }
+
+    #region Debug Hacks
+    public void HackEnemyHealthToOne()
+    {
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            DamageStruct dmg = new DamageStruct();
+            dmg.damage = enemies[i].CurrentHealth - 1;
+            enemies[i].TakeDamage(dmg);
+        }
+    }
+    #endregion
 
     void EstablishSingletonDominance()
     {

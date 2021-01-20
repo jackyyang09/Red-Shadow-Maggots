@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   characterReference: {fileID: 11400000, guid: 40f5811e8fd93314d84ab7d5aeb91d7c, type: 2}
-  health: 3000
+  health: 1
   maxHealth: 3000
   attack: 500
   attackModifier: 0
@@ -24,17 +24,16 @@ MonoBehaviour:
   critDamageModifier: 0
   range: 0
   rarity: 0
+  knockbackForce: 3000
+  knockbackSource: {fileID: 274683008429760523}
   sprite: {fileID: 5682078996674765464}
+  rigidBody: {fileID: 2059180348100277579}
   card: {fileID: 4362054818328706029}
   spriteHolder: {fileID: 8764283969488347644}
   spriteAnim: {fileID: 4476360240622644835}
   skillParticles: {fileID: 0}
   deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
   selectionPointer: {fileID: 2769131587987239524}
-  rarityMat: []
-  rarityBackground: []
-  cardMesh: {fileID: 0}
-  cardBackground: {fileID: 0}
   onDeath:
     m_PersistentCalls:
       m_Calls:
@@ -52,18 +51,6 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 5946936230252345003}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 7984885393301723762}
-        m_TargetAssemblyTypeName: UnityEngine.Collider, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
         m_Arguments:
@@ -149,6 +136,10 @@ PrefabInstance:
       propertyPath: baseCharacter
       value: 
       objectReference: {fileID: 4410225546256028140}
+    - target: {fileID: 8479876937333660123, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+      propertyPath: character
+      value: 
+      objectReference: {fileID: 4410225546256028140}
     - target: {fileID: 8802848114526753844, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
       propertyPath: designatedCharacter
       value: 
@@ -163,6 +154,11 @@ PrefabInstance:
 --- !u!1 &2219931443410329829 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8862415204572298333, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+  m_PrefabInstance: {fileID: 7220211722835729592}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &2059180348100277579 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 8692217569127918067, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &8454151441353560275 stripped
@@ -196,9 +192,9 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 6497675713792094939, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
---- !u!65 &7984885393301723762 stripped
-BoxCollider:
-  m_CorrespondingSourceObject: {fileID: 784570519856367306, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
+--- !u!4 &274683008429760523 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7493012258708438195, guid: fdb2c1d26f201124d95c40a89f79212f, type: 3}
   m_PrefabInstance: {fileID: 7220211722835729592}
   m_PrefabAsset: {fileID: 0}
 --- !u!223 &5946936230252345003 stripped

@@ -32,6 +32,8 @@ public class SceneTweener : MonoBehaviour
     [SerializeField]
     float returnTweenDelay = 1;
 
+    [SerializeField] float waveTransitionDelay = 1;
+
     [SerializeField]
     float turnTransitionDelay = 3;
     public float TurnTransitionDelay
@@ -70,10 +72,15 @@ public class SceneTweener : MonoBehaviour
         enemyDolly.m_PathPosition = lerpValue;
     }
 
-    public void EnterBattle()
+    public void EnterBattle() => Invoke("EnterBattleAfterDelay", waveTransitionDelay);
+
+    public void EnterBattleAfterDelay()
     {
         anim.SetTrigger("EnterBattle");
         ScreenEffects.instance.FadeFromBlack();
+
+        GlobalEvents.onEnterWave?.Invoke();
+        if (EnemyWaveManager.instance.IsLastWave) GlobalEvents.onEnterFinalWave?.Invoke();
     }
 
     float lerpValue;

@@ -124,9 +124,9 @@ public class BattleSystem : MonoBehaviour
         playerTargets.enemy = enemies[0];
         playerTargets.enemy.ShowCharacterUI();
 
-        foreach (PlayerCharacter deadSon in deadMaggots)
+        for (int i = 0; i < deadMaggots.Count; i++)
         {
-            Destroy(deadSon.gameObject);
+            Destroy(deadMaggots[i].gameObject);
         }
 
         SceneTweener.instance.EnterBattle();
@@ -192,9 +192,9 @@ public class BattleSystem : MonoBehaviour
             case BattlePhases.EnemyTurn:
                 if (playerCharacters.Count > 0)
                 {
-                    foreach (PlayerCharacter player in playerCharacters)
+                    for (int i = 0; i < playerCharacters.Count; i++)
                     {
-                        player.ForceDeselct();
+                        playerCharacters[i].ForceDeselct();
                     }
                     playerTargets.player = enemyTargets.player;
                     enemyTargets.player.ForceSelect();
@@ -429,6 +429,16 @@ public class BattleSystem : MonoBehaviour
         }
         return enemyTargets.player;
     }
+
+    #region Debug Hacks
+    public void HackMaxCritRate()
+    {
+        for (int i = 0; i < playerCharacters.Count; i++)
+        {
+            playerCharacters[i].ApplyCritChanceModifier(1);
+        }
+    }
+    #endregion
 
     void EstablishSingletonDominance()
     {

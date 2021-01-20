@@ -1,0 +1,136 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class CharacterCardHolder : MonoBehaviour
+{
+    [SerializeField] CharacterObject characterData = null;
+    public CharacterObject Character
+    {
+        get { return characterData; }
+    }
+
+    [SerializeField] Rarity rarity;
+    public Rarity Rarity
+    {
+        get { return rarity; }
+    }
+
+    [Header("Object References")]
+    [SerializeField] BaseCharacter character = null;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera cam = null;
+    [SerializeField] OptimizedCanvas canvas = null;
+    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
+
+    [Header("Sprite References")]
+    [SerializeField] Animator spriteAnim = null;
+    [SerializeField] Transform spriteHolder = null;
+    [SerializeField] SpriteRenderer sprite = null;
+    [SerializeField] Image[] classIcons = null;
+
+    [Header("Rarity References")]
+    [SerializeField] Material[] rarityMat = null;
+    [SerializeField] Sprite[] rarityBackground = null;
+    [SerializeField] Sprite[] rarityBorder = null;
+    [SerializeField] Image[] stars = null;
+    [SerializeField] Sprite[] classEmblemIcons = null;
+    [SerializeField] Image classEmblem = null;
+    [SerializeField] MeshRenderer cardMesh = null;
+    [SerializeField] SpriteRenderer cardBorder = null;
+    [SerializeField] SpriteRenderer cardBackground = null;
+    [SerializeField] MeshRenderer backgroundRenderer = null;
+
+    public static CharacterCardHolder selectedHolder = null;
+
+    private void OnEnable()
+    {
+        if (characterData) ApplyCharacterChanges();
+
+        PartyManager.OnSelectCharacter += OnNewCharacterSelected;
+    }
+
+    private void OnDisable()
+    {
+        PartyManager.OnSelectCharacter -= OnNewCharacterSelected;
+    }
+
+    public (CharacterObject character, Rarity rarity) GetHeldData()
+    {
+        return (characterData, rarity);
+    }
+
+    public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
+    {
+        characterData = newRef;
+        rarity = newRarity;
+
+        if (character) character.SetCharacterAndRarity(newRef, newRarity);
+
+        if (newRef.spriteObject != null)
+        {
+            Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
+            spriteAnim.runtimeAnimatorController = newRef.animator;
+            sprite.enabled = false;
+        }
+        else
+        {
+            sprite.sprite = newRef.sprite;
+        }
+
+        nameText.text = characterData.characterName;
+
+        cardMesh.material = rarityMat[(int)rarity];
+        cardBackground.sprite = rarityBackground[(int)rarity];
+        cardBorder.sprite = rarityBorder[(int)rarity];
+        classEmblem.sprite = classEmblemIcons[(int)rarity];
+        for (int i = 0; i < 3; i++)
+        {
+            classIcons[i].enabled = false;
+        }
+        classIcons[(int)characterData.characterClass].enabled = true;
+
+        for (int i = 0; i < (int)Rarity.Count; i++)
+        {
+            stars[i].enabled = false;
+        }
+        for (int i = 0; i < (int)rarity + 1; i++)
+        {
+            stars[i].enabled = true;
+        }
+        if (backgroundRenderer) backgroundRenderer.material = rarityMat[(int)rarity];
+    }
+
+    [ContextMenu("Apply Reference and Rarity")]
+    void ApplyCharacterChanges()
+    {
+        SetCharacterAndRarity(characterData, rarity);
+    }
+
+    void OnNewCharacterSelected(CharacterCardHolder holder)
+    {
+        if (holder == this)
+        {
+            selectedHolder = this;
+            canvas.SetActive(true);
+        }
+        else canvas.SetActive(false);
+    }
+
+    public void SetPreviewCameraActive(bool active)
+    {
+        cam.enabled = active;
+    }
+
+    public void CheckInfo()
+    {
+        CharacterPreviewUI.instance.BeginCharacterPreview(characterData, rarity);
+        canvas.SetActive(false);
+    }
+
+    private void OnMouseDown()
+    {
+        if (!CharacterPreviewUI.instance.IsVisible && !CharacterPreviewUI.instance.IsCardLoadMode)
+            PartyManager.OnSelectCharacter?.Invoke(this);
+    }
+}

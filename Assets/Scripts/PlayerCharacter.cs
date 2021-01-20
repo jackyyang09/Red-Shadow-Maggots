@@ -6,8 +6,9 @@ using System;
 
 public class PlayerCharacter : BaseCharacter
 {
-    [SerializeField]
-    SpriteRenderer selectionCircle;
+    [SerializeField] SpriteRenderer selectionCircle;
+
+    [SerializeField] Transform cardMesh;
 
     public static Action<PlayerCharacter> onSelectPlayer;
     public static Action<PlayerCharacter> onSelectedPlayerCharacterChange;
@@ -43,7 +44,7 @@ public class PlayerCharacter : BaseCharacter
         anim.SetBool("Selected", isSelected);
         if (isSelected)
         {
-            card.DOLocalJump(card.localPosition, 0.5f, 1, 0.25f).SetUpdate(UpdateType.Late);
+            cardMesh.DOLocalJump(cardMesh.localPosition, 0.5f, 1, 0.25f).SetUpdate(UpdateType.Late);
         }
     }
 
@@ -66,11 +67,17 @@ public class PlayerCharacter : BaseCharacter
         {
             GlobalEvents.onSelectCharacter?.Invoke(this);
             onSelectPlayer?.Invoke(this);
-            if (UIManager.SelectingAllyForSkill) return;
             if (BattleSystem.instance.GetActivePlayer() == this) return;
+            if (UIManager.SelectingAllyForSkill) return;
+            if (IsDead) return;
             BattleSystem.instance.SetActivePlayer(this);
             onSelectedPlayerCharacterChange?.Invoke(this);
         }
+    }
+
+    private void OnMouseUp()
+    {
+        fingerHoldTimer = 0;
     }
 
     const float fingerHoldTime = 0.75f;
@@ -116,19 +123,32 @@ public class PlayerCharacter : BaseCharacter
 
     public override void Die()
     {
-        BattleSystem.instance.RegisterPlayerDeath(this);
         Invoke("DeathEffects", 0.5f);
+    }
+
+    public override void InvokeDeathEvents()
+    {
+        BattleSystem.instance.RegisterPlayerDeath(this);
+        onDeath?.Invoke();
+        GlobalEvents.onCharacterDeath?.Invoke(this);
+        GlobalEvents.onAnyPlayerDeath?.Invoke();
+    }
+
+    public override void DieToCrit()
+    {
+        InvokeDeathEvents();
+
+        rigidBody.useGravity = true;
+        rigidBody.isKinematic = false;
+        rigidBody.AddExplosionForce(knockbackForce, knockbackSource.position + new Vector3(0, 0, UnityEngine.Random.Range(-2, 2)), 0);
     }
 
     public void DeathEffects()
     {
-        onDeath?.Invoke();
-        BattleSystem.instance.RegisterPlayerDeath(this);
-        GlobalEvents.onCharacterDeath?.Invoke(this);
-        GlobalEvents.onAnyPlayerDeath?.Invoke();
+        InvokeDeathEvents();
+
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         anim.SetTrigger("Death");
-        //Destroy(gameObject);
     }
 
     public override void HideSelectionPointer()

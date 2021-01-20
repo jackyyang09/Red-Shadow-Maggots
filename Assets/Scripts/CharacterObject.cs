@@ -23,6 +23,7 @@ public class CharacterObject : ScriptableObject
     public float attack;
     public float maxHealth;
     [Range(0, 1)] public float critChance;
+    public float critDamageMultiplier;
     public Sprite sprite;
     public Sprite headshotSprite;
     public CharacterClass characterClass;

@@ -5,8 +5,11 @@ using UnityEngine;
 public enum Rarity
 {
     Common,
+    Uncommon,
     Rare,
-    SuperRare
+    SuperRare,
+    UltraRare,
+    Count
 }
 
 public class GachaSystem : MonoBehaviour

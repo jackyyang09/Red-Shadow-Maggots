@@ -75,8 +75,8 @@ public class EnemyWaveManager : MonoBehaviour
         var enemies = new List<EnemyCharacter>();
 
         waveCount++;
-        GlobalEvents.onEnterWave?.Invoke();
-        if (IsLastWave) GlobalEvents.onEnterFinalWave?.Invoke();
+        //GlobalEvents.onEnterWave?.Invoke();
+        //if (IsLastWave) GlobalEvents.onEnterFinalWave?.Invoke();
 
         WaveObject newWave = waves[waveCount];
 
@@ -114,20 +114,18 @@ public class EnemyWaveManager : MonoBehaviour
 
     public EnemyCharacter SpawnEnemy(CharacterObject character, Transform spawnPos)
     {
-        EnemyCharacter newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
-        newEnemy.SetReference(character);
-        newEnemy.ApplyReferenceProperties();
+        CharacterCardHolder newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<CharacterCardHolder>();
+        newEnemy.SetCharacterAndRarity(character, Rarity.Common);
 
-        return newEnemy;
+        return newEnemy.GetComponent<EnemyCharacter>();
     }
 
     public EnemyCharacter SpawnBoss(CharacterObject character, Transform spawnPos)
     {
-        EnemyCharacter newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
-        newEnemy.SetReference(character);
-        newEnemy.ApplyReferenceProperties();
+        CharacterCardHolder newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<CharacterCardHolder>();
+        newEnemy.SetCharacterAndRarity(character, Rarity.Common);
 
-        return newEnemy;
+        return newEnemy.GetComponent<EnemyCharacter>();
     }
 
     void EstablishSingletonDominance()

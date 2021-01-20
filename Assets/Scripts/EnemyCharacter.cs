@@ -27,10 +27,10 @@ public class EnemyCharacter : BaseCharacter
 
 
     // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    //void Update()
+    //{
+    //    
+    //}
 
     public void UpdateSelectedStatus(EnemyCharacter selectedEnemy)
     {
@@ -61,6 +61,7 @@ public class EnemyCharacter : BaseCharacter
     {
         if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
         {
+            if (IsDead) return;
             GlobalEvents.onSelectCharacter?.Invoke(this);
             if (BattleSystem.instance.GetActiveEnemy() == this) return;
             BattleSystem.instance.SetActiveEnemy(this);
@@ -70,19 +71,32 @@ public class EnemyCharacter : BaseCharacter
 
     public override void Die()
     {
-        EnemyController.instance.RegisterEnemyDeath(this);
         Invoke("DeathEffects", 0.5f);
     }
 
-    public void DeathEffects()
+    public override void InvokeDeathEvents()
     {
         onDeath?.Invoke();
         EnemyController.instance.RegisterEnemyDeath(this);
         GlobalEvents.onAnyEnemyDeath?.Invoke();
         GlobalEvents.onCharacterDeath?.Invoke(this);
+    }
+
+    public override void DieToCrit()
+    {
+        InvokeDeathEvents();
+
+        rigidBody.useGravity = true;
+        rigidBody.isKinematic = false;
+        rigidBody.AddExplosionForce(knockbackForce, knockbackSource.position/* + new Vector3(Random.Range(-2, 2), 0, 0)*/, 0);
+    }
+
+    public void DeathEffects()
+    {
+        InvokeDeathEvents();
+
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         anim.SetTrigger("Death");
-        //Destroy(gameObject);
     }
 
     public void ForceHideSelectionPointer()

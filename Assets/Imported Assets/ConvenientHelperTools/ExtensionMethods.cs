@@ -4,15 +4,23 @@ using UnityEngine;
 
 public static class ExtensionMethods
 {
-    /// <summary>
-    /// Returns a Vector3 with the same value in x, y and z
-    /// </summary>
-    /// <param name="vec"></param>
-    /// <param name="val"></param>
-    /// <returns></returns>
-    public static Vector3 NewUniformVector(this Vector3 vec, float val)
+    public static void SetLayerRecursively(this GameObject go, int layer)
     {
-        return new Vector3(val, val, val);
+        if (go.transform.childCount > 0)
+        {
+            for (int i = 0; i < go.transform.childCount; i++)
+            {
+                go.transform.GetChild(i).gameObject.SetLayerRecursively(layer);
+            }
+        }
+        go.layer = layer;
+    }
+
+    public static void CopyTransformFrom(this Transform t1, Transform t2)
+    {
+        t1.position = t2.position;
+        t1.rotation = t2.rotation;
+        t1.localScale = t2.localScale;
     }
 
     /// <summary>
@@ -21,9 +29,30 @@ public static class ExtensionMethods
     /// <param name="vec"></param>
     /// <param name="val"></param>
     /// <returns></returns>
-    public static Vector3 NewUniformVector(this Vector3 vec, int val)
+    public static Vector2 NewUniformVector2(this Vector3 vec, float val)
+    {
+        return new Vector2(val, val);
+    }
+
+    /// <summary>
+    /// Returns a Vector3 with the same value in x, y and z
+    /// </summary>
+    /// <param name="vec"></param>
+    /// <param name="val"></param>
+    /// <returns></returns>
+    public static Vector3 NewUniformVector3(this Vector3 vec, float val)
     {
         return new Vector3(val, val, val);
+    }
+
+    public static Vector2 NewRandomVector2(this Vector3 vec)
+    {
+        return new Vector2(Random.value, Random.value);
+    }
+
+    public static Vector2 NewRandomVector3(this Vector3 vec)
+    {
+        return new Vector3(Random.value, Random.value, Random.value);
     }
 
     /// <summary>

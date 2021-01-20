@@ -4,9 +4,28 @@ using UnityEngine;
 
 public class SkillDetailPanel : MonoBehaviour
 {
-    [SerializeField] TMPro.TextMeshProUGUI nameText;
-    [SerializeField] TMPro.TextMeshProUGUI cooldownCount;
-    [SerializeField] TMPro.TextMeshProUGUI description;
+    [SerializeField] OptimizedCanvas canvas = null;
+    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
+    [SerializeField] TMPro.TextMeshProUGUI cooldownCount = null;
+    [SerializeField] TMPro.TextMeshProUGUI description = null;
+
+    private void OnEnable()
+    {
+        canvas.onCanvasShow.AddListener(PanelOpenSound);
+        canvas.onCanvasHide.AddListener(PanelCloseSound);
+    }
+
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelOpen);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelClose);
+
+    public void ShowPanel() => canvas.Show();
+    public void HidePanel() => canvas.Hide();
+
+    private void OnDisable()
+    {
+        canvas.onCanvasShow.RemoveListener(PanelOpenSound);
+        canvas.onCanvasHide.RemoveListener(PanelCloseSound);
+    }
 
     public void UpdateDetails(GameSkill skill)
     {

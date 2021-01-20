@@ -6,6 +6,8 @@ using DG.Tweening;
 
 public class ScreenEffects : MonoBehaviour
 {
+    [SerializeField] bool startInBlack = true;
+
     [SerializeField]
     Image blackOut;
 
@@ -14,6 +16,8 @@ public class ScreenEffects : MonoBehaviour
     private void Awake()
     {
         EstablishSingletonDominance();
+
+        blackOut.enabled = startInBlack;
     }
 
     //// Start is called before the first frame update

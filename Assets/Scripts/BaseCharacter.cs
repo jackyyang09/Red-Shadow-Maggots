@@ -94,16 +94,24 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     AttackRange range;
 
-    [SerializeField]
-    Rarity rarity;
+    [SerializeField] Rarity rarity;
+
+    [Header("Death Effect Properties")]
+
+    [SerializeField] protected float knockbackForce = 100;
+    [SerializeField] protected Transform knockbackSource;
+    public bool IsDead
+    {
+        get
+        {
+            return !(health > 0);
+        }
+    }
+
     [Header("Object References")]
 
-    [SerializeField]
-    SpriteRenderer sprite;
+    [SerializeField] protected Rigidbody rigidBody;
 
-    [SerializeField] protected Transform card;
-
-    [SerializeField] protected Transform spriteHolder;
     [SerializeField] protected Animator spriteAnim;
 
     [SerializeField] protected GameObject skillParticles;
@@ -111,20 +119,6 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected GameObject deathParticles;
 
     [SerializeField] protected UnityEngine.UI.Image selectionPointer;
-
-    [Header("Rarity Properties")]
-
-    [SerializeField]
-    Material[] rarityMat;
-
-    [SerializeField]
-    Sprite[] rarityBackground;
-
-    [SerializeField]
-    MeshRenderer cardMesh;
-
-    [SerializeField]
-    SpriteRenderer cardBackground;
 
     public List<AppliedEffect> AppliedEffects { get; } = new List<AppliedEffect>();
 
@@ -140,8 +134,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public UnityEngine.Events.UnityEvent onDeath;
 
-    [ContextMenu("Apply Reference")]
-    public void ApplyReferenceProperties()
+    public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
+    {
+        characterReference = newRef;
+        rarity = newRarity;
+        
+        ApplyCharacterStats();
+    }
+
+    public void ApplyCharacterStats()
     {
         if (characterReference == null) return;
 
@@ -150,40 +151,17 @@ public abstract class BaseCharacter : MonoBehaviour
         maxHealth = characterReference.maxHealth * rarityMultiplier;
         attack = characterReference.attack * rarityMultiplier;
         critChance = characterReference.critChance;
+        critMultiplier = characterReference.critDamageMultiplier;
 
-        sprite.sprite = characterReference.sprite;
         range = characterReference.range;
 
         health = maxHealth;
     }
 
-    public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
-    {
-        characterReference = newRef;
-        rarity = newRarity;
-
-        if (newRef.spriteObject != null)
-        {
-            Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
-            spriteAnim.runtimeAnimatorController = newRef.animator;
-            sprite.enabled = false;
-        }
-
-        cardMesh.material = rarityMat[(int)rarity];
-        cardBackground.sprite = rarityBackground[(int)rarity];
-
-        ApplyReferenceProperties();
-    }
-
-    public void SetReference(CharacterObject newRef)
-    {
-        characterReference = newRef;
-    }
-
     protected virtual void Awake()
     {
         anim = GetComponent<Animator>();
-        ApplyReferenceProperties();
+        ApplyCharacterStats();
     }
 
     // Start is called before the first frame update
@@ -533,15 +511,30 @@ public abstract class BaseCharacter : MonoBehaviour
         onTakeDamage?.Invoke();
         GlobalEvents.onCharacterAttacked?.Invoke(this);
 
-        transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, damage.damageNormalized), 30, 90, false, true);
         if (health == 0)
         {
-            spriteAnim.Play("Death");
-            Die();
+            if (!damage.isCritical)
+            {
+                PlayDamageShakeEffect(damage.damageNormalized);
+                spriteAnim.Play("Death");
+                Die();
+            }
+            else
+            {
+                DieToCrit();
+            }
+        }
+        else
+        {
+            PlayDamageShakeEffect(damage.damageNormalized);
         }
     }
 
+    public void PlayDamageShakeEffect(float normalizedDamage) => transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);
+
+    public abstract void InvokeDeathEvents();
     public abstract void Die();
+    public abstract void DieToCrit();
 
     public float GetHealthPercent()
     {

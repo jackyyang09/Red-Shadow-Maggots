@@ -7,6 +7,7 @@ using UnityEditor;
 [CustomEditor(typeof(CoolHacks))]
 public class CoolHacksEditor : Editor
 {
+    SerializedProperty hacks;
     SerializedProperty hackLogger;
 
     CoolHacks myScript;
@@ -15,6 +16,7 @@ public class CoolHacksEditor : Editor
     {
         myScript = (CoolHacks)target;
 
+        hacks = serializedObject.FindProperty("hacks");
         hackLogger = serializedObject.FindProperty("hackLogger");
     }
 
@@ -23,10 +25,30 @@ public class CoolHacksEditor : Editor
         if (GUILayout.Button("Setup"))
         {
             Setup();
-            serializedObject.ApplyModifiedProperties();
         }
 
-        DrawPropertiesExcluding(serializedObject, new string[] { "m_Script" });
+        GUILayout.Label(new GUIContent("Hacks Enabled: " + CoolHacks.hacksEnabled.ToString()));
+
+        if (Application.isPlaying)
+        {
+            for (int i = 0; i < hacks.arraySize; i++)
+            {
+                if (GUILayout.Button(hacks.GetArrayElementAtIndex(i).FindPropertyRelative("hackText").stringValue))
+                {
+                    myScript.InvokeHack(i);
+                }
+            }
+            DrawPropertiesExcluding(serializedObject, new string[] { "m_Script" });
+        }
+        else
+        {
+            DrawPropertiesExcluding(serializedObject, new string[] { "m_Script" });
+        }
+
+        if (serializedObject.hasModifiedProperties)
+        {
+            serializedObject.ApplyModifiedProperties();
+        }
     }
 
     void Setup()

@@ -23,5 +23,4 @@ public class GlobalEvents
 
     public static Action<BaseCharacter> onSelectCharacter;
     public static Action<BaseCharacter, DamageStruct> onCharacterExecuteAttack;
-
 }

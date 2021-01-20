@@ -81,7 +81,7 @@ public class QuickTimeBar : QuickTimeBase
     {
         if (damage.quickTimeSuccess)
         {
-            backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector(0.075f), 0.25f);
+            backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
         }
         backgroundBar.DOColor(fillBar.color, 0.1f).OnComplete(() => backgroundBar.DOColor(Color.white, 0.1f));
     }
