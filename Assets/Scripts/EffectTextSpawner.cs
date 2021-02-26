@@ -5,16 +5,16 @@ using DG.Tweening;
 
 public class EffectTextSpawner : MonoBehaviour
 {
-    [SerializeField] Camera cam;
+    [SerializeField] Camera cam = null;
 
     [SerializeField] float numberLifetime = 3;
 
-    [SerializeField] GameObject healthTextPrefab;
-    [SerializeField] GameObject critTextPrefab;
-    [SerializeField] GameObject effectTextPrefab;
+    [SerializeField] GameObject healthTextPrefab = null;
+    [SerializeField] GameObject critTextPrefab = null;
+    [SerializeField] GameObject effectTextPrefab = null;
 
-    [SerializeField] TMPro.TMP_FontAsset buffTextColour;
-    [SerializeField] TMPro.TMP_FontAsset debuffTextColour;
+    [SerializeField] TMPro.TMP_FontAsset buffTextColour = null;
+    [SerializeField] TMPro.TMP_FontAsset debuffTextColour = null;
 
     public static EffectTextSpawner instance;
 

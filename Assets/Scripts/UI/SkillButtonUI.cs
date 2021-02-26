@@ -5,12 +5,12 @@ using UnityEngine.UI;
 
 public class SkillButtonUI : MonoBehaviour
 {
-    public OptimizedButton button;
+    public OptimizedButton button = null;
 
-    [SerializeField] Image skillIcon;
-    [SerializeField] Image darkOut;
+    [SerializeField] Image skillIcon = null;
+    [SerializeField] Image darkOut = null;
 
-    [SerializeField] TMPro.TextMeshProUGUI cooldownText;
+    [SerializeField] TMPro.TextMeshProUGUI cooldownText = null;
 
     public void UpdateStatus(GameSkill skill)
     {

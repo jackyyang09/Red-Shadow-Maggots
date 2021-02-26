@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PartyManager : MonoBehaviour
 {
-    [SerializeField] CharacterCardHolder[] cardHolders;
+    [SerializeField] CharacterCardHolder[] cardHolders = null;
     public CharacterCardHolder[] Party
     {
         get { return cardHolders; }

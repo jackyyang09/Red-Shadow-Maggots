@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class UICharacterDetails : MonoBehaviour
 {
-    [SerializeField] TMPro.TextMeshProUGUI nameText;
-    [SerializeField] UnityEngine.UI.Image portrait;
-    [SerializeField] TMPro.TextMeshProUGUI health;
-    [SerializeField] TMPro.TextMeshProUGUI attack;
-    [SerializeField] TMPro.TextMeshProUGUI critChance;
-    [SerializeField] List<UIStatusDescription> statusDescriptions;
-    [SerializeField] RectTransform contentRect;
+    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
+    [SerializeField] UnityEngine.UI.Image portrait = null;
+    [SerializeField] TMPro.TextMeshProUGUI health = null;
+    [SerializeField] TMPro.TextMeshProUGUI attack = null;
+    [SerializeField] TMPro.TextMeshProUGUI critChance = null;
+    [SerializeField] List<UIStatusDescription> statusDescriptions = null;
+    [SerializeField] RectTransform contentRect = null;
 
-    [SerializeField] OptimizedCanvas canvas;
+    [SerializeField] OptimizedCanvas canvas = null;
 
     [SerializeField] Color positiveModifier = Color.yellow;
     [SerializeField] Color negativeModifier = Color.red;

@@ -5,33 +5,29 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField]
-    OptimizedButton attackButton;
+    [Header("Battle System")]
+    [SerializeField] OptimizedButton attackButton = null;
+    [SerializeField] UICharacterDetails characterDetailsPanel = null;
+    [SerializeField] QuickTimeBar offenseBar = null;
+    [SerializeField] QuickTimeBar defenseBar = null;
+    [SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
 
-    [SerializeField]
-    SkillButtonUI[] skillButtons;
+    [Header("Skill System")]
+    [SerializeField] SkillDetailPanel skillPanel = null;
+    [SerializeField] SkillButtonUI[] skillButtons = null;
+    [SerializeField] OptimizedCanvas skillTargetMessage = null;
+    [SerializeField] OptimizedButton skillBackButton = null;
 
-    [Header("Skill Target Mode")]
-    [SerializeField] OptimizedCanvas skillTargetMessage;
-    [SerializeField] OptimizedButton skillBackButton;
-
-    [SerializeField]
-    QuickTimeBar offenseBar;
-
-    [SerializeField]
-    QuickTimeBar defenseBar;
-
-    [SerializeField]
-    OptimizedCanvas winCanvas;
-
-    [SerializeField] TMPro.TextMeshProUGUI gameSpeedText;
-
-    [SerializeField] OptimizedCanvas loseCanvas;
-    [SerializeField] SkillDetailPanel skillPanel;
-    [SerializeField] UICharacterDetails characterDetailsPanel;
+    [Header("System Objects")]
+    [SerializeField] OptimizedCanvas winCanvas = null;
+    [SerializeField] OptimizedCanvas loseCanvas = null;
+    [SerializeField] OptimizedCanvas optionsCanvas = null;
+    [SerializeField] OptimizedButton optionsButton = null;
+    [SerializeField] OptimizedButton gameSpeedButton = null;
+    
     public bool CharacterPanelOpen { get; private set; }
 
-    [SerializeField] TMPro.TextMeshProUGUI waveCounter;
+    [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
 
     public static bool CanSelect = true;
     public static bool SelectingAllyForSkill = false;
@@ -82,6 +78,11 @@ public class UIManager : MonoBehaviour
     //{
     //    
     //}
+
+    void PlayButtonSound()
+    {
+        JSAM.AudioManager.PlaySound(JSAM.Sounds.UIClick);
+    }
 
     public void ResumePlayerControl()
     {
@@ -200,6 +201,22 @@ public class UIManager : MonoBehaviour
     public void ShowLoseCanvas()
     {
         loseCanvas.SetActive(true);
+    }
+
+    public void ShowSettingsMenu()
+    {
+        PlayButtonSound();
+        RemovePlayerControl();
+        optionsCanvas.Show();
+        gameSpeedButton.Hide();
+    }
+
+    public void HideSettingsMenu()
+    {
+        PlayButtonSound();
+        ResumePlayerControl();
+        optionsCanvas.Hide();
+        gameSpeedButton.Show();
     }
 
     private void UpdateWaveCounter()

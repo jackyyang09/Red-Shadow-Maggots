@@ -8,8 +8,7 @@ public class ScreenEffects : MonoBehaviour
 {
     [SerializeField] bool startInBlack = true;
 
-    [SerializeField]
-    Image blackOut;
+    [SerializeField] Image blackOut = null;
 
     public static ScreenEffects instance;
 

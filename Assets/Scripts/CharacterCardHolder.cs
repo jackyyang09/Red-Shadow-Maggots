@@ -18,9 +18,7 @@ public class CharacterCardHolder : MonoBehaviour
     }
 
     [Header("Object References")]
-    [SerializeField] BaseCharacter character = null;
     [SerializeField] Cinemachine.CinemachineVirtualCamera cam = null;
-    [SerializeField] OptimizedCanvas canvas = null;
     [SerializeField] TMPro.TextMeshProUGUI nameText = null;
 
     [Header("Sprite References")]
@@ -41,19 +39,14 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] SpriteRenderer cardBackground = null;
     [SerializeField] MeshRenderer backgroundRenderer = null;
 
-    public static CharacterCardHolder selectedHolder = null;
-
     private void OnEnable()
     {
         if (characterData) ApplyCharacterChanges();
-
-        PartyManager.OnSelectCharacter += OnNewCharacterSelected;
     }
 
-    private void OnDisable()
-    {
-        PartyManager.OnSelectCharacter -= OnNewCharacterSelected;
-    }
+    //private void OnDisable()
+    //{
+    //}
 
     public (CharacterObject character, Rarity rarity) GetHeldData()
     {
@@ -64,8 +57,6 @@ public class CharacterCardHolder : MonoBehaviour
     {
         characterData = newRef;
         rarity = newRarity;
-
-        if (character) character.SetCharacterAndRarity(newRef, newRarity);
 
         if (newRef.spriteObject != null)
         {
@@ -107,29 +98,14 @@ public class CharacterCardHolder : MonoBehaviour
         SetCharacterAndRarity(characterData, rarity);
     }
 
-    void OnNewCharacterSelected(CharacterCardHolder holder)
-    {
-        if (holder == this)
-        {
-            selectedHolder = this;
-            canvas.SetActive(true);
-        }
-        else canvas.SetActive(false);
-    }
-
     public void SetPreviewCameraActive(bool active)
     {
         cam.enabled = active;
     }
 
-    public void CheckInfo()
-    {
-        CharacterPreviewUI.instance.BeginCharacterPreview(characterData, rarity);
-        canvas.SetActive(false);
-    }
-
     private void OnMouseDown()
     {
+        if (CharacterPreviewUI.instance == null) return;
         if (!CharacterPreviewUI.instance.IsVisible && !CharacterPreviewUI.instance.IsCardLoadMode)
             PartyManager.OnSelectCharacter?.Invoke(this);
     }

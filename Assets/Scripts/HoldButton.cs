@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class HoldButton : MonoBehaviour
 {
-    [SerializeField] float holdTriggerTime;
+    [SerializeField] UnityEngine.UI.Image holdProgressImage = null;
+
+    [SerializeField] float holdTriggerTime = 0.5f;
+    [SerializeField] float holdGraphicDelay = 0.2f;
+
     float holdTimer;
     bool isHeld;
 
-    [SerializeField] UnityEngine.Events.UnityEvent onHoldEvent;
-    [SerializeField] UnityEngine.Events.UnityEvent onClick;
-    [SerializeField] UnityEngine.Events.UnityEvent onRelease;
+    [SerializeField] UnityEngine.Events.UnityEvent onHoldEvent = null;
+    [SerializeField] UnityEngine.Events.UnityEvent onClick = null;
+    [SerializeField] UnityEngine.Events.UnityEvent onRelease = null;
 
     // Update is called once per frame
     void Update()
@@ -21,14 +25,21 @@ public class HoldButton : MonoBehaviour
             {
                 onHoldEvent.Invoke();
                 isHeld = false;
+                holdProgressImage.enabled = false;
             }
-            holdTimer += Time.deltaTime;
+            else
+            {
+                holdTimer += Time.deltaTime;
+                holdProgressImage.fillAmount = Mathf.Clamp01((holdTimer - holdGraphicDelay) / (holdTriggerTime - holdGraphicDelay));
+            }
         }
     }
 
     public void ButtonPressed()
     {
         isHeld = true;
+        holdProgressImage.enabled = true;
+        holdProgressImage.fillAmount = 0;
     }
 
     public void ButtonRelease()
@@ -40,5 +51,7 @@ public class HoldButton : MonoBehaviour
         onRelease.Invoke();
         holdTimer = 0;
         isHeld = false;
+        holdProgressImage.enabled = false;
+        holdProgressImage.fillAmount = 0;
     }
 }

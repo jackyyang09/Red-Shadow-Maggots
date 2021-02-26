@@ -24,12 +24,12 @@ public class UncrateSequence : MonoBehaviour
     [SerializeField] float exitTime = 1;
 
     [SerializeField] float enterTime = 1;
-    [SerializeField] Ease easeType;
-    [SerializeField] Ease speedEase;
+    [SerializeField] Ease easeType = Ease.Linear;
+    [SerializeField] Ease speedEase = Ease.Linear;
     [SerializeField] float revealTime = 0.75f;
 
-    [SerializeField] CharacterObject testCharacter;
-    [SerializeField] Rarity testRarity;
+    [SerializeField] CharacterObject testCharacter = null;
+    [SerializeField] Rarity testRarity = Rarity.Common;
 
     public static UncrateSequence instance;
 

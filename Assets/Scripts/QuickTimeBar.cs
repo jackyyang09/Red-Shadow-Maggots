@@ -6,17 +6,14 @@ using DG.Tweening;
 
 public class QuickTimeBar : QuickTimeBase
 {
-    [SerializeField]
-    protected Image backgroundBar;
+    [SerializeField] protected Image backgroundBar = null;
+
+    [SerializeField] protected Image fillBar = null;
+
+    [SerializeField] protected Image targetBar = null;
 
     [SerializeField]
-    protected Image fillBar;
-
-    [SerializeField]
-    protected Image targetBar;
-
-    [SerializeField]
-    protected float maxValue;
+    protected float maxValue = 0;
 
     [SerializeField]
     protected float failZoneSize = 75;
@@ -24,27 +21,20 @@ public class QuickTimeBar : QuickTimeBase
     [SerializeField]
     protected float barSize = 625;
 
-    [SerializeField]
     [HideInInspector]
-    float BAR_WIDTH;
+    [SerializeField] float BAR_WIDTH = 0;
 
-    [SerializeField]
-    Gradient barGradient;
+    [SerializeField] Gradient barGradient = null;
 
-    [SerializeField]
-    protected float barFillTime = 0.5f;
+    [SerializeField] protected float barFillTime = 0.5f;
 
-    [SerializeField]
-    protected float barFillDelay = 0.5f;
+    [SerializeField] protected float barFillDelay = 0.5f;
 
-    [SerializeField]
-    float barMinValue = 0.1f;
+    [SerializeField] float barMinValue = 0.1f;
 
-    [SerializeField]
-    float barSuccessValue = 1;
+    [SerializeField] float barSuccessValue = 1;
 
-    [SerializeField]
-    float barMissValue = 0;
+    [SerializeField] float barMissValue = 0;
 
     // Start is called before the first frame update
     //void Start()

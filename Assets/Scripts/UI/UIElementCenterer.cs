@@ -5,10 +5,10 @@ using TMPro;
 
 public class UIElementCenterer : MonoBehaviour
 {
-    [SerializeField] RectTransform parentRect;
+    [SerializeField] RectTransform parentRect = null;
 
-    [SerializeField] List<RectTransform> rects;
-    [SerializeField] List<TextMeshProUGUI> textComponents;
+    [SerializeField] List<RectTransform> rects = null;
+    [SerializeField] List<TextMeshProUGUI> textComponents = null;
 
     [SerializeField] float characterWidth = 25;
     [SerializeField] float padding = 10;

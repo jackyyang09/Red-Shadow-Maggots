@@ -8,10 +8,11 @@ using System;
 [Serializable]
 public struct CharacterCard
 {
-    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-    public string name;
+    //[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
+    //public string name;
     public Rarity rarity;
     public byte characterID;
+    public long time;
 }
 //
 // https://www.facebook.com/note.php?note_id=437497056995
@@ -24,29 +25,27 @@ public class CardLoader : MonoBehaviour
     [Header("Object References")]
 
     [SerializeField]
-    Camera cam;
+    Camera cam = null;
 
-    [SerializeField] CharacterCardHolder exportCardHolder;
+    [SerializeField] CharacterCardHolder exportCardHolder = null;
 
-    [SerializeField] OptimizedCanvas imageDropOverlay;
+    [SerializeField] OptimizedCanvas imageDropOverlay = null;
 
-    [SerializeField] TMPro.TextMeshProUGUI idText;
+    [SerializeField] TMPro.TextMeshProUGUI idText = null;
 
     [Header("TEST DATA TO BE DELETED")]
 
-    [SerializeField]
-    LayerMask cardLayers;
+    [SerializeField] LayerMask cardLayers = new LayerMask();
 
     [SerializeField] public CharacterCard testData = new CharacterCard();
-    [SerializeField] byte[] testDataStorage;
+    [SerializeField] byte[] testDataStorage = null;
 
-    [SerializeField] string testIDinput;
+    [SerializeField] string testIDinput = null;
 
-    [SerializeField] Texture2D image;
-    [SerializeField] string imageFilePath;
+    [SerializeField] string imageFilePath = null;
 
-    [SerializeField] Texture2D savedImage;
-    [SerializeField] RenderTexture renderTexture;
+    [SerializeField] Texture2D savedImage = null;
+    [SerializeField] RenderTexture renderTexture = null;
 
     public static CardLoader instance;
 
@@ -141,16 +140,16 @@ public class CardLoader : MonoBehaviour
     public void UncrateNewMaggot(int id, Rarity rarity)
     {
         imageDropOverlay.SetActive(false);
-        CharacterCardHolder.selectedHolder.SetCharacterAndRarity(characters[id], rarity);
+        CardMenuUI.selectedHolder.SetCharacterAndRarity(characters[id], rarity);
         UncrateSequence.instance.UncrateCharacter(characters[id], rarity);
     }
 
-    public void ExportCharacterAtSlot(int index)
+    public void ExportCharacter(CharacterCardHolder cardHolder)
     {
         if (IsInvoking("CaptureExportCard")) return;
         // Retrieve data to export
         CharacterCard newData = new CharacterCard();
-        (CharacterObject newCharacter, Rarity newRarity) = PartyManager.instance.Party[index].GetHeldData();
+        (CharacterObject newCharacter, Rarity newRarity) = cardHolder.GetHeldData();
         newData.characterID = (byte)characters.IndexOf(newCharacter);
         newData.rarity = newRarity;
 
@@ -173,8 +172,10 @@ public class CardLoader : MonoBehaviour
         Texture2D tex = SerializeBytesToTexture2D(testDataStorage);
 
         string filePath = WindowsFileExplorer.OpenSaveImageDialog();
-
-        SaveTextureAsPNG(tex, filePath);
+        if (!filePath.IsNullEmptyOrWhiteSpace())
+        {
+            SaveTextureAsPNG(tex, filePath);
+        }
     }
 
     Texture2D ReadTexture2DFromFilePath(string filePath)
@@ -217,6 +218,12 @@ public class CardLoader : MonoBehaviour
         byte[] data = bitData.ToBytes();
 
         return LoadFromBytes<CharacterCard>(data);
+    }
+
+    [ContextMenu("Test Update CharacterHolder")]
+    public void TestUpdateCharacterHolder()
+    {
+        exportCardHolder.SetCharacterAndRarity(characters[testData.characterID], testData.rarity);
     }
 
     [ContextMenu("Test Save Metadata")]

@@ -110,6 +110,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [Header("Object References")]
 
+    [SerializeField] protected CharacterCardHolder cardHolder;
+
     [SerializeField] protected Rigidbody rigidBody;
 
     [SerializeField] protected Animator spriteAnim;
@@ -138,7 +140,8 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         characterReference = newRef;
         rarity = newRarity;
-        
+
+        cardHolder.SetCharacterAndRarity(newRef, newRarity);
         ApplyCharacterStats();
     }
 

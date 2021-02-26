@@ -6,9 +6,9 @@ using System;
 
 public class PlayerCharacter : BaseCharacter
 {
-    [SerializeField] SpriteRenderer selectionCircle;
+    [SerializeField] SpriteRenderer selectionCircle = null;
 
-    [SerializeField] Transform cardMesh;
+    [SerializeField] Transform cardMesh = null;
 
     public static Action<PlayerCharacter> onSelectPlayer;
     public static Action<PlayerCharacter> onSelectedPlayerCharacterChange;

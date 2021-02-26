@@ -21,30 +21,25 @@ public struct DamageNumberProperties
 
 public class DamageNumberSpawner : MonoBehaviour
 {
-    [SerializeField] Camera cam;
+    [SerializeField] Camera cam = null;
 
-    [SerializeField]
-    GameObject damageNumberPrefab;
+    [SerializeField] GameObject damageNumberPrefab = null;
 
-    [SerializeField]
-    Vector3 spawnOffset;
+    [SerializeField] Vector3 spawnOffset = Vector3.zero;
 
-    [SerializeField]
-    float numberLifetime = 3;
+    [SerializeField] float numberLifetime = 3;
 
-    [SerializeField]
-    DamageNumberProperties[] damageNumberProps;
+    [SerializeField] DamageNumberProperties[] damageNumberProps = new DamageNumberProperties[0];
 
     [Header("Effectiveness Properties")]
-    [SerializeField]
-    string resistDescriptor = "RESIST!";
-    [SerializeField]
-    Color resistColor = Color.blue;
 
-    [SerializeField]
-    string effectiveDescriptor = "EFFECTIVE!";
-    [SerializeField]
-    Color effectiveColor = Color.red;
+    [SerializeField] string resistDescriptor = "RESIST!";
+
+    [SerializeField] Color resistColor = Color.blue;
+
+    [SerializeField] string effectiveDescriptor = "EFFECTIVE!";
+
+    [SerializeField] Color effectiveColor = Color.red;
 
     public static DamageNumberSpawner instance;
 

@@ -21,8 +21,8 @@ public class BattleSystem : MonoBehaviour
 {
     public static float QuickTimeCritModifier = 0.15f;
 
-    [SerializeField]
-    List<float> gameSpeeds = new List<float>();
+    [SerializeField] List<float> gameSpeeds = new List<float>();
+
     public int CurrentGameSpeed = 0;
     public float CurrentGameSpeedTime
     {
@@ -42,8 +42,8 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    List<PlayerCharacter> playerCharacters;
+    [SerializeField] List<PlayerCharacter> playerCharacters = null;
+
     public List<PlayerCharacter> PlayerCharacters
     {
         get
@@ -60,23 +60,17 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    TargettedCharacters playerTargets = new TargettedCharacters();
+    [SerializeField] TargettedCharacters playerTargets = new TargettedCharacters();
 
-    [SerializeField]
-    TargettedCharacters enemyTargets = new TargettedCharacters();
+    [SerializeField] TargettedCharacters enemyTargets = new TargettedCharacters();
 
-    [SerializeField]
-    GameObject playerPrefab;
+    [SerializeField] GameObject playerPrefab = null;
 
-    [SerializeField]
-    Transform leftSpawnPos;
+    [SerializeField] Transform leftSpawnPos = null;
 
-    [SerializeField]
-    Transform middleSpawnPos;
+    [SerializeField] Transform middleSpawnPos = null;
 
-    [SerializeField]
-    Transform rightSpawnPos;
+    [SerializeField] Transform rightSpawnPos = null;
 
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
@@ -317,7 +311,7 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    bool enemyAttacked = false;
+    //bool enemyAttacked = false;
     //IEnumerator EnemyTurn()
     //{
     //    enemyAttacked = false;

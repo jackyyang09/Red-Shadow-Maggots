@@ -5,37 +5,28 @@ using DG.Tweening;
 
 public class SceneTweener : MonoBehaviour
 {
-    [SerializeField]
-    Transform worldCenter;
+    [SerializeField] Transform worldCenter = null;
 
-    [SerializeField]
-    Cinemachine.CinemachineVirtualCamera playerCam;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera playerCam = null;
     Cinemachine.CinemachineComposer composer;
     Cinemachine.CinemachineTrackedDolly playerDolly;
 
-    [SerializeField]
-    Cinemachine.CinemachineVirtualCamera enemyCam;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera enemyCam = null;
     Cinemachine.CinemachineTrackedDolly enemyDolly;
 
-    [SerializeField]
-    Cinemachine.CinemachineSmoothPath playerPath;
+    [SerializeField] Cinemachine.CinemachineSmoothPath playerPath = null;
 
-    [SerializeField]
-    Cinemachine.CinemachineSmoothPath enemyPath;
+    [SerializeField] Cinemachine.CinemachineSmoothPath enemyPath = null;
 
-    [SerializeField]
-    float tweenTime;
+    [SerializeField] float tweenTime = 0;
 
-    [SerializeField]
-    float camTweenTime;
+    [SerializeField] float camTweenTime = 0;
 
-    [SerializeField]
-    float returnTweenDelay = 1;
+    [SerializeField] float returnTweenDelay = 1;
 
     [SerializeField] float waveTransitionDelay = 1;
 
-    [SerializeField]
-    float turnTransitionDelay = 3;
+    [SerializeField] float turnTransitionDelay = 3;
     public float TurnTransitionDelay
     {
         get

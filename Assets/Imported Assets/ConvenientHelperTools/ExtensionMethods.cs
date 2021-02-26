@@ -77,4 +77,14 @@ public static class ExtensionMethods
     {
         return new Color(val, val, val, alpha);
     }
+    
+    /// <summary>
+    /// Returns true if string doesn't have anything to use
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static bool IsNullEmptyOrWhiteSpace(this string input)
+    {
+        return string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input);
+    }
 }

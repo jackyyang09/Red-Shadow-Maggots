@@ -6,20 +6,15 @@ using DG.Tweening;
 
 public class SimpleHealth : MonoBehaviour
 {
-    [SerializeField]
-    float updateDelay = 0.5f;
+    [SerializeField] float updateDelay = 0.5f;
 
-    [SerializeField]
-    float catchupTime = 0.5f;
+    [SerializeField] float catchupTime = 0.5f;
 
-    [SerializeField]
-    Image healthBar;
+    [SerializeField] Image healthBar = null;
 
-    [SerializeField]
-    Image tweenBar;
+    [SerializeField] Image tweenBar = null;
 
-    [SerializeField]
-    BaseCharacter baseCharacter;
+    [SerializeField] BaseCharacter baseCharacter = null;
 
     // Start is called before the first frame update
     void Start()

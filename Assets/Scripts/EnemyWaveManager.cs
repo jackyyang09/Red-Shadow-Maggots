@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class EnemyWaveManager : MonoBehaviour
 {
-    [SerializeField]
-    int waveCount;
+    [SerializeField] int waveCount = 0;
 
     public bool IsLastWave
     {
@@ -31,23 +30,17 @@ public class EnemyWaveManager : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    WaveObject[] waves;
+    [SerializeField] WaveObject[] waves = null;
 
-    [SerializeField]
-    Transform leftSpawnPos;
+    [SerializeField] Transform leftSpawnPos = null;
 
-    [SerializeField]
-    Transform middleSpawnPos;
+    [SerializeField] Transform middleSpawnPos = null;
 
-    [SerializeField]
-    Transform rightSpawnPos;
+    [SerializeField] Transform rightSpawnPos = null;
 
-    [SerializeField]
-    GameObject enemyPrefab;
+    [SerializeField] GameObject enemyPrefab = null;
 
-    [SerializeField]
-    GameObject bossPrefab;
+    [SerializeField] GameObject bossPrefab = null;
 
     public static EnemyWaveManager instance;
 

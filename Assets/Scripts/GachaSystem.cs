@@ -14,22 +14,20 @@ public enum Rarity
 
 public class GachaSystem : MonoBehaviour
 {
-    [Range(0, 1)]
-    [SerializeField]
-    float chanceOfCommon;
+    [SerializeField] System.DateTime timeTest;
 
     [Range(0, 1)]
-    [SerializeField]
-    float chanceOfRare;
+    [SerializeField] float chanceOfCommon = 0;
 
     [Range(0, 1)]
-    [SerializeField]
-    float chanceOfSuperRare;
+    [SerializeField] float chanceOfRare = 0;
+
+    [Range(0, 1)]
+    [SerializeField] float chanceOfSuperRare = 0;
 
     int dudCount = 0;
 
-    [SerializeField]
-    List<CharacterObject> maggots;
+    [SerializeField] List<CharacterObject> maggots = null;
 
     public static GachaSystem instance;
 
@@ -85,10 +83,17 @@ public class GachaSystem : MonoBehaviour
         //}
     }
 
+    [ContextMenu("Time Test")]
+    public void TestTime()
+    {
+        Debug.Log(System.DateTime.Now.Ticks);
+    }
+
+
     [ContextMenu("Normalize Weights")]
     void NormalizeValues()
     {
-        float weights = chanceOfRare + chanceOfRare + chanceOfSuperRare;
+        float weights = chanceOfCommon + chanceOfRare + chanceOfSuperRare;
         chanceOfCommon *= weights;
         chanceOfRare *= weights;
         chanceOfSuperRare *= weights;
