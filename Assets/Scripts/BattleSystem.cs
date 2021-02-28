@@ -218,8 +218,6 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-
-
     IEnumerator SkillUseSequence(int index)
     {
         bool finished = false;

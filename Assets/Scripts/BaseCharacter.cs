@@ -185,7 +185,6 @@ public abstract class BaseCharacter : MonoBehaviour
         UIManager.onAttackCommit += HideCharacterUI;
         BattleSystem.onStartPlayerTurn += ShowCharacterUI;
         BattleSystem.onStartPlayerTurn += TickEffects;
-        GlobalEvents.onModifyGameSpeed += GameSpeedChanged;
     }
 
     protected virtual void OnDisable()
@@ -193,7 +192,6 @@ public abstract class BaseCharacter : MonoBehaviour
         UIManager.onAttackCommit -= HideCharacterUI;
         BattleSystem.onStartPlayerTurn -= ShowCharacterUI;
         BattleSystem.onStartPlayerTurn -= TickEffects;
-        GlobalEvents.onModifyGameSpeed -= GameSpeedChanged;
     }
 
     public abstract void ShowCharacterUI();
@@ -205,11 +203,6 @@ public abstract class BaseCharacter : MonoBehaviour
     //{
     //    
     //}
-
-    public void GameSpeedChanged()
-    {
-        spriteAnim.SetFloat("TimeScale", BattleSystem.instance.CurrentGameSpeedTime);
-    }
 
     public void PlayAttackAnimation()
     {

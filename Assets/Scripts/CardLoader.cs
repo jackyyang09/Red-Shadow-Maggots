@@ -77,6 +77,11 @@ public class CardLoader : MonoBehaviour
     //
     //}
 
+    public CharacterObject CharacterIDToObject(int id)
+    {
+        return characters[id];
+    }
+
     public void ShowFileDropOverlay()
     {
         imageDropOverlay.Show();
@@ -89,6 +94,7 @@ public class CardLoader : MonoBehaviour
 
     public void ImportMaggotFromBrowseButton()
     {
+#if !UNITY_ANDROID
         string filePath = WindowsFileExplorer.OpenLoadImageDialog();
         if (!string.IsNullOrEmpty(filePath))
         {
@@ -97,6 +103,7 @@ public class CardLoader : MonoBehaviour
 
             UncrateNewMaggot(newCharacter.characterID, newCharacter.rarity);
         }
+#endif
     }
 
     private void OnFileDropped(List<string> filePaths, POINT dropPoint)
@@ -171,11 +178,13 @@ public class CardLoader : MonoBehaviour
     {
         Texture2D tex = SerializeBytesToTexture2D(testDataStorage);
 
+#if !UNITY_ANDROID
         string filePath = WindowsFileExplorer.OpenSaveImageDialog();
         if (!filePath.IsNullEmptyOrWhiteSpace())
         {
             SaveTextureAsPNG(tex, filePath);
         }
+#endif
     }
 
     Texture2D ReadTexture2DFromFilePath(string filePath)

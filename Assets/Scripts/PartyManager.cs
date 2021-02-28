@@ -5,9 +5,18 @@ using UnityEngine;
 public class PartyManager : MonoBehaviour
 {
     [SerializeField] CharacterCardHolder[] cardHolders = null;
-    public CharacterCardHolder[] Party
+    public CharacterCardHolder[] CardHolders
     {
         get { return cardHolders; }
+    }
+
+    [SerializeField] CharacterCard[] party = new CharacterCard[3];
+    public CharacterCard[] Party
+    {
+        get
+        {
+            return party;
+        }
     }
 
     public static System.Action<CharacterCardHolder> OnSelectCharacter;
@@ -20,10 +29,14 @@ public class PartyManager : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    //void Start()
-    //{
-    //    
-    //}
+    void Start()
+    {
+        for (int i = 0; i < cardHolders.Length; i++)
+        {
+            var card = SaveManager.instance.Cards[SaveManager.instance.Party[i]];
+            cardHolders[i].SetCharacterAndRarity(CardLoader.instance.CharacterIDToObject(card.characterID), card.rarity);
+        } 
+    }
 
     // Update is called once per frame
     //void Update()

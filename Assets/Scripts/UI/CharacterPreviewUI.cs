@@ -92,7 +92,7 @@ public class CharacterPreviewUI : MonoBehaviour
 
     void UpdateCanvasProperties(CharacterObject character, Rarity rarity)
     {
-        var party = PartyManager.instance.Party;
+        var party = PartyManager.instance.CardHolders;
         CharacterCardHolder activeCharacter = null;
         for (int i = 0; i < party.Length; i++)
         {
@@ -133,7 +133,7 @@ public class CharacterPreviewUI : MonoBehaviour
 
     public void ShowSkillDetailsWithID(int id)
     {
-        var activeCharacter = PartyManager.instance.Party[selectedCharacterID].Character;
+        var activeCharacter = PartyManager.instance.CardHolders[selectedCharacterID].Character;
         GameSkill newSkill = new GameSkill();
         newSkill.InitWithSkill(activeCharacter.skills[id]);
         skillPanel.UpdateDetails(newSkill);
@@ -158,7 +158,7 @@ public class CharacterPreviewUI : MonoBehaviour
         canvas.Hide();
         SetReadyRectActive(true);
         skillPanel.HidePanel();
-        PartyManager.instance.Party[selectedCharacterID].SetPreviewCameraActive(false);
+        PartyManager.instance.CardHolders[selectedCharacterID].SetPreviewCameraActive(false);
     }
 
     bool cardLoadMode = false;

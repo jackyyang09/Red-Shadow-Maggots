@@ -1,4 +1,5 @@
-﻿using System.Windows.Forms;
+﻿#if !UNITY_ANDROID
+using System.Windows.Forms;
 using System.IO;
 
 public static class WindowsFileExplorer
@@ -81,3 +82,4 @@ public static class WindowsFileExplorer
         return fileContent;
     }
 }
+#endif

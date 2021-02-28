@@ -107,18 +107,18 @@ public class EnemyWaveManager : MonoBehaviour
 
     public EnemyCharacter SpawnEnemy(CharacterObject character, Transform spawnPos)
     {
-        CharacterCardHolder newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<CharacterCardHolder>();
+        EnemyCharacter newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
         newEnemy.SetCharacterAndRarity(character, Rarity.Common);
 
-        return newEnemy.GetComponent<EnemyCharacter>();
+        return newEnemy;
     }
 
     public EnemyCharacter SpawnBoss(CharacterObject character, Transform spawnPos)
     {
-        CharacterCardHolder newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<CharacterCardHolder>();
+        EnemyCharacter newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
         newEnemy.SetCharacterAndRarity(character, Rarity.Common);
 
-        return newEnemy.GetComponent<EnemyCharacter>();
+        return newEnemy;
     }
 
     void EstablishSingletonDominance()

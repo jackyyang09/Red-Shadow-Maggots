@@ -47,7 +47,7 @@ MonoBehaviour:
           m_StringArgument: JSAM.Sounds.KillSound
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 5946936230252345003, guid: 9996dfc595c195140a5378f554acb6ba, type: 3}
+      - m_Target: {fileID: 7477439323848782530}
         m_TargetAssemblyTypeName: UnityEngine.Behaviour, UnityEngine
         m_MethodName: set_enabled
         m_Mode: 6
@@ -66,6 +66,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1171797393691988145, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3401675049517660951, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_text
       value: Wazowski Soldier
@@ -83,6 +87,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0
       objectReference: {fileID: 0}
@@ -95,6 +103,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
@@ -104,14 +116,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
-      propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4302090664473808585, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
@@ -150,18 +154,26 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6535254798296740978, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6782484840908626550, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7263587710401005169, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8102806241173106588, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
-      propertyPath: characterData
-      value: 
-      objectReference: {fileID: 11400000, guid: 8bc7a9fa6e05360469d7180ff5857a41, type: 2}
-    - target: {fileID: 8102806241173106588, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: rarity
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8102806241173106588, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+      propertyPath: characterData
+      value: 
+      objectReference: {fileID: 11400000, guid: 8bc7a9fa6e05360469d7180ff5857a41, type: 2}
     - target: {fileID: 8800174788161595758, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -192,7 +204,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 4171751030953846964}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5099471863397933742}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bf0960f5245b63244b14e05afec3b5a9, type: 3}
   m_Name: 
@@ -210,6 +222,11 @@ Animator:
 --- !u!4 &3385649980888647356 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1664422893312978440, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
+  m_PrefabInstance: {fileID: 4171751030953846964}
+  m_PrefabAsset: {fileID: 0}
+--- !u!223 &7477439323848782530 stripped
+Canvas:
+  m_CorrespondingSourceObject: {fileID: 6782484840908626550, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
   m_PrefabInstance: {fileID: 4171751030953846964}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &298715925444915105 stripped

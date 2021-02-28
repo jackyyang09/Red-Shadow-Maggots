@@ -207,16 +207,18 @@ public class UIManager : MonoBehaviour
     {
         PlayButtonSound();
         RemovePlayerControl();
-        optionsCanvas.Show();
+        optionsButton.Hide();
         gameSpeedButton.Hide();
+        optionsCanvas.Show();
     }
 
     public void HideSettingsMenu()
     {
         PlayButtonSound();
         ResumePlayerControl();
-        optionsCanvas.Hide();
+        optionsButton.Show();
         gameSpeedButton.Show();
+        optionsCanvas.Hide();
     }
 
     private void UpdateWaveCounter()
