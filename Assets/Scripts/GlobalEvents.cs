@@ -2,25 +2,28 @@
 
 public class GlobalEvents
 {
-    public static Action onEnterWave;
-    public static Action onAnyEnemyDeath;
-    public static Action onWaveClear;
-    public static Action onEnterFinalWave;
-    public static Action onFinalWaveClear;
-    public static Action onPlayerDefeat;
-    public static Action onAnyPlayerDeath;
-    public static Action onPlayerQuickTimeAttackSuccess;
-    public static Action onPlayerQuickTimeBlockSuccess;
+    public static Action OnEnterWave;
+    public static Action OnAnyEnemyDeath;
+    public static Action OnWaveClear;
+    public static Action OnEnterFinalWave;
+    public static Action OnFinalWaveClear;
+    public static Action OnPlayerDefeat;
+    public static Action OnAnyPlayerDeath;
+    public static Action OnPlayerQuickTimeAttackSuccess;
+    public static Action OnPlayerQuickTimeBlockSuccess;
 
-    public static Action onModifyGameSpeed;
+    public static Action OnModifyGameSpeed;
 
-    public static Action<BaseCharacter> onCharacterStartAttack;
-    public static Action<BaseCharacter> onCharacterAttacked;
+    public static Action OnEnterBattleCutscene;
+    public static Action OnExitBattleCutscene;
 
-    public static Action<BaseCharacter> onCharacterActivateSkill;
+    public static Action<BaseCharacter> OnCharacterStartAttack;
+    public static Action<BaseCharacter> OnCharacterAttacked;
 
-    public static Action<BaseCharacter> onCharacterDeath;
+    public static Action<BaseCharacter> OnCharacterActivateSkill;
 
-    public static Action<BaseCharacter> onSelectCharacter;
-    public static Action<BaseCharacter, DamageStruct> onCharacterExecuteAttack;
+    public static Action<BaseCharacter> OnCharacterDeath;
+
+    public static Action<BaseCharacter> OnSelectCharacter;
+    public static Action<BaseCharacter, DamageStruct> OnCharacterExecuteAttack;
 }

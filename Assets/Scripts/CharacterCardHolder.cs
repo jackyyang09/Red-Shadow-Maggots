@@ -60,6 +60,13 @@ public class CharacterCardHolder : MonoBehaviour
 
         if (newRef.spriteObject != null)
         {
+            if (spriteHolder.childCount > 0)
+            {
+                for (int i = spriteHolder.childCount - 1; i > -1; i--)
+                {
+                    Destroy(spriteHolder.GetChild(i).gameObject);
+                }
+            }
             Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
             spriteAnim.runtimeAnimatorController = newRef.animator;
             sprite.enabled = false;

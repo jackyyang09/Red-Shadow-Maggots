@@ -17,6 +17,8 @@ public class CharacterUI : MonoBehaviour
 
     [SerializeField] BaseCharacter designatedCharacter = null;
 
+    [SerializeField] Canvas parentCanvas;
+
     [ContextMenu("Find Object References")]
     void FindObjectReferences()
     {
@@ -35,13 +37,22 @@ public class CharacterUI : MonoBehaviour
     {
         designatedCharacter.onApplyGameEffect += AddEffectIcon;
         designatedCharacter.onRemoveGameEffect += RemoveEffectIcon;
+
+        GlobalEvents.OnEnterBattleCutscene += Hide;
+        GlobalEvents.OnExitBattleCutscene += Show;
     }
 
     private void OnDisable()
     {
         designatedCharacter.onApplyGameEffect -= AddEffectIcon;
         designatedCharacter.onRemoveGameEffect -= RemoveEffectIcon;
+
+        GlobalEvents.OnEnterBattleCutscene -= Hide;
+        GlobalEvents.OnExitBattleCutscene -= Show;
     }
+
+    void Show() => parentCanvas.enabled = true;
+    void Hide() => parentCanvas.enabled = false;
 
     private void AddEffectIcon(BaseGameEffect obj)
     {

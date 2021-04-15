@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] UICharacterDetails characterDetailsPanel = null;
     [SerializeField] QuickTimeBar offenseBar = null;
     [SerializeField] QuickTimeBar defenseBar = null;
+    [SerializeField] QuickTimeHold holdBar = null;
     [SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
 
     [Header("Skill System")]
@@ -29,7 +30,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
 
-    public static bool CanSelect = true;
+    public static bool CanSelectPlayer = true;
     public static bool SelectingAllyForSkill = false;
 
     public static Action onAttackCommit;
@@ -43,7 +44,7 @@ public class UIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        CanSelect = true;
+        CanSelectPlayer = true;
         SelectingAllyForSkill = false;
     }
 
@@ -52,10 +53,10 @@ public class UIManager : MonoBehaviour
         BattleSystem.onStartPlayerTurnLate += ResumePlayerControl;
         PlayerCharacter.onSelectedPlayerCharacterChange += UpdateSkillGraphic;
 
-        GlobalEvents.onPlayerDefeat += ShowLoseCanvas;
-        GlobalEvents.onFinalWaveClear += ShowWinCanvas;
-        GlobalEvents.onEnterWave += UpdateWaveCounter;
-        GlobalEvents.onModifyGameSpeed += UpdateGameSpeed;
+        GlobalEvents.OnPlayerDefeat += ShowLoseCanvas;
+        GlobalEvents.OnFinalWaveClear += ShowWinCanvas;
+        GlobalEvents.OnEnterWave += UpdateWaveCounter;
+        GlobalEvents.OnModifyGameSpeed += UpdateGameSpeed;
 
         onAttackCommit += RemovePlayerControl;
     }
@@ -65,10 +66,10 @@ public class UIManager : MonoBehaviour
         BattleSystem.onStartPlayerTurnLate -= ResumePlayerControl;
         PlayerCharacter.onSelectedPlayerCharacterChange -= UpdateSkillGraphic;
 
-        GlobalEvents.onPlayerDefeat -= ShowLoseCanvas;
-        GlobalEvents.onFinalWaveClear -= ShowWinCanvas;
-        GlobalEvents.onEnterWave -= UpdateWaveCounter;
-        GlobalEvents.onModifyGameSpeed -= UpdateGameSpeed;
+        GlobalEvents.OnPlayerDefeat -= ShowLoseCanvas;
+        GlobalEvents.OnFinalWaveClear -= ShowWinCanvas;
+        GlobalEvents.OnEnterWave -= UpdateWaveCounter;
+        GlobalEvents.OnModifyGameSpeed -= UpdateGameSpeed;
 
         onAttackCommit -= RemovePlayerControl;
     }
@@ -86,8 +87,10 @@ public class UIManager : MonoBehaviour
 
     public void ResumePlayerControl()
     {
+        if (BattleSystem.instance.CurrentPhase != BattlePhases.PlayerTurn) return;
+        if (optionsCanvas.IsVisible) return;
         attackButton.Show();
-        CanSelect = true;
+        CanSelectPlayer = true;
 
         foreach (SkillButtonUI button in skillButtons)
         {
@@ -99,7 +102,7 @@ public class UIManager : MonoBehaviour
     public void RemovePlayerControl()
     {
         attackButton.Hide();
-        CanSelect = false;
+        CanSelectPlayer = false;
 
         foreach (SkillButtonUI button in skillButtons)
         {
@@ -185,12 +188,22 @@ public class UIManager : MonoBehaviour
     {
         onAttackCommit?.Invoke();
         BattleSystem.instance.ExecutePlayerAttack();
-        offenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer().GetAttackLeniency());
+
+        PlayerCharacter player = BattleSystem.instance.GetActivePlayer();
+        switch (player.Reference.attackQteType)
+        {
+            case QTEType.SimpleBar:
+                offenseBar.InitializeBar(player);
+                break;
+            case QTEType.Hold:
+                holdBar.InitializeBar(player);
+                break;
+        }
     }
 
     public void StartDefending()
     {
-        defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer().GetDefenceLeniency());
+        defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer());
     }
 
     public void ShowWinCanvas()
@@ -205,20 +218,20 @@ public class UIManager : MonoBehaviour
 
     public void ShowSettingsMenu()
     {
+        optionsCanvas.Show();
         PlayButtonSound();
         RemovePlayerControl();
         optionsButton.Hide();
         gameSpeedButton.Hide();
-        optionsCanvas.Show();
     }
 
     public void HideSettingsMenu()
     {
+        optionsCanvas.Hide();
         PlayButtonSound();
         ResumePlayerControl();
         optionsButton.Show();
         gameSpeedButton.Show();
-        optionsCanvas.Hide();
     }
 
     private void UpdateWaveCounter()

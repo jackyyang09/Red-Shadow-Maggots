@@ -65,6 +65,7 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] TargettedCharacters enemyTargets = new TargettedCharacters();
 
     [SerializeField] GameObject playerPrefab = null;
+    [SerializeField] GameObject player3Dprefab = null;
 
     [SerializeField] Transform leftSpawnPos = null;
 
@@ -101,14 +102,14 @@ public class BattleSystem : MonoBehaviour
 
     private void OnEnable()
     {
-        GlobalEvents.onAnyPlayerDeath += SwitchTargets;
-        GlobalEvents.onAnyEnemyDeath += SwitchTargets;
+        GlobalEvents.OnAnyPlayerDeath += SwitchTargets;
+        GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
     }
 
     private void OnDisable()
     {
-        GlobalEvents.onAnyPlayerDeath -= SwitchTargets;
-        GlobalEvents.onAnyEnemyDeath -= SwitchTargets;
+        GlobalEvents.OnAnyPlayerDeath -= SwitchTargets;
+        GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
     }
 
     public void InitiateNextBattle()
@@ -154,14 +155,23 @@ public class BattleSystem : MonoBehaviour
                 spawnPos = rightSpawnPos;
                 break;
         }
-        PlayerCharacter player = Instantiate(playerPrefab, spawnPos).GetComponent<PlayerCharacter>();
-        player.SetCharacterAndRarity(character, rarity);
-        playerCharacters.Add(player);
+
+        if (character.characterRig)
+        {
+            PlayerCharacter player = Instantiate(player3Dprefab, spawnPos).GetComponent<PlayerCharacter>();
+            player.SetCharacterAndRarity(character, rarity);
+            playerCharacters.Add(player);
+        }
+        else // Legacy
+        {
+            PlayerCharacter player = Instantiate(playerPrefab, spawnPos).GetComponent<PlayerCharacter>();
+            player.SetCharacterAndRarity(character, rarity);
+            playerCharacters.Add(player);
+        }
     }
 
     public void ExecutePlayerAttack()
     {
-        playerTargets.player.PlayAttackAnimation();
         SceneTweener.instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
     }
 
@@ -202,6 +212,10 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
+                if (playerTargets.player.Reference.attackEffectPrefab != null)
+                {
+                    Instantiate(playerTargets.player.Reference.attackEffectPrefab, playerTargets.enemy.transform.GetChild(0).GetChild(0).position, Quaternion.identity);
+                }
                 playerTargets.enemy.TakeDamage(damage);
                 break;
             case BattlePhases.EnemyTurn:
@@ -344,16 +358,16 @@ public class BattleSystem : MonoBehaviour
             case BattlePhases.BattleWin:
                 if (EnemyWaveManager.instance.IsLastWave)
                 {
-                    GlobalEvents.onFinalWaveClear?.Invoke();
+                    GlobalEvents.OnFinalWaveClear?.Invoke();
                 }
                 else
                 {
                     SceneTweener.instance.WaveClearSequence();
-                    GlobalEvents.onWaveClear?.Invoke();
+                    GlobalEvents.OnWaveClear?.Invoke();
                 }
                 break;
             case BattlePhases.BattleLose:
-                GlobalEvents.onPlayerDefeat?.Invoke();
+                GlobalEvents.OnPlayerDefeat?.Invoke();
                 break;
         }
     }
@@ -389,7 +403,7 @@ public class BattleSystem : MonoBehaviour
     {
         CurrentGameSpeed = (int)Mathf.Repeat(CurrentGameSpeed + 1, gameSpeeds.Count);
         Time.timeScale = gameSpeeds[CurrentGameSpeed];
-        GlobalEvents.onModifyGameSpeed?.Invoke();
+        GlobalEvents.OnModifyGameSpeed?.Invoke();
     }
 
     public PlayerCharacter GetActivePlayer()
@@ -423,12 +437,14 @@ public class BattleSystem : MonoBehaviour
     }
 
     #region Debug Hacks
-    public void HackMaxCritRate()
+    [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 100%", MaxArgCount = 0)]
+    public static void MaxCrit(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < playerCharacters.Count; i++)
+        for (int i = 0; i < instance.playerCharacters.Count; i++)
         {
-            playerCharacters[i].ApplyCritChanceModifier(1);
+            instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
+        Debug.Log("Crit rate maxed!");
     }
     #endregion
 

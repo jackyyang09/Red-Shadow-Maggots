@@ -50,14 +50,16 @@ public class EnemyController : MonoBehaviour
     }
 
     #region Debug Hacks
-    public void HackEnemyHealthToOne()
+    [CommandTerminal.RegisterCommand(Help = "Instantly hurt enemies, leaving them at 1 health")]
+    public static void CrippleEnemies(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < enemies.Count; i++)
+        for (int i = 0; i < instance.enemies.Count; i++)
         {
             DamageStruct dmg = new DamageStruct();
-            dmg.damage = enemies[i].CurrentHealth - 1;
-            enemies[i].TakeDamage(dmg);
+            dmg.damage = instance.enemies[i].CurrentHealth - 1;
+            instance.enemies[i].TakeDamage(dmg);
         }
+        Debug.Log("Enemies damaged!");
     }
     #endregion
 

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 3671300148560884977}
   - component: {fileID: 3671300148579234225}
   - component: {fileID: 3671300148579190801}
-  - component: {fileID: 3671300148553882929}
   m_Layer: 0
   m_Name: EnemyDeathExplosion
   m_TagString: Untagged
@@ -46,7 +45,7 @@ ParticleSystem:
   serializedVersion: 6
   lengthInSec: 2
   simulationSpeed: 1
-  stopAction: 0
+  stopAction: 2
   cullingMode: 1
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
@@ -4784,19 +4783,6 @@ ParticleSystemRenderer:
   m_Mesh2: {fileID: 0}
   m_Mesh3: {fileID: 0}
   m_MaskInteraction: 0
---- !u!114 &3671300148553882929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3671300148560455889}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6fd2e8874f60266498a388d7229a1bac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  OnlyDeactivate: 0
 --- !u!1 &3671300148560455891
 GameObject:
   m_ObjectHideFlags: 0

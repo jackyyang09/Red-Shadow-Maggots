@@ -16,6 +16,12 @@ public enum CharacterClass
     Support
 }
 
+public enum QTEType
+{
+    SimpleBar,
+    Hold
+}
+
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class CharacterObject : ScriptableObject
 {
@@ -28,6 +34,7 @@ public class CharacterObject : ScriptableObject
     public Sprite headshotSprite;
     public CharacterClass characterClass;
     public AttackRange range;
+    public QTEType attackQteType;
 
     [Range(0, 1)] public float attackLeniency;
     [Range(0, 1)] public float defenceLeniency;
@@ -36,6 +43,11 @@ public class CharacterObject : ScriptableObject
 
     public GameObject spriteObject;
     public AnimatorOverrideController animator;
+
+    public GameObject characterRig;
+
+    [Header("Effect Prefabs")]
+    public GameObject attackEffectPrefab;
 
     [Header("Audio File Voice Objects")]
     public AudioFileObject voiceEntry;

@@ -10,6 +10,9 @@ public class PlayerCharacter : BaseCharacter
 
     [SerializeField] Transform cardMesh = null;
 
+    const float fingerHoldTime = 0.75f;
+    float fingerHoldTimer = 0;
+
     public static Action<PlayerCharacter> onSelectPlayer;
     public static Action<PlayerCharacter> onSelectedPlayerCharacterChange;
 
@@ -17,6 +20,8 @@ public class PlayerCharacter : BaseCharacter
     protected override void Start()
     {
         base.Start();
+
+        characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
     }
 
     protected override void OnEnable()
@@ -63,9 +68,9 @@ public class PlayerCharacter : BaseCharacter
     private void OnMouseDown()
     {
         if (UIManager.instance.CharacterPanelOpen) return;
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
+        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
-            GlobalEvents.onSelectCharacter?.Invoke(this);
+            GlobalEvents.OnSelectCharacter?.Invoke(this);
             onSelectPlayer?.Invoke(this);
             if (BattleSystem.instance.GetActivePlayer() == this) return;
             if (UIManager.SelectingAllyForSkill) return;
@@ -75,16 +80,9 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
-    private void OnMouseUp()
-    {
-        fingerHoldTimer = 0;
-    }
-
-    const float fingerHoldTime = 0.75f;
-    float fingerHoldTimer = 0;
-
     private void OnMouseDrag()
     {
+        if (!UIManager.CanSelectPlayer) return;
         if (!UIManager.instance.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
         {
             fingerHoldTimer += Time.deltaTime;
@@ -94,6 +92,11 @@ public class PlayerCharacter : BaseCharacter
                 fingerHoldTimer = 0;
             }
         }
+    }
+
+    private void OnMouseUp()
+    {
+        fingerHoldTimer = 0;
     }
 
     public override void ShowCharacterUI()
@@ -130,17 +133,8 @@ public class PlayerCharacter : BaseCharacter
     {
         BattleSystem.instance.RegisterPlayerDeath(this);
         onDeath?.Invoke();
-        GlobalEvents.onCharacterDeath?.Invoke(this);
-        GlobalEvents.onAnyPlayerDeath?.Invoke();
-    }
-
-    public override void DieToCrit()
-    {
-        InvokeDeathEvents();
-
-        rigidBody.useGravity = true;
-        rigidBody.isKinematic = false;
-        rigidBody.AddExplosionForce(knockbackForce, knockbackSource.position + new Vector3(0, 0, UnityEngine.Random.Range(-2, 2)), 0);
+        GlobalEvents.OnCharacterDeath?.Invoke(this);
+        GlobalEvents.OnAnyPlayerDeath?.Invoke();
     }
 
     public void DeathEffects()

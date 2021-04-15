@@ -6,12 +6,6 @@ public class EnemyCharacter : BaseCharacter
 {
     public static System.Action<EnemyCharacter> onSelectedEnemyCharacterChange;
 
-    // Start is called before the first frame update
-    protected override void Start()
-    {
-        base.Start();
-    }
-
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -59,13 +53,30 @@ public class EnemyCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelect)
+        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             if (IsDead) return;
-            GlobalEvents.onSelectCharacter?.Invoke(this);
+            GlobalEvents.OnSelectCharacter?.Invoke(this);
             if (BattleSystem.instance.GetActiveEnemy() == this) return;
             BattleSystem.instance.SetActiveEnemy(this);
             onSelectedEnemyCharacterChange?.Invoke(this);
+        }
+    }
+
+    public override void ExecuteAttack(DamageStruct damage)
+    {
+        CalculateAttackDamage(damage);
+
+        QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
+
+        if (rigAnim)
+        {
+            rigAnim.SetTrigger("Attack Execute");
+            rigAnim.SetInteger("Charge Level", 0);
+        }
+        else
+        {
+            spriteAnim.Play("Attack Execute");
         }
     }
 
@@ -78,17 +89,8 @@ public class EnemyCharacter : BaseCharacter
     {
         onDeath?.Invoke();
         EnemyController.instance.RegisterEnemyDeath(this);
-        GlobalEvents.onAnyEnemyDeath?.Invoke();
-        GlobalEvents.onCharacterDeath?.Invoke(this);
-    }
-
-    public override void DieToCrit()
-    {
-        InvokeDeathEvents();
-
-        rigidBody.useGravity = true;
-        rigidBody.isKinematic = false;
-        rigidBody.AddExplosionForce(knockbackForce, knockbackSource.position/* + new Vector3(Random.Range(-2, 2), 0, 0)*/, 0);
+        GlobalEvents.OnAnyEnemyDeath?.Invoke();
+        GlobalEvents.OnCharacterDeath?.Invoke(this);
     }
 
     public void DeathEffects()

@@ -7,9 +7,10 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Canvas))]
 public class OptimizedButton : MonoBehaviour
 {
-    public OptimizedCanvas canvas;
-
-    [SerializeField] Button button;
+    [SerializeField]
+    OptimizedCanvas canvas;
+    [SerializeField]
+    Button button;
 
     [ContextMenu("Find References")]
     private void OnValidate()

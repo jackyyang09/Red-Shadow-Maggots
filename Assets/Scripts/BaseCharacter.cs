@@ -21,6 +21,7 @@ public struct DamageStruct
     /// Did the player hit the red zone?
     /// </summary>
     public bool quickTimeSuccess;
+    public int chargeLevel;
 }
 
 public abstract class BaseCharacter : MonoBehaviour
@@ -96,10 +97,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] Rarity rarity;
 
-    [Header("Death Effect Properties")]
-
-    [SerializeField] protected float knockbackForce = 100;
-    [SerializeField] protected Transform knockbackSource;
     public bool IsDead
     {
         get
@@ -116,11 +113,18 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] protected Animator spriteAnim;
 
+    protected GameObject characterMesh;
+    public GameObject CharacterMesh { get { return characterMesh; } }
+    protected Animator rigAnim;
+
     [SerializeField] protected GameObject skillParticles;
 
     [SerializeField] protected GameObject deathParticles;
 
     [SerializeField] protected UnityEngine.UI.Image selectionPointer;
+
+    [SerializeField] AnimationHelper animHelper = null;
+    public AnimationHelper AnimHelper { get { return animHelper; } }
 
     public List<AppliedEffect> AppliedEffects { get; } = new List<AppliedEffect>();
 
@@ -133,6 +137,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public Action onHeal;
     public Action onTakeDamage;
+
+    DamageStruct incomingDamage;
 
     public UnityEngine.Events.UnityEvent onDeath;
 
@@ -164,6 +170,7 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void Awake()
     {
         anim = GetComponent<Animator>();
+
         ApplyCharacterStats();
     }
 
@@ -177,6 +184,13 @@ public abstract class BaseCharacter : MonoBehaviour
             GameSkill newSkill = new GameSkill();
             newSkill.InitWithSkill(skillObject);
             gameSkills.Add(newSkill);
+        }
+
+        if (characterReference.characterRig)
+        {
+            characterMesh = Instantiate(characterReference.characterRig, transform);
+            rigAnim = characterMesh.GetComponentInChildren<Animator>();
+            animHelper = GetComponentInChildren<AnimationHelper>();
         }
     }
 
@@ -206,23 +220,71 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void PlayAttackAnimation()
     {
-        GlobalEvents.onCharacterStartAttack?.Invoke(this);
+        GlobalEvents.OnCharacterStartAttack?.Invoke(this);
         QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
-        spriteAnim.Play("Attack Windup");
+        if (rigAnim)
+        {
+            rigAnim.Play("Attack Windup");
+        }
+        else
+        {
+            spriteAnim.Play("Attack Windup");
+        }
     }
 
-    public void ExecuteAttack(DamageStruct damage)
+    public virtual void ExecuteAttack(DamageStruct damage)
     {
-        DamageStruct finalDamage = CalculateAttackDamage(damage);
-        BattleSystem.instance.AttackTarget(finalDamage);
+        CalculateAttackDamage(damage);
+
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
-        SceneTweener.instance.ReturnToPosition(transform);
-        BattleSystem.instance.EndTurn();
-        GlobalEvents.onCharacterExecuteAttack?.Invoke(this, finalDamage);
-        spriteAnim.Play("Attack Execute");
+
+        if (rigAnim)
+        {
+            switch (Reference.attackQteType)
+            {
+                case QTEType.SimpleBar:
+                    rigAnim.Play("Attack Execute");
+                    break;
+                case QTEType.Hold:
+                    if (!damage.quickTimeSuccess)
+                    {
+                        rigAnim.SetInteger("Charge Level", 0);
+                    }
+                    else
+                    {
+                        rigAnim.SetInteger("Charge Level", damage.chargeLevel);
+                    }
+                    rigAnim.SetTrigger("Attack Execute");
+                    break;
+            }
+        }
+        else
+        {
+            spriteAnim.Play("Attack Execute");
+        }
     }
 
-    public virtual DamageStruct CalculateAttackDamage(DamageStruct damageStruct)
+    public void DealDamage()
+    {
+        BattleSystem.instance.AttackTarget(incomingDamage);
+        GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
+    }
+
+    public void FinishAttack()
+    {
+        BattleSystem.instance.EndTurn();
+        SceneTweener.instance.ReturnToPosition(transform);
+    }
+
+    public void PlayReturnAnimation()
+    {
+        if (rigAnim)
+        {
+            rigAnim.Play("Jump Back");
+        }
+    }
+
+    public virtual void CalculateAttackDamage(DamageStruct damageStruct)
     {
         var playerClass = characterReference.characterClass;
         var enemyClass = BattleSystem.instance.GetOpposingCharacter().characterReference.characterClass;
@@ -238,7 +300,7 @@ public abstract class BaseCharacter : MonoBehaviour
         damageStruct.damage = damageStruct.damageNormalized * (attack + attackModifier) * effectiveness;
         if (damageStruct.isCritical) damageStruct.damage *= (critMultiplier + critDamageModifier);
 
-        return damageStruct;
+        incomingDamage = damageStruct;
     }
 
     public virtual float CalculateDefenseDamage(float damage)
@@ -347,7 +409,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
             spriteAnim.Play("Skill");
 
-            GlobalEvents.onCharacterActivateSkill?.Invoke(this);
+            GlobalEvents.OnCharacterActivateSkill?.Invoke(this);
             foreach (var subscriber in onSkillFoundTargets) subscriber();
         }
         onSkillFoundTargets.Clear();
@@ -502,27 +564,42 @@ public abstract class BaseCharacter : MonoBehaviour
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
 
         DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
-        spriteAnim.Play("Hurt");
+        if (rigAnim)
+        {
+            rigAnim.Play("Hit Reaction");
+        }
+        else
+        {
+            spriteAnim.Play("Hurt");
+        }
 
         onTakeDamage?.Invoke();
-        GlobalEvents.onCharacterAttacked?.Invoke(this);
+        GlobalEvents.OnCharacterAttacked?.Invoke(this);
 
         if (health == 0)
         {
-            if (!damage.isCritical)
+            if (rigAnim)
             {
-                PlayDamageShakeEffect(damage.damageNormalized);
-                spriteAnim.Play("Death");
+                //PlayDamageShakeEffect(damage.damageNormalized);
+                if (!damage.isCritical)
+                {
+                    animHelper.EnableRagdoll();
+                }
+                else
+                {
+                    animHelper.EnableRagdollExplosion();
+                }
                 Die();
             }
             else
             {
-                DieToCrit();
+                if (!damage.isCritical)
+                {
+                    PlayDamageShakeEffect(damage.damageNormalized);
+                    spriteAnim.Play("Death");
+                    Die();
+                }
             }
-        }
-        else
-        {
-            PlayDamageShakeEffect(damage.damageNormalized);
         }
     }
 
@@ -530,7 +607,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public abstract void InvokeDeathEvents();
     public abstract void Die();
-    public abstract void DieToCrit();
 
     public float GetHealthPercent()
     {

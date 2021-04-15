@@ -87,4 +87,15 @@ public static class ExtensionMethods
     {
         return string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input);
     }
+
+    public static float UnwrapAngle(this float angle)
+    {
+        if (angle >= 0)
+        {
+            var tempAngle = angle % 360;
+            return tempAngle == 360 ? 0 : tempAngle;
+        }
+        else
+            return 360 - (-1 * angle) % 360;
+    }
 }

@@ -10,6 +10,8 @@ public class SimpleHealth : MonoBehaviour
 
     [SerializeField] float catchupTime = 0.5f;
 
+    [SerializeField] TMPro.TextMeshProUGUI healthText = null;
+
     [SerializeField] Image healthBar = null;
 
     [SerializeField] Image tweenBar = null;
@@ -20,6 +22,7 @@ public class SimpleHealth : MonoBehaviour
     void Start()
     {
         healthBar.fillAmount = baseCharacter.GetHealthPercent();
+        healthText.text = baseCharacter.CurrentHealth.ToString();
     }
 
     private void OnEnable()
@@ -40,5 +43,6 @@ public class SimpleHealth : MonoBehaviour
         tweenBar.fillAmount = healthBar.fillAmount;
         healthBar.fillAmount = baseCharacter.GetHealthPercent();
         tweenBar.DOFillAmount(healthBar.fillAmount, catchupTime).SetEase(Ease.OutCubic).SetDelay(updateDelay);
+        healthText.text = ((int)baseCharacter.CurrentHealth).ToString();
     }
 }

@@ -7,9 +7,11 @@ public abstract class QuickTimeBase : MonoBehaviour
     [SerializeField]
     protected OptimizedCanvas canvas;
 
+    protected PlayerCharacter activePlayer = null;
+
     public static System.Action<DamageStruct> onExecuteQuickTime;
 
-    public abstract void InitializeBar(float leniency);
+    public abstract void InitializeBar(PlayerCharacter player);
 
     public abstract void StartTicking();
 
@@ -18,9 +20,22 @@ public abstract class QuickTimeBase : MonoBehaviour
     [SerializeField]
     protected float hideDelay = 0.5f;
 
+    protected void OnEnable()
+    {
+        GlobalEvents.OnEnterBattleCutscene += Hide;
+    }
+
+    protected void OnDisable()
+    {
+        GlobalEvents.OnEnterBattleCutscene -= Hide;
+    }
+
     public void Hide()
     {
+        if (IsInvoking("Hide")) CancelInvoke("Hide");
         canvas.Hide();
+        activePlayer = null;
+        enabled = false;
     }
 
     public void Enable()

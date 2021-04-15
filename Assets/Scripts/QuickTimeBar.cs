@@ -36,12 +36,6 @@ public class QuickTimeBar : QuickTimeBase
 
     [SerializeField] float barMissValue = 0;
 
-    // Start is called before the first frame update
-    //void Start()
-    //{
-    //    
-    //}
-
     private void OnValidate()
     {
         targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZoneSize), targetBar.rectTransform.anchoredPosition.y);
@@ -56,7 +50,6 @@ public class QuickTimeBar : QuickTimeBase
         }
     }
 
-    int barTweenID = 33;
     public void ExecuteAction()
     {
         enabled = false;
@@ -64,7 +57,7 @@ public class QuickTimeBar : QuickTimeBase
         onExecuteQuickTime?.Invoke(dmg);
         BonusFeedback(dmg);
         Invoke("Hide", hideDelay);
-        DOTween.Kill(barTweenID);
+        fillBar.DOKill();
     }
 
     void BonusFeedback(DamageStruct damage)
@@ -78,17 +71,32 @@ public class QuickTimeBar : QuickTimeBase
 
     public override void StartTicking()
     {
-        DOTween.To(() => fillBar.fillAmount, x => fillBar.fillAmount = x, 1, barFillTime).SetUpdate(true).SetDelay(barFillDelay).intId = barTweenID;
+        if (activePlayer) activePlayer.PlayAttackAnimation();
+        fillBar.DOFillAmount(1, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
 
         float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
-        fillBar.DOGradientColor(barGradient, Mathf.Lerp(0, barFillTime, targetMin)).SetUpdate(true).SetDelay(barFillDelay).intId = barTweenID;
+        //fillBar.DOGradientColor(barGradient, Mathf.Lerp(0, barFillTime, targetMin)).SetUpdate(true).SetDelay(barFillDelay);
+        fillBar.DOGradientColor(barGradient, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
         Invoke("Enable", barFillDelay);
     }
 
-    public override void InitializeBar(float leniency)
+    public override void InitializeBar(PlayerCharacter player)
     {
         fillBar.fillAmount = 0;
         fillBar.color = Color.white;
+
+        float leniency = 0;
+        switch (BattleSystem.instance.CurrentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                activePlayer = player;
+                leniency = player.GetAttackLeniency();
+                break;
+            case BattlePhases.EnemyTurn:
+                leniency = player.GetDefenceLeniency();
+                break;
+        }
+
         targetBar.rectTransform.sizeDelta = new Vector2(Mathf.Lerp(0, maxValue, leniency), targetBar.rectTransform.sizeDelta.y);
         canvas.Show();
         StartTicking();
@@ -106,8 +114,8 @@ public class QuickTimeBar : QuickTimeBase
             newStruct.damageNormalized = barSuccessValue;
             newStruct.damageType = DamageType.Heavy;
             newStruct.quickTimeSuccess = true;
-            if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.onPlayerQuickTimeAttackSuccess?.Invoke();
-            else GlobalEvents.onPlayerQuickTimeBlockSuccess?.Invoke();
+            if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
+            else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {

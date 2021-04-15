@@ -9,19 +9,19 @@ public class VoiceResponseSystem : MonoBehaviour
     // Start is called before the first frame update
     void OnEnable()
     {
-        GlobalEvents.onEnterWave += Entry;
-        GlobalEvents.onEnterFinalWave += EnterFinal;
-        GlobalEvents.onWaveClear += WaveClear;
-        GlobalEvents.onFinalWaveClear += GameClear;
+        GlobalEvents.OnEnterWave += Entry;
+        GlobalEvents.OnEnterFinalWave += EnterFinal;
+        GlobalEvents.OnWaveClear += WaveClear;
+        GlobalEvents.OnFinalWaveClear += GameClear;
 
-        GlobalEvents.onCharacterStartAttack += Attack;
-        GlobalEvents.onCharacterAttacked += PlayerAttacked;
-        GlobalEvents.onCharacterExecuteAttack += WeaponHit;
-        GlobalEvents.onCharacterActivateSkill += UsedSkill;
-        GlobalEvents.onCharacterDeath += CharacterDeath;
-        GlobalEvents.onPlayerDefeat += PlayerLose;
-        GlobalEvents.onPlayerQuickTimeAttackSuccess += HitEffective;
-        GlobalEvents.onPlayerQuickTimeBlockSuccess += BlockEffective;
+        GlobalEvents.OnCharacterStartAttack += Attack;
+        GlobalEvents.OnCharacterAttacked += PlayerAttacked;
+        GlobalEvents.OnCharacterExecuteAttack += WeaponHit;
+        GlobalEvents.OnCharacterActivateSkill += UsedSkill;
+        GlobalEvents.OnCharacterDeath += CharacterDeath;
+        GlobalEvents.OnPlayerDefeat += PlayerLose;
+        GlobalEvents.OnPlayerQuickTimeAttackSuccess += HitEffective;
+        GlobalEvents.OnPlayerQuickTimeBlockSuccess += BlockEffective;
 
         PlayerCharacter.onSelectedPlayerCharacterChange += UIClick;
         EnemyCharacter.onSelectedEnemyCharacterChange += UIClick;
@@ -31,19 +31,19 @@ public class VoiceResponseSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        GlobalEvents.onEnterWave -= Entry;
-        GlobalEvents.onEnterFinalWave -= EnterFinal;
-        GlobalEvents.onWaveClear -= WaveClear;
-        GlobalEvents.onFinalWaveClear -= GameClear;
+        GlobalEvents.OnEnterWave -= Entry;
+        GlobalEvents.OnEnterFinalWave -= EnterFinal;
+        GlobalEvents.OnWaveClear -= WaveClear;
+        GlobalEvents.OnFinalWaveClear -= GameClear;
 
-        GlobalEvents.onCharacterStartAttack -= Attack;
-        GlobalEvents.onCharacterAttacked -= PlayerAttacked;
-        GlobalEvents.onCharacterExecuteAttack -= WeaponHit;
-        GlobalEvents.onCharacterActivateSkill -= UsedSkill;
-        GlobalEvents.onCharacterDeath -= CharacterDeath;
-        GlobalEvents.onPlayerDefeat -= PlayerLose;
-        GlobalEvents.onPlayerQuickTimeAttackSuccess -= HitEffective;
-        GlobalEvents.onPlayerQuickTimeBlockSuccess -= BlockEffective;
+        GlobalEvents.OnCharacterStartAttack -= Attack;
+        GlobalEvents.OnCharacterAttacked -= PlayerAttacked;
+        GlobalEvents.OnCharacterExecuteAttack -= WeaponHit;
+        GlobalEvents.OnCharacterActivateSkill -= UsedSkill;
+        GlobalEvents.OnCharacterDeath -= CharacterDeath;
+        GlobalEvents.OnPlayerDefeat -= PlayerLose;
+        GlobalEvents.OnPlayerQuickTimeAttackSuccess -= HitEffective;
+        GlobalEvents.OnPlayerQuickTimeBlockSuccess -= BlockEffective;
 
         PlayerCharacter.onSelectedPlayerCharacterChange -= UIClick;
         EnemyCharacter.onSelectedEnemyCharacterChange -= UIClick;

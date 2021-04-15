@@ -25,8 +25,6 @@ public class DamageNumberSpawner : MonoBehaviour
 
     [SerializeField] GameObject damageNumberPrefab = null;
 
-    [SerializeField] Vector3 spawnOffset = Vector3.zero;
-
     [SerializeField] float numberLifetime = 3;
 
     [SerializeField] DamageNumberProperties[] damageNumberProps = new DamageNumberProperties[0];
