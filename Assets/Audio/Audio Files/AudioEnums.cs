@@ -21,6 +21,7 @@ namespace JSAM {
         BombingMann_Weapon,
         BuffApplied,
         Chargeup,
+        Crossbow_Reload,
         DebuffApplied,
         DoctorSex_Weapon,
         Duelist_Voice_Attack,

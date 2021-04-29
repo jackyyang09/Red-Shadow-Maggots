@@ -61,6 +61,8 @@ public class CharacterObject : ScriptableObject
 
     [Header("Audio File Sound Objects")]
     public AudioFileObject weaponSound;
+
+    public AudioFileObject[] extraSounds;
 }
 
 public enum DamageEffectivess

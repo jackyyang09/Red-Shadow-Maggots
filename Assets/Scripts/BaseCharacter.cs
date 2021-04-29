@@ -113,6 +113,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] protected Animator spriteAnim;
 
+    [SerializeField] Transform effectRegion = null;
+
     protected GameObject characterMesh;
     public GameObject CharacterMesh { get { return characterMesh; } }
     protected Animator rigAnim;
@@ -272,8 +274,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void FinishAttack()
     {
-        BattleSystem.instance.EndTurn();
-        SceneTweener.instance.ReturnToPosition(transform);
+        switch (Reference.range)
+        {
+            case AttackRange.CloseRange:
+                SceneTweener.instance.ReturnToPosition();
+                break;
+            case AttackRange.LongRange:
+                SceneTweener.instance.RotateBack();
+                break;
+        }
     }
 
     public void PlayReturnAnimation()
@@ -601,6 +610,15 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void SpawnEffectPrefab(GameObject prefab)
+    {
+        effectRegion.rotation = characterMesh.transform.rotation;
+        var newEffect = Instantiate(prefab, effectRegion);
+        newEffect.transform.localEulerAngles = Vector3.zero;
+        newEffect.transform.SetParent(animHelper.transform.GetChild(0).GetChild(0));
+        Destroy(newEffect, 5);
     }
 
     public void PlayDamageShakeEffect(float normalizedDamage) => transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);

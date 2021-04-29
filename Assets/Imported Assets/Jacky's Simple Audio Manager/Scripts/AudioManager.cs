@@ -219,6 +219,10 @@ namespace JSAM
 
         float defaultSoundDistance = 7;
 
+        [SerializeField] [HideInInspector] public string MASTER_VOLUME_KEY = "VOLUME_MASTER";
+        [SerializeField] [HideInInspector] public string MUSIC_VOLUME_KEY = "VOLUME_MUSIC";
+        [SerializeField] [HideInInspector] public string SOUND_VOLUME_KEY = "VOLUME_SOUND";
+
         /// <summary>
         /// A bit like float Epsilon, but large enough for the purpose of pushing the playback position of AudioSources just far enough to not throw an error
         /// </summary>
@@ -298,6 +302,8 @@ namespace JSAM
 
                 doneLoading = true;
             }
+
+            LoadVolumeSettingsInternal();
         }
 
         void Start()
@@ -2618,7 +2624,11 @@ namespace JSAM
 
         private void OnDestroy()
         {
-            if (instance == this) instance = null;
+            if (instance == this)
+            {
+                SaveVolumeSettingsInternal();
+                instance = null;
+            }
         }
 
         /// <summary>
@@ -2984,6 +2994,35 @@ namespace JSAM
         public AudioListener GetListenerInternal()
         {
             return instance.listener;
+        }
+
+        public static void LoadVolumeSettings() => instance.LoadVolumeSettingsInternal();
+
+        public void LoadVolumeSettingsInternal()
+        {
+            if (PlayerPrefs.HasKey(MASTER_VOLUME_KEY))
+            {
+                SetMasterVolume(PlayerPrefs.GetFloat(MASTER_VOLUME_KEY));
+            }
+
+            if (PlayerPrefs.HasKey(MUSIC_VOLUME_KEY))
+            {
+                SetMusicVolume(PlayerPrefs.GetFloat(MUSIC_VOLUME_KEY));
+            }
+
+            if (PlayerPrefs.HasKey(SOUND_VOLUME_KEY))
+            {
+                SetSoundVolume(PlayerPrefs.GetFloat(SOUND_VOLUME_KEY));
+            }
+        }
+
+        public static void SaveVolumeSettings() => instance.SaveVolumeSettingsInternal();
+
+        public void SaveVolumeSettingsInternal()
+        {
+            PlayerPrefs.SetFloat(MASTER_VOLUME_KEY, masterVolume);
+            PlayerPrefs.SetFloat(MUSIC_VOLUME_KEY, musicVolume);
+            PlayerPrefs.SetFloat(SOUND_VOLUME_KEY, soundVolume);
         }
 
 #if UNITY_EDITOR

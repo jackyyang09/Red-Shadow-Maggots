@@ -172,7 +172,15 @@ public class BattleSystem : MonoBehaviour
 
     public void ExecutePlayerAttack()
     {
-        SceneTweener.instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
+        switch (playerTargets.player.Reference.range)
+        {
+            case AttackRange.CloseRange:
+                SceneTweener.instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
+                break;
+            case AttackRange.LongRange:
+                SceneTweener.instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
+                break;
+        }
     }
 
     public void ExecuteEnemyAttack()
@@ -214,8 +222,10 @@ public class BattleSystem : MonoBehaviour
             case BattlePhases.PlayerTurn:
                 if (playerTargets.player.Reference.attackEffectPrefab != null)
                 {
-                    Instantiate(playerTargets.player.Reference.attackEffectPrefab, playerTargets.enemy.transform.GetChild(0).GetChild(0).position, Quaternion.identity);
+                    var targetEnemy = playerTargets.enemy;
+                    targetEnemy.SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                 }
+                playerTargets.enemy.CharacterMesh.transform.LookAt(playerTargets.player.transform);
                 playerTargets.enemy.TakeDamage(damage);
                 break;
             case BattlePhases.EnemyTurn:
@@ -298,11 +308,10 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator TurnEndTransition()
     {
-        yield return new WaitForSeconds(SceneTweener.instance.TurnTransitionDelay);
-
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
+                yield return new WaitForSeconds(SceneTweener.instance.EnemyTurnTransitionDelay);
                 if (EnemyController.instance.enemies.Count > 0)
                 {
                     SetPhase(BattlePhases.EnemyTurn);
@@ -310,6 +319,7 @@ public class BattleSystem : MonoBehaviour
                 else SetPhase(BattlePhases.BattleWin);
                 break;
             case BattlePhases.EnemyTurn:
+                yield return new WaitForSeconds(SceneTweener.instance.PlayerTurnTransitionDelay);
                 if (playerCharacters.Count > 0)
                 {
                     SetPhase(BattlePhases.PlayerTurn);

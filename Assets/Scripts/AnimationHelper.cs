@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using JSAM;
+using System.Collections;
 using UnityEngine;
 
 public class AnimationHelper : MonoBehaviour
@@ -106,6 +106,11 @@ public class AnimationHelper : MonoBehaviour
     public void ShowVirtualCamera() => vCam.enabled = true;
     public void HideVirtualCamera() => vCam.enabled = false;
 
+    public void MakePlayerCamLookAtMe()
+    {
+        SceneTweener.instance.PlayerCamera.LookAt = transform;
+    }
+
     [ContextMenu("Test Impulse")]
     public void ShakeCharacterCam()
     {
@@ -120,5 +125,22 @@ public class AnimationHelper : MonoBehaviour
     public void FinishAttack()
     {
         baseCharacter.FinishAttack();
+    }
+
+    public void PlayMiscSoundAtIndex(int index)
+    {
+        AudioManager.instance.PlaySoundInternal(baseCharacter.Reference.extraSounds[index]);
+    }
+
+    public void WalkForward()
+    {
+        StartCoroutine(nameof(WalkRoutine));
+    }
+
+    IEnumerator WalkRoutine()
+    {
+        anim.Play("Walk");
+        yield return new WaitForSeconds(1);
+        anim.SetBool("Walk", false);
     }
 }
