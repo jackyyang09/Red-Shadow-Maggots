@@ -185,9 +185,9 @@ public class BattleSystem : MonoBehaviour
 
     public void ExecuteEnemyAttack()
     {
-        enemyTargets.enemy.PlayAttackAnimation();
         UIManager.instance.StartDefending();
         SceneTweener.instance.MeleeTweenTo(enemyTargets.enemy.transform, enemyTargets.player.transform);
+        enemyTargets.enemy.PlayAttackAnimation();
     }
 
     public void SwitchTargets()

@@ -140,7 +140,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action onHeal;
     public Action onTakeDamage;
 
-    DamageStruct incomingDamage;
+    public static DamageStruct incomingDamage;
 
     public UnityEngine.Events.UnityEvent onDeath;
 
@@ -416,7 +416,14 @@ public abstract class BaseCharacter : MonoBehaviour
             if (skillUsed == 0) JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceFirstSkill);
             else JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceSecondSkill);
 
-            spriteAnim.Play("Skill");
+            if (rigAnim)
+            {
+                rigAnim.Play("Skill");
+            }
+            else
+            { 
+                spriteAnim.Play("Skill");
+            }
 
             GlobalEvents.OnCharacterActivateSkill?.Invoke(this);
             foreach (var subscriber in onSkillFoundTargets) subscriber();
@@ -575,7 +582,20 @@ public abstract class BaseCharacter : MonoBehaviour
         DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)
         {
-            rigAnim.Play("Hit Reaction");
+            if (incomingDamage.quickTimeSuccess)
+            {
+                if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+                    rigAnim.Play("Hit Reaction");
+                else
+                    rigAnim.Play("Block Reaction");
+            }
+            else
+            {
+                if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+                    rigAnim.Play("Block Reaction");
+                else
+                    rigAnim.Play("Hit Reaction");
+            }
         }
         else
         {

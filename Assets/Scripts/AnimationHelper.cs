@@ -132,15 +132,27 @@ public class AnimationHelper : MonoBehaviour
         AudioManager.instance.PlaySoundInternal(baseCharacter.Reference.extraSounds[index]);
     }
 
-    public void WalkForward()
+    public void PlayMiscLoopingSoundAtIndex(int index)
     {
-        StartCoroutine(nameof(WalkRoutine));
+        AudioManager.instance.PlaySoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
     }
 
-    IEnumerator WalkRoutine()
+    public void StopMiscLoopingSoundAtIndex(int index)
+    {
+        AudioManager.instance.StopSoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
+    }
+
+    public void DashForward() => anim.Play("Dash");
+
+    public void WalkForward(float walkTime)
+    {
+        StartCoroutine(WalkRoutine(walkTime));
+    }
+
+    IEnumerator WalkRoutine(float walkTime)
     {
         anim.Play("Walk");
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(walkTime);
         anim.SetBool("Walk", false);
     }
 }

@@ -76,11 +76,7 @@ public class SceneTweener : MonoBehaviour
     {
         anim.SetTrigger("EnterBattle");
 
-        for (int i = 0; i < BattleSystem.instance.PlayerCharacters.Count; i++)
-        {
-            var player = BattleSystem.instance.PlayerCharacters[i];
-            player.AnimHelper.WalkForward();
-        }
+        MakePlayersWalk(1);
 
         ScreenEffects.instance.FadeFromBlack();
 
@@ -98,17 +94,14 @@ public class SceneTweener : MonoBehaviour
             case BattlePhases.PlayerTurn:
                 enemyCam.enabled = false;
                 playerCam.m_LookAt = attacker;
-                attacker.transform.DOMove(target.position + characterDestinationOffset, tweenTime).SetEase(Ease.OutCubic);
-                playerPath.transform.DOMove(target.position + characterDestinationOffset, tweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
-
-                BattleSystem.instance.GetActivePlayer().AnimHelper.WalkForward();
-
+                attacker.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic);
+                playerPath.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
                 break;
             case BattlePhases.EnemyTurn:
                 enemyCam.enabled = true;
                 enemyCam.m_LookAt = attacker;
-                attacker.transform.DOMove(target.position - characterDestinationOffset, tweenTime).SetEase(Ease.OutCubic);
-                enemyPath.transform.DOMove(target.position - characterDestinationOffset, tweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
+                attacker.transform.DOMove(target.position - characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic);
+                enemyPath.transform.DOMove(target.position - characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
                 break;
         }
         savedPosition = attacker.position;
@@ -196,21 +189,22 @@ public class SceneTweener : MonoBehaviour
                 playerCam.m_LookAt = BattleSystem.instance.GetActivePlayer().transform;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = BattleSystem.instance.GetActivePlayer().transform;
+                enemyCam.m_LookAt = BattleSystem.instance.GetActiveEnemy().transform;
                 break;
         }
 
         yield return new WaitForSeconds(returnTweenDelay);
 
+        bool maintainGaze = true;
+        Vector3 ogPos = Vector3.zero;
+        Vector3 ogRot = Vector3.zero;
         switch (BattleSystem.instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 var activePlayer = BattleSystem.instance.GetActivePlayer();
 
-                bool maintainGaze = true;
-
-                Vector3 ogPos = activePlayer.CharacterMesh.transform.position;
-                Vector3 ogRot = activePlayer.CharacterMesh.transform.eulerAngles;
+                ogPos = activePlayer.CharacterMesh.transform.position;
+                ogRot = activePlayer.CharacterMesh.transform.eulerAngles;
                 activePlayer.PlayReturnAnimation();
 
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
@@ -238,9 +232,30 @@ public class SceneTweener : MonoBehaviour
             case BattlePhases.EnemyTurn:
                 var activeEnemy = BattleSystem.instance.GetActiveEnemy();
 
-                activeEnemy.transform.DOMove(savedPosition, tweenTime).SetEase(Ease.OutCubic).onComplete += () => { enemyCam.m_LookAt = worldCenter; enemyCam.enabled = false; };
+                ogPos = activeEnemy.CharacterMesh.transform.position;
+                ogRot = activeEnemy.CharacterMesh.transform.eulerAngles;
+                activeEnemy.PlayReturnAnimation();
+
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
                 enemyPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
+
+                activeEnemy.transform.DOMove(savedPosition, characterTweenTime + characterTweenDelay).SetDelay(characterTweenDelay).SetEase(Ease.OutCubic).onComplete += () => {
+                    activeEnemy.CharacterMesh.transform.DORotate(ogRot, 0.15f, RotateMode.Fast);
+                    enemyCam.m_LookAt = worldCenter;
+                    enemyCam.enabled = false;
+                    maintainGaze = false;
+                };
+
+                while (maintainGaze)
+                {
+                    Vector3 targetDirection = ogPos - activeEnemy.CharacterMesh.transform.position;
+                    targetDirection.Normalize();
+
+                    activeEnemy.CharacterMesh.transform.forward =
+                        Vector3.RotateTowards(activeEnemy.CharacterMesh.transform.forward, targetDirection, 2 * Time.deltaTime, 0);
+
+                    yield return null;
+                }
                 break;
         }
 
@@ -252,6 +267,15 @@ public class SceneTweener : MonoBehaviour
         anim.enabled = true;
         ScreenEffects.instance.FadeToBlack(1.5f);
         anim.SetTrigger("OpenGate");
+    }
+
+    public void MakePlayersWalk(float walkTime)
+    {
+        for (int i = 0; i < BattleSystem.instance.PlayerCharacters.Count; i++)
+        {
+            var player = BattleSystem.instance.PlayerCharacters[i];
+            player.AnimHelper.WalkForward(1);
+        }
     }
 
     public void GateEntered()
