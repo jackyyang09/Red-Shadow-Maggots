@@ -239,7 +239,7 @@ public class SceneTweener : MonoBehaviour
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
                 enemyPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
-                activeEnemy.transform.DOMove(savedPosition, characterTweenTime + characterTweenDelay).SetDelay(characterTweenDelay).SetEase(Ease.OutCubic).onComplete += () => {
+                activeEnemy.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.OutCubic).onComplete += () => {
                     activeEnemy.CharacterMesh.transform.DORotate(ogRot, 0.15f, RotateMode.Fast);
                     enemyCam.m_LookAt = worldCenter;
                     enemyCam.enabled = false;

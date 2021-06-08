@@ -256,11 +256,16 @@ public class BattleSystem : MonoBehaviour
         // Wait for player to activate skills
         while (!finished) yield return null;
 
+        finished = false;
+
+        playerTargets.player.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
+
         UIManager.instance.RemovePlayerControl();
 
         SceneTweener.instance.SkillTween(playerTargets.player.transform, skillUseTime);
 
-        yield return new WaitForSeconds(skillUseTime);
+        //yield return new WaitForSeconds(skillUseTime);
+        while (!finished) yield return null;
 
         SceneTweener.instance.SkillUntween();
 
@@ -455,6 +460,18 @@ public class BattleSystem : MonoBehaviour
             instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Crit rate maxed!");
+    }
+
+    [CommandTerminal.RegisterCommand(Help = "Instantly hurt players, leaving them at 1 health", MaxArgCount = 0)]
+    public static void CripplePlayers(CommandTerminal.CommandArg[] args)
+    {
+        for (int i = 0; i < instance.playerCharacters.Count; i++)
+        {
+            DamageStruct dmg = new DamageStruct();
+            dmg.damage = instance.playerCharacters[i].CurrentHealth - 1;
+            instance.playerCharacters[i].TakeDamage(dmg);
+        }
+        Debug.Log("Players damaged!");
     }
     #endregion
 

@@ -1,5 +1,7 @@
 ﻿using JSAM;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AnimationHelper : MonoBehaviour
@@ -28,6 +30,9 @@ public class AnimationHelper : MonoBehaviour
 
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
+
+    List<Action> onFinishSkillAnimation = new List<Action>();
+    public void RegisterOnFinishSkillAnimation(Action newAction) => onFinishSkillAnimation.Add(newAction);
 
     private void Awake()
     {
@@ -125,6 +130,15 @@ public class AnimationHelper : MonoBehaviour
     public void FinishAttack()
     {
         baseCharacter.FinishAttack();
+    }
+
+    public void FinishSkill()
+    {
+        for (int i = 0; i < onFinishSkillAnimation.Count; i++)
+        {
+            onFinishSkillAnimation[i]();
+        }
+        onFinishSkillAnimation.Clear();
     }
 
     public void PlayMiscSoundAtIndex(int index)

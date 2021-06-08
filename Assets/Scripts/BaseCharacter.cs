@@ -119,7 +119,8 @@ public abstract class BaseCharacter : MonoBehaviour
     public GameObject CharacterMesh { get { return characterMesh; } }
     protected Animator rigAnim;
 
-    [SerializeField] protected GameObject skillParticles;
+    [SerializeField] protected GameObject skillParticles1;
+    [SerializeField] protected GameObject skillParticles2;
 
     [SerializeField] protected GameObject deathParticles;
 
@@ -181,10 +182,10 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         health = maxHealth;
 
-        foreach (SkillObject skillObject in characterReference.skills)
+        for (int i = 0; i < characterReference.skills.Length; i++)
         {
             GameSkill newSkill = new GameSkill();
-            newSkill.InitWithSkill(skillObject);
+            newSkill.InitWithSkill(characterReference.skills[i]);
             gameSkills.Add(newSkill);
         }
 
@@ -366,15 +367,15 @@ public abstract class BaseCharacter : MonoBehaviour
                 EnemyCharacter.onSelectedEnemyCharacterChange += addTarget;
                 break;
             case TargetMode.AllAllies:
-                foreach (PlayerCharacter player in BattleSystem.instance.PlayerCharacters)
+                for (int i = 0; i < BattleSystem.instance.PlayerCharacters.Count; i++)
                 {
-                    targets.Add(player);
+                    targets.Add(BattleSystem.instance.PlayerCharacters[i]);
                 }
                 break;
             case TargetMode.AllEnemies:
-                foreach (EnemyCharacter enemy in EnemyController.instance.enemies)
+                for (int i = 0; i < EnemyController.instance.enemies.Count; i++)
                 {
-                    targets.Add(enemy);
+                    targets.Add(EnemyController.instance.enemies[i]);
                 }
                 break;
         }
@@ -400,7 +401,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (!cancelSkill)
         {
-            Instantiate(skillParticles, transform);
+            Instantiate(skillParticles1, transform);
+            //animHelper.RegisterOnFinishSkillAnimation(() => Instantiate(skillParticles2, transform));
 
             switch (currentSkill.referenceSkill.targetMode)
             {
@@ -426,7 +428,10 @@ public abstract class BaseCharacter : MonoBehaviour
             }
 
             GlobalEvents.OnCharacterActivateSkill?.Invoke(this);
-            foreach (var subscriber in onSkillFoundTargets) subscriber();
+            for (int i = 0; i < onSkillFoundTargets.Count; i++)
+            {
+                onSkillFoundTargets[i]();
+            }
         }
         onSkillFoundTargets.Clear();
     }
@@ -463,22 +468,23 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         currentSkill.BeginCooldown();
 
-        foreach (SkillObject.EffectProperties effect in currentSkill.referenceSkill.gameEffects)
+        for (int i = 0; i < currentSkill.referenceSkill.gameEffects.Length; i++)
         {
+            SkillObject.EffectProperties effect = currentSkill.referenceSkill.gameEffects[i];
             if (effect.effect.targetOverride != TargetMode.None)
             {
                 switch (effect.effect.targetOverride)
                 {
                     case TargetMode.AllAllies:
-                        foreach (PlayerCharacter player in BattleSystem.instance.PlayerCharacters)
+                        for (int j = 0; j < BattleSystem.instance.PlayerCharacters.Count; j++)
                         {
-                            ApplyEffectToCharacter(effect, player);
+                            ApplyEffectToCharacter(effect, BattleSystem.instance.PlayerCharacters[j]);
                         }
                         break;
                     case TargetMode.AllEnemies:
-                        foreach (EnemyCharacter enemy in EnemyController.instance.enemies)
+                        for (int j = 0; j < EnemyController.instance.enemies.Count; j++)
                         {
-                            ApplyEffectToCharacter(effect, enemy);
+                            ApplyEffectToCharacter(effect, EnemyController.instance.enemies[j]);
                         }
                         break;
                     case TargetMode.Self:
@@ -488,9 +494,9 @@ public abstract class BaseCharacter : MonoBehaviour
             }
             else
             {
-                foreach (BaseCharacter character in targets)
+                for (int j = 0; j < targets.Count; j++)
                 {
-                    ApplyEffectToCharacter(effect, character);
+                    ApplyEffectToCharacter(effect, targets[j]);
                 }
             }
 
@@ -510,7 +516,10 @@ public abstract class BaseCharacter : MonoBehaviour
             yield return new WaitForSeconds(0.75f);
         }
 
-        foreach (var subscriber in onFinishApplyingSkillEffects) subscriber();
+        for (int i = 0; i < onFinishApplyingSkillEffects.Count; i++)
+        {
+            onFinishApplyingSkillEffects[i]?.Invoke();
+        }
         onFinishApplyingSkillEffects.Clear();
     }
 
@@ -525,25 +534,25 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
         // Tick cooldown on skills
-        foreach (GameSkill skill in gameSkills)
+        for (int i = 0; i < gameSkills.Count; i++)
         {
-            skill.Tick();
+            gameSkills[i].Tick();
         }
 
-        foreach (AppliedEffect effect in AppliedEffects)
+        for (int i = 0; i < AppliedEffects.Count; i++)
         {
-            if (!effect.Tick(this))
+            if (!AppliedEffects[i].Tick(this))
             {
                 // Queue removal of effect
-                effectsToRemove.Add(effect);
+                effectsToRemove.Add(AppliedEffects[i]);
             }
         }
 
-        foreach (AppliedEffect effect in effectsToRemove)
+        for (int i = 0; i < effectsToRemove.Count; i++)
         {
             // Remove the effect
-            AppliedEffects.Remove(effect);
-            onRemoveGameEffect?.Invoke(effect.referenceEffect);
+            AppliedEffects.Remove(effectsToRemove[i]);
+            onRemoveGameEffect?.Invoke(effectsToRemove[i].referenceEffect);
         }
     }
 

@@ -4,7 +4,20 @@ using UnityEngine;
 
 public class EnemyCharacter : BaseCharacter
 {
+    [SerializeField] bool isBossCharacter = false;
+
     public static System.Action<EnemyCharacter> onSelectedEnemyCharacterChange;
+
+    protected override void Start()
+    {
+        base.Start();
+
+        // Set to World-Scale of 1
+        if (isBossCharacter)
+        {
+            characterMesh.transform.localScale = new Vector3(0.5714285f, 0.5714285f, 0.5714285f);
+        }
+    }
 
     protected override void OnEnable()
     {
