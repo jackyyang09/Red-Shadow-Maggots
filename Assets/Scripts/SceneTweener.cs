@@ -2,26 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using Cinemachine;
 
 public class SceneTweener : MonoBehaviour
 {
     [SerializeField] Transform worldCenter = null;
 
-    [SerializeField] Cinemachine.CinemachineVirtualCamera playerCam = null;
+    [SerializeField] CinemachineVirtualCamera playerCam = null;
     /// <summary>
     /// The player-centric camera
     /// </summary>
-    public Cinemachine.CinemachineVirtualCamera PlayerCamera { get { return playerCam; } }
+    public CinemachineVirtualCamera PlayerCamera { get { return playerCam; } }
 
-    Cinemachine.CinemachineComposer composer;
-    Cinemachine.CinemachineTrackedDolly playerDolly;
+    [SerializeField] CinemachineVirtualCamera lerpCam = null;
+    public CinemachineVirtualCamera LerpCamera { get { return lerpCam; } }
 
-    [SerializeField] Cinemachine.CinemachineVirtualCamera enemyCam = null;
-    Cinemachine.CinemachineTrackedDolly enemyDolly;
+    CinemachineComposer composer;
+    CinemachineTrackedDolly playerDolly;
 
-    [SerializeField] Cinemachine.CinemachineSmoothPath playerPath = null;
+    [SerializeField] CinemachineVirtualCamera enemyCam = null;
+    CinemachineTrackedDolly enemyDolly;
 
-    [SerializeField] Cinemachine.CinemachineSmoothPath enemyPath = null;
+    [SerializeField] CinemachineSmoothPath playerPath = null;
+
+    [SerializeField] CinemachineSmoothPath enemyPath = null;
 
     [SerializeField] Vector3 characterDestinationOffset = new Vector3();
 
@@ -44,7 +48,7 @@ public class SceneTweener : MonoBehaviour
 
     Animator anim;
 
-    public static SceneTweener instance;
+    public static SceneTweener Instance;
 
     private void Awake()
     {
@@ -122,16 +126,17 @@ public class SceneTweener : MonoBehaviour
 
     public void SkillTween(Transform user, float skillUseTime)
     {
-        playerCam.m_LookAt = user;
-        playerPath.transform.position = user.position;
-        DOTween.To(() => lerpValue, x => lerpValue = x, 1.25f, skillUseTime).SetEase(Ease.OutCubic);
+        //playerCam.m_LookAt = user;
+        //playerPath.transform.position = user.position;
+        //DOTween.To(() => lerpValue, x => lerpValue = x, 1.25f, skillUseTime).SetEase(Ease.OutCubic);
     }
 
     public void SkillUntween()
     {
-        playerCam.m_LookAt = worldCenter;
-        playerPath.transform.position = worldCenter.position;
-        DOTween.To(() => lerpValue, x => lerpValue = x, 0, 1.5f);
+        lerpCam.enabled = false;
+        //playerCam.m_LookAt = worldCenter;
+        //playerPath.transform.position = worldCenter.position;
+        //DOTween.To(() => lerpValue, x => lerpValue = x, 0, 1.5f);
     }
 
     public void DisableAnim()
@@ -285,24 +290,24 @@ public class SceneTweener : MonoBehaviour
 
     void EstablishSingletonDominance()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
-        else if (instance != this)
+        else if (Instance != this)
         {
             // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
+            if (Instance.gameObject.scene.name == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (!instance.gameObject.activeInHierarchy)
+            else if (!Instance.gameObject.activeInHierarchy)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
+            else if (Instance.gameObject.scene.name != gameObject.scene.name)
             {
-                instance = this;
+                Instance = this;
             }
             Destroy(gameObject);
         }

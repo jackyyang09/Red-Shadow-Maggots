@@ -5,9 +5,10 @@ using DG.Tweening;
 
 public class EffectTextSpawner : MonoBehaviour
 {
-    [SerializeField] Camera cam = null;
-
     [SerializeField] float numberLifetime = 3;
+    [SerializeField] float textVerticalMovement = 50;
+
+    [SerializeField] Camera cam = null;
 
     [SerializeField] GameObject healthTextPrefab = null;
     [SerializeField] GameObject critTextPrefab = null;
@@ -34,20 +35,16 @@ public class EffectTextSpawner : MonoBehaviour
         var billboard = text.GetComponent<ViewportBillboard>();
         text.text = "+" + healAmount.ToString();
         billboard.EnableWithSettings(cam, trans);
-        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + 0.5f, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
+        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
 
         text.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
 
         Destroy(text.gameObject, numberLifetime);
     }
 
-    public void SpawnCriticalHitAt(Transform trans)
+    public GameObject SpawnCriticalHitAt(Transform trans)
     {
-        var billboard = Instantiate(critTextPrefab, transform.GetChild(0)).GetComponent<ViewportBillboard>();
-        billboard.EnableWithSettings(cam, trans);
-        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + 0.5f, numberLifetime).SetEase(Ease.OutCubic);
-
-        Destroy(billboard.gameObject, numberLifetime);
+        return Instantiate(critTextPrefab, trans);
     }
 
     public void SpawnEffectAt(BaseGameEffect effect, Transform trans)
@@ -67,12 +64,12 @@ public class EffectTextSpawner : MonoBehaviour
         {
             case EffectType.Buff:
                 billboardText.font = buffTextColour;
-                DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + 0.5f, numberLifetime - 0.5f).SetEase(Ease.OutCubic);
+                DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime - 0.5f).SetEase(Ease.OutCubic);
                 break;
             case EffectType.Debuff:
                 billboardText.font = debuffTextColour;
-                billboard.offset.y += 0.5f;
-                DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y - 0.5f, numberLifetime - 0.5f).SetEase(Ease.OutCubic);
+                billboard.offset.y += textVerticalMovement;
+                DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y - textVerticalMovement, numberLifetime - 0.5f).SetEase(Ease.OutCubic);
                 break;
         }
 

@@ -27,8 +27,9 @@ MonoBehaviour:
   cardHolder: {fileID: 2512830585490887013}
   rigidBody: {fileID: 6209330831632785238}
   spriteAnim: {fileID: 963115686750960229}
-  effectRegion: {fileID: 3741806022929977999}
-  skillParticles: {fileID: 8280846913338912607, guid: 236c3c4e6ff86b84cab8195e942f28a6, type: 3}
+  effectRegion: {fileID: 862932300679653139}
+  skillParticles1: {fileID: 0}
+  skillParticles2: {fileID: 0}
   deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
   selectionPointer: {fileID: 8029325200730487276}
   animHelper: {fileID: 0}
@@ -59,36 +60,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
---- !u!1 &6428868530103620880
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3741806022929977999}
-  m_Layer: 0
-  m_Name: Effect_Origin_Middle
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3741806022929977999
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6428868530103620880}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.25, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 7573284258104963120}
-  m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  isBossCharacter: 0
 --- !u!1001 &2804561533146371845
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -268,11 +240,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 821800594866988006, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
   m_PrefabInstance: {fileID: 2804561533146371845}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &7573284258104963120 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5760799031895615285, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
-  m_PrefabInstance: {fileID: 2804561533146371845}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &2512830585490887013 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 303029529679611488, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
@@ -321,3 +288,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &862932300679653139 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3247673125010321430, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
+  m_PrefabInstance: {fileID: 2804561533146371845}
+  m_PrefabAsset: {fileID: 0}

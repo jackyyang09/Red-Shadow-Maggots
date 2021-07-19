@@ -105,7 +105,7 @@ public class VoiceResponseSystem : MonoBehaviour
         AudioManager.instance.PlaySoundInternal(audio);
     }
 
-    private void UsedSkill(BaseCharacter character)
+    private void UsedSkill(BaseCharacter character, GameSkill skill)
     {
         AudioManager.PlaySound(Sounds.SkillGeneral);
     }

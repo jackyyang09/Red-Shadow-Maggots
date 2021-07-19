@@ -124,7 +124,7 @@ public class BattleSystem : MonoBehaviour
             Destroy(deadMaggots[i].gameObject);
         }
 
-        SceneTweener.instance.EnterBattle();
+        SceneTweener.Instance.EnterBattle();
     }
 
     // Update is called once per frame
@@ -175,10 +175,10 @@ public class BattleSystem : MonoBehaviour
         switch (playerTargets.player.Reference.range)
         {
             case AttackRange.CloseRange:
-                SceneTweener.instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
+                SceneTweener.Instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
                 break;
             case AttackRange.LongRange:
-                SceneTweener.instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
+                SceneTweener.Instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
                 break;
         }
     }
@@ -186,7 +186,7 @@ public class BattleSystem : MonoBehaviour
     public void ExecuteEnemyAttack()
     {
         UIManager.instance.StartDefending();
-        SceneTweener.instance.MeleeTweenTo(enemyTargets.enemy.transform, enemyTargets.player.transform);
+        SceneTweener.Instance.MeleeTweenTo(enemyTargets.enemy.transform, enemyTargets.player.transform);
         enemyTargets.enemy.PlayAttackAnimation();
     }
 
@@ -229,6 +229,12 @@ public class BattleSystem : MonoBehaviour
                 playerTargets.enemy.TakeDamage(damage);
                 break;
             case BattlePhases.EnemyTurn:
+                if (enemyTargets.enemy.Reference.attackEffectPrefab != null)
+                {
+                    var targetPlayer = enemyTargets.player;
+                    targetPlayer.SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
+                }
+                enemyTargets.player.CharacterMesh.transform.LookAt(enemyTargets.enemy.transform);
                 enemyTargets.player.TakeDamage(damage);
                 break;
         }
@@ -262,12 +268,12 @@ public class BattleSystem : MonoBehaviour
 
         UIManager.instance.RemovePlayerControl();
 
-        SceneTweener.instance.SkillTween(playerTargets.player.transform, skillUseTime);
+        SceneTweener.Instance.SkillTween(playerTargets.player.transform, skillUseTime);
 
         //yield return new WaitForSeconds(skillUseTime);
         while (!finished) yield return null;
 
-        SceneTweener.instance.SkillUntween();
+        SceneTweener.Instance.SkillUntween();
 
         finished = false;
 
@@ -316,7 +322,7 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                yield return new WaitForSeconds(SceneTweener.instance.EnemyTurnTransitionDelay);
+                yield return new WaitForSeconds(SceneTweener.Instance.EnemyTurnTransitionDelay);
                 if (EnemyController.instance.enemies.Count > 0)
                 {
                     SetPhase(BattlePhases.EnemyTurn);
@@ -324,7 +330,7 @@ public class BattleSystem : MonoBehaviour
                 else SetPhase(BattlePhases.BattleWin);
                 break;
             case BattlePhases.EnemyTurn:
-                yield return new WaitForSeconds(SceneTweener.instance.PlayerTurnTransitionDelay);
+                yield return new WaitForSeconds(SceneTweener.Instance.PlayerTurnTransitionDelay);
                 if (playerCharacters.Count > 0)
                 {
                     SetPhase(BattlePhases.PlayerTurn);
@@ -377,7 +383,7 @@ public class BattleSystem : MonoBehaviour
                 }
                 else
                 {
-                    SceneTweener.instance.WaveClearSequence();
+                    SceneTweener.Instance.WaveClearSequence();
                     GlobalEvents.OnWaveClear?.Invoke();
                 }
                 break;

@@ -73,7 +73,7 @@ public class QuickTimeHold : QuickTimeBase
 
     void BonusFeedback(DamageStruct damage)
     {
-        if (damage.quickTimeSuccess)
+        if (damage.qteResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
             gaugeArrow.DORotate(new Vector3(0, 0, successSpinCount * -360), successSpinTime, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuart);
@@ -97,6 +97,7 @@ public class QuickTimeHold : QuickTimeBase
         fillBar.DOKill();
         gaugeArrow.DOKill();
         BonusFeedback(dmg);
+        OnQuickTimeComplete?.Invoke(dmg);
         JSAM.AudioManager.instance.StopSoundInternal(chargeSound);
     }
 
@@ -167,7 +168,7 @@ public class QuickTimeHold : QuickTimeBase
         {
             damageStruct.damageNormalized = barSuccessValues[barLevel];
             damageStruct.damageType = DamageType.Heavy;
-            damageStruct.quickTimeSuccess = true;
+            damageStruct.qteResult = QTEResult.Perfect;
             if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
@@ -175,11 +176,13 @@ public class QuickTimeHold : QuickTimeBase
         {
             damageStruct.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
             damageStruct.damageType = DamageType.Medium;
+            damageStruct.qteResult = QTEResult.Early;
         }
         else
         {
             damageStruct.damageNormalized = barMissValue;
             damageStruct.damageType = DamageType.Light;
+            damageStruct.qteResult = QTEResult.Late;
         }
 
         if (BattleSystem.instance.CurrentPhase == BattlePhases.EnemyTurn)
@@ -188,6 +191,7 @@ public class QuickTimeHold : QuickTimeBase
             //newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
         }
 
+        damageStruct.barFill = fillBar.fillAmount;
         damageStruct.chargeLevel = barLevel;
 
         return damageStruct;

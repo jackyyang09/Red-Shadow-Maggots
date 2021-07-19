@@ -4,6 +4,13 @@ using UnityEngine;
 
 public abstract class QuickTimeBase : MonoBehaviour
 {
+    public enum QTEResult
+    {
+        Early,
+        Perfect,
+        Late
+    }
+
     [SerializeField]
     protected OptimizedCanvas canvas;
 
@@ -19,6 +26,8 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     [SerializeField]
     protected float hideDelay = 0.5f;
+
+    public System.Action<DamageStruct> OnQuickTimeComplete;
 
     protected void OnEnable()
     {

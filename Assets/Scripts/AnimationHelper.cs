@@ -1,8 +1,9 @@
-﻿using JSAM;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using JSAM;
+using DG.Tweening;
 
 public class AnimationHelper : MonoBehaviour
 {
@@ -20,6 +21,10 @@ public class AnimationHelper : MonoBehaviour
 
     [SerializeField] float explosionForces = 10;
     [SerializeField] float explosionUp = 1;
+
+    [Header("Mesh Shake Properties")]
+    [SerializeField] float shakeStrength = 1;
+    [SerializeField] int shakeVibrato = 10;
 
     [Header("Object References")]
 
@@ -108,12 +113,16 @@ public class AnimationHelper : MonoBehaviour
         GlobalEvents.OnExitBattleCutscene?.Invoke();
     }
 
+    // TODO: Try the priority system instead
     public void ShowVirtualCamera() => vCam.enabled = true;
-    public void HideVirtualCamera() => vCam.enabled = false;
-
+    public void HideVirtualCamera()
+    {
+        vCam.enabled = false;
+    }
+    
     public void MakePlayerCamLookAtMe()
     {
-        SceneTweener.instance.PlayerCamera.LookAt = transform;
+        SceneTweener.Instance.PlayerCamera.LookAt = transform;
     }
 
     [ContextMenu("Test Impulse")]
@@ -121,6 +130,20 @@ public class AnimationHelper : MonoBehaviour
     {
         impulse.GenerateImpulse();
     }
+
+    public void MakeTargetHoldHitFrame()
+    {
+        BattleSystem.instance.GetActiveEnemy().AnimHelper.HoldHitFrame();
+    }
+
+    public void HoldHitFrame() => anim.Play("Hit Reaction Frame");
+
+    public void MakeTargetShakeMesh()
+    {
+        BattleSystem.instance.GetActiveEnemy().AnimHelper.ShakeMesh();
+    }
+
+    public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
     public void DealDamage()
     {
@@ -139,7 +162,13 @@ public class AnimationHelper : MonoBehaviour
             onFinishSkillAnimation[i]();
         }
         onFinishSkillAnimation.Clear();
+
+        SceneTweener.Instance.LerpCamera.enabled = true;
+        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;        
+        Invoke(nameof(DisableLerpCam), 1.5f);
     }
+
+    void DisableLerpCam() => SceneTweener.Instance.LerpCamera.enabled = false;
 
     public void PlayMiscSoundAtIndex(int index)
     {
@@ -168,5 +197,15 @@ public class AnimationHelper : MonoBehaviour
         anim.Play("Walk");
         yield return new WaitForSeconds(walkTime);
         anim.SetBool("Walk", false);
+    }
+
+    public void DarkenSky()
+    {
+        RenderSettings.skybox.DOFloat(0, "_Exposure", 0.25f);
+    }
+
+    public void BrightenSky()
+    {
+        RenderSettings.skybox.DOFloat(0.95f, "_Exposure", 0.25f);
     }
 }

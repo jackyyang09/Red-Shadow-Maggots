@@ -121,9 +121,9 @@ public class GachaSystem : MonoBehaviour
     void NormalizeValues()
     {
         float weights = chanceOfCommon + chanceOfRare + chanceOfSuperRare;
-        chanceOfCommon *= weights;
-        chanceOfRare *= weights;
-        chanceOfSuperRare *= weights;
+        chanceOfCommon /= weights;
+        chanceOfRare /= weights;
+        chanceOfSuperRare /= weights;
     }
 
     void EstablishSingletonDominance()

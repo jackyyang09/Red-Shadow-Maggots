@@ -17,6 +17,7 @@ public class EnemyCharacter : BaseCharacter
         {
             characterMesh.transform.localScale = new Vector3(0.5714285f, 0.5714285f, 0.5714285f);
         }
+        characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
     }
 
     protected override void OnEnable()

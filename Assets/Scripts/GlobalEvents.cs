@@ -20,7 +20,7 @@ public class GlobalEvents
     public static Action<BaseCharacter> OnCharacterStartAttack;
     public static Action<BaseCharacter> OnCharacterAttacked;
 
-    public static Action<BaseCharacter> OnCharacterActivateSkill;
+    public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
 
     public static Action<BaseCharacter> OnCharacterDeath;
 

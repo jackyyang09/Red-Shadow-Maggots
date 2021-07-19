@@ -14,13 +14,11 @@ public struct DamageStruct
     /// QuickTime value
     /// </summary>
     public float damageNormalized;
+    public float barFill;
     public DamageType damageType;
     public DamageEffectivess effectivity;
+    public QuickTimeBase.QTEResult qteResult;
     public bool isCritical;
-    /// <summary>
-    /// Did the player hit the red zone?
-    /// </summary>
-    public bool quickTimeSuccess;
     public int chargeLevel;
 }
 
@@ -249,7 +247,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     rigAnim.Play("Attack Execute");
                     break;
                 case QTEType.Hold:
-                    if (!damage.quickTimeSuccess)
+                    if (damage.qteResult == QuickTimeBase.QTEResult.Perfect)
                     {
                         rigAnim.SetInteger("Charge Level", 0);
                     }
@@ -278,10 +276,10 @@ public abstract class BaseCharacter : MonoBehaviour
         switch (Reference.range)
         {
             case AttackRange.CloseRange:
-                SceneTweener.instance.ReturnToPosition();
+                SceneTweener.Instance.ReturnToPosition();
                 break;
             case AttackRange.LongRange:
-                SceneTweener.instance.RotateBack();
+                SceneTweener.Instance.RotateBack();
                 break;
         }
     }
@@ -290,7 +288,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (rigAnim)
         {
-            rigAnim.Play("Jump Back");
+            rigAnim.SetTrigger("Jump Back");
         }
     }
 
@@ -304,7 +302,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         float finalCritChance = critChance + critChanceModifier;
         if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
-            finalCritChance += Convert.ToInt16(damageStruct.quickTimeSuccess) * BattleSystem.QuickTimeCritModifier;
+            finalCritChance += Convert.ToInt16(damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
         damageStruct.isCritical = (UnityEngine.Random.value < finalCritChance);
 
         damageStruct.damage = damageStruct.damageNormalized * (attack + attackModifier) * effectiveness;
@@ -427,7 +425,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 spriteAnim.Play("Skill");
             }
 
-            GlobalEvents.OnCharacterActivateSkill?.Invoke(this);
+            GlobalEvents.OnCharacterActivateSkill?.Invoke(this, currentSkill);
             for (int i = 0; i < onSkillFoundTargets.Count; i++)
             {
                 onSkillFoundTargets[i]();
@@ -591,7 +589,7 @@ public abstract class BaseCharacter : MonoBehaviour
         DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)
         {
-            if (incomingDamage.quickTimeSuccess)
+            if (incomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
             {
                 if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
                     rigAnim.Play("Hit Reaction");

@@ -58,11 +58,12 @@ public class QuickTimeBar : QuickTimeBase
         BonusFeedback(dmg);
         Invoke("Hide", hideDelay);
         fillBar.DOKill();
+        OnQuickTimeComplete?.Invoke(dmg);
     }
 
     void BonusFeedback(DamageStruct damage)
     {
-        if (damage.quickTimeSuccess)
+        if (damage.qteResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
         }
@@ -113,7 +114,7 @@ public class QuickTimeBar : QuickTimeBase
         {
             newStruct.damageNormalized = barSuccessValue;
             newStruct.damageType = DamageType.Heavy;
-            newStruct.quickTimeSuccess = true;
+            newStruct.qteResult = QTEResult.Perfect;
             if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
@@ -121,11 +122,13 @@ public class QuickTimeBar : QuickTimeBase
         {
             newStruct.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
             newStruct.damageType = DamageType.Medium;
+            newStruct.qteResult = QTEResult.Early;
         }
         else
         {
             newStruct.damageNormalized = barMissValue;
             newStruct.damageType = DamageType.Light;
+            newStruct.qteResult = QTEResult.Late;
         }
 
         if (BattleSystem.instance.CurrentPhase == BattlePhases.EnemyTurn)
@@ -133,6 +136,8 @@ public class QuickTimeBar : QuickTimeBase
             newStruct.damageType -= DamageType.Heavy;
             newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
         }
+
+        newStruct.barFill = fillBar.fillAmount;
 
         return newStruct;
     }
