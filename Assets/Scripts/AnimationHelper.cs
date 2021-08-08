@@ -224,7 +224,7 @@ public class AnimationHelper : MonoBehaviour
         RenderSettings.skybox.DOFloat(0, "_Exposure", 0.25f);
     }
 
-    public void BrightenSky()
+    public static void BrightenSky()
     {
         RenderSettings.skybox.DOFloat(0.95f, "_Exposure", 0.25f);
     }
