@@ -133,14 +133,24 @@ public class AnimationHelper : MonoBehaviour
 
     public void MakeTargetHoldHitFrame()
     {
-        BattleSystem.instance.GetActiveEnemy().AnimHelper.HoldHitFrame();
+        BattleSystem.Instance.GetActiveEnemy().AnimHelper.HoldHitFrame();
+    }
+
+    public void MakeTargetFaceAttacker()
+    {
+        BattleSystem.Instance.GetActiveEnemy().AnimHelper.FaceAttacker();
+    }
+
+    public void FaceAttacker()
+    {
+        baseCharacter.CharacterMesh.transform.LookAt(BattleSystem.Instance.GetActivePlayer().transform);
     }
 
     public void HoldHitFrame() => anim.Play("Hit Reaction Frame");
 
     public void MakeTargetShakeMesh()
     {
-        BattleSystem.instance.GetActiveEnemy().AnimHelper.ShakeMesh();
+        BattleSystem.Instance.GetActiveEnemy().AnimHelper.ShakeMesh();
     }
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
@@ -169,6 +179,16 @@ public class AnimationHelper : MonoBehaviour
     }
 
     void DisableLerpCam() => SceneTweener.Instance.LerpCamera.enabled = false;
+
+    public void SpawnMiscEffectAtIndex(int index)
+    {
+        BattleSystem.Instance.GetActiveEnemy().SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index], true);
+    }
+
+    public void SpawnAndParentMiscEffectAtIndex(int index)
+    {
+        BattleSystem.Instance.GetActiveEnemy().SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index]);
+    }
 
     public void PlayMiscSoundAtIndex(int index)
     {

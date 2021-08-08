@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4844cc75892397d49b6003873f335868, type: 3}
+  m_Name: Magic Scout
+  m_EditorClassIdentifier: 
+  characterName: Magic Scout
+  attack: 1200
+  maxHealth: 12500
+  critChance: 0.04
+  critDamageMultiplier: 2
+  sprite: {fileID: 21300000, guid: ae99461f1ce33314c8624a9aed910529, type: 3}
+  headshotSprite: {fileID: 21300000, guid: 45cb4bb88c322e94a94f3e1bafe86832, type: 3}
+  characterClass: 2
+  range: 1
+  attackQteType: 0
+  attackLeniency: 0.4
+  defenceLeniency: 0.4
+  skills:
+  - {fileID: 11400000, guid: 274f9d2fa1ac3e14ea55198fa8f5f41e, type: 2}
+  - {fileID: 11400000, guid: dc98a93444da3c94fb35154bffb78744, type: 2}
+  spriteObject: {fileID: 6265418185186686663, guid: 5d90af59ee136184caa25dc5818a919a, type: 3}
+  animator: {fileID: 22100000, guid: 1d83dc70895daa743973cca26a1fd335, type: 2}
+  characterRig: {fileID: 7769970048316075523, guid: 6b73185ec7458d0409db0fdef175de1a, type: 3}
+  attackEffectPrefab: {fileID: 8861231430906966284, guid: 2c70e077af709674494033935fbbded6, type: 3}
+  extraEffectPrefabs: []
+  voiceEntry: {fileID: 11400000, guid: 1abe5da7316006f4e8b038e9181530f3, type: 2}
+  voiceAttack: {fileID: 11400000, guid: b68d4778174e755478aeab3ead4222c8, type: 2}
+  voiceSelected: {fileID: 11400000, guid: 2a00fcb5b75ab6c41999a7584a49fd06, type: 2}
+  voiceFirstSkill: {fileID: 0}
+  voiceSecondSkill: {fileID: 11400000, guid: 565a1834be3e2d84885b629ba4bad88c, type: 2}
+  voiceHurt: {fileID: 11400000, guid: 6296a7ba6a1f01f478e7c2d39e367737, type: 2}
+  voiceDeath: {fileID: 11400000, guid: 6c5b021b99b40d04f90eea86e75333b4, type: 2}
+  voiceVictory: {fileID: 11400000, guid: 454e33aca6ed71b4484708d60a3066d5, type: 2}
+  weaponSound: {fileID: 11400000, guid: 208ab144ca4a7204da910a90b4b1b056, type: 2}
+  extraSounds: []

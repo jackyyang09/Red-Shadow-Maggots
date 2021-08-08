@@ -19,6 +19,7 @@ public struct DamageStruct
     public DamageEffectivess effectivity;
     public QuickTimeBase.QTEResult qteResult;
     public bool isCritical;
+    public bool isSuperCritical;
     public int chargeLevel;
 }
 
@@ -77,15 +78,13 @@ public abstract class BaseCharacter : MonoBehaviour
     float defenseModifier;
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
+    /// <summary>
+    /// The sum of the character's base crit chance and any modifiers before QTEs
+    /// </summary>
+    public float CritChanceAdjusted { get { return critChance + critChanceModifier; } }
 
     [SerializeField] float critChanceModifier = 0;
-    public float CritChanceModifier
-    {
-        get
-        {
-            return critChanceModifier;
-        }
-    }
+    public float CritChanceModifier { get { return critChanceModifier; } }
 
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
@@ -244,10 +243,11 @@ public abstract class BaseCharacter : MonoBehaviour
             switch (Reference.attackQteType)
             {
                 case QTEType.SimpleBar:
+                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
                     rigAnim.Play("Attack Execute");
                     break;
                 case QTEType.Hold:
-                    if (damage.qteResult == QuickTimeBase.QTEResult.Perfect)
+                    if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
                     {
                         rigAnim.SetInteger("Charge Level", 0);
                     }
@@ -255,6 +255,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     {
                         rigAnim.SetInteger("Charge Level", damage.chargeLevel);
                     }
+                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
                     rigAnim.SetTrigger("Attack Execute");
                     break;
             }
@@ -267,7 +268,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void DealDamage()
     {
-        BattleSystem.instance.AttackTarget(incomingDamage);
+        BattleSystem.Instance.AttackTarget(incomingDamage);
         GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
     }
 
@@ -295,15 +296,20 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void CalculateAttackDamage(DamageStruct damageStruct)
     {
         var playerClass = characterReference.characterClass;
-        var enemyClass = BattleSystem.instance.GetOpposingCharacter().characterReference.characterClass;
+        var enemyClass = BattleSystem.Instance.GetOpposingCharacter().characterReference.characterClass;
 
         float effectiveness = DamageTriangle.GetEffectiveness(playerClass, enemyClass);
         damageStruct.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-        float finalCritChance = critChance + critChanceModifier;
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+        float finalCritChance = CritChanceAdjusted;
+        // Add an additional crit chance factor on successful attack QTE
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
             finalCritChance += Convert.ToInt16(damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
         damageStruct.isCritical = (UnityEngine.Random.value < finalCritChance);
+        if (damageStruct.isCritical)
+        {
+            damageStruct.isSuperCritical = finalCritChance >= 1.0f;
+        }
 
         damageStruct.damage = damageStruct.damageNormalized * (attack + attackModifier) * effectiveness;
         if (damageStruct.isCritical) damageStruct.damage *= (critMultiplier + critDamageModifier);
@@ -365,9 +371,9 @@ public abstract class BaseCharacter : MonoBehaviour
                 EnemyCharacter.onSelectedEnemyCharacterChange += addTarget;
                 break;
             case TargetMode.AllAllies:
-                for (int i = 0; i < BattleSystem.instance.PlayerCharacters.Count; i++)
+                for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
                 {
-                    targets.Add(BattleSystem.instance.PlayerCharacters[i]);
+                    targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
                 }
                 break;
             case TargetMode.AllEnemies:
@@ -474,9 +480,9 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (effect.effect.targetOverride)
                 {
                     case TargetMode.AllAllies:
-                        for (int j = 0; j < BattleSystem.instance.PlayerCharacters.Count; j++)
+                        for (int j = 0; j < BattleSystem.Instance.PlayerCharacters.Count; j++)
                         {
-                            ApplyEffectToCharacter(effect, BattleSystem.instance.PlayerCharacters[j]);
+                            ApplyEffectToCharacter(effect, BattleSystem.Instance.PlayerCharacters[j]);
                         }
                         break;
                     case TargetMode.AllEnemies:
@@ -591,14 +597,14 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (incomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
             {
-                if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+                if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
                     rigAnim.Play("Hit Reaction");
                 else
                     rigAnim.Play("Block Reaction");
             }
             else
             {
-                if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+                if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
                     rigAnim.Play("Block Reaction");
                 else
                     rigAnim.Play("Hit Reaction");
@@ -639,12 +645,15 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    public void SpawnEffectPrefab(GameObject prefab)
+    public void SpawnEffectPrefab(GameObject prefab, bool removeParent = false)
     {
         effectRegion.rotation = characterMesh.transform.rotation;
-        var newEffect = Instantiate(prefab, effectRegion);
-        newEffect.transform.localEulerAngles = Vector3.zero;
-        newEffect.transform.SetParent(animHelper.transform.GetChild(0).GetChild(0));
+        var newEffect = Instantiate(prefab, effectRegion.transform.position, effectRegion.rotation);
+        //newEffect.transform.localEulerAngles = Vector3.zero;
+        if (!removeParent)
+        {
+            newEffect.transform.SetParent(animHelper.transform.GetChild(0).GetChild(0));
+        }
         Destroy(newEffect, 5);
     }
 

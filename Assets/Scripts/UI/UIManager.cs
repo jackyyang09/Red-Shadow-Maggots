@@ -87,7 +87,7 @@ public class UIManager : MonoBehaviour
 
     public void ResumePlayerControl()
     {
-        if (BattleSystem.instance.CurrentPhase != BattlePhases.PlayerTurn) return;
+        if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
         if (optionsCanvas.IsVisible) return;
         attackButton.Show();
         CanSelectPlayer = true;
@@ -95,7 +95,7 @@ public class UIManager : MonoBehaviour
         foreach (SkillButtonUI button in skillButtons)
         {
             button.button.Show();
-            UpdateSkillGraphic(BattleSystem.instance.GetActivePlayer());
+            UpdateSkillGraphic(BattleSystem.Instance.GetActivePlayer());
         }
     }
 
@@ -113,7 +113,7 @@ public class UIManager : MonoBehaviour
     public void OpenCharacterPanel()
     {
         CharacterPanelOpen = true;
-        characterDetailsPanel.DisplayWithCharacter(BattleSystem.instance.GetActivePlayer());
+        characterDetailsPanel.DisplayWithCharacter(BattleSystem.Instance.GetActivePlayer());
     }
 
     public void CloseCharacterPanel()
@@ -124,7 +124,7 @@ public class UIManager : MonoBehaviour
 
     private void UpdateSkillGraphic(PlayerCharacter obj)
     {
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn)
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
             for (int i = 0; i < skillButtons.Length; i++)
             {
@@ -147,7 +147,7 @@ public class UIManager : MonoBehaviour
             button.button.Hide();
         }
 
-        foreach (PlayerCharacter p in BattleSystem.instance.PlayerCharacters)
+        foreach (PlayerCharacter p in BattleSystem.Instance.PlayerCharacters)
         {
             p.ShowSelectionPointer();
         }
@@ -160,7 +160,7 @@ public class UIManager : MonoBehaviour
 
     public void CancelSkillInvocation()
     {
-        BattleSystem.instance.GetActivePlayer().CancelSkill();
+        BattleSystem.Instance.GetActivePlayer().CancelSkill();
         ResumePlayerControl();
     }
 
@@ -171,25 +171,25 @@ public class UIManager : MonoBehaviour
         skillBackButton.Hide();
         skillTargetMessage.Hide();
 
-        foreach (PlayerCharacter p in BattleSystem.instance.PlayerCharacters)
+        foreach (PlayerCharacter p in BattleSystem.Instance.PlayerCharacters)
         {
             p.HideSelectionPointer();
         }
 
-        BattleSystem.instance.GetActiveEnemy().ShowSelectionPointer();
+        BattleSystem.Instance.GetActiveEnemy().ShowSelectionPointer();
     }
 
     public void ShowSkillDetails(int index)
     {
-        skillPanel.UpdateDetails(BattleSystem.instance.GetActivePlayer().GetSkill(index));
+        skillPanel.UpdateDetails(BattleSystem.Instance.GetActivePlayer().GetSkill(index));
     }
 
     public void AttackPress()
     {
         onAttackCommit?.Invoke();
-        BattleSystem.instance.ExecutePlayerAttack();
+        BattleSystem.Instance.ExecutePlayerAttack();
 
-        PlayerCharacter player = BattleSystem.instance.GetActivePlayer();
+        PlayerCharacter player = BattleSystem.Instance.GetActivePlayer();
         switch (player.Reference.attackQteType)
         {
             case QTEType.SimpleBar:
@@ -203,7 +203,7 @@ public class UIManager : MonoBehaviour
 
     public void StartDefending()
     {
-        defenseBar.InitializeBar(BattleSystem.instance.GetActivePlayer());
+        defenseBar.InitializeBar(BattleSystem.Instance.GetActivePlayer());
     }
 
     public void ShowWinCanvas()
@@ -241,7 +241,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateGameSpeed()
     {
-        gameSpeedText.text = BattleSystem.instance.CurrentGameSpeedTime + "x";
+        gameSpeedText.text = BattleSystem.Instance.CurrentGameSpeedTime + "x";
     }
 
     void EstablishSingletonDominance()

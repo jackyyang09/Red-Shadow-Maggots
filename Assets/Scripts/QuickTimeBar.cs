@@ -87,7 +87,7 @@ public class QuickTimeBar : QuickTimeBase
         fillBar.color = Color.white;
 
         float leniency = 0;
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 activePlayer = player;
@@ -115,7 +115,7 @@ public class QuickTimeBar : QuickTimeBase
             newStruct.damageNormalized = barSuccessValue;
             newStruct.damageType = DamageType.Heavy;
             newStruct.qteResult = QTEResult.Perfect;
-            if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
+            if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
@@ -131,7 +131,7 @@ public class QuickTimeBar : QuickTimeBase
             newStruct.qteResult = QTEResult.Late;
         }
 
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.EnemyTurn)
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
         {
             newStruct.damageType -= DamageType.Heavy;
             newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);

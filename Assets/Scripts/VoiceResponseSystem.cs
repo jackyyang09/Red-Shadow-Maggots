@@ -68,7 +68,7 @@ public class VoiceResponseSystem : MonoBehaviour
 
     public void Entry()
     {
-        var audio = BattleSystem.instance.RandomPlayerCharacter.Reference.voiceEntry;
+        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceEntry;
         AudioManager.instance.PlaySoundInternal(audio);
     }
 
@@ -79,13 +79,13 @@ public class VoiceResponseSystem : MonoBehaviour
 
     public void WaveClear()
     {
-        var audio = BattleSystem.instance.RandomPlayerCharacter.Reference.voiceVictory;
+        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
         AudioManager.instance.PlaySoundInternal(audio);
     }
 
     public void GameClear()
     {
-        var audio = BattleSystem.instance.RandomPlayerCharacter.Reference.voiceVictory;
+        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
         AudioManager.PlaySound(Sounds.PlayerVictory);
         AudioManager.StopMusic();
         var source = AudioManager.instance.PlaySoundInternal(audio);

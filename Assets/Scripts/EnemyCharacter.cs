@@ -54,7 +54,7 @@ public class EnemyCharacter : BaseCharacter
 
     public override void ShowCharacterUI()
     {
-        bool isSelected = BattleSystem.instance.GetActiveEnemy() == this;
+        bool isSelected = BattleSystem.Instance.GetActiveEnemy() == this;
         selectionPointer.enabled = isSelected;
         anim.SetBool("Selected", isSelected);
     }
@@ -67,12 +67,12 @@ public class EnemyCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             if (IsDead) return;
             GlobalEvents.OnSelectCharacter?.Invoke(this);
-            if (BattleSystem.instance.GetActiveEnemy() == this) return;
-            BattleSystem.instance.SetActiveEnemy(this);
+            if (BattleSystem.Instance.GetActiveEnemy() == this) return;
+            BattleSystem.Instance.SetActiveEnemy(this);
             onSelectedEnemyCharacterChange?.Invoke(this);
         }
     }
@@ -122,7 +122,7 @@ public class EnemyCharacter : BaseCharacter
 
     public override void HideSelectionPointer()
     {
-        if (BattleSystem.instance.GetActiveEnemy() != this)
+        if (BattleSystem.Instance.GetActiveEnemy() != this)
         {
             base.HideSelectionPointer();
         }

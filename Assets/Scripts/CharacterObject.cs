@@ -25,13 +25,13 @@ public enum QTEType
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class CharacterObject : ScriptableObject
 {
-    public string characterName;
+    public string characterName = null;
     public float attack;
     public float maxHealth;
     [Range(0, 1)] public float critChance;
     public float critDamageMultiplier;
-    public Sprite sprite;
-    public Sprite headshotSprite;
+    public Sprite sprite = null;
+    public Sprite headshotSprite = null;
     public CharacterClass characterClass;
     public AttackRange range;
     public QTEType attackQteType;
@@ -39,30 +39,31 @@ public class CharacterObject : ScriptableObject
     [Range(0, 1)] public float attackLeniency;
     [Range(0, 1)] public float defenceLeniency;
 
-    public SkillObject[] skills;
+    public SkillObject[] skills = null;
 
-    public GameObject spriteObject;
-    public AnimatorOverrideController animator;
+    public GameObject spriteObject = null;
+    public AnimatorOverrideController animator = null;
 
-    public GameObject characterRig;
+    public GameObject characterRig = null;
 
     [Header("Effect Prefabs")]
-    public GameObject attackEffectPrefab;
+    public GameObject attackEffectPrefab = null;
+    public GameObject[] extraEffectPrefabs = null;
 
     [Header("Audio File Voice Objects")]
-    public AudioFileObject voiceEntry;
-    public AudioFileObject voiceAttack;
-    public AudioFileObject voiceSelected;
-    public AudioFileObject voiceFirstSkill;
-    public AudioFileObject voiceSecondSkill;
-    public AudioFileObject voiceHurt;
-    public AudioFileObject voiceDeath;
-    public AudioFileObject voiceVictory;
+    public AudioFileObject voiceEntry = null;
+    public AudioFileObject voiceAttack = null;
+    public AudioFileObject voiceSelected = null;
+    public AudioFileObject voiceFirstSkill = null;
+    public AudioFileObject voiceSecondSkill = null;
+    public AudioFileObject voiceHurt = null;
+    public AudioFileObject voiceDeath = null;
+    public AudioFileObject voiceVictory = null;
 
     [Header("Audio File Sound Objects")]
-    public AudioFileObject weaponSound;
+    public AudioFileObject weaponSound = null;
 
-    public AudioFileObject[] extraSounds;
+    public AudioFileObject[] extraSounds = null;
 }
 
 public enum DamageEffectivess

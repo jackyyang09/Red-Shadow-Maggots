@@ -39,9 +39,9 @@ public class EnemyController : MonoBehaviour
 
     public void MakeYourMove()
     {
-        BattleSystem.instance.SetActiveEnemy(enemies[Random.Range(0, enemies.Count)]);
-        BattleSystem.instance.SetActivePlayer(BattleSystem.instance.RandomPlayerCharacter);
-        BattleSystem.instance.ExecuteEnemyAttack();
+        BattleSystem.Instance.SetActiveEnemy(enemies[Random.Range(0, enemies.Count)]);
+        BattleSystem.Instance.SetActivePlayer(BattleSystem.Instance.RandomPlayerCharacter);
+        BattleSystem.Instance.ExecuteEnemyAttack();
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)

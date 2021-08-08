@@ -45,11 +45,11 @@ public class GachaSystem : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        BattleSystem.instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
-        BattleSystem.instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
-        BattleSystem.instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
+        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
+        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
+        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
 
-        BattleSystem.instance.GameStart();
+        BattleSystem.Instance.GameStart();
     }
 
     // Update is called once per frame

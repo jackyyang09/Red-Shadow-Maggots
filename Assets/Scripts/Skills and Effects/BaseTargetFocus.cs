@@ -8,13 +8,13 @@ public class BaseTargetFocus : BaseGameEffect
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var player = target as PlayerCharacter;
-        BattleSystem.instance.ApplyTargetFocus(player);
+        BattleSystem.Instance.ApplyTargetFocus(player);
     }
 
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var player = target as PlayerCharacter;
-        BattleSystem.instance.RemoveTargetFocus(player);
+        BattleSystem.Instance.RemoveTargetFocus(player);
     }
 
     public override void Tick()

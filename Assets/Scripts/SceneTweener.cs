@@ -93,7 +93,7 @@ public class SceneTweener : MonoBehaviour
     Vector3 savedPosition;
     public void MeleeTweenTo(Transform attacker, Transform target)
     {
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 enemyCam.enabled = false;
@@ -114,7 +114,7 @@ public class SceneTweener : MonoBehaviour
 
     public void RangedTweenTo(Transform attacker, Transform target)
     {
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 attacker.LookAt(target.position);
@@ -142,7 +142,7 @@ public class SceneTweener : MonoBehaviour
     public void DisableAnim()
     {
         anim.enabled = false;
-        BattleSystem.instance.SetPhase(BattlePhases.PlayerTurn);
+        BattleSystem.Instance.SetPhase(BattlePhases.PlayerTurn);
     }
 
     public void ReturnToPosition()
@@ -157,24 +157,24 @@ public class SceneTweener : MonoBehaviour
 
     IEnumerator RotateBackDelayed()
     {
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                playerCam.m_LookAt = BattleSystem.instance.GetActivePlayer().transform;
+                playerCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = BattleSystem.instance.GetActivePlayer().transform;
+                enemyCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
                 break;
         }
 
         yield return new WaitForSeconds(returnTweenDelay);
 
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                var activePlayer = BattleSystem.instance.GetActivePlayer();
+                var activePlayer = BattleSystem.Instance.GetActivePlayer();
 
-                BattleSystem.instance.GetActiveEnemy().CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.15f);
+                BattleSystem.Instance.GetActiveEnemy().CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.15f);
                 activePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.1f);
                 break;
             case BattlePhases.EnemyTurn:
@@ -183,18 +183,18 @@ public class SceneTweener : MonoBehaviour
 
         playerCam.m_LookAt = worldCenter;
 
-        BattleSystem.instance.EndTurn();
+        BattleSystem.Instance.EndTurn();
     }
 
     IEnumerator ReturnToPositionDelayed()
     {
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                playerCam.m_LookAt = BattleSystem.instance.GetActivePlayer().transform;
+                playerCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = BattleSystem.instance.GetActiveEnemy().transform;
+                enemyCam.m_LookAt = BattleSystem.Instance.GetActiveEnemy().transform;
                 break;
         }
 
@@ -203,10 +203,10 @@ public class SceneTweener : MonoBehaviour
         bool maintainGaze = true;
         Vector3 ogPos = Vector3.zero;
         Vector3 ogRot = Vector3.zero;
-        switch (BattleSystem.instance.CurrentPhase)
+        switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                var activePlayer = BattleSystem.instance.GetActivePlayer();
+                var activePlayer = BattleSystem.Instance.GetActivePlayer();
 
                 ogPos = activePlayer.CharacterMesh.transform.position;
                 ogRot = activePlayer.CharacterMesh.transform.eulerAngles;
@@ -235,7 +235,7 @@ public class SceneTweener : MonoBehaviour
 
                 break;
             case BattlePhases.EnemyTurn:
-                var activeEnemy = BattleSystem.instance.GetActiveEnemy();
+                var activeEnemy = BattleSystem.Instance.GetActiveEnemy();
 
                 ogPos = activeEnemy.CharacterMesh.transform.position;
                 ogRot = activeEnemy.CharacterMesh.transform.eulerAngles;
@@ -264,7 +264,7 @@ public class SceneTweener : MonoBehaviour
                 break;
         }
 
-        BattleSystem.instance.EndTurn();
+        BattleSystem.Instance.EndTurn();
     }
 
     public void WaveClearSequence()
@@ -276,16 +276,16 @@ public class SceneTweener : MonoBehaviour
 
     public void MakePlayersWalk(float walkTime)
     {
-        for (int i = 0; i < BattleSystem.instance.PlayerCharacters.Count; i++)
+        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
         {
-            var player = BattleSystem.instance.PlayerCharacters[i];
+            var player = BattleSystem.Instance.PlayerCharacters[i];
             player.AnimHelper.WalkForward(1);
         }
     }
 
     public void GateEntered()
     {
-        BattleSystem.instance.InitiateNextBattle();
+        BattleSystem.Instance.InitiateNextBattle();
     }
 
     void EstablishSingletonDominance()

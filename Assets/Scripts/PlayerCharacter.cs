@@ -68,14 +68,14 @@ public class PlayerCharacter : BaseCharacter
     private void OnMouseDown()
     {
         if (UIManager.instance.CharacterPanelOpen) return;
-        if (BattleSystem.instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             GlobalEvents.OnSelectCharacter?.Invoke(this);
             onSelectPlayer?.Invoke(this);
-            if (BattleSystem.instance.GetActivePlayer() == this) return;
+            if (BattleSystem.Instance.GetActivePlayer() == this) return;
             if (UIManager.SelectingAllyForSkill) return;
             if (IsDead) return;
-            BattleSystem.instance.SetActivePlayer(this);
+            BattleSystem.Instance.SetActivePlayer(this);
             onSelectedPlayerCharacterChange?.Invoke(this);
         }
     }
@@ -101,7 +101,7 @@ public class PlayerCharacter : BaseCharacter
 
     public override void ShowCharacterUI()
     {
-        bool isSelected = BattleSystem.instance.GetActivePlayer() == this;
+        bool isSelected = BattleSystem.Instance.GetActivePlayer() == this;
         selectionCircle.enabled = isSelected;
         anim.SetBool("Selected", isSelected);
     }
@@ -131,7 +131,7 @@ public class PlayerCharacter : BaseCharacter
 
     public override void InvokeDeathEvents()
     {
-        BattleSystem.instance.RegisterPlayerDeath(this);
+        BattleSystem.Instance.RegisterPlayerDeath(this);
         onDeath?.Invoke();
         GlobalEvents.OnCharacterDeath?.Invoke(this);
         GlobalEvents.OnAnyPlayerDeath?.Invoke();

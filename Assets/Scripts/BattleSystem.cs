@@ -85,7 +85,7 @@ public class BattleSystem : MonoBehaviour
     public static System.Action onStartPlayerTurnLate;
     public static System.Action onStartEnemyTurn;
 
-    public static BattleSystem instance;
+    public static BattleSystem Instance;
 
     private void Awake()
     {
@@ -461,9 +461,9 @@ public class BattleSystem : MonoBehaviour
     [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 100%", MaxArgCount = 0)]
     public static void MaxCrit(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < instance.playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
-            instance.playerCharacters[i].ApplyCritChanceModifier(1);
+            Instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Crit rate maxed!");
     }
@@ -471,11 +471,11 @@ public class BattleSystem : MonoBehaviour
     [CommandTerminal.RegisterCommand(Help = "Instantly hurt players, leaving them at 1 health", MaxArgCount = 0)]
     public static void CripplePlayers(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < instance.playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
             DamageStruct dmg = new DamageStruct();
-            dmg.damage = instance.playerCharacters[i].CurrentHealth - 1;
-            instance.playerCharacters[i].TakeDamage(dmg);
+            dmg.damage = Instance.playerCharacters[i].CurrentHealth - 1;
+            Instance.playerCharacters[i].TakeDamage(dmg);
         }
         Debug.Log("Players damaged!");
     }
@@ -483,24 +483,24 @@ public class BattleSystem : MonoBehaviour
 
     void EstablishSingletonDominance()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
-        else if (instance != this)
+        else if (Instance != this)
         {
             // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
+            if (Instance.gameObject.scene.name == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (!instance.gameObject.activeInHierarchy)
+            else if (!Instance.gameObject.activeInHierarchy)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
+            else if (Instance.gameObject.scene.name != gameObject.scene.name)
             {
-                instance = this;
+                Instance = this;
             }
             Destroy(gameObject);
         }
