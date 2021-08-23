@@ -36,10 +36,8 @@ namespace JSAM
         bool activated;
 
         // Start is called before the first frame update
-        protected override void Start()
+        protected void Start()
         {
-            base.Start();
-
             switch (onStart)
             {
                 case AudioPlaybackBehaviour.Play:
@@ -55,50 +53,19 @@ namespace JSAM
             }
         }
 
-        public AudioSource Play()
+        public JSAMSoundChannelHelper Play()
         {
-            AudioManager am = AudioManager.instance;
-            AudioSource source;
-
-            if (loopSound)
-            {
-                source = am.PlaySoundLoopInternal(sound, sTransform);
-            }
-            else source = am.PlaySoundInternal(sound, sTransform);
+            var helper = AudioManager.PlaySound(sound, transform);
 
             // Ready to play again later
             activated = false;
 
-            return source;
+            return helper;
         }
 
         void PlayAtPosition()
         {
-            AudioManager am = AudioManager.instance;
-            AudioSource source;
-
-            if (loopSound)
-            {
-                if (sound.spatialize)
-                {
-                    source = am.PlaySoundLoopInternal(sound, sTransform.position);
-                }
-                else
-                {
-                    source = am.PlaySoundLoopInternal(sound, null);
-                }
-            }
-            else
-            {
-                if (sound.spatialize)
-                {
-                    source = am.PlaySoundInternal(sound, sTransform.position);
-                }
-                else
-                {
-                    source = am.PlaySoundInternal(sound, null);
-                }
-            }
+            var helper = AudioManager.PlaySound(sound, transform);
 
             // Ready to play again later
             activated = false;
@@ -114,23 +81,7 @@ namespace JSAM
         /// </summary>
         public void Stop()
         {
-            AudioManager am = AudioManager.instance;
-
-            if (am == null) return;
-            if (!loopSound)
-            {
-                if (am.IsSoundPlayingInternal(sound, sTransform))
-                {
-                    am.StopSoundInternal(sound, sTransform);
-                }
-            }
-            else
-            {
-                if (am.IsSoundLoopingInternal(sound))
-                {
-                    am.StopSoundLoopInternal(sound, true, sTransform);
-                }
-            }
+            AudioManager.StopSound(sound, transform);
         }
 
         private void OnEnable()
@@ -152,11 +103,11 @@ namespace JSAM
 
         IEnumerator PlayOnEnable()
         {
-            while (!AudioManager.instance)
+            while (!AudioManager.Instance)
             {
                 yield return new WaitForEndOfFrame();
             }
-            while (!AudioManager.instance.Initialized())
+            while (!AudioManager.Instance.Initialized())
             {
                 yield return new WaitForEndOfFrame();
             }

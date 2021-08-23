@@ -192,18 +192,18 @@ public class AnimationHelper : MonoBehaviour
 
     public void PlayMiscSoundAtIndex(int index)
     {
-        AudioManager.instance.PlaySoundInternal(baseCharacter.Reference.extraSounds[index]);
+        AudioManager.PlaySound(baseCharacter.Reference.extraSounds[index]);
     }
-
-    public void PlayMiscLoopingSoundAtIndex(int index)
-    {
-        AudioManager.instance.PlaySoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
-    }
-
-    public void StopMiscLoopingSoundAtIndex(int index)
-    {
-        AudioManager.instance.StopSoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
-    }
+    //
+    //public void PlayMiscLoopingSoundAtIndex(int index)
+    //{
+    //    AudioManager.PlaySoundLoop(baseCharacter.Reference.extraSounds[index]);
+    //}
+    //
+    //public void StopMiscLoopingSoundAtIndex(int index)
+    //{
+    //    AudioManager.Instance.StopSoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
+    //}
 
     public void DashForward() => anim.Play("Dash");
 
@@ -224,7 +224,7 @@ public class AnimationHelper : MonoBehaviour
         RenderSettings.skybox.DOFloat(0, "_Exposure", 0.25f);
     }
 
-    public static void BrightenSky()
+    public void BrightenSky()
     {
         RenderSettings.skybox.DOFloat(0.95f, "_Exposure", 0.25f);
     }

@@ -36,20 +36,15 @@ namespace JSAM
             particles = new ParticleSystem.Particle[partSys.main.maxParticles];
         }
 
-        protected override void Start()
-        {
-            base.Start();
-        }
-
         public void PlaySound()
         {
             switch (playSoundOn)
             {
                 case ParticleEvent.ParticleEmitted:
-                    AudioManager.instance.PlaySoundInternal(sound, sTransform);
+                    AudioManager.PlaySound(sound, transform);
                     break;
                 case ParticleEvent.ParticleDeath:
-                    AudioManager.instance.PlaySoundInternal(sound, sTransform);
+                    AudioManager.PlaySound(sound, transform);
                     break;
             }
         }
@@ -78,7 +73,6 @@ namespace JSAM
             // Change only the particles that are alive
             for (int i = 0; i < numPartAlive; i++)
             {
-
                 if (i == 0)
                 {
                     youngest = 0;
@@ -92,7 +86,6 @@ namespace JSAM
             lifetime = particles[youngest].startLifetime - particles[youngest].remainingLifetime;
 
             return youngest;
-
         }
     }
 }

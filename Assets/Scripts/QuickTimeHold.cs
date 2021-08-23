@@ -45,7 +45,7 @@ public class QuickTimeHold : QuickTimeBase
     [SerializeField] int successSpinCount = 2;
     [SerializeField] float successSpinTime = 1.5f;
 
-    [SerializeField] JSAM.AudioFileObject chargeSound = null;
+    [SerializeField] JSAM.JSAMSoundFileObject chargeSound = null;
 
     Coroutine tickRoutine = null;
 
@@ -98,7 +98,7 @@ public class QuickTimeHold : QuickTimeBase
         gaugeArrow.DOKill();
         BonusFeedback(dmg);
         OnQuickTimeComplete?.Invoke(dmg);
-        JSAM.AudioManager.instance.StopSoundInternal(chargeSound);
+        JSAM.AudioManager.StopSound(chargeSound);
     }
 
     public override void InitializeBar(PlayerCharacter player)
@@ -132,7 +132,7 @@ public class QuickTimeHold : QuickTimeBase
     {
         tickRoutine = StartCoroutine(TickRoutine());
         if (activePlayer) activePlayer.PlayAttackAnimation();
-        JSAM.AudioManager.instance.PlaySoundInternal(chargeSound);
+        JSAM.AudioManager.PlaySound(chargeSound);
     }
 
     IEnumerator TickRoutine()

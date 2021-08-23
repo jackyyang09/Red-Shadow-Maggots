@@ -51,19 +51,19 @@ public class CharacterObject : ScriptableObject
     public GameObject[] extraEffectPrefabs = null;
 
     [Header("Audio File Voice Objects")]
-    public AudioFileObject voiceEntry = null;
-    public AudioFileObject voiceAttack = null;
-    public AudioFileObject voiceSelected = null;
-    public AudioFileObject voiceFirstSkill = null;
-    public AudioFileObject voiceSecondSkill = null;
-    public AudioFileObject voiceHurt = null;
-    public AudioFileObject voiceDeath = null;
-    public AudioFileObject voiceVictory = null;
+    public JSAMSoundFileObject voiceEntry = null;
+    public JSAMSoundFileObject voiceAttack = null;
+    public JSAMSoundFileObject voiceSelected = null;
+    public JSAMSoundFileObject voiceFirstSkill = null;
+    public JSAMSoundFileObject voiceSecondSkill = null;
+    public JSAMSoundFileObject voiceHurt = null;
+    public JSAMSoundFileObject voiceDeath = null;
+    public JSAMSoundFileObject voiceVictory = null;
 
     [Header("Audio File Sound Objects")]
-    public AudioFileObject weaponSound = null;
+    public JSAMSoundFileObject weaponSound = null;
 
-    public AudioFileObject[] extraSounds = null;
+    public JSAMSoundFileObject[] extraSounds = null;
 }
 
 public enum DamageEffectivess

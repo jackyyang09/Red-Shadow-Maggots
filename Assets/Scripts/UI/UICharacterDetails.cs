@@ -23,8 +23,8 @@ public class UICharacterDetails : MonoBehaviour
         canvas.onCanvasHide.AddListener(PanelCloseSound);
     }
 
-    void PanelOpenSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelOpen);
-    void PanelCloseSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelClose);
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
 
     private void OnDisable()
     {

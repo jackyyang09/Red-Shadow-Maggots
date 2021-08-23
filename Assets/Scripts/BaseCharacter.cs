@@ -419,8 +419,8 @@ public abstract class BaseCharacter : MonoBehaviour
                     break;
             }
 
-            if (skillUsed == 0) JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceFirstSkill);
-            else JSAM.AudioManager.instance.PlaySoundInternal(Reference.voiceSecondSkill);
+            if (skillUsed == 0) JSAM.AudioManager.PlaySound(Reference.voiceFirstSkill);
+            else JSAM.AudioManager.PlaySound(Reference.voiceSecondSkill);
 
             if (rigAnim)
             {
@@ -507,13 +507,13 @@ public abstract class BaseCharacter : MonoBehaviour
             switch (effect.effect.effectType)
             {
                 case EffectType.Heal:
-                    JSAM.AudioManager.PlaySound(JSAM.Sounds.HealApplied);
+                    JSAM.AudioManager.PlaySound(BattleSceneSounds.HealApplied);
                     break;
                 case EffectType.Buff:
-                    JSAM.AudioManager.PlaySound(JSAM.Sounds.BuffApplied);
+                    JSAM.AudioManager.PlaySound(BattleSceneSounds.BuffApplied);
                     break;
                 case EffectType.Debuff:
-                    JSAM.AudioManager.PlaySound(JSAM.Sounds.DebuffApplied);
+                    JSAM.AudioManager.PlaySound(BattleSceneSounds.DebuffApplied);
                     break;
             }
 

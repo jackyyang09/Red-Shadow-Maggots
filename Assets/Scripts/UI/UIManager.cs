@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour
 
     void PlayButtonSound()
     {
-        JSAM.AudioManager.PlaySound(JSAM.Sounds.UIClick);
+        JSAM.AudioManager.PlaySound(BattleSceneSounds.UIClick);
     }
 
     public void ResumePlayerControl()

@@ -29,5 +29,68 @@ namespace JSAM
         {
             return (value - min) / (max - min);
         }
+
+        public static bool IsNullEmptyOrWhiteSpace(this string input)
+        {
+            return string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input);
+        }
+
+        public static bool TryForComponent<T>(this Component obj, out T comp) where T : Component
+        {
+#if UNITY_2019_4_OR_NEWER
+            return obj.TryGetComponent(out comp);
+#else
+            comp = GetComponent<AudioChorusFilter>();
+            return comp != null;
+#endif
+        }
+
+        /// <summary>
+        /// Helpful method by Stack Overflow user ata
+        /// https://stackoverflow.com/questions/3210393/how-do-i-remove-all-non-alphanumeric-characters-from-a-string-except-dash
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string ConvertToAlphanumeric(this string input)
+        {
+            char[] arr = input.ToCharArray();
+
+            arr = System.Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c)
+            || c == '_')));
+
+            // If the first index is a number
+            while (char.IsDigit(arr[0]))
+            {
+                List<char> newArray = new List<char>();
+                newArray = new List<char>(arr);
+                newArray.RemoveAt(0);
+                arr = newArray.ToArray();
+                if (arr.Length == 0) break; // No valid characters to use, returning empty
+            }
+
+            return new string(arr);
+        }
+
+        public static Color Add(this Color thisColor, Color otherColor)
+        {
+            return new Color
+            {
+                r = Mathf.Clamp01(thisColor.r + otherColor.r),
+                g = Mathf.Clamp01(thisColor.g + otherColor.g),
+                b = Mathf.Clamp01(thisColor.b + otherColor.g),
+                a = Mathf.Clamp01(thisColor.a + otherColor.a)
+            };
+        }
+
+        public static Color Subtract(this Color thisColor, Color otherColor)
+        {
+            return new Color
+            {
+                r = Mathf.Clamp01(thisColor.r - otherColor.r),
+                g = Mathf.Clamp01(thisColor.g - otherColor.g),
+                b = Mathf.Clamp01(thisColor.b - otherColor.g),
+                a = Mathf.Clamp01(thisColor.a - otherColor.a)
+            };
+        }
     }
 }

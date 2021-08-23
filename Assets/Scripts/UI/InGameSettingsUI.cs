@@ -13,7 +13,7 @@ public class InGameSettingsUI : MonoBehaviour
     public void UpdateSliderValues()
     {
         //masterSlider.value = AudioManager.GetMasterVolume();
-        musicSlider.value = AudioManager.GetMusicVolume();
-        soundSlider.value = AudioManager.GetSoundVolume();
+        //musicSlider.value = AudioManager.GetMusicVolume();
+        //soundSlider.value = AudioManager.GetSoundVolume();
     }
 }

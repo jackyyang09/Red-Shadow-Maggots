@@ -23,22 +23,11 @@ namespace JSAM
         [Tooltip("The collision event that triggers the sound to play")]
         CollisionEvent triggerEvent = CollisionEvent.OnCollisionEnter;
 
-        // Start is called before the first frame update
-        protected override void Start()
-        {
-            base.Start();
-        }
-
         void TriggerSound(Collision collision)
         {
             if (collidesWith.Contains(collision.gameObject.layer))
             {
-                AudioSource source = null;
-                source = AudioManager.instance.PlaySoundInternal(sound, sTransform);
-                if (spatialSound)
-                {
-                    source.gameObject.transform.position = collision.GetContact(0).point;
-                }
+                AudioManager.PlaySound(sound, collision.GetContact(0).point);
             }
         }
 
@@ -46,12 +35,7 @@ namespace JSAM
         {
             if (collidesWith.Contains(collision.gameObject.layer))
             {
-                AudioSource source = null;
-                source = AudioManager.instance.PlaySoundInternal(sound, sTransform);
-                if (spatialSound)
-                {
-                    source.gameObject.transform.position = collision.GetContact(0).point;
-                }
+                AudioManager.PlaySound(sound, collision.GetContact(0).point);
             }
         }
 

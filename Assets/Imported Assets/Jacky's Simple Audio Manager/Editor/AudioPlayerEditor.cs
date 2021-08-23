@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioPlayer))]
     [CanEditMultipleObjects]
@@ -12,8 +12,6 @@ namespace JSAM
         AudioPlayer myScript;
 
         SerializedProperty sound;
-        SerializedProperty soundFile;
-        SerializedProperty loopSound;
         SerializedProperty onStart;
         SerializedProperty onEnable;
         SerializedProperty onDisable;
@@ -24,8 +22,6 @@ namespace JSAM
             myScript = (AudioPlayer)target;
 
             sound = serializedObject.FindProperty("sound");
-            soundFile = serializedObject.FindProperty("soundFile");
-            loopSound = serializedObject.FindProperty("loopSound");
             onStart = serializedObject.FindProperty("onStart");
             onEnable = serializedObject.FindProperty("onEnable");
             onDisable = serializedObject.FindProperty("onDisable");
@@ -44,7 +40,6 @@ namespace JSAM
 
             GUIContent lontent = new GUIContent("Audio Player Settings", "Modify settings specific to the Audio Player");
             EditorGUILayout.LabelField(lontent, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(loopSound);
             EditorGUILayout.PropertyField(onStart);
             EditorGUILayout.PropertyField(onEnable);
             EditorGUILayout.PropertyField(onDisable);
@@ -61,6 +56,7 @@ namespace JSAM
         #region Quick Reference Guide
         protected override void DrawQuickReferenceGuide()
         {
+            //JSAMEditorHelper.RenderQuickReferenceGuide
             base.DrawQuickReferenceGuide();
 
             if (!showHowTo) return;

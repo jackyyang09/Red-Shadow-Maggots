@@ -11,18 +11,7 @@ namespace JSAM
         public List<float> maxDistance = new List<float>();
         public List<float> minDistance = new List<float>();
 
-        AudioListener listener;
-
-        AudioSource source;
-
-        // Start is called before the first frame update
-        new void Start()
-        {
-            base.Start();
-            listener = AudioManager.instance.GetListenerInternal();
-
-            source = AudioManager.instance.GetMusicSource();
-        }
+        JSAMMusicChannelHelper helper;
 
         // Update is called once per frame
         void Update()
@@ -30,29 +19,29 @@ namespace JSAM
             float loudest = 0;
             for (int i = 0; i < positions.Count; i++)
             {
-                float dist = Vector3.Distance(listener.transform.position, positions[i]);
+                float dist = Vector3.Distance(AudioManager.AudioListener.transform.position, positions[i]);
                 if (dist <= maxDistance[i])
                 {
-                    if (!AudioManager.instance.IsMusicPlayingInternal(music))
+                    if (!AudioManager.IsMusicPlaying(music))
                     {
-                        source = AudioManager.instance.PlayMusicInternal(music);
+                        helper = AudioManager.PlayMusic(music);
                     }
 
                     if (dist <= minDistance[i])
                     {
                         // Set to the max volume
-                        source.volume = AudioManager.GetTrueMusicVolume() * music.relativeVolume;
+                        helper.AudioSource.volume = AudioManager.MusicVolume * music.relativeVolume;
                         return; // Can't be beat
                     }
                     else
                     {
                         float distanceFactor = Mathf.InverseLerp(maxDistance[i], minDistance[i], dist);
-                        float newVol = AudioManager.GetTrueMusicVolume() * music.relativeVolume * distanceFactor;
+                        float newVol = AudioManager.MusicVolume * music.relativeVolume * distanceFactor;
                         if (newVol > loudest) loudest = newVol;
                     }
                 }
             }
-            if (AudioManager.instance.IsMusicPlayingInternal(music)) source.volume = loudest;
+            if (AudioManager.IsMusicPlaying(music)) helper.AudioSource.volume = loudest;
         }
     }
 }

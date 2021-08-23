@@ -15,8 +15,8 @@ public class SkillDetailPanel : MonoBehaviour
         canvas.onCanvasHide.AddListener(PanelCloseSound);
     }
 
-    void PanelOpenSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelOpen);
-    void PanelCloseSound() => JSAM.AudioManager.PlaySound(JSAM.Sounds.UIPanelClose);
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
 
     public void ShowPanel() => canvas.Show();
     public void HidePanel() => canvas.Hide();

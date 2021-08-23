@@ -4,13 +4,6 @@ using UnityEngine;
 
 namespace JSAM
 {
-    public enum TransitionMode
-    {
-        None,
-        FadeFromSilence,
-        Crossfade
-    }
-
     [AddComponentMenu("AudioManager/Audio Player Music")]
     public class AudioPlayerMusic : BaseAudioMusicFeedback
     {
@@ -30,15 +23,14 @@ namespace JSAM
         [SerializeField]
         protected AudioPlaybackBehaviour onDestroy = AudioPlaybackBehaviour.Stop;
 
-        AudioSource sourceBeingUsed;
+        JSAMMusicChannelHelper helper;
+        public JSAMMusicChannelHelper MusicHelper { get { return helper; } }
 
         Coroutine playRoutine;
 
         // Start is called before the first frame update
-        new void Start()
+        void Start()
         {
-            base.Start();
-
             switch (onStart)
             {
                 case AudioPlaybackBehaviour.Play:
@@ -52,69 +44,34 @@ namespace JSAM
 
         public void Play()
         {
-            AudioManager am = AudioManager.instance;
+            if (AudioManager.IsMusicPlaying(music) && !restartOnReplay) return;
 
-            if (am == null) return;
-            if (am.IsMusicPlayingInternal(music) && !restartOnReplay) return;
-
-            if (spatializeSound)
+            if (keepPlaybackPosition)
             {
-                sourceBeingUsed = am.PlayMusic3DInternal(music, transform, loopMode);
+                if (AudioManager.MainMusicHelper != null)
+                {
+                    if (AudioManager.MainMusicHelper.AudioSource.isPlaying)
+                    {
+                        float time = AudioManager.MainMusicHelper.AudioSource.time;
+                        AudioManager.PlayMusic(music, transform).AudioSource.time = time;
+                    }
+                    else
+                    {
+                        AudioManager.PlayMusic(music, transform);
+                    }
+                }
             }
             else
             {
-                switch (transitionMode)
-                {
-                    case TransitionMode.None:
-                        sourceBeingUsed = am.PlayMusicInternal(music);
-                        break;
-                    case TransitionMode.FadeFromSilence:
-                        sourceBeingUsed = am.FadeMusicInternal(music, musicFadeInTime);
-                        break;
-                    case TransitionMode.Crossfade:
-                        sourceBeingUsed = am.CrossfadeMusicInternal(music, musicFadeInTime, keepPlaybackPosition);
-                        break;
-                }
+                AudioManager.StopMusicIfPlaying(music, transform);
+                AudioManager.PlayMusic(music, transform);
             }
         }
 
         public void Stop()
         {
-            AudioManager am = AudioManager.instance;
-
-            if (am != null)
-            {
-                switch (transitionMode)
-                {
-                    case TransitionMode.None:
-                        am.StopMusicInternal(music);
-                        break;
-                    case TransitionMode.FadeFromSilence:
-                    case TransitionMode.Crossfade:
-                        am.FadeMusicOutInternal(musicFadeOutTime);
-                        break;
-                }
-            }
-
-            sourceBeingUsed = null;
-        }
-
-        /// <summary>
-        /// Fades in the current track
-        /// </summary>
-        public void FadeIn(float time)
-        {
-            sourceBeingUsed = AudioManager.instance.FadeMusicInInternal(music, time);
-        }
-
-        /// <summary>
-        /// Fades out the current track
-        /// </summary>
-        /// <param name="time"></param>
-        public void FadeOut(float time)
-        {
-            AudioManager.instance.FadeMusicOutInternal(time);
-            sourceBeingUsed = null;
+            AudioManager.StopMusic(music, transform, stopInstantly);
+            helper = null;
         }
 
         private void OnEnable()
@@ -133,11 +90,11 @@ namespace JSAM
 
         IEnumerator PlayDelayed()
         {
-            while (!AudioManager.instance)
+            while (!AudioManager.Instance)
             {
                 yield return new WaitForEndOfFrame();
             }
-            while (!AudioManager.instance.Initialized())
+            while (!AudioManager.Instance.Initialized())
             {
                 yield return new WaitForEndOfFrame();
             }
@@ -170,11 +127,6 @@ namespace JSAM
                     Stop();
                     break;
             }
-        }
-
-        public AudioSource GetAudioSource()
-        {
-            return sourceBeingUsed;
         }
     }
 }

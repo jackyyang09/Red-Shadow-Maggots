@@ -12,11 +12,7 @@ namespace JSAM
         AudioPlayerMusic myScript;
 
         SerializedProperty musicProperty;
-        SerializedProperty transitionMode;
-
         SerializedProperty keepPlaybackPosition;
-        SerializedProperty musicFadeInTime;
-        SerializedProperty musicFadeOutTime;
         SerializedProperty restartOnReplay;
 
         SerializedProperty onStart;
@@ -31,10 +27,7 @@ namespace JSAM
             myScript = (AudioPlayerMusic)target;
 
             musicProperty = serializedObject.FindProperty("music");
-            transitionMode = serializedObject.FindProperty("transitionMode");
             keepPlaybackPosition = serializedObject.FindProperty("keepPlaybackPosition");
-            musicFadeInTime = serializedObject.FindProperty("musicFadeInTime");
-            musicFadeOutTime = serializedObject.FindProperty("musicFadeOutTime");
             restartOnReplay = serializedObject.FindProperty("restartOnReplay");
 
             onStart = serializedObject.FindProperty("onStart");
@@ -55,13 +48,7 @@ namespace JSAM
             
             GUIContent lontent = new GUIContent("Music Player Settings", "Modify settings specific to Audio Player Music");
             EditorGUILayout.LabelField(lontent, EditorStyles.boldLabel);
-            EditorGUILayout.PropertyField(transitionMode);
-            if (myScript.GetTransitionMode() != TransitionMode.None)
-            {
-                EditorGUILayout.PropertyField(keepPlaybackPosition);
-                EditorGUILayout.PropertyField(musicFadeInTime);
-                EditorGUILayout.PropertyField(musicFadeOutTime);
-            }
+            EditorGUILayout.PropertyField(keepPlaybackPosition);
             EditorGUILayout.PropertyField(restartOnReplay);
             EditorGUILayout.PropertyField(onStart);
             EditorGUILayout.PropertyField(onEnable);

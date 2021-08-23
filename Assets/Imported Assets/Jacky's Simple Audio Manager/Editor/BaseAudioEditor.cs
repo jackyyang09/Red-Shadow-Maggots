@@ -29,11 +29,12 @@ namespace JSAM
 
         protected void PopulateSoundList()
         {
-            if (AudioManager.instance)
+            if (AudioManager.Instance)
             {
-                foreach (AudioFileObject audio in AudioManager.instance.GetSoundLibrary())
+                var sounds = AudioManager.Instance.Library.Sounds;
+                for (int i = 0; i < sounds.Count; i++)
                 {
-                    options.Add(audio.safeName);
+                    options.Add(sounds[i].SafeName);
                 }
             }
         }
@@ -58,7 +59,7 @@ namespace JSAM
         /// <param name="soundProperty">This is passed by reference, thanks Unity!</param>
         protected void DrawSoundDropdown(SerializedProperty soundProperty)
         {
-            if (!AudioManager.instance)
+            if (!AudioManager.Instance)
             {
                 EditorGUILayout.HelpBox("Could not find Audio Manager in the scene! This component needs AudioManager " +
                     "in order to function!", MessageType.Error);
@@ -68,14 +69,14 @@ namespace JSAM
 
             GUIContent soundDesc = new GUIContent("Sound", "Sound that will be played");
 
-            AudioFileObject audioObject = (AudioFileObject)soundProperty.objectReferenceValue;
+            JSAMSoundFileObject audioObject = (JSAMSoundFileObject)soundProperty.objectReferenceValue;
             int selected = 0;
-            if (audioObject != null) selected = options.IndexOf(audioObject.safeName);
+            if (audioObject != null) selected = options.IndexOf(audioObject.SafeName);
             if (selected == -1) selected = 0;
             if (options.Count > 0)
             {
                 selected = EditorGUILayout.Popup(soundDesc, selected, options.ToArray());
-                soundProperty.objectReferenceValue = AudioManager.instance.GetSoundLibrary()[selected];
+                soundProperty.objectReferenceValue = AudioManager.Instance.Library.Sounds[selected];
             }
             else
             {

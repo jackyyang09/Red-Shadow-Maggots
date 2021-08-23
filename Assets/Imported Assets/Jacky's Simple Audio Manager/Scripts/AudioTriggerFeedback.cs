@@ -24,17 +24,11 @@ namespace JSAM
         [Tooltip("The intersection event that triggers the sound to play")]
         TriggerEvent triggerEvent = TriggerEvent.OnTriggerEnter;
 
-        // Start is called before the first frame update
-        protected override void Start()
-        {
-            base.Start();
-        }
-
         void TriggerSound(Collider other)
         {
             if (triggersWith.Contains(other.gameObject.layer))
             {
-                AudioManager.instance.PlaySoundInternal(sound, sTransform);
+                AudioManager.PlaySound(sound, transform);
             }
         }
 
@@ -42,7 +36,7 @@ namespace JSAM
         {
             if (triggersWith.Contains(collision.gameObject.layer))
             {
-                AudioManager.instance.PlaySoundInternal(sound, sTransform);
+                AudioManager.PlaySound(sound, transform);
             }
         }
 
