@@ -32,11 +32,6 @@ namespace JSAM.JSAMEditor
         static Color buttonPressedColor = new Color(0.475f, 0.475f, 0.475f);
         static Color buttonPressedColorLighter = new Color(0.75f, 0.75f, 0.75f);
 
-        static float scrollbarProgress = 0;
-        static float trueScrollProgress = 0;
-        public const float MAX_SCROLL_ZOOM = 50;
-        public static float scrollZoom = MAX_SCROLL_ZOOM;
-
         static Vector2 lastWindowSize = Vector2.zero;
         static bool resized = false;
 
@@ -270,7 +265,6 @@ namespace JSAM.JSAMEditor
         {
             Rect progressRect = ProgressBar((float)helperSource.timeSamples / (float)helperSource.clip.samples, selectedClip, selectedSound, selectedMusic);
             EditorGUI.BeginChangeCheck();
-            scrollbarProgress = GUILayout.HorizontalScrollbar(scrollbarProgress, scrollZoom, 0, MAX_SCROLL_ZOOM);
             if (EditorGUI.EndChangeCheck())
             {
                 DoForceRepaint(true);
@@ -284,7 +278,7 @@ namespace JSAM.JSAMEditor
             {
                 if (selectedMusic)
                 {
-                    if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints && selectedMusic.clampToLoopPoints)
+                    if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
                     {
                         helperSource.timeSamples = Mathf.CeilToInt((selectedMusic.loopStart * selectedClip.frequency));
                     }
@@ -415,25 +409,7 @@ namespace JSAM.JSAMEditor
         {
             Event evt = Event.current;
 
-            if (evt.isScrollWheel)
-            {
-                if (evt.mousePosition.y > progressRect.yMin && evt.mousePosition.y < progressRect.yMax)
-                {
-                    float destinedProgress = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, evt.mousePosition.x);
-
-                    destinedProgress = Mathf.Lerp(CalculateZoomedLeftValue(), CalculateZoomedRightValue(), destinedProgress);
-
-                    // Center the scrollbar because scrollbars have their pivot set to the left
-                    scrollbarProgress = destinedProgress * MAX_SCROLL_ZOOM - scrollZoom / 2;
-
-                    scrollZoom = Mathf.Clamp(scrollZoom + evt.delta.y / 3, 0, MAX_SCROLL_ZOOM);
-
-                    // Because scrollbar progress isn't real progress
-                    trueScrollProgress = destinedProgress;
-                    DoForceRepaint(true);
-                }
-            }
-            else if (evt.isMouse)
+            if (evt.isMouse)
             {
                 switch (evt.type)
                 {
@@ -464,37 +440,16 @@ namespace JSAM.JSAMEditor
                             }
                             if (!mouseDragging) break;
                             float newProgress = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, evt.mousePosition.x);
-                            newProgress = Mathf.Lerp(CalculateZoomedLeftValue(), CalculateZoomedRightValue(), newProgress);
                             helperSource.time = Mathf.Clamp((newProgress * helperSource.clip.length), 0, helperSource.clip.length - AudioManagerInternal.EPSILON);
+
                             if (selectedMusic)
                             {
-                                if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints && selectedMusic.clampToLoopPoints)
+                                if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
                                 {
                                     float start = selectedMusic.loopStart * selectedMusic.File.frequency;
                                     float end = selectedMusic.loopEnd * selectedMusic.File.frequency;
                                     helperSource.timeSamples = (int)Mathf.Clamp(helperSource.timeSamples, start, end - AudioManagerInternal.EPSILON);
                                 }
-                            }
-                        }
-                        else if (evt.button == 2) // Middle mouse events
-                        {
-                            if (!mouseGrabbed)
-                            {
-                                if (evt.mousePosition.y > progressRect.yMin && evt.mousePosition.y < progressRect.yMax)
-                                {
-                                    mouseGrabbed = true;
-                                    dragStartPos = evt.mousePosition;
-                                }
-                            }
-                            if (mouseGrabbed)
-                            {
-                                float delta = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, Mathf.Abs(evt.delta.x));
-
-                                if (evt.delta.x < 0) delta *= -1;
-                                
-                                scrollbarProgress -= delta * MAX_SCROLL_ZOOM;
-
-                                DoForceRepaint(true);
                             }
                         }
                         break;
@@ -556,47 +511,38 @@ namespace JSAM.JSAMEditor
         /// <returns></returns>
         public static Rect ProgressBar(float value, AudioClip selectedClip, JSAMSoundFileObject selectedSound = null, JSAMMusicFileObject selectedMusic = null)
         {
-            // Get a rect for the progress bar using the same margins as a text field
-            // TODO: Make this dynamic, locks its previous size before showing the guide
             float maxHeight = (showHowTo) ? playbackPreviewClamped : 4000;
             float minHeight = (showHowTo) ? playbackPreviewClamped : 64;
-            Rect rect = GUILayoutUtility.GetRect(64, 4000, minHeight, maxHeight);
+            Rect rect = GUILayoutUtility.GetRect(64, 4000, 64, maxHeight);
 
-            if ((cachedTex == null || forceRepaint) && Event.current.type == EventType.Repaint)
+            Texture2D waveformTexture;
+            if (selectedSound)
             {
-                Texture2D waveformTexture;
-                if (selectedSound)
-                {
-                    waveformTexture = SoundFileObjectEditor.instance.PaintWaveformSpectrum(helperSource.clip, (int)rect.width, (int)rect.height, new Color(1, 0.5f, 0));
-                }
-                else if (selectedMusic)
-                {
-                    waveformTexture = MusicFileObjectEditor.instance.PaintWaveformSpectrum(selectedClip, (int)rect.width, (int)rect.height, new Color(1, 0.5f, 0));
-                }
-                else
-                {
-                    waveformTexture = RenderStaticPreview(selectedClip, (int)rect.width, (int)rect.height);
-                }
-                cachedTex = waveformTexture;
-
-                if (waveformTexture != null)
-                    GUI.DrawTexture(rect, waveformTexture);
-                forceRepaint = false;
+                waveformTexture = RenderStaticPreview(selectedClip, rect);
+            }
+            else if (selectedMusic)
+            {
+                waveformTexture = RenderStaticPreview(selectedClip, rect);
             }
             else
             {
-                GUI.DrawTexture(rect, cachedTex);
+                waveformTexture = RenderStaticPreview(selectedClip, rect);
             }
+            cachedTex = waveformTexture;
 
-            float left = CalculateZoomedLeftValue();
-            float right = CalculateZoomedRightValue();
-            if (value >= left && value <= right)
+            if (waveformTexture != null)
             {
-                Rect progressRect = new Rect(rect);
-                progressRect.width *= Mathf.InverseLerp(left, right, value);
-                progressRect.xMin = progressRect.xMax - 1;
-                GUI.Box(progressRect, "", "SelectionRect");
+                GUI.DrawTexture(rect, waveformTexture);
             }
+            forceRepaint = false;
+
+            if (selectedSound) SoundFileObjectEditor.instance.DrawPropertyOverlay(selectedClip, (int)rect.width, (int)rect.height);
+            else if (selectedMusic) MusicFileObjectEditor.instance.DrawPropertyOverlay(selectedClip, (int)rect.width, (int)rect.height);
+
+            Rect progressRect = new Rect(rect);
+            progressRect.width = value * rect.width;
+            progressRect.xMin = progressRect.xMax - 1;
+            GUI.Box(progressRect, "", "SelectionRect");
 
             EditorGUILayout.Space();
 
@@ -621,7 +567,7 @@ namespace JSAM.JSAMEditor
                     float clipPos = helperSource.timeSamples / (float)selectedClip.frequency;
                     if (selectedSound)
                     {
-                        if (selectedSound.fadeMode != FadeMode.None)
+                        if (selectedSound.fadeInOut)
                         {
                             SoundFileObjectEditor.instance.HandleFading(selectedSound);
                         }
@@ -662,7 +608,7 @@ namespace JSAM.JSAMEditor
                     if (loopClip)
                     {
                         EditorApplication.QueuePlayerLoopUpdate();
-                        if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints)
+                        if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints || selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
                         {
                             if (!helperSource.isPlaying && clipPlaying && !clipPaused)
                             {
@@ -677,7 +623,7 @@ namespace JSAM.JSAMEditor
                                 }
                                 MusicFileObjectEditor.freePlay = false;
                             }
-                            else if (selectedMusic.clampToLoopPoints || !MusicFileObjectEditor.firstPlayback)
+                            else if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints || !MusicFileObjectEditor.firstPlayback)
                             {
                                 if (clipPos < selectedMusic.loopStart || clipPos > selectedMusic.loopEnd)
                                 {
@@ -693,14 +639,17 @@ namespace JSAM.JSAMEditor
                             }
                         }
                     }
-                    else if (!loopClip && selectedMusic.loopMode == LoopMode.LoopWithLoopPoints)
+                    else if (!loopClip)
                     {
-                        if ((!helperSource.isPlaying && !clipPaused) || clipPos > selectedMusic.loopEnd)
+                        if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints)
                         {
-                            clipPlaying = false;
-                            helperSource.Stop();
+                            if ((!helperSource.isPlaying && !clipPaused) || clipPos > selectedMusic.loopEnd)
+                            {
+                                clipPlaying = false;
+                                helperSource.Stop();
+                            }
                         }
-                        else if (selectedMusic.clampToLoopPoints && clipPos < selectedMusic.loopStart)
+                        else if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints && clipPos < selectedMusic.loopStart)
                         {
                             helperSource.timeSamples = Mathf.CeilToInt(selectedMusic.loopStart * selectedClip.frequency);
                         }
@@ -726,138 +675,44 @@ namespace JSAM.JSAMEditor
             #endregion
         }
 
-        #region Deprecated Waveform Rendering
-        /// <summary>
-        /// Code from these gents
-        /// https://answers.unity.com/questions/189886/displaying-an-audio-waveform-in-the-editor.html
-        /// </summary>
-        public static Texture2D PaintWaveformSpectrum(AudioClip audio, int width, int height, Color col)
-        {
-            if (Event.current.type != EventType.Repaint) return null;
-
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            float[] samples = new float[audio.samples * audio.channels];
-            // Copy sample data to array
-            audio.GetData(samples, 0);
-
-            float leftValue = CalculateZoomedLeftValue();
-            float rightValue = CalculateZoomedRightValue();
-
-            int leftSide = Mathf.RoundToInt(leftValue * samples.Length);
-            int rightSide = Mathf.RoundToInt(rightValue * samples.Length);
-
-            float zoomLevel = scrollZoom / MAX_SCROLL_ZOOM;
-            int packSize = Mathf.RoundToInt((int)samples.Length / (int)width * (float)zoomLevel) + 1;
-
-            int s = 0;
-            int limit = Mathf.Min(rightSide, samples.Length);
-
-            // Build waveform data
-            float[] waveform = new float[limit];
-            for (int i = leftSide; i < limit; i += packSize)
-            {
-                waveform[s] = Mathf.Abs(samples[i]);
-                s++;
-            }
-
-            Color lightShade = new Color(0.3f, 0.3f, 0.3f);
-            int halfHeight = height / 2;
-
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    tex.SetPixel(x, y, lightShade);
-                }
-            }
-
-            for (int x = 0; x < Mathf.Clamp(rightSide, 0, width); x++)
-            {
-                // Scale the wave vertically relative to half the rect height and the relative volume
-                float heightLimit = waveform[x] * halfHeight;
-
-                for (int y = (int)heightLimit; y >= 0; y--)
-                {
-                    Color currentPixelColour = tex.GetPixel(x, halfHeight + y);
-                    if (currentPixelColour == Color.black) continue;
-
-                    tex.SetPixel(x, halfHeight + y, lightShade + col * 0.75f);
-
-                    // Get data from upper half offset by 1 unit due to int truncation
-                    tex.SetPixel(x, halfHeight - (y + 1), lightShade + col * 0.75f);
-                }
-            }
-
-            tex.Apply();
-
-            return tex;
-        }
-        #endregion
-
         #region Unity's Asset Preview render code
         /// <summary>
         /// Borrowed from Unity
-        /// https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/Inspector/AudioClipInspector.cs
+        /// <para>https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/Inspector/AudioClipInspector.cs</para>
         /// </summary>
-        /// <param name="assetPath"></param>
-        /// <param name="subAssets"></param>
+        /// <param name="clip"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public static Texture2D RenderStaticPreview(AudioClip clip, int width, int height)
+        public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect)
         {
-            AssetImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(clip));
-            AudioImporter audioImporter = importer as AudioImporter;
+            GUI.Box(rect, "");
+            float[] samples = new float[clip.samples];
+            float[] waveform = new float[(int)rect.width];
+            clip.GetData(samples, 0);
+            int packSize = clip.samples / (int)rect.width + 1;
+            int s = 0;
 
-            if (audioImporter == null || !ShaderUtil.hardwareSupportsRectRenderTexture)
-                return null;
-
-            if (m_PreviewUtility == null)
-                m_PreviewUtility = new PreviewRenderUtility();
-
-            m_PreviewUtility.BeginStaticPreview(new Rect(0, 0, width, height));
-
-            // We're drawing into an offscreen here which will have a resolution defined by EditorGUIUtility.pixelsPerPoint. This is different from the DoRenderPreview call below where we draw directly to the screen, so we need to take
-            // the higher resolution into account when drawing into the offscreen, otherwise only the upper-left quarter of the preview texture will be drawn.
-            DoRenderPreview(clip, audioImporter, new Rect(0, 0, width * EditorGUIUtility.pixelsPerPoint, height * EditorGUIUtility.pixelsPerPoint), 1.0f);
-
-            return m_PreviewUtility.EndStaticPreview();
-        }
-
-        private static void DoRenderPreview(AudioClip clip, AudioImporter audioImporter, Rect wantedRect, float scaleFactor)
-        {
-            scaleFactor *= 0.95f; // Reduce amplitude slightly to make highly compressed signals fit.
-            float[] minMaxData = (audioImporter == null) ? null : AudioUtil.GetMinMaxData(audioImporter);
-            int numChannels = clip.channels;
-            int numSamples = (minMaxData == null) ? 0 : (minMaxData.Length / (2 * numChannels));
-            float h = (float)wantedRect.height / (float)numChannels;
-            for (int channel = 0; channel < numChannels; channel++)
+            for (int i = 0; i < clip.samples; i += packSize)
             {
-                Rect channelRect = new Rect(wantedRect.x, wantedRect.y + h * channel, wantedRect.width, h);
-                Color curveColor = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
-
-                AudioCurveRendering.AudioMinMaxCurveAndColorEvaluator dlg = delegate (float x, out Color col, out float minValue, out float maxValue)
-                {
-                    col = curveColor;
-                    if (numSamples <= 0)
-                    {
-                        minValue = 0.0f;
-                        maxValue = 0.0f;
-                    }
-                    else
-                    {
-                        float p = Mathf.Clamp(x * (numSamples - 2), 0.0f, numSamples - 2);
-                        int i = (int)Mathf.Floor(p);
-                        int offset1 = (i * numChannels + channel) * 2;
-                        int offset2 = offset1 + numChannels * 2;
-                        minValue = Mathf.Min(minMaxData[offset1 + 1], minMaxData[offset2 + 1]) * scaleFactor;
-                        maxValue = Mathf.Max(minMaxData[offset1 + 0], minMaxData[offset2 + 0]) * scaleFactor;
-                        if (minValue > maxValue) { float tmp = minValue; minValue = maxValue; maxValue = tmp; }
-                    }
-                };
-
-                AudioCurveRendering.DrawMinMaxFilledCurve(channelRect, dlg);
+                waveform[s] = samples[i];
+                s++;
             }
+
+            float halfHeight = rect.height / 2f;
+
+            List<Vector3> points = new List<Vector3>();
+
+            Handles.color = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
+            for (int x = 0; x < waveform.Length; x++)
+            {
+                Vector2 currentPoint = new Vector2(x, (waveform[x] * rect.height * 0.5f) + halfHeight);
+                currentPoint += rect.position;
+                points.Add(currentPoint);
+            }
+
+            Handles.DrawPolyLine(points.ToArray());
+            return null;
         }
         #endregion
 
@@ -908,16 +763,6 @@ namespace JSAM.JSAMEditor
                 resized = false;
                 Window.Repaint();
             }
-        }
-
-        public static float CalculateZoomedLeftValue()
-        {
-            return scrollbarProgress / MAX_SCROLL_ZOOM;
-        }
-
-        public static float CalculateZoomedRightValue()
-        {
-            return Mathf.Clamp01((scrollbarProgress + scrollZoom) / MAX_SCROLL_ZOOM);
         }
     }
 }

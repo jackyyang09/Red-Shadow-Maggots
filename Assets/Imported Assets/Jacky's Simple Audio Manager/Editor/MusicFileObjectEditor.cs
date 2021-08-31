@@ -13,17 +13,7 @@ namespace JSAM.JSAMEditor
     {
         JSAMMusicFileObject myScript;
 
-        public enum LoopPointTool
-        {
-            Slider,
-            TimeInput,
-            TimeSamplesInput,
-            BPMInput//WithBeats,
-                    //BPMInputWithBars
-        }
-
-        Color buttonPressedColor = new Color(0.475f, 0.475f, 0.475f);
-        Color buttonPressedColorLighter = new Color(0.75f, 0.75f, 0.75f);
+        Color COLOR_BUTTONPRESSED = new Color(0.475f, 0.475f, 0.475f);
 
         bool clipPlaying = false;
         bool clipPaused = false;
@@ -37,19 +27,10 @@ namespace JSAM.JSAMEditor
         public static bool firstPlayback = true;
         public static bool freePlay = false;
 
-        static bool showLoopPointTool;
-
-        static int loopPointInputMode = 0;
-
         Texture2D cachedTex;
         AudioClip cachedClip;
 
         bool mouseScrubbed = false;
-
-        SerializedProperty loopMode;
-        SerializedProperty clampToLoopPoints;
-        SerializedProperty loopStartProperty;
-        SerializedProperty loopEndProperty;
 
         new protected void OnEnable()
         {
@@ -62,10 +43,7 @@ namespace JSAM.JSAMEditor
             AudioPlaybackToolEditor.CreateAudioHelper(myScript.File);
             Undo.postprocessModifications += ApplyHelperEffects;
 
-            loopMode = FindProp("loopMode");
-            clampToLoopPoints = FindProp("clampToLoopPoints");
-            loopStartProperty = FindProp("loopStart");
-            loopEndProperty = FindProp("loopEnd");
+            DesignateSerializedProperties();
         }
 
         void OnDisable()
@@ -74,6 +52,11 @@ namespace JSAM.JSAMEditor
             Undo.undoRedoPerformed -= OnUndoRedo;
             AudioPlaybackToolEditor.DestroyAudioHelper();
             Undo.postprocessModifications -= ApplyHelperEffects;
+        }
+
+        protected override void DesignateSerializedProperties()
+        {
+            base.DesignateSerializedProperties();
         }
 
         protected override void OnCreatePreset(string[] input)
@@ -98,20 +81,7 @@ namespace JSAM.JSAMEditor
 
             RenderGeneratePresetButton();
 
-            List<string> propertiesToExclude = new List<string>() { "spatialSound", "loopSound", "priority",
-                "pitchShift", "loopMode", "fadeMode", "playReversed", "safeName", "maxDistance" };
-            if (myScript.File == null)
-            {
-                propertiesToExclude.AddRange(new List<string>() { "m_Script", "useLibrary", "files", "relativeVolume",
-                "fadeMode", "clampBetweenLoopPoints", "startingPitch", "playReversed", "spatialize", "ignoreTimeScale",
-                "delay", });
-            }
-            else
-            {
-                propertiesToExclude.AddRange(new List<string>() { "m_Script", "useLibrary", "files", "maxDistance" });
-            }
-
-            DrawPropertiesExcluding(serializedObject, propertiesToExclude.ToArray());
+            DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
 
             if (myScript.File == null)
             {
@@ -122,225 +92,7 @@ namespace JSAM.JSAMEditor
                 EditorGUILayout.HelpBox("Warning! Change the name of this file to something different or things will break!", MessageType.Warning);
             }
 
-            #region Loop Point Tools
-            if (myScript.File != null)
-            {
-                float loopStart = myScript.loopStart;
-                float loopEnd = myScript.loopEnd;
-
-                AudioClip music = myScript.File;
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(loopMode);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    // This won't do, reset loop point positions
-                    if (myScript.loopStart >= myScript.loopEnd)
-                    {
-                        loopStartProperty.floatValue = 0;
-                        loopEndProperty.floatValue = music.length;
-                        loopStart = myScript.loopStart;
-                        loopEnd = myScript.loopEnd;
-                        serializedObject.ApplyModifiedProperties();
-                    }
-                }
-                using (new EditorGUI.DisabledScope(myScript.loopMode != LoopMode.LoopWithLoopPoints))
-                    EditorGUILayout.PropertyField(clampToLoopPoints);
-
-                if (!AudioPlaybackToolEditor.WindowOpen) DrawPlaybackTool(myScript);
-
-                using (new EditorGUI.DisabledScope(myScript.loopMode != LoopMode.LoopWithLoopPoints))
-                {
-                    blontent = new GUIContent("Loop Point Tools", "Customize where music will loop between. " +
-                        "Loops may not appear to be seamless in the inspector but rest assured, they will be seamless in-game!");
-                    showLoopPointTool = EditorCompatability.SpecialFoldouts(showLoopPointTool, blontent);
-                    if (showLoopPointTool && myScript.loopMode == LoopMode.LoopWithLoopPoints)
-                    {
-                        GUIContent[] contents = new GUIContent[] { new GUIContent("Slider"), new GUIContent("Time"), new GUIContent("Samples"), new GUIContent("BPM") };
-                        EditorGUILayout.BeginHorizontal();
-                        Color colorbackup = GUI.backgroundColor;
-                        for (int i = 0; i < contents.Length; i++)
-                        {
-                            if (i == loopPointInputMode) GUI.backgroundColor = buttonPressedColorLighter;
-                            if (GUILayout.Button(contents[i], EditorStyles.miniButtonMid)) loopPointInputMode = i;
-                            GUI.backgroundColor = colorbackup;
-                        }
-                        EditorGUILayout.EndHorizontal();
-
-                        switch ((LoopPointTool)loopPointInputMode)
-                        {
-                            case LoopPointTool.Slider:
-                                GUILayout.Label("Song Duration Samples: " + music.samples);
-                                EditorGUILayout.MinMaxSlider(ref loopStart, ref loopEnd, 0, music.length);
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("Loop Point Start: " + AudioPlaybackToolEditor.TimeToString(loopStart), new GUILayoutOption[] { GUILayout.Width(180) });
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Loop Point Start (Samples): " + myScript.loopStart * music.frequency);
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("Loop Point End:   " + AudioPlaybackToolEditor.TimeToString(loopEnd), new GUILayoutOption[] { GUILayout.Width(180) });
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Loop Point End (Samples): " + myScript.loopEnd * music.frequency);
-                                GUILayout.EndHorizontal();
-                                break;
-                            case LoopPointTool.TimeInput:
-                                EditorGUILayout.Space();
-
-                                // int casts are used instead of Mathf.RoundToInt so that we truncate the floats instead of rounding up
-                                GUILayout.BeginHorizontal();
-                                float theTime = loopStart * 1000f;
-                                GUILayout.Label("Loop Point Start:");
-                                int minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
-                                GUILayout.Label(":");
-                                int seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
-                                GUILayout.Label(":");
-                                float milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
-                                loopStart = (float)minutes * 60f + (float)seconds + milliseconds;
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                theTime = loopEnd * 1000f;
-                                GUILayout.Label("Loop Point End:  ");
-                                minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
-                                GUILayout.Label(":");
-                                seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
-                                GUILayout.Label(":");
-                                milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
-                                loopEnd = (float)minutes * 60f + (float)seconds + milliseconds;
-                                GUILayout.EndHorizontal();
-                                break;
-                            case LoopPointTool.TimeSamplesInput:
-                                GUILayout.Label("Song Duration (Samples): " + music.samples);
-                                EditorGUILayout.Space();
-
-                                GUILayout.BeginHorizontal();
-                                float samplesStart = EditorGUILayout.FloatField("Loop Point Start:", myScript.loopStart * music.frequency);
-                                GUILayout.EndHorizontal();
-                                loopStart = samplesStart / music.frequency;
-
-                                GUILayout.BeginHorizontal();
-                                float samplesEnd = JSAMExtensions.Clamp(EditorGUILayout.FloatField("Loop Point End:", myScript.loopEnd * music.frequency), 0, music.samples);
-                                GUILayout.EndHorizontal();
-                                loopEnd = samplesEnd / music.frequency;
-                                break;
-                            case LoopPointTool.BPMInput/*WithBeats*/:
-                                Undo.RecordObject(myScript, "Modified song BPM");
-                                myScript.bpm = EditorGUILayout.IntField("Song BPM: ", myScript.bpm/*, new GUILayoutOption[] { GUILayout.MaxWidth(30)}*/);
-
-                                EditorGUILayout.Space();
-
-                                float startBeat = loopStart / (60f / (float)myScript.bpm);
-                                startBeat = EditorGUILayout.FloatField("Starting Beat:", startBeat);
-
-                                float endBeat = loopEnd / (60f / (float)myScript.bpm);
-                                endBeat = Mathf.Clamp(EditorGUILayout.FloatField("Ending Beat:", endBeat), 0, music.length / (60f / myScript.bpm));
-
-                                loopStart = (float)startBeat * 60f / (float)myScript.bpm;
-                                loopEnd = (float)endBeat * 60f / (float)myScript.bpm;
-                                break;
-                                //case AudioFileMusic.LoopPointTool.BPMInputWithBars:
-                                //    GUILayout.BeginHorizontal();
-                                //    GUILayout.Label("Song Duration: " + TimeToString(music.length));
-                                //    myScript.bpm = EditorGUILayout.IntField("Song BPM: ", myScript.bpm);
-                                //    GUILayout.EndHorizontal();
-                                //
-                                //    int startBar = (int)(loopStart / (60f / (float)myScript.bpm));
-                                //    startBar = EditorGUILayout.IntField("Starting Bar:", startBar);
-                                //
-                                //    int endBar = (int)(loopEnd / (60f / (float)myScript.bpm));
-                                //    endBar = EditorGUILayout.IntField("Ending Bar:", endBar);
-                                //
-                                //    loopStart = startBar * 60f / myScript.bpm;
-                                //    loopEnd = endBar * 60f / myScript.bpm;
-                                //    break;
-                        }
-
-                        GUIContent buttonText = new GUIContent("Reset Loop Points", "Click to set loop points to the start and end of the track.");
-                        if (GUILayout.Button(buttonText))
-                        {
-                            loopStart = 0;
-                            loopEnd = music.length;
-                        }
-                        using (new EditorGUI.DisabledScope(!myScript.IsWavFile()))
-                        {
-                            if (myScript.IsWavFile())
-                            {
-                                buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
-                            }
-                            else
-                            {
-                                buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "This option is exclusive to .WAV files. Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
-                            }
-                            EditorGUILayout.BeginHorizontal();
-                            if (GUILayout.Button(buttonText))
-                            {
-                                // Zeugma440 and his Audio Tools Library is a godsend
-                                // https://github.com/Zeugma440/atldotnet/
-                                string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.File.name)[0]);
-                                string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
-
-                                ATL.Track theTrack = new ATL.Track(trueFilePath);
-
-                                float frequency = myScript.File.frequency;
-
-                                if (theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].Start") && theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].End"))
-                                {
-                                    loopStart = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].Start"]) / frequency;
-                                    loopEnd = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].End"]) / frequency;
-                                }
-                                else
-                                {
-                                    EditorUtility.DisplayDialog("Error Reading Metadata", "Could not find any loop point data in " + myScript.File.name + ".wav!\n" +
-                                        "Are you sure you wrote loop points in this file?", "OK");
-                                }
-
-                            }
-                            if (myScript.IsWavFile())
-                            {
-                                buttonText = new GUIContent("Embed Loop Points to File", "Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
-                            }
-                            else
-                            {
-                                buttonText = new GUIContent("Embed Loop Points to File", "This option is exclusive to .WAV files. Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
-                            }
-                            if (GUILayout.Button(buttonText))
-                            {
-                                string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.File.name)[0]);
-                                string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
-
-                                ATL.Track theTrack = new ATL.Track(trueFilePath);
-
-                                float frequency = myScript.File.frequency;
-
-                                if (EditorUtility.DisplayDialog("Confirm Loop Point saving", "This will overwrite loop point Start/End loop point markers saved in this .WAV file, are you sure you want to continue?", "Yes", "Cancel"))
-                                {
-                                    theTrack.AdditionalFields["sample.MIDIUnityNote"] = "60";
-                                    theTrack.AdditionalFields["sample.NumSampleLoops"] = "1";
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].Type"] = "0";
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].Start"] = (Mathf.RoundToInt(myScript.loopStart * frequency)).ToString();
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].End"] = (Mathf.RoundToInt(myScript.loopEnd * frequency)).ToString();
-                                    theTrack.Save();
-                                }
-                            }
-                            EditorGUILayout.EndHorizontal();
-                        }
-
-                        if (myScript.loopStart != loopStart || myScript.loopEnd != loopEnd)
-                        {
-                            Undo.RecordObject(myScript, "Modified loop point properties");
-                            loopStartProperty.floatValue = Mathf.Clamp(loopStart, 0, music.length);
-                            loopEndProperty.floatValue = Mathf.Clamp(loopEnd, 0, Mathf.Ceil(music.length));
-                            EditorUtility.SetDirty(myScript);
-                            AudioPlaybackToolEditor.DoForceRepaint(true);
-                        }
-                    }
-                    EditorCompatability.EndSpecialFoldoutGroup();
-                }
-            }
-            #endregion
+            DrawLoopPointTools(myScript);
 
             DrawAudioEffectTools();
 
@@ -415,7 +167,7 @@ namespace JSAM.JSAMEditor
         /// Draws a playback 
         /// </summary>
         /// <param name="music"></param>
-        public void DrawPlaybackTool(JSAMMusicFileObject myScript)
+        protected override void DrawPlaybackTool()
         {
             GUIContent blontent = new GUIContent("Audio Playback Preview",
                 "Allows you to preview how your AudioFileMusicObject will sound during runtime right here in the inspector. " +
@@ -451,7 +203,7 @@ namespace JSAM.JSAMEditor
                             if (!mouseDragging) break;
                             float newProgress = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, evt.mousePosition.x);
                             AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp((newProgress * music.length), 0, music.length - AudioManagerInternal.EPSILON);
-                            if (myScript.loopMode == LoopMode.LoopWithLoopPoints && myScript.clampToLoopPoints)
+                            if (myScript.loopMode == LoopMode.ClampedLoopPoints)
                             {
                                 float start = myScript.loopStart * myScript.File.frequency;
                                 float end = myScript.loopEnd * myScript.File.frequency;
@@ -463,7 +215,7 @@ namespace JSAM.JSAMEditor
 
                 if (GUILayout.Button(s_BackIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                 {
-                    if (myScript.loopMode == LoopMode.LoopWithLoopPoints && myScript.clampToLoopPoints)
+                    if (myScript.loopMode == LoopMode.ClampedLoopPoints)
                     {
                         AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt((myScript.loopStart * music.frequency));
                     }
@@ -479,7 +231,7 @@ namespace JSAM.JSAMEditor
 
                 Color colorbackup = GUI.backgroundColor;
                 GUIContent buttonIcon = (clipPlaying) ? s_PlayIcons[1] : s_PlayIcons[0];
-                if (clipPlaying) GUI.backgroundColor = buttonPressedColor;
+                if (clipPlaying) GUI.backgroundColor = COLOR_BUTTONPRESSED;
                 if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                 {
                     clipPlaying = !clipPlaying;
@@ -505,7 +257,7 @@ namespace JSAM.JSAMEditor
 
                 GUI.backgroundColor = colorbackup;
                 GUIContent theText = (clipPaused) ? s_PauseIcons[1] : s_PauseIcons[0];
-                if (clipPaused) GUI.backgroundColor = buttonPressedColor;
+                if (clipPaused) GUI.backgroundColor = COLOR_BUTTONPRESSED;
                 if (GUILayout.Button(theText, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                 {
                     clipPaused = !clipPaused;
@@ -521,7 +273,7 @@ namespace JSAM.JSAMEditor
 
                 GUI.backgroundColor = colorbackup;
                 buttonIcon = (loopClip) ? s_LoopIcons[1] : s_LoopIcons[0];
-                if (loopClip) GUI.backgroundColor = buttonPressedColor;
+                if (loopClip) GUI.backgroundColor = COLOR_BUTTONPRESSED;
                 if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                 {
                     loopClip = !loopClip;
@@ -579,7 +331,7 @@ namespace JSAM.JSAMEditor
 
             if (cachedTex == null || AudioPlaybackToolEditor.forceRepaint)
             {
-                Texture2D waveformTexture = PaintWaveformSpectrum(music, (int)rect.width, (int)rect.height, new Color(1, 0.5f, 0));
+                Texture2D waveformTexture = AudioPlaybackToolEditor.RenderStaticPreview(music, rect);
                 cachedTex = waveformTexture;
                 if (waveformTexture != null)
                     GUI.DrawTexture(rect, waveformTexture);
@@ -643,30 +395,33 @@ namespace JSAM.JSAMEditor
                             }
                             freePlay = false;
                         }
-                        else if (myScript.clampToLoopPoints || !firstPlayback)
-                        {
-                            if (clipPos < myScript.loopStart || clipPos > myScript.loopEnd)
-                            {
-                                // CeilToInt to guarantee clip position stays within loop bounds
-                                AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt(myScript.loopStart * music.frequency);
-                                firstPlayback = false;
-                            }
-                        }
                         else if (clipPos >= myScript.loopEnd)
                         {
                             AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt(myScript.loopStart * music.frequency);
                             firstPlayback = false;
                         }
                     }
-                }
-                else if (!loopClip && myScript.loopMode == LoopMode.LoopWithLoopPoints)
-                {
-                    if ((!AudioPlaybackToolEditor.helperSource.isPlaying && !clipPaused) || clipPos > myScript.loopEnd)
+                    else if (myScript.loopMode == LoopMode.ClampedLoopPoints)
                     {
-                        clipPlaying = false;
-                        AudioPlaybackToolEditor.helperSource.Stop();
+                        if (clipPos < myScript.loopStart || clipPos > myScript.loopEnd)
+                        {
+                            // CeilToInt to guarantee clip position stays within loop bounds
+                            AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt(myScript.loopStart * music.frequency);
+                            firstPlayback = false;
+                        }
                     }
-                    else if (myScript.clampToLoopPoints && clipPos < myScript.loopStart)
+                }
+                else if (!loopClip)
+                {
+                    if (myScript.loopMode == LoopMode.LoopWithLoopPoints)
+                    {
+                        if ((!AudioPlaybackToolEditor.helperSource.isPlaying && !clipPaused) || clipPos > myScript.loopEnd)
+                        {
+                            clipPlaying = false;
+                            AudioPlaybackToolEditor.helperSource.Stop();
+                        }
+                    }
+                    else if (myScript.loopMode == LoopMode.ClampedLoopPoints && clipPos < myScript.loopStart)
                     {
                         AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt(myScript.loopStart * music.frequency);
                     }
@@ -704,99 +459,59 @@ namespace JSAM.JSAMEditor
             AudioPlaybackToolEditor.DoForceRepaint(true);
         }
 
-        /// <summary>
-        /// Code from these gents
-        /// https://answers.unity.com/questions/189886/displaying-an-audio-waveform-in-the-editor.html
-        /// </summary>
-        public Texture2D PaintWaveformSpectrum(AudioClip audio, int width, int height, Color col)
+        public void DrawPropertyOverlay(AudioClip audio, int width, int height)
         {
-            if (Event.current.type != EventType.Repaint) return null;
+            if (Event.current.type != EventType.Repaint) return;
 
-            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
-            float[] samples = new float[audio.samples * audio.channels];
-            // Copy sample data to array
-            audio.GetData(samples, 0);
-
-            Color lightShade = new Color(0.3f, 0.3f, 0.3f);
-            int halfHeight = height / 2;
-
-            float leftValue = AudioPlaybackToolEditor.CalculateZoomedLeftValue();
-            float rightValue = AudioPlaybackToolEditor.CalculateZoomedRightValue();
-
-            int leftSide = Mathf.RoundToInt(leftValue * samples.Length);
-            int rightSide = Mathf.RoundToInt(rightValue * samples.Length);
-
-            float zoomLevel = AudioPlaybackToolEditor.scrollZoom / AudioPlaybackToolEditor.MAX_SCROLL_ZOOM;
-            int packSize = Mathf.RoundToInt((int)samples.Length / (int)width * (float)zoomLevel) + 1;
-
-            int s = 0;
-            int limit = Mathf.Min(rightSide, samples.Length);
-
-            // Build waveform data
-            float[] waveform = new float[limit];
-            for (int i = leftSide; i < limit; i += packSize)
+            #region Draw Loop Point Markers
+            if (myScript.loopMode >= LoopMode.LoopWithLoopPoints)
             {
-                waveform[s] = Mathf.Abs(samples[i]);
-                s++;
-            }
+                Rect newRect = new Rect();
 
-            if (myScript.loopMode == LoopMode.LoopWithLoopPoints)
-            {
-                float beginning = JSAMExtensions.InverseLerpUnclamped(leftValue, rightValue, myScript.loopStart / audio.length);
-                float ending = JSAMExtensions.InverseLerpUnclamped(leftValue, rightValue, myScript.loopEnd / audio.length);
-                float loopStart = beginning * width;
-                float loopEnd = ending * width;
+                // Draw Loop Start
+                newRect.height = height;
+                newRect.xMax = (myScript.loopStart / myScript.File.length) * width;
+                float firstLabel = newRect.xMax;
 
-                for (int x = 0; x < width; x++)
+                GUI.Box(newRect, "");
+                newRect.xMin = newRect.xMax - 65;
+                newRect.x += 60;
+                GUI.Label(newRect, new GUIContent("Loop Start"), JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperRight));
+
+                // Draw Loop End
+                newRect.height = height;
+                newRect.xMin = (myScript.loopEnd / audio.length) * width;
+                float secondLabel = newRect.xMin;
+                newRect.xMax = width;
+                GUI.Box(newRect, "");
+
+                var style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperLeft);
+                newRect.height = 35;
+                if (newRect.width < 60)
                 {
-                    // Here we limit the scope of the area based on loop points
-                    if (x < loopStart || x > loopEnd)
+                    newRect.width = 100;
+                    newRect.x -= 55;
+                    if (secondLabel - firstLabel < 140)
                     {
-                        for (int y = 0; y < height; y++)
-                        {
-                            tex.SetPixel(x, y, Color.black);
-                        }
-                    }
-                    else
-                    {
-                        for (int y = 0; y < height; y++)
-                        {
-                            tex.SetPixel(x, y, lightShade);
-                        }
+                        style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.LowerLeft);
                     }
                 }
-            }
-            else
-            {
-                for (int x = 0; x < width; x++)
+                else if (secondLabel - firstLabel < 70)
                 {
-                    for (int y = 0; y < height; y++)
-                    {
-                        tex.SetPixel(x, y, lightShade);
-                    }
+                    style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.LowerLeft);
                 }
-            }
-            
-            for (int x = 0; x < Mathf.Clamp(rightSide, 0, width); x++)
-            {
-                // Scale the wave vertically relative to half the rect height and the relative volume
-                float heightLimit = waveform[x] * halfHeight * myScript.relativeVolume;
 
-                for (int y = (int)heightLimit; y >= 0; y--)
-                {
-                    Color currentPixelColour = tex.GetPixel(x, halfHeight + y);
-            
-                    tex.SetPixel(x, halfHeight + y, currentPixelColour + col * 0.75f);
-            
-                    // Get data from upper half offset by 1 unit due to int truncation
-                    currentPixelColour = tex.GetPixel(x, halfHeight - (y + 1));
-                    // Draw bottom half with data from upper half
-                    tex.SetPixel(x, halfHeight - (y + 1), currentPixelColour + col * 0.75f);
-                }
-            }
-            tex.Apply();
+                GUI.Label(newRect, new GUIContent("Loop End"), style);
 
-            return tex;
+                newRect.x = 0;
+                newRect.height = height;
+                newRect.xMin = (myScript.loopStart / myScript.File.length) * width;
+                newRect.xMax = (myScript.loopEnd / audio.length) * width;
+                JSAMEditorHelper.BeginColourChange(Color.green);
+                GUI.Box(newRect, "", "SelectionRect");
+                JSAMEditorHelper.EndColourChange();
+                #endregion
+            }
         }
 
         static GUIContent s_BackIcon = null;

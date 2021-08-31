@@ -152,7 +152,7 @@ public class UIManager : MonoBehaviour
             p.ShowSelectionPointer();
         }
 
-        foreach (EnemyCharacter e in EnemyController.instance.enemies)
+        foreach (EnemyCharacter e in EnemyController.instance.Enemies)
         {
             e.ForceHideSelectionPointer();
         }

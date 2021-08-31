@@ -7,6 +7,10 @@ using System;
 public struct DamageStruct
 {
     /// <summary>
+    /// The attacking character, if any
+    /// </summary>
+    public BaseCharacter source;
+    /// <summary>
     /// Final damage passed to the character for damage calculation
     /// </summary>
     public float damage;
@@ -272,6 +276,12 @@ public abstract class BaseCharacter : MonoBehaviour
         GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
     }
 
+    public void DealAOEDamage()
+    {
+        BattleSystem.Instance.AttackAOE(incomingDamage);
+        GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
+    }
+
     public void FinishAttack()
     {
         switch (Reference.range)
@@ -298,13 +308,17 @@ public abstract class BaseCharacter : MonoBehaviour
         var playerClass = characterReference.characterClass;
         var enemyClass = BattleSystem.Instance.GetOpposingCharacter().characterReference.characterClass;
 
+        damageStruct.source = this;
+
         float effectiveness = DamageTriangle.GetEffectiveness(playerClass, enemyClass);
         damageStruct.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
         float finalCritChance = CritChanceAdjusted;
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
+        {
             finalCritChance += Convert.ToInt16(damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
+        }
         damageStruct.isCritical = (UnityEngine.Random.value < finalCritChance);
         if (damageStruct.isCritical)
         {
@@ -377,9 +391,9 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
                 break;
             case TargetMode.AllEnemies:
-                for (int i = 0; i < EnemyController.instance.enemies.Count; i++)
+                for (int i = 0; i < EnemyController.instance.Enemies.Count; i++)
                 {
-                    targets.Add(EnemyController.instance.enemies[i]);
+                    targets.Add(EnemyController.instance.Enemies[i]);
                 }
                 break;
         }
@@ -486,9 +500,9 @@ public abstract class BaseCharacter : MonoBehaviour
                         }
                         break;
                     case TargetMode.AllEnemies:
-                        for (int j = 0; j < EnemyController.instance.enemies.Count; j++)
+                        for (int j = 0; j < EnemyController.instance.Enemies.Count; j++)
                         {
-                            ApplyEffectToCharacter(effect, EnemyController.instance.enemies[j]);
+                            ApplyEffectToCharacter(effect, EnemyController.instance.Enemies[j]);
                         }
                         break;
                     case TargetMode.Self:
@@ -609,10 +623,11 @@ public abstract class BaseCharacter : MonoBehaviour
                 else
                     rigAnim.Play("Hit Reaction");
             }
-        }
-        else
-        {
-            spriteAnim.Play("Hurt");
+
+            if (damage.source != null)
+            {
+                characterMesh.transform.LookAt(damage.source.transform);
+            }
         }
 
         onTakeDamage?.Invoke();

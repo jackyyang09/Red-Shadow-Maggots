@@ -160,6 +160,11 @@ public class AnimationHelper : MonoBehaviour
         baseCharacter.DealDamage();
     }
 
+    public void DealAOEDamage()
+    {
+        baseCharacter.DealAOEDamage();
+    }
+
     public void FinishAttack()
     {
         baseCharacter.FinishAttack();

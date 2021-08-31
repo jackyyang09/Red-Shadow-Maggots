@@ -304,6 +304,9 @@ namespace JSAM.JSAMEditor
         List<string> newSoundNames = new List<string>();
         List<string> missingSoundNames = new List<string>();
         List<JSAMSoundFileObject> registeredSounds = new List<JSAMSoundFileObject>();
+        /// <summary>
+        /// Dictionary of category names to SerializedProperties that hold the list of sounds in that category
+        /// </summary>
         Dictionary<string, SerializedProperty> categoryToSoundStructs = new Dictionary<string, SerializedProperty>();
         Dictionary<string, AudioList> reorderableSoundLists = new Dictionary<string, AudioList>();
 
@@ -1071,7 +1074,6 @@ namespace JSAM.JSAMEditor
                                     continue;
                                 }
 
-                                mimport[j].category = categoryName;
                                 AddMusicFile(mimport[j]);
                             }
                         }
@@ -1091,7 +1093,6 @@ namespace JSAM.JSAMEditor
                                     continue;
                                 }
 
-                                simport[j].category = categoryName;
                                 AddSoundFile(simport[j]);
                             }
                         }
@@ -1125,80 +1126,12 @@ namespace JSAM.JSAMEditor
         void AddSoundFile(JSAMSoundFileObject newSound)
         {
             sounds.AddNewArrayElement().objectReferenceValue = newSound;
-
-            string category = newSound.category;
-
-            // New category found
-            if (!asset.soundCategories.Contains(category))
-            {
-                var newElement = soundCategories.AddNewArrayElement();
-                newElement.stringValue = category;
-            }
-
-            // If new category encountered
-            if (!categoryToSoundStructs.ContainsKey(category))
-            {
-                var element = soundCategoriesToList.AddNewArrayElement();
-                element.FindPropertyRelative("name").stringValue = category;
-                element.FindPropertyRelative("foldout").boolValue = true;
-
-                var array = element.FindPropertyRelative("files");
-                array.ClearArray();
-                array.AddNewArrayElement().objectReferenceValue = newSound;
-
-                // Save new struct to Dictionary
-                categoryToSoundStructs[category] = element;
-            }
-            else
-            {
-                var element = categoryToSoundStructs[category];
-
-                var array = element.FindPropertyRelative("files");
-
-                // Add new files
-                var newFileElement = array.AddNewArrayElement();
-                newFileElement.objectReferenceValue = newSound;
-            }
             serializedObject.ApplyModifiedProperties();
         }
 
         void AddMusicFile(JSAMMusicFileObject newMusic)
         {
             music.AddNewArrayElement().objectReferenceValue = newMusic;
-
-            string category = newMusic.category;
-
-            // New category found
-            if (!asset.musicCategories.Contains(category))
-            {
-                var newElement = musicCategories.AddNewArrayElement();
-                newElement.stringValue = category;
-            }
-
-            // If new category encountered
-            if (!categoryToMusicStructs.ContainsKey(category))
-            {
-                var element = musicCategoriesToList.AddNewArrayElement();
-                element.FindPropertyRelative("name").stringValue = category;
-                element.FindPropertyRelative("foldout").boolValue = true;
-
-                var array = element.FindPropertyRelative("files");
-                array.ClearArray();
-                array.AddNewArrayElement().objectReferenceValue = newMusic;
-
-                // Save new struct to Dictionary
-                categoryToMusicStructs[category] = element;
-            }
-            else
-            {
-                var element = categoryToMusicStructs[category];
-
-                var array = element.FindPropertyRelative("files");
-
-                // Add new files
-                var newFileElement = array.AddNewArrayElement();
-                newFileElement.objectReferenceValue = newMusic;
-            }
             serializedObject.ApplyModifiedProperties();
         }
 
@@ -1227,36 +1160,37 @@ namespace JSAM.JSAMEditor
         public void RemoveAudioFile(BaseAudioFileObject file, bool isMusic)
         {
             SerializedProperty array = null;
-            Dictionary<string, SerializedProperty> categoryToStruct = null;
+            SerializedProperty categoriesToList = null;
             int index = 0;
 
             if (isMusic)
             {
                 array = music;
-                categoryToStruct = categoryToMusicStructs;
+                categoriesToList = musicCategoriesToList;
                 index = asset.Music.IndexOf(file as JSAMMusicFileObject);
             }
             else
             {
                 array = sounds;
-                categoryToStruct = categoryToSoundStructs;
+                categoriesToList = soundCategoriesToList;
                 index = asset.Sounds.IndexOf(file as JSAMSoundFileObject);
             }
-
-            string category = file.category;
 
             array.GetArrayElementAtIndex(index).objectReferenceValue = null;
             array.DeleteArrayElementAtIndex(index);
 
-            var filesArray = categoryToStruct[category].FindPropertyRelative("files");
-            for (int i = 0; i < filesArray.arraySize; i++)
+            for (int i = 0; i < categoriesToList.arraySize; i++)
             {
-                var element = filesArray.GetArrayElementAtIndex(i).objectReferenceValue as BaseAudioFileObject;
-                if (element.Equals(file))
+                var filesArray = categoriesToList.GetArrayElementAtIndex(i).FindPropertyRelative("files");
+                for (int j = 0; j < filesArray.arraySize; j++)
                 {
-                    filesArray.GetArrayElementAtIndex(i).objectReferenceValue = null;
-                    filesArray.DeleteArrayElementAtIndex(i);
-                    break;
+                    var element = filesArray.GetArrayElementAtIndex(j).objectReferenceValue as BaseAudioFileObject;
+                    if (element.Equals(file))
+                    {
+                        filesArray.GetArrayElementAtIndex(j).objectReferenceValue = null;
+                        filesArray.DeleteArrayElementAtIndex(j);
+                        break;
+                    }
                 }
             }
 
@@ -1408,34 +1342,39 @@ namespace JSAM.JSAMEditor
         public void ChangeAudioFileCategory(BaseAudioFileObject file, string newCategory, bool isMusic)
         {
             Dictionary<string, SerializedProperty> categoryToStructs = null;
-            string oldCategory = file.category;
+            SerializedProperty categoriesToList = null;
 
-            if (!isMusic)
+            if (isMusic)
             {
-                categoryToStructs = categoryToSoundStructs;
+                categoryToStructs = categoryToMusicStructs;
+                categoriesToList = musicCategoriesToList;
             }
             else
             {
-                categoryToStructs = categoryToMusicStructs;
+                categoryToStructs = categoryToSoundStructs;
+                categoriesToList = soundCategoriesToList;
             }
 
-            var array = categoryToSoundStructs[oldCategory].FindPropertyRelative("files");
-            for (int i = 0; i < array.arraySize; i++)
+            bool found = false;
+            for (int i = 0; i < categoriesToList.arraySize; i++)
             {
-                var element = array.GetArrayElementAtIndex(i).objectReferenceValue as BaseAudioFileObject;
-                if (element == file)
+                var files = categoriesToList.GetArrayElementAtIndex(i).FindPropertyRelative("files");
+                for (int j = 0; j < files.arraySize; j++)
                 {
-                    array.GetArrayElementAtIndex(i).objectReferenceValue = null;
-                    array.DeleteArrayElementAtIndex(i);
+                    var element = files.GetArrayElementAtIndex(j).objectReferenceValue as BaseAudioFileObject;
+                    if (element == file)
+                    {
+                        files.GetArrayElementAtIndex(j).objectReferenceValue = null;
+                        files.DeleteArrayElementAtIndex(j);
+                        found = true;
+                        break;
+                    }
                 }
+                if (found) break;
             }
 
-            array = categoryToStructs[newCategory].FindPropertyRelative("files");
+            var array = categoryToStructs[newCategory].FindPropertyRelative("files");
             array.AddNewArrayElement().objectReferenceValue = file;
-
-            var SO = new SerializedObject(file);
-            SO.FindProperty("category").stringValue = newCategory;
-            SO.ApplyModifiedProperties();
 
             ApplyChanges();
         }
@@ -1581,6 +1520,7 @@ namespace JSAM.JSAMEditor
         public void DeleteCategory(string categoryName, bool isMusic)
         {
             Dictionary<string, SerializedProperty> categoryToStruct = null;
+            SerializedProperty categoriesToList = null;
             SerializedProperty categories = null;
             SerializedProperty audioProp = null;
             int index = -1;
@@ -1588,6 +1528,7 @@ namespace JSAM.JSAMEditor
             if (isMusic)
             {
                 categoryToStruct = categoryToMusicStructs;
+                categoriesToList = musicCategoriesToList;
                 index = asset.musicCategories.IndexOf(categoryName);
                 categories = musicCategories;
                 audioProp = music;
@@ -1595,6 +1536,7 @@ namespace JSAM.JSAMEditor
             else
             {
                 categoryToStruct = categoryToSoundStructs;
+                categoriesToList = soundCategoriesToList;
                 index = asset.soundCategories.IndexOf(categoryName);
                 categories = soundCategories;
                 audioProp = sounds;
@@ -1613,12 +1555,19 @@ namespace JSAM.JSAMEditor
                 }
             }
 
+            List<BaseAudioFileObject> filesToDelete = new List<BaseAudioFileObject>();
+            for (int i = 0; i < categoriesToList.arraySize; i++)
+            {
+                filesToDelete.Add(categoriesToList.GetArrayElementAtIndex(i).objectReferenceValue as BaseAudioFileObject);
+            }
+
             categories.DeleteArrayElementAtIndex(index);
-            for (int i = 0; i < audioProp.arraySize; i++)
+            for (int i = 0; i < audioProp.arraySize && filesToDelete.Count > 0; i++)
             {
                 var audio = audioProp.GetArrayElementAtIndex(i).objectReferenceValue as BaseAudioFileObject;
-                if (audio.category.Equals(categoryName))
+                if (filesToDelete.Contains(audio))
                 {
+                    filesToDelete.Remove(audio);
                     // A dirty hack, but Unity serialization is real messy
                     // https://answers.unity.com/questions/555724/serializedpropertydeletearrayelementatindex-leaves.html
                     if (audioProp.GetArrayElementAtIndex(i) != null)

@@ -10,6 +10,7 @@ using System;
 public class TextureEyeEditor : Editor
 {
     SerializedProperty drawEyeGizmos;
+    SerializedProperty eyeWorldScale;
 
     SerializedProperty FindProp(string prop) => serializedObject.FindProperty(prop);
 
@@ -43,14 +44,9 @@ public class TextureEyeEditor : Editor
         myScript = target as TextureEyeController;
 
         drawEyeGizmos = FindProp(nameof(drawEyeGizmos));
-        //ignoredProperties.Add(nameof(drawEyeGizmos));
 
-        myScript.CreateMaterialInstancesInEditor();
-        if (!updating)
-        {
-            EditorApplication.update += Update;
-            updating = true;
-        }
+        eyeWorldScale = FindProp(nameof(eyeWorldScale));
+        ignoredProperties.Add(nameof(eyeWorldScale));
     }
 
     private void OnDisable()
@@ -69,6 +65,8 @@ public class TextureEyeEditor : Editor
         if (!target) return;
         if (!myScript.enabled) return;
 
+        serializedObject.Update();
+
         if (drawEyeGizmos.boolValue)
         {
             {
@@ -77,8 +75,9 @@ public class TextureEyeEditor : Editor
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    Undo.RecordObject(myScript, "Moved left eye handle");
-                    myScript.leftEyePos = newPos;
+                    SerializedObject so = new SerializedObject(myScript);
+                    so.FindProperty("leftEyePos").vector3Value = newPos;
+                    so.ApplyModifiedProperties();
                 }
             }
 
@@ -88,8 +87,9 @@ public class TextureEyeEditor : Editor
 
                 if (EditorGUI.EndChangeCheck())
                 {
-                    Undo.RecordObject(myScript, "Moved right eye handle");
-                    myScript.rightEyePos = newPos;
+                    SerializedObject so = new SerializedObject(myScript);
+                    so.FindProperty("rightEyePos").vector3Value = newPos;
+                    so.ApplyModifiedProperties();
                 }
             }
         }
@@ -144,7 +144,31 @@ public class TextureEyeEditor : Editor
 
         serializedObject.Update();
 
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button(new GUIContent("Show Preview Eyes", "Allow you to manipulate the eyes outside of Play Mode. Don't modify your renderer's materials while this is active in the editor.")))
+        {
+            if (myScript.CreateMaterialInstancesInEditor())
+            {
+                EditorApplication.update += Update;
+                updating = true;
+            }
+        }
+
+        if (GUILayout.Button(new GUIContent("Hide Preview Eyes", "Disables editor time eye movement.")))
+        {
+            updating = false;
+            myScript.UnloadEditorEyes();
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+
         DrawPropertiesExcluding(serializedObject, ignoredProperties.ToArray());
+
+        if (drawEyeGizmos.boolValue)
+        {
+            EditorGUILayout.PropertyField(eyeWorldScale);
+        }
 
         if (serializedObject.hasModifiedProperties)
         {

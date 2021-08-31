@@ -11,6 +11,10 @@ public enum BattlePhases
     BattleLose
 }
 
+/// <summary>
+/// If its the player's turn, player refers to the attacker and enemy refers to the defender
+/// <para>Vice-versa if its the enemy's turn</para>
+/// </summary>
 public struct TargettedCharacters
 {
     public PlayerCharacter player;
@@ -195,7 +199,7 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                if (EnemyController.instance.enemies.Count > 0)
+                if (EnemyController.instance.Enemies.Count > 0)
                 {
                     playerTargets.enemy = EnemyController.instance.RandomEnemy;
                     playerTargets.enemy.ShowCharacterUI();
@@ -225,7 +229,6 @@ public class BattleSystem : MonoBehaviour
                     var targetEnemy = playerTargets.enemy;
                     targetEnemy.SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                 }
-                playerTargets.enemy.CharacterMesh.transform.LookAt(playerTargets.player.transform);
                 playerTargets.enemy.TakeDamage(damage);
                 break;
             case BattlePhases.EnemyTurn:
@@ -234,8 +237,36 @@ public class BattleSystem : MonoBehaviour
                     var targetPlayer = enemyTargets.player;
                     targetPlayer.SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
                 }
-                enemyTargets.player.CharacterMesh.transform.LookAt(enemyTargets.enemy.transform);
                 enemyTargets.player.TakeDamage(damage);
+                break;
+        }
+    }
+
+    public void AttackAOE(DamageStruct damage)
+    {
+        damage.source = null;
+        switch (currentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                var enemies = EnemyController.instance.Enemies;
+                for (int i = 0; i < enemies.Count; i++)
+                {
+                    if (playerTargets.player.Reference.attackEffectPrefab != null)
+                    {
+                        enemies[i].SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
+                    }
+                    enemies[i].TakeDamage(damage);
+                }
+                break;
+            case BattlePhases.EnemyTurn:
+                for (int i = 0; i < playerCharacters.Count; i++)
+                {
+                    if (enemyTargets.enemy.Reference.attackEffectPrefab != null)
+                    {
+                        playerCharacters[i].SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
+                    }
+                    playerCharacters[i].TakeDamage(damage);
+                }
                 break;
         }
     }
@@ -323,7 +354,7 @@ public class BattleSystem : MonoBehaviour
         {
             case BattlePhases.PlayerTurn:
                 yield return new WaitForSeconds(SceneTweener.Instance.EnemyTurnTransitionDelay);
-                if (EnemyController.instance.enemies.Count > 0)
+                if (EnemyController.instance.Enemies.Count > 0)
                 {
                     SetPhase(BattlePhases.EnemyTurn);
                 }

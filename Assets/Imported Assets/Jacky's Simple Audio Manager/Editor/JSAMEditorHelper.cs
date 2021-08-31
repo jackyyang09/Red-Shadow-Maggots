@@ -32,6 +32,18 @@ namespace JSAM.JSAMEditor
             }
             return null;
         }
+
+        /// <summary>
+        /// Returns true if this AudioFile houses a .WAV
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsWavFile(this AudioClip audioClip)
+        {
+            string filePath = AssetDatabase.GetAssetPath(audioClip);
+            string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
+            string fileExtension = trueFilePath.Substring(trueFilePath.Length - 4);
+            return fileExtension == ".wav";
+        }
     }
 
     public class JSAMEditorHelper

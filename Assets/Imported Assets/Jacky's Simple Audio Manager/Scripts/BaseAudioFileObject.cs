@@ -17,17 +17,6 @@ namespace JSAM
     }
 
     /// <summary>
-    /// Defines the different ways sounds can fade out
-    /// </summary>
-    public enum FadeMode
-    {
-        None,
-        FadeIn,
-        FadeOut,
-        FadeInAndOut
-    }
-
-    /// <summary>
     /// Defines the different ways music can loop
     /// </summary>
     public enum LoopMode
@@ -166,9 +155,6 @@ namespace JSAM
         }
         [SerializeField, HideInInspector] string presetDescription;
 
-        [HideInInspector]
-        public string category = "";
-
         [Header("Attach audio file here to use")]
         [SerializeField] protected AudioClip file;
         public AudioClip File { get { return file; } }
@@ -176,6 +162,17 @@ namespace JSAM
         [Header("Attach audio files here to use")]
         [SerializeField] protected List<AudioClip> files = new List<AudioClip>();
         public List<AudioClip> Files { get { return files; } }
+
+        /// <summary>
+        /// Starting loop point, stored as time for accuracy sake, converted to samples in back-end
+        /// </summary>
+        [HideInInspector] public float loopStart;
+        /// <summary>
+        /// Ending loop point, stored as time for accuracy sake, converted to samples in back-end
+        /// </summary>
+        [HideInInspector] public float loopEnd;
+
+        [HideInInspector] public int bpm = 120;
 
         public AudioClip FirstAvailableFile
         {
@@ -262,9 +259,6 @@ namespace JSAM
         [Tooltip("Standard looping disregards all loop point logic and will make the music loop from start to end, " + "\"Loop with Loop Points\" enables loop point use and makes the music start from the start point upon reaching the end")]
         [SerializeField] public LoopMode loopMode = LoopMode.NoLooping;
 
-        [Tooltip("If true, takes the pitch settings and applies them to the frequency as negative values, making the sound playback in reverse.")]
-        public bool playReversed = false;
-
         [Tooltip("Adds a delay in seconds before this sound is played. If the sound loops, delay is only added to when the sound is first played before the first loop.")]
         public float delay = 0;
 
@@ -272,7 +266,7 @@ namespace JSAM
         public bool ignoreTimeScale = false;
 
         [Tooltip("Add fade to your sound. Set the details of this fade using the FadeMode tools.")]
-        public FadeMode fadeMode;
+        public bool fadeInOut;
         [Tooltip("The percentage of time the sound takes to fade-in relative to it's total length.")]
         [SerializeField, HideInInspector]
         public float fadeInDuration;

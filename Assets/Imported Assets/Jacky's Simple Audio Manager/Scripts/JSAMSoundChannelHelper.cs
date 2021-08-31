@@ -17,15 +17,7 @@ namespace JSAM
                 // Check if the AudioSource is beginning to loop
                 if (prevPlaybackTime > AudioSource.time)
                 {
-                    if (audioFile.UsingLibrary)
-                    {
-                        AudioClip[] library = audioFile.Files.ToArray();
-                        do
-                        {
-                            AudioSource.clip = library[Random.Range(0, library.Length)];
-                        } while (AudioSource.clip == null); // If the user is a dingus and left a few null references in the library
-                        AudioSource.Play();
-                    }
+                    AssignNewAudioClip();
                     AudioSource.pitch = JSAMSoundFileObject.GetRandomPitch(audioFile);
                 }
                 prevPlaybackTime = AudioSource.time;
@@ -55,19 +47,6 @@ namespace JSAM
                 case LoopMode.LoopWithLoopPoints:
                 case LoopMode.ClampedLoopPoints:
                     AudioSource.loop = true;
-                    break;
-            }
-
-            switch (file.fadeMode)
-            {
-                case FadeMode.FadeIn:
-                    StartCoroutine(FadeIn(audioFile.fadeInDuration * AudioSource.clip.length));
-                    break;
-                case FadeMode.FadeInAndOut:
-                    StartCoroutine(FadeIn(audioFile.fadeInDuration * AudioSource.clip.length));
-                    break;
-                case FadeMode.FadeOut:
-                    StartCoroutine(FadeOut(audioFile.fadeOutDuration * AudioSource.clip.length));
                     break;
             }
 

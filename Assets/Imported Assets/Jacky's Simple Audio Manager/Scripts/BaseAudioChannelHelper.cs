@@ -29,6 +29,9 @@ namespace JSAM
         /// </summary>
         public Vector3 SpatializationPosition { get; private set; }
 
+        protected int LoopStart { get { return (int)(audioFile.loopStart * AudioSource.clip.frequency); } }
+        protected int LoopEnd { get { return (int)(audioFile.loopEnd * AudioSource.clip.frequency); } }
+
         protected AudioChorusFilter chorusFilter;
         protected AudioDistortionFilter distortionFilter;
         protected AudioEchoFilter echoFilter;
@@ -86,7 +89,20 @@ namespace JSAM
 
         protected virtual void Update()
         {
-            // TODO: Implement loop point logic
+            if (audioFile.loopMode == LoopMode.LoopWithLoopPoints)
+            {
+                if (AudioSource.timeSamples > LoopEnd)
+                {
+                    AudioSource.timeSamples = LoopStart;
+                }
+            }
+            else if (audioFile.loopMode == LoopMode.LoopWithLoopPoints)
+            {
+                if (AudioSource.timeSamples < LoopStart)
+                {
+                    AudioSource.timeSamples = LoopStart;
+                }
+            }
 
             // Disable self if not playing anymore
             enabled = AudioSource.isPlaying;
@@ -106,36 +122,7 @@ namespace JSAM
         {
             audioFile = file;
 
-            if (file.UsingLibrary)
-            {
-                AudioClip[] library = file.Files.ToArray();
-                int index = 0;
-                if (file.FileCount > 1) // The user actually bothered to include multiple files
-                {
-                    do
-                    {
-                        index = Random.Range(0, library.Length);
-                        AudioSource.clip = library[index];
-                        if (AudioSource.clip == null)
-                        {
-                            Debug.LogWarning("Missing AudioClip at index " + index + 
-                                " in Audio File " + file.SafeName + "'s library!");
-                        }
-                    } while (index == file.lastClipIndex);
-                    if (file.neverRepeat)
-                    {
-                        file.lastClipIndex = index;
-                    }
-                }
-                else
-                {
-                    AudioSource.clip = file.FirstAvailableFile;
-                }
-            }
-            else
-            {
-                AudioSource.clip = file.File;
-            }
+            AssignNewAudioClip();
 
             if (AudioManager.Instance.Settings.Spatialize && audioFile.spatialize)
             {
@@ -149,6 +136,12 @@ namespace JSAM
             else
             {
                 AudioSource.spatialBlend = 0;
+            }
+
+            if (file.fadeInOut)
+            {
+                StartCoroutine(FadeIn(audioFile.fadeInDuration * AudioSource.clip.length));
+                StartCoroutine(FadeOut(audioFile.fadeOutDuration * AudioSource.clip.length));
             }
 
             AudioSource.volume = file.relativeVolume;
@@ -192,6 +185,40 @@ namespace JSAM
         private void OnSpatializeLateUpdate()
         {
             Spatialize();
+        }
+
+        public void AssignNewAudioClip()
+        {
+            if (audioFile.UsingLibrary)
+            {
+                AudioClip[] library = audioFile.Files.ToArray();
+                int index = 0;
+                if (audioFile.FileCount > 1) // The user actually bothered to include multiple audioFiles
+                {
+                    do
+                    {
+                        index = Random.Range(0, library.Length);
+                        AudioSource.clip = library[index];
+                        if (AudioSource.clip == null)
+                        {
+                            Debug.LogWarning("Missing AudioClip at index " + index +
+                                " in Audio audioFile " + audioFile.SafeName + "'s library!");
+                        }
+                    } while (index == audioFile.lastClipIndex && audioFile.neverRepeat);
+                    if (audioFile.neverRepeat)
+                    {
+                        audioFile.lastClipIndex = index;
+                    }
+                }
+                else
+                {
+                    AudioSource.clip = audioFile.FirstAvailableFile;
+                }
+            }
+            else
+            {
+                AudioSource.clip = audioFile.File;
+            }
         }
 
         void Spatialize()
@@ -244,7 +271,6 @@ namespace JSAM
         /// <summary>
         /// </summary>
         /// <param name="fadeTime">Fade-in time in seconds</param>
-        /// <param name="queueFadeout">If true, immediately prepares fade-out coroutine</param>
         /// <returns></returns>
         protected IEnumerator FadeIn(float fadeTime)
         {

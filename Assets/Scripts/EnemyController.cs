@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public List<EnemyCharacter> enemies { get; private set; }
+    public List<EnemyCharacter> Enemies { get; private set; }
     public EnemyCharacter RandomEnemy
     {
         get
         {
-            return enemies[Random.Range(0, enemies.Count)];
+            return Enemies[Random.Range(0, Enemies.Count)];
         }
     }
 
@@ -20,13 +20,6 @@ public class EnemyController : MonoBehaviour
         EstablishSingletonDominance();
     }
 
-    // Start is called before the first frame update
-    //void Start()
-    //{
-    //
-    //}
-
-    // Update is called once per frame
     //void Update()
     //{
     //
@@ -34,30 +27,30 @@ public class EnemyController : MonoBehaviour
 
     public void AssignEnemies(List<EnemyCharacter> enemyCharacters)
     {
-        enemies = enemyCharacters;
+        Enemies = enemyCharacters;
     }
 
     public void MakeYourMove()
     {
-        BattleSystem.Instance.SetActiveEnemy(enemies[Random.Range(0, enemies.Count)]);
+        BattleSystem.Instance.SetActiveEnemy(Enemies[Random.Range(0, Enemies.Count)]);
         BattleSystem.Instance.SetActivePlayer(BattleSystem.Instance.RandomPlayerCharacter);
         BattleSystem.Instance.ExecuteEnemyAttack();
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)
     {
-        enemies.Remove(enemy);
+        Enemies.Remove(enemy);
     }
 
     #region Debug Hacks
     [CommandTerminal.RegisterCommand(Help = "Instantly hurt enemies, leaving them at 1 health")]
     public static void CrippleEnemies(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < instance.enemies.Count; i++)
+        for (int i = 0; i < instance.Enemies.Count; i++)
         {
             DamageStruct dmg = new DamageStruct();
-            dmg.damage = instance.enemies[i].CurrentHealth - 1;
-            instance.enemies[i].TakeDamage(dmg);
+            dmg.damage = instance.Enemies[i].CurrentHealth - 1;
+            instance.Enemies[i].TakeDamage(dmg);
         }
         Debug.Log("Enemies damaged!");
     }

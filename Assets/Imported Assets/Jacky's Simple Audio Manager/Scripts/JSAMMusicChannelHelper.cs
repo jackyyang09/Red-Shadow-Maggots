@@ -7,35 +7,6 @@ namespace JSAM
     [AddComponentMenu("")]
     public class JSAMMusicChannelHelper : BaseAudioChannelHelper<JSAMMusicFileObject>
     {
-        bool clampedBetweenLoopPoints = false;
-
-        int LoopStart { get { return (int)(audioFile.loopStart * AudioSource.clip.samples); } }
-        int LoopEnd { get { return (int)(audioFile.loopEnd* AudioSource.clip.samples); } }
-
-        protected override void Update()
-        {
-            switch (audioFile.loopMode)
-            {
-                case LoopMode.LoopWithLoopPoints:
-                case LoopMode.ClampedLoopPoints:
-                    if (AudioSource.timeSamples > LoopEnd)
-                    {
-                        AudioSource.timeSamples = LoopStart;
-                    }
-
-                    if (clampedBetweenLoopPoints)
-                    {
-                        if (AudioSource.timeSamples < LoopStart)
-                        {
-                            AudioSource.timeSamples = LoopStart;
-                        }
-                    }
-                    break;
-            }
-
-            base.Update();
-        }
-
         public override AudioSource Play(JSAMMusicFileObject file)
         {
             ClearProperties();
@@ -51,28 +22,14 @@ namespace JSAM
             if (file.loopMode == LoopMode.NoLooping)
             {
                 AudioSource.loop = false;
-                clampedBetweenLoopPoints = false;
             }
             else
             {
                 AudioSource.loop = true;
-                if (file.loopMode != LoopMode.Looping)
-                {
-                    if (file.loopMode == LoopMode.ClampedLoopPoints)
-                    {
-                        clampedBetweenLoopPoints = true;
-                    }
-                }
             }
 
             switch (file.TransitionMode)
             {
-                case JSAMMusicFileObject.TransitionModes.CrossfadeIn:
-                    StartCoroutine(FadeIn(audioFile.TransitionInTime));
-                    break;
-                case JSAMMusicFileObject.TransitionModes.CrossfadeOut:
-                    StartCoroutine(FadeIn(audioFile.TransitionOutTime));
-                    break;
                 case JSAMMusicFileObject.TransitionModes.CrossfadeInAndOut:
                     StartCoroutine(FadeIn(audioFile.TransitionInTime));
                     StartCoroutine(FadeOut(audioFile.TransitionOutTime));
@@ -93,7 +50,6 @@ namespace JSAM
             {
                 switch (audioFile.TransitionMode)
                 {
-                    case JSAMMusicFileObject.TransitionModes.CrossfadeOut:
                     case JSAMMusicFileObject.TransitionModes.CrossfadeInAndOut:
                         StartCoroutine(FadeOut(audioFile.TransitionOutTime));
                         break;
