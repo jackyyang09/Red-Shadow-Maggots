@@ -6,18 +6,18 @@ using UnityEngine.UI;
 
 public class CharacterUI : MonoBehaviour
 {
-    [SerializeField] Sprite[] classIcons = null;
+    [SerializeField] protected Sprite[] classIcons = null;
 
-    [SerializeField] Image icon = null;
+    [SerializeField] protected Image icon = null;
 
-    [SerializeField] RectTransform iconContainer = null;
-    [SerializeField] List<Image> iconImages = new List<Image>();
+    [SerializeField] protected RectTransform iconContainer = null;
+    [SerializeField] protected List<Image> iconImages = new List<Image>();
 
-    [SerializeField] List<BaseGameEffect> effects = new List<BaseGameEffect>();
+    [SerializeField] protected List<BaseGameEffect> effects = new List<BaseGameEffect>();
 
-    [SerializeField] BaseCharacter designatedCharacter = null;
+    [SerializeField] protected BaseCharacter designatedCharacter = null;
 
-    [SerializeField] Canvas parentCanvas;
+    [SerializeField] protected Canvas parentCanvas;
 
     [ContextMenu("Find Object References")]
     void FindObjectReferences()

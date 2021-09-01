@@ -15,7 +15,7 @@ public class EnemyCharacter : BaseCharacter
         // Set to World-Scale of 1
         if (isBossCharacter)
         {
-            characterMesh.transform.localScale = new Vector3(0.5714285f, 0.5714285f, 0.5714285f);
+            //characterMesh.transform.localScale = new Vector3(0.5714285f, 0.5714285f, 0.5714285f);
         }
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
     }
