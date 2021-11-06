@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Defence Buff", menuName = "ScriptableObjects/Skills/Defence", order = 1)]
+[CreateAssetMenu(fileName = "New Defence Buff", menuName = "ScriptableObjects/Game Effects/Defence", order = 1)]
 public class BaseDefenceBuff : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)

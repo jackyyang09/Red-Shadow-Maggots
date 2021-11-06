@@ -2,16 +2,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class UIManager : MonoBehaviour
 {
+    [SerializeField] Canvas viewPortBillboardCanvas = null;
+    public Canvas ViewportBillboardCanvas { get { return viewPortBillboardCanvas; } }
+
     [Header("Battle System")]
     [SerializeField] OptimizedButton attackButton = null;
     [SerializeField] UICharacterDetails characterDetailsPanel = null;
     [SerializeField] QuickTimeBar offenseBar = null;
-    [SerializeField] QuickTimeBar defenseBar = null;
+    [SerializeField] QuickTimeDefense defenseBar = null;
     [SerializeField] QuickTimeHold holdBar = null;
     [SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
+    [SerializeField] CharacterUI bossUI = null;
 
     [Header("Skill System")]
     [SerializeField] SkillDetailPanel skillPanel = null;
@@ -33,7 +38,9 @@ public class UIManager : MonoBehaviour
     public static bool CanSelectPlayer = true;
     public static bool SelectingAllyForSkill = false;
 
-    public static Action onAttackCommit;
+    public static Action OnAttackCommit;
+    public static Action OnRemovePlayerControl;
+    public static Action OnResumePlayerControl;
     public static UIManager instance;
 
     private void Awake()
@@ -50,28 +57,32 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        BattleSystem.onStartPlayerTurnLate += ResumePlayerControl;
-        PlayerCharacter.onSelectedPlayerCharacterChange += UpdateSkillGraphic;
+        BattleSystem.OnStartPlayerTurnLate += ResumePlayerControl;
+        PlayerCharacter.OnSelectedPlayerCharacterChange += UpdateSkillGraphic;
+        PlayerCharacter.OnPlayerQTEAttack += ShowQTEUI;
 
-        GlobalEvents.OnPlayerDefeat += ShowLoseCanvas;
-        GlobalEvents.OnFinalWaveClear += ShowWinCanvas;
-        GlobalEvents.OnEnterWave += UpdateWaveCounter;
+        BattleSystem.OnPlayerDefeat += ShowLoseCanvas;
+        BattleSystem.OnFinalWaveClear += ShowWinCanvas;
+        SceneTweener.OnBattleTransition += UpdateWaveCounter;
         GlobalEvents.OnModifyGameSpeed += UpdateGameSpeed;
+        GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
 
-        onAttackCommit += RemovePlayerControl;
+        OnAttackCommit += RemovePlayerControl;
     }
 
     private void OnDisable()
     {
-        BattleSystem.onStartPlayerTurnLate -= ResumePlayerControl;
-        PlayerCharacter.onSelectedPlayerCharacterChange -= UpdateSkillGraphic;
+        BattleSystem.OnStartPlayerTurnLate -= ResumePlayerControl;
+        PlayerCharacter.OnSelectedPlayerCharacterChange -= UpdateSkillGraphic;
+        PlayerCharacter.OnPlayerQTEAttack -= ShowQTEUI;
 
-        GlobalEvents.OnPlayerDefeat -= ShowLoseCanvas;
-        GlobalEvents.OnFinalWaveClear -= ShowWinCanvas;
-        GlobalEvents.OnEnterWave -= UpdateWaveCounter;
+        BattleSystem.OnPlayerDefeat -= ShowLoseCanvas;
+        BattleSystem.OnFinalWaveClear -= ShowWinCanvas;
+        SceneTweener.OnBattleTransition -= UpdateWaveCounter;
         GlobalEvents.OnModifyGameSpeed -= UpdateGameSpeed;
+        GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
 
-        onAttackCommit -= RemovePlayerControl;
+        OnAttackCommit -= RemovePlayerControl;
     }
 
     // Update is called once per frame
@@ -85,6 +96,11 @@ public class UIManager : MonoBehaviour
         JSAM.AudioManager.PlaySound(BattleSceneSounds.UIClick);
     }
 
+    private void OnCharacterFinishSuperCritical(BaseCharacter obj)
+    {
+        ResumePlayerControl();
+    }
+
     public void ResumePlayerControl()
     {
         if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
@@ -95,8 +111,10 @@ public class UIManager : MonoBehaviour
         foreach (SkillButtonUI button in skillButtons)
         {
             button.button.Show();
-            UpdateSkillGraphic(BattleSystem.Instance.GetActivePlayer());
+            UpdateSkillGraphic(battleSystem.ActivePlayer);
         }
+
+        OnResumePlayerControl?.Invoke();
     }
 
     public void RemovePlayerControl()
@@ -108,12 +126,14 @@ public class UIManager : MonoBehaviour
         {
             button.button.Hide();
         }
+
+        OnRemovePlayerControl?.Invoke();
     }
 
     public void OpenCharacterPanel()
     {
         CharacterPanelOpen = true;
-        characterDetailsPanel.DisplayWithCharacter(BattleSystem.Instance.GetActivePlayer());
+        characterDetailsPanel.DisplayWithCharacter(battleSystem.ActivePlayer);
     }
 
     public void CloseCharacterPanel()
@@ -152,7 +172,7 @@ public class UIManager : MonoBehaviour
             p.ShowSelectionPointer();
         }
 
-        foreach (EnemyCharacter e in EnemyController.instance.Enemies)
+        foreach (EnemyCharacter e in EnemyController.Instance.Enemies)
         {
             e.ForceHideSelectionPointer();
         }
@@ -160,7 +180,7 @@ public class UIManager : MonoBehaviour
 
     public void CancelSkillInvocation()
     {
-        BattleSystem.Instance.GetActivePlayer().CancelSkill();
+        battleSystem.ActivePlayer.CancelSkill();
         ResumePlayerControl();
     }
 
@@ -176,20 +196,22 @@ public class UIManager : MonoBehaviour
             p.HideSelectionPointer();
         }
 
-        BattleSystem.Instance.GetActiveEnemy().ShowSelectionPointer();
+        battleSystem.ActiveEnemy.ShowSelectionPointer();
     }
 
     public void ShowSkillDetails(int index)
     {
-        skillPanel.UpdateDetails(BattleSystem.Instance.GetActivePlayer().GetSkill(index));
+        skillPanel.UpdateDetails(battleSystem.ActivePlayer.GetSkill(index));
     }
 
     public void AttackPress()
     {
-        onAttackCommit?.Invoke();
-        BattleSystem.Instance.ExecutePlayerAttack();
+        BattleSystem.Instance.BeginPlayerAttack();
+        OnAttackCommit?.Invoke();
+    }
 
-        PlayerCharacter player = BattleSystem.Instance.GetActivePlayer();
+    public void ShowQTEUI(PlayerCharacter player)
+    {
         switch (player.Reference.attackQteType)
         {
             case QTEType.SimpleBar:
@@ -203,7 +225,7 @@ public class UIManager : MonoBehaviour
 
     public void StartDefending()
     {
-        defenseBar.InitializeBar(BattleSystem.Instance.GetActivePlayer());
+        defenseBar.InitializeBar(battleSystem.ActiveEnemy, new List<BaseCharacter>(battleSystem.PlayerCharacters.ToArray()));
     }
 
     public void ShowWinCanvas()
@@ -236,12 +258,18 @@ public class UIManager : MonoBehaviour
 
     private void UpdateWaveCounter()
     {
-        waveCounter.text = (EnemyWaveManager.instance.CurrentWave + 1) + "/" + EnemyWaveManager.instance.TotalWaves;
+        waveCounter.text = (EnemyWaveManager.Instance.CurrentWaveCount + 1) + "/" + EnemyWaveManager.Instance.TotalWaves;
     }
 
     public void UpdateGameSpeed()
     {
         gameSpeedText.text = BattleSystem.Instance.CurrentGameSpeedTime + "x";
+    }
+
+    public void InitializeBossUIWithCharacter(BaseCharacter character)
+    {
+        bossUI.InitializeWithCharacter(character);
+        bossUI.OptimizedCanvas.Show();
     }
 
     void EstablishSingletonDominance()

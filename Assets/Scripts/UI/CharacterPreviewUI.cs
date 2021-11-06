@@ -128,7 +128,7 @@ public class CharacterPreviewUI : MonoBehaviour
         critRateText.text = (character.critChance * 100).ToString() + "%";
         critDamageText.text = (character.critDamageMultiplier * 100).ToString() + "%";
         attackWindowText.text = character.attackLeniency.ToString();
-        defenseWindowText.text = character.defenceLeniency.ToString();
+        defenseWindowText.text = character.defenseLeniency.ToString();
     }
 
     public void ShowSkillDetailsWithID(int id)

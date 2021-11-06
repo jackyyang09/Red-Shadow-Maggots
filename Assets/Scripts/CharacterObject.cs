@@ -6,7 +6,8 @@ using JSAM;
 public enum AttackRange
 {
     CloseRange,
-    LongRange
+    LongRange,
+    AOE
 }
 
 public enum CharacterClass
@@ -26,25 +27,30 @@ public enum QTEType
 public class CharacterObject : ScriptableObject
 {
     public string characterName = null;
+    public Sprite sprite = null;
+    public Sprite headshotSprite = null;
+
+    [Header("Game Stats")]
     public float attack;
     public float maxHealth;
     [Range(0, 1)] public float critChance;
-    public float critDamageMultiplier;
-    public Sprite sprite = null;
-    public Sprite headshotSprite = null;
+    public float critDamageMultiplier = 3;
     public CharacterClass characterClass;
     public AttackRange range;
     public QTEType attackQteType;
+    public int turnsToCrit = 3;
 
     [Range(0, 1)] public float attackLeniency;
-    [Range(0, 1)] public float defenceLeniency;
+    [Range(0, 1)] public float defenseLeniency;
 
     public SkillObject[] skills = null;
+    public SkillObject superCritical = null;
 
+    [Header("Animation Properties")]
     public GameObject spriteObject = null;
     public AnimatorOverrideController animator = null;
-
     public GameObject characterRig = null;
+    public AnimationClip attackAnimation = null;
 
     [Header("Effect Prefabs")]
     public GameObject attackEffectPrefab = null;
@@ -68,16 +74,16 @@ public class CharacterObject : ScriptableObject
 
 public enum DamageEffectivess
 {
-    Normal,
     Resist,
+    Normal,
     Effective
 }
 
 public static class DamageTriangle
 {
-    public const float EFFECTIVE = 1.25f;
     public const float RESIST = 0.75f;
     public const float NORMAL = 1;
+    public const float EFFECTIVE = 1.25f;
 
     /// <summary>
     /// Offense = 0

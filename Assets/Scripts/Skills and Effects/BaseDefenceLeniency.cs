@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Defence Leniency Buff", menuName = "ScriptableObjects/Skills/Defence Leniency", order = 1)]
+[CreateAssetMenu(fileName = "New Defence Leniency Buff", menuName = "ScriptableObjects/Game Effects/Defence Leniency", order = 1)]
 public class BaseDefenceLeniency : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -31,7 +31,7 @@ public class BaseDefenceLeniency : BaseGameEffect
         }
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        ((PlayerCharacter)target).defenceLeniencyModifier += percentageChange;
+        ((PlayerCharacter)target).defenseLeniencyModifier += percentageChange;
     }
 
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -60,7 +60,7 @@ public class BaseDefenceLeniency : BaseGameEffect
         }
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        ((PlayerCharacter)target).defenceLeniencyModifier -= percentageChange;
+        ((PlayerCharacter)target).defenseLeniencyModifier -= percentageChange;
     }
 
     public override void Tick()

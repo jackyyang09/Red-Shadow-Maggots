@@ -9,46 +9,50 @@ public class VoiceResponseSystem : MonoBehaviour
     // Start is called before the first frame update
     void OnEnable()
     {
-        GlobalEvents.OnEnterWave += Entry;
-        GlobalEvents.OnEnterFinalWave += EnterFinal;
-        GlobalEvents.OnWaveClear += WaveClear;
-        GlobalEvents.OnFinalWaveClear += GameClear;
+        SceneTweener.OnBattleTransition += Entry;
+
+        BattleSystem.OnEnterFinalWave += EnterFinal;
+        BattleSystem.OnWaveClear += WaveClear;
+        BattleSystem.OnFinalWaveClear += GameClear;
+        BattleSystem.OnPlayerDefeat += PlayerLose;
 
         GlobalEvents.OnCharacterStartAttack += Attack;
         GlobalEvents.OnCharacterAttacked += PlayerAttacked;
         GlobalEvents.OnCharacterExecuteAttack += WeaponHit;
         GlobalEvents.OnCharacterActivateSkill += UsedSkill;
         GlobalEvents.OnCharacterDeath += CharacterDeath;
-        GlobalEvents.OnPlayerDefeat += PlayerLose;
         GlobalEvents.OnPlayerQuickTimeAttackSuccess += HitEffective;
         GlobalEvents.OnPlayerQuickTimeBlockSuccess += BlockEffective;
+        GlobalEvents.OnGameEffectApplied += GameEffectApplied;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange += UIClick;
-        EnemyCharacter.onSelectedEnemyCharacterChange += UIClick;
+        PlayerCharacter.OnSelectedPlayerCharacterChange += UIClick;
+        EnemyCharacter.OnSelectedEnemyCharacterChange += UIClick;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange += Select;
+        PlayerCharacter.OnSelectedPlayerCharacterChange += Select;
     }
 
     private void OnDisable()
     {
-        GlobalEvents.OnEnterWave -= Entry;
-        GlobalEvents.OnEnterFinalWave -= EnterFinal;
-        GlobalEvents.OnWaveClear -= WaveClear;
-        GlobalEvents.OnFinalWaveClear -= GameClear;
+        SceneTweener.OnBattleTransition -= Entry;
+
+        BattleSystem.OnEnterFinalWave -= EnterFinal;
+        BattleSystem.OnWaveClear -= WaveClear;
+        BattleSystem.OnFinalWaveClear -= GameClear;
+        BattleSystem.OnPlayerDefeat -= PlayerLose;
 
         GlobalEvents.OnCharacterStartAttack -= Attack;
         GlobalEvents.OnCharacterAttacked -= PlayerAttacked;
         GlobalEvents.OnCharacterExecuteAttack -= WeaponHit;
         GlobalEvents.OnCharacterActivateSkill -= UsedSkill;
         GlobalEvents.OnCharacterDeath -= CharacterDeath;
-        GlobalEvents.OnPlayerDefeat -= PlayerLose;
         GlobalEvents.OnPlayerQuickTimeAttackSuccess -= HitEffective;
         GlobalEvents.OnPlayerQuickTimeBlockSuccess -= BlockEffective;
+        GlobalEvents.OnGameEffectApplied -= GameEffectApplied;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange -= UIClick;
-        EnemyCharacter.onSelectedEnemyCharacterChange -= UIClick;
+        PlayerCharacter.OnSelectedPlayerCharacterChange -= UIClick;
+        EnemyCharacter.OnSelectedEnemyCharacterChange -= UIClick;
 
-        PlayerCharacter.onSelectedPlayerCharacterChange -= Select;
+        PlayerCharacter.OnSelectedPlayerCharacterChange -= Select;
     }
 
     void HitEffective()
@@ -133,5 +137,21 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         //AudioManager.StopMusic();
         AudioManager.PlaySound(BattleSceneSounds.PlayerDefeat);
+    }
+
+    private void GameEffectApplied(BaseGameEffect obj)
+    {
+        switch (obj.effectType)
+        {
+            case EffectType.Heal:
+                AudioManager.PlaySound(BattleSceneSounds.HealApplied);
+                break;
+            case EffectType.Buff:
+                AudioManager.PlaySound(BattleSceneSounds.BuffApplied);
+                break;
+            case EffectType.Debuff:
+                AudioManager.PlaySound(BattleSceneSounds.DebuffApplied);
+                break;
+        }
     }
 }

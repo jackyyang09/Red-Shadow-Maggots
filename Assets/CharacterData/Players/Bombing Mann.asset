@@ -13,23 +13,24 @@ MonoBehaviour:
   m_Name: Bombing Mann
   m_EditorClassIdentifier: 
   characterName: Bombing Mann
+  sprite: {fileID: 21300000, guid: 6c8594d2711a05740a7853ea5b9150ed, type: 3}
+  headshotSprite: {fileID: 21300000, guid: a424070d2b83feb439b4309cc9657a09, type: 3}
   attack: 1000
   maxHealth: 14000
   critChance: 0.03
   critDamageMultiplier: 2.5
-  sprite: {fileID: 21300000, guid: 6c8594d2711a05740a7853ea5b9150ed, type: 3}
-  headshotSprite: {fileID: 21300000, guid: a424070d2b83feb439b4309cc9657a09, type: 3}
   characterClass: 1
   range: 0
   attackQteType: 1
   attackLeniency: 0.3
-  defenceLeniency: 0.6
+  defenseLeniency: 0.1
   skills:
   - {fileID: 11400000, guid: 49e73dea9bb7f594185c6645b286edc6, type: 2}
   - {fileID: 11400000, guid: cd4c5e2968fb3a849a1d878006f94f9f, type: 2}
   spriteObject: {fileID: 5262785118156938147, guid: ffd58bc2baf941e44861549cbb7604c3, type: 3}
   animator: {fileID: 22100000, guid: e55e2cb3a5b6ab84084007c60d8aed2c, type: 2}
   characterRig: {fileID: 7752655029720719657, guid: 4e702380ab609fc4dabf858da78e7c84, type: 3}
+  attackAnimation: {fileID: 0}
   attackEffectPrefab: {fileID: 0}
   extraEffectPrefabs: []
   voiceEntry: {fileID: 11400000, guid: 833990b71fcccb140bdcd1fe3eae60a4, type: 2}

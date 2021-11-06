@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,29 +7,12 @@ public class EnemyWaveManager : MonoBehaviour
 {
     [SerializeField] int waveCount = 0;
 
-    public bool IsLastWave
-    {
-        get
-        {
-            return waveCount == waves.Length - 1;
-        }
-    }
+    public bool IsLastWave { get { return waveCount == waves.Length - 1; } }
 
-    public int CurrentWave
-    {
-        get
-        {
-            return waveCount;
-        }
-    }
+    public WaveObject CurrentWave { get { return waves[waveCount]; } }
+    public int CurrentWaveCount { get { return waveCount; } }
 
-    public int TotalWaves
-    {
-        get
-        {
-            return waves.Length;
-        }
-    }
+    public int TotalWaves { get { return waves.Length; } }
 
     [SerializeField] WaveObject[] waves = null;
 
@@ -42,7 +26,7 @@ public class EnemyWaveManager : MonoBehaviour
 
     [SerializeField] GameObject bossPrefab = null;
 
-    public static EnemyWaveManager instance;
+    public static EnemyWaveManager Instance;
 
     private void Awake()
     {
@@ -55,12 +39,6 @@ public class EnemyWaveManager : MonoBehaviour
         //waveCount = -1;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public List<EnemyCharacter> SetupNextWave()
     {
         RemoveDeadEnemies();
@@ -68,8 +46,6 @@ public class EnemyWaveManager : MonoBehaviour
         var enemies = new List<EnemyCharacter>();
 
         waveCount++;
-        //GlobalEvents.onEnterWave?.Invoke();
-        //if (IsLastWave) GlobalEvents.onEnterFinalWave?.Invoke();
 
         WaveObject newWave = waves[waveCount];
 
@@ -123,24 +99,24 @@ public class EnemyWaveManager : MonoBehaviour
 
     void EstablishSingletonDominance()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
-        else if (instance != this)
+        else if (Instance != this)
         {
             // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
+            if (Instance.gameObject.scene.name == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (!instance.gameObject.activeInHierarchy)
+            else if (!Instance.gameObject.activeInHierarchy)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
+            else if (Instance.gameObject.scene.name != gameObject.scene.name)
             {
-                instance = this;
+                Instance = this;
             }
             Destroy(gameObject);
         }

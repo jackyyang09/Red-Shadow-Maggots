@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using static Facade;
 
 public struct DamageStruct
 {
@@ -19,11 +20,13 @@ public struct DamageStruct
     /// </summary>
     public float damageNormalized;
     public float barFill;
+    public float critDamageModifier;
     public DamageType damageType;
     public DamageEffectivess effectivity;
     public QuickTimeBase.QTEResult qteResult;
     public bool isCritical;
     public bool isSuperCritical;
+    public bool isAOE;
     public int chargeLevel;
 }
 
@@ -81,6 +84,18 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField]
     float defenseModifier;
 
+    public float attackLeniencyModifier;
+    public float AttackLeniency
+    {
+        get { return characterReference.attackLeniency + attackLeniencyModifier; }
+    }
+
+    public float defenseLeniencyModifier;
+    public float DefenseLeniency
+    {
+        get { return characterReference.defenseLeniency + defenseLeniencyModifier; }
+    }
+
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
     /// <summary>
     /// The sum of the character's base crit chance and any modifiers before QTEs
@@ -92,6 +107,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
+    public float CritDamageAdjusted { get { return critMultiplier + critDamageModifier; } }
 
     [SerializeField]
     AttackRange range;
@@ -125,10 +141,12 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] protected GameObject deathParticles;
 
-    [SerializeField] protected UnityEngine.UI.Image selectionPointer;
+    [SerializeField] protected SpriteRenderer selectionPointer;
 
     [SerializeField] AnimationHelper animHelper = null;
     public AnimationHelper AnimHelper { get { return animHelper; } }
+
+    [SerializeField] protected GameObject canvasPrefab = null;
 
     public List<AppliedEffect> AppliedEffects { get; } = new List<AppliedEffect>();
 
@@ -200,16 +218,20 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        UIManager.onAttackCommit += HideCharacterUI;
-        BattleSystem.onStartPlayerTurn += ShowCharacterUI;
-        BattleSystem.onStartPlayerTurn += TickEffects;
+        UIManager.OnAttackCommit += HideCharacterUI;
+        BattleSystem.OnStartPlayerTurn += ShowCharacterUI;
+        BattleSystem.OnStartPlayerTurn += TickEffects;
+
+        GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
 
     protected virtual void OnDisable()
     {
-        UIManager.onAttackCommit -= HideCharacterUI;
-        BattleSystem.onStartPlayerTurn -= ShowCharacterUI;
-        BattleSystem.onStartPlayerTurn -= TickEffects;
+        UIManager.OnAttackCommit -= HideCharacterUI;
+        BattleSystem.OnStartPlayerTurn -= ShowCharacterUI;
+        BattleSystem.OnStartPlayerTurn -= TickEffects;
+
+        GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
 
     public abstract void ShowCharacterUI();
@@ -222,18 +244,18 @@ public abstract class BaseCharacter : MonoBehaviour
     //    
     //}
 
-    public void PlayAttackAnimation()
+    public void PlaySuperCritical()
+    {
+        if (rigAnim)
+        {
+            rigAnim.Play("Super Critical");
+        }
+    }
+
+    public virtual void PlayAttackAnimation()
     {
         GlobalEvents.OnCharacterStartAttack?.Invoke(this);
         QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
-        if (rigAnim)
-        {
-            rigAnim.Play("Attack Windup");
-        }
-        else
-        {
-            spriteAnim.Play("Attack Windup");
-        }
     }
 
     public virtual void ExecuteAttack(DamageStruct damage)
@@ -242,44 +264,72 @@ public abstract class BaseCharacter : MonoBehaviour
 
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
 
-        if (rigAnim)
-        {
-            switch (Reference.attackQteType)
-            {
-                case QTEType.SimpleBar:
-                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-                    rigAnim.Play("Attack Execute");
-                    break;
-                case QTEType.Hold:
-                    if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
-                    {
-                        rigAnim.SetInteger("Charge Level", 0);
-                    }
-                    else
-                    {
-                        rigAnim.SetInteger("Charge Level", damage.chargeLevel);
-                    }
-                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-                    rigAnim.SetTrigger("Attack Execute");
-                    break;
-            }
-        }
-        else
-        {
-            spriteAnim.Play("Attack Execute");
-        }
+        //if (rigAnim)
+        //{
+        //    switch (Reference.attackQteType)
+        //    {
+        //        case QTEType.SimpleBar:
+        //            if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+        //            rigAnim.Play("Attack Execute");
+        //            break;
+        //        case QTEType.Hold:
+        //            if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
+        //            {
+        //                rigAnim.SetInteger("Charge Level", 0);
+        //            }
+        //            else
+        //            {
+        //                rigAnim.SetInteger("Charge Level", damage.chargeLevel);
+        //            }
+        //            if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+        //            rigAnim.SetTrigger("Attack Execute");
+        //            break;
+        //    }
+        //}
+        //else
+        //{
+        //    spriteAnim.Play("Attack Execute");
+        //}
     }
 
     public void DealDamage()
     {
+        incomingDamage.isAOE = false;
         BattleSystem.Instance.AttackTarget(incomingDamage);
         GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
     }
 
     public void DealAOEDamage()
     {
+        incomingDamage.isAOE = true;
         BattleSystem.Instance.AttackAOE(incomingDamage);
         GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
+    }
+
+    public virtual void BeginAttack(Transform target)
+    {
+        if (CritChanceAdjusted >= 1)
+        {
+            PlaySuperCritical();
+            GlobalEvents.OnCharacterSuperCritical?.Invoke(this);
+        }
+        else
+        {
+            switch (Reference.range)
+            {
+                case AttackRange.CloseRange:
+                    SceneTweener.Instance.MeleeTweenTo(transform, target);
+                    break;
+                case AttackRange.LongRange:
+                    SceneTweener.Instance.RangedTweenTo(CharacterMesh.transform, target);
+                    break;
+            }
+
+            if (Reference.attackQteType == QTEType.SimpleBar)
+            {
+                PlayAttackAnimation();
+            }
+        }
     }
 
     public void FinishAttack()
@@ -290,6 +340,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 SceneTweener.Instance.ReturnToPosition();
                 break;
             case AttackRange.LongRange:
+            case AttackRange.AOE:
                 SceneTweener.Instance.RotateBack();
                 break;
         }
@@ -305,28 +356,23 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void CalculateAttackDamage(DamageStruct damageStruct)
     {
-        var playerClass = characterReference.characterClass;
-        var enemyClass = BattleSystem.Instance.GetOpposingCharacter().characterReference.characterClass;
-
         damageStruct.source = this;
-
-        float effectiveness = DamageTriangle.GetEffectiveness(playerClass, enemyClass);
-        damageStruct.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
         float finalCritChance = CritChanceAdjusted;
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            finalCritChance += Convert.ToInt16(damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
+            if (damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect)
+            {
+                finalCritChance += BattleSystem.QuickTimeCritModifier;
+            }
         }
-        damageStruct.isCritical = (UnityEngine.Random.value < finalCritChance);
+        damageStruct.isCritical = UnityEngine.Random.value < finalCritChance;
         if (damageStruct.isCritical)
         {
             damageStruct.isSuperCritical = finalCritChance >= 1.0f;
         }
-
-        damageStruct.damage = damageStruct.damageNormalized * (attack + attackModifier) * effectiveness;
-        if (damageStruct.isCritical) damageStruct.damage *= (critMultiplier + critDamageModifier);
+        damageStruct.critDamageModifier = CritDamageAdjusted;
 
         incomingDamage = damageStruct;
     }
@@ -378,11 +424,11 @@ public abstract class BaseCharacter : MonoBehaviour
                 targets.Add(this);
                 break;
             case TargetMode.OneAlly:
-                PlayerCharacter.onSelectPlayer += addTarget;
+                PlayerCharacter.OnSelectPlayer += addTarget;
                 UIManager.instance.EnterSkillTargetMode();
                 break;
             case TargetMode.OneEnemy:
-                EnemyCharacter.onSelectedEnemyCharacterChange += addTarget;
+                EnemyCharacter.OnSelectedEnemyCharacterChange += addTarget;
                 break;
             case TargetMode.AllAllies:
                 for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
@@ -391,9 +437,9 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
                 break;
             case TargetMode.AllEnemies:
-                for (int i = 0; i < EnemyController.instance.Enemies.Count; i++)
+                for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
                 {
-                    targets.Add(EnemyController.instance.Enemies[i]);
+                    targets.Add(EnemyController.Instance.Enemies[i]);
                 }
                 break;
         }
@@ -405,10 +451,10 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (currentSkill.referenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
-                        PlayerCharacter.onSelectPlayer -= addTarget;
+                        PlayerCharacter.OnSelectPlayer -= addTarget;
                         break;
                     case TargetMode.OneEnemy:
-                        EnemyCharacter.onSelectedEnemyCharacterChange -= addTarget;
+                        EnemyCharacter.OnSelectedEnemyCharacterChange -= addTarget;
                         break;
                 }
                 UIManager.instance.ExitSkillTargetMode();
@@ -425,11 +471,11 @@ public abstract class BaseCharacter : MonoBehaviour
             switch (currentSkill.referenceSkill.targetMode)
             {
                 case TargetMode.OneAlly:
-                    PlayerCharacter.onSelectPlayer -= addTarget;
+                    PlayerCharacter.OnSelectPlayer -= addTarget;
                     UIManager.instance.ExitSkillTargetMode();
                     break;
                 case TargetMode.OneEnemy:
-                    EnemyCharacter.onSelectedEnemyCharacterChange -= addTarget;
+                    EnemyCharacter.OnSelectedEnemyCharacterChange -= addTarget;
                     break;
             }
 
@@ -467,7 +513,7 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    void ApplyEffectToCharacter(SkillObject.EffectProperties effectAndDuration, BaseCharacter character)
+    public void ApplyEffectToCharacter(SkillObject.EffectProperties effectAndDuration, BaseCharacter character)
     {
         Instantiate(effectAndDuration.effect.particlePrefab, character.transform);
         effectAndDuration.effect.Activate(character, effectAndDuration.strength, effectAndDuration.customValues);
@@ -500,9 +546,9 @@ public abstract class BaseCharacter : MonoBehaviour
                         }
                         break;
                     case TargetMode.AllEnemies:
-                        for (int j = 0; j < EnemyController.instance.Enemies.Count; j++)
+                        for (int j = 0; j < EnemyController.Instance.Enemies.Count; j++)
                         {
-                            ApplyEffectToCharacter(effect, EnemyController.instance.Enemies[j]);
+                            ApplyEffectToCharacter(effect, EnemyController.Instance.Enemies[j]);
                         }
                         break;
                     case TargetMode.Self:
@@ -518,18 +564,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
             }
 
-            switch (effect.effect.effectType)
-            {
-                case EffectType.Heal:
-                    JSAM.AudioManager.PlaySound(BattleSceneSounds.HealApplied);
-                    break;
-                case EffectType.Buff:
-                    JSAM.AudioManager.PlaySound(BattleSceneSounds.BuffApplied);
-                    break;
-                case EffectType.Debuff:
-                    JSAM.AudioManager.PlaySound(BattleSceneSounds.DebuffApplied);
-                    break;
-            }
+            GlobalEvents.OnGameEffectApplied?.Invoke(effect.effect);
 
             yield return new WaitForSeconds(0.75f);
         }
@@ -603,6 +638,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void TakeDamage(DamageStruct damage)
     {
+        var myClass = characterReference.characterClass;
+        var attackerClass = damage.source.Reference.characterClass;
+
+        float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
+        damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
+
+        damage.damage = damage.damageNormalized * (attack + attackModifier) * effectiveness;
+        if (damage.isCritical) damage.damage *= damage.critDamageModifier;
+
         float trueDamage = CalculateDefenseDamage(damage.damage);
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
 
@@ -624,7 +668,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     rigAnim.Play("Hit Reaction");
             }
 
-            if (damage.source != null)
+            if (damage.source != null && !damage.isAOE)
             {
                 characterMesh.transform.LookAt(damage.source.transform);
             }
@@ -690,5 +734,10 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void HideSelectionPointer()
     {
         selectionPointer.enabled = false;
+    }
+
+    private void OnCharacterFinishSuperCritical(BaseCharacter obj)
+    {
+        ShowCharacterUI();
     }
 }

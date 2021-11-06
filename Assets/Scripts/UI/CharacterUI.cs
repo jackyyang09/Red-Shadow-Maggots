@@ -3,87 +3,161 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
+using static Facade;
 
-public class CharacterUI : MonoBehaviour
+public class CharacterUI : BaseGameUI
 {
-    [SerializeField] protected Sprite[] classIcons = null;
-
-    [SerializeField] protected Image icon = null;
-
-    [SerializeField] protected RectTransform iconContainer = null;
-    [SerializeField] protected List<Image> iconImages = new List<Image>();
-
+    [SerializeField] protected BaseCharacter designatedCharacter = null;
     [SerializeField] protected List<BaseGameEffect> effects = new List<BaseGameEffect>();
 
-    [SerializeField] protected BaseCharacter designatedCharacter = null;
+    [Header("Crit Charge Bars")]
+    [SerializeField] GridLayoutGroup layoutGroup = null;
+    [SerializeField] List<Image> chargeBars = new List<Image>();
+    [SerializeField] Color chargeEmptyColor;
+    [SerializeField] Color fullColor;
 
-    [SerializeField] protected Canvas parentCanvas;
+    [Header("Object References")]
+    [SerializeField] protected TextMeshProUGUI nameText = null;
+    [SerializeField] protected Image classIcon = null;
+    [SerializeField] protected GameObject iconPrefab = null;
+    [SerializeField] protected RectTransform iconContainer = null;
+    [SerializeField] protected GameObject critCanvas = null;
+    protected List<Image> iconImages = new List<Image>();
+    [SerializeField] SimpleHealth health = null;
 
-    [ContextMenu("Find Object References")]
-    void FindObjectReferences()
+    EnemyCharacter enemy;
+
+    public virtual void InitializeWithCharacter(BaseCharacter character)
     {
-        iconImages = new List<Image>(iconContainer.GetComponentsInChildren<Image>());
+        designatedCharacter = character;
 
-        designatedCharacter = GetComponentInParent<BaseCharacter>();
-    }
+        classIcon.sprite = index.GetClassIcon(designatedCharacter.Reference.characterClass);
+        nameText.text = designatedCharacter.Reference.characterName;
+        health.InitializeWithCharacter(character);
 
-    private void Start()
-    {
-        UpdateEffectIcons();
-        SetClassIcon(designatedCharacter.Reference.characterClass);
-    }
-
-    private void OnEnable()
-    {
         designatedCharacter.onApplyGameEffect += AddEffectIcon;
         designatedCharacter.onRemoveGameEffect += RemoveEffectIcon;
+        designatedCharacter.onDeath.AddListener(SelfDestruct);
 
-        GlobalEvents.OnEnterBattleCutscene += Hide;
-        GlobalEvents.OnExitBattleCutscene += Show;
+        enemy = designatedCharacter as EnemyCharacter;
+        if (enemy)
+        {
+            enemy.onCritLevelChanged += UpdateCritChargeLevel;
+            critCanvas.SetActive(true);
+
+            for (int i = chargeBars.Count - 1; i >= enemy.Reference.turnsToCrit; i--)
+            {
+                chargeBars[i].gameObject.SetActive(false);
+                chargeBars.RemoveAt(i);
+                UpdateCritChargeLevel(0);
+            }
+        }
+        else
+        {
+            critCanvas.SetActive(false);
+        }
+    }
+    
+    private void OnEnable()
+    {
+        GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
+        GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
+        //UIManager.OnAttackCommit += UpdateUIState;
+        UIManager.OnResumePlayerControl += OptimizedCanvas.Show;
+        //BattleSystem.OnStartEnemyTurnLate += UpdateUIState;
     }
 
     private void OnDisable()
     {
-        designatedCharacter.onApplyGameEffect -= AddEffectIcon;
-        designatedCharacter.onRemoveGameEffect -= RemoveEffectIcon;
+        if (designatedCharacter)
+        {
+            designatedCharacter.onApplyGameEffect -= AddEffectIcon;
+            designatedCharacter.onRemoveGameEffect -= RemoveEffectIcon;
+            designatedCharacter.onDeath.RemoveListener(SelfDestruct);
+        }
 
-        GlobalEvents.OnEnterBattleCutscene -= Hide;
-        GlobalEvents.OnExitBattleCutscene -= Show;
+        if (enemy)
+        {
+            enemy.onCritLevelChanged -= UpdateCritChargeLevel;
+        }
+
+        GlobalEvents.OnEnterBattleCutscene -= OptimizedCanvas.Hide;
+        GlobalEvents.OnExitBattleCutscene -= OptimizedCanvas.Show;
+        UIManager.OnAttackCommit -= UpdateUIState;
+        UIManager.OnResumePlayerControl -= OptimizedCanvas.Show;
+        BattleSystem.OnStartEnemyTurnLate -= UpdateUIState;
     }
 
-    void Show() => parentCanvas.enabled = true;
-    void Hide() => parentCanvas.enabled = false;
+    private void UpdateUIState()
+    {
+        if ((battleSystem.ActiveEnemy == enemy && enemy != null) || battleSystem.ActivePlayer == designatedCharacter)
+        {
+            OptimizedCanvas.Show();
+        }
+        else
+        {
+            OptimizedCanvas.Hide();
+        }
+    }
+
+    private void UpdateCritChargeLevel(int chargeLevel)
+    {
+        if (!enemy.CanCrit)
+        {
+            for (int i = 0; i < chargeLevel; i++)
+            {
+                chargeBars[i].color = Color.white;
+            }
+
+            for (int i = chargeLevel; i < chargeBars.Count; i++)
+            {
+                chargeBars[i].color = chargeEmptyColor;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < chargeBars.Count; i++)
+            {
+                chargeBars[i].color = fullColor;
+            }
+        }
+    }
 
     private void AddEffectIcon(BaseGameEffect obj)
     {
         effects.Add(obj);
         UpdateEffectIcons();
+        OptimizedCanvas.FlashLayoutComponents();
     }
 
     private void RemoveEffectIcon(BaseGameEffect obj)
     {
+        UpdateEffectIcons(effects.IndexOf(obj));
         effects.Remove(obj);
-        UpdateEffectIcons();
     }
 
-    void UpdateEffectIcons()
+    void UpdateEffectIcons(int index = -1)
     {
-        for (int i = 0; i < iconImages.Count; i++)
+        if (index == -1)
         {
-            if (i >= effects.Count)
+            var newIcon = Instantiate(iconPrefab, iconContainer).GetComponent<Image>();
+            iconImages.Add(newIcon);
+            newIcon.sprite = effects[effects.Count - 1].effectIcon;
+        }
+        else
+        {
+            Destroy(iconImages[index].gameObject);
+            iconImages.RemoveAt(index);
+            for (int i = index; i < iconImages.Count; i++)
             {
-                iconImages[i].enabled = false;
-            }
-            else
-            {
-                iconImages[i].enabled = true;
-                iconImages[i].sprite = effects[i].effectIcon;
+                var icon = iconImages[i].transform as RectTransform;
             }
         }
     }
 
-    public void SetClassIcon(CharacterClass characterClass)
+    void SelfDestruct()
     {
-        icon.sprite = classIcons[(int)characterClass];
+        Destroy(gameObject);
     }
 }

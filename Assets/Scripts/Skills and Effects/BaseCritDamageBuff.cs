@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Crit Damage Effect", menuName = "ScriptableObjects/Skills/Crit Damage", order = 1)]
+[CreateAssetMenu(fileName = "New Crit Damage Effect", menuName = "ScriptableObjects/Game Effects/Crit Damage", order = 1)]
 public class BaseCritDamageBuff : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)

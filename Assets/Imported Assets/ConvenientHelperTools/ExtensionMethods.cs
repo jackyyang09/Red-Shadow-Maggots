@@ -98,4 +98,17 @@ public static class ExtensionMethods
         else
             return 360 - (-1 * angle) % 360;
     }
+
+    /// <summary>
+    /// Adapted from code written by Unity forums user Jessy 
+    /// https://forum.unity.com/threads/point-in-camera-view.72523/
+    /// </summary>
+    /// <param name="camera"></param>
+    /// <param name="point"></param>
+    /// <returns></returns>
+    public static bool CanSeePoint(this Camera camera, Vector3 point)
+    {
+        Vector3 viewportPoint = camera.WorldToViewportPoint(point);
+        return (viewportPoint.z > 0 && (new Rect(0, 0, 1, 1)).Contains(viewportPoint));
+    }
 }

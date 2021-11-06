@@ -7,6 +7,8 @@ using DG.Tweening;
 public class QuickTimeResultText : MonoBehaviour
 {
     [SerializeField] float textVerticalTween = 5;
+    [SerializeField] float textTweenDelay = 0.5f;
+    [SerializeField] float textTweenTime = 0.5f;
     [SerializeField] float textFadeTime = 0.5f;
     [SerializeField] Vector2 positionRange = new Vector2();
 
@@ -36,16 +38,25 @@ public class QuickTimeResultText : MonoBehaviour
             rect.anchoredPosition.y);
 
         var text = Instantiate(resultTextPrefabs[(int)result.qteResult], transform).GetComponentInChildren<TMPro.TextMeshProUGUI>();
-        RectTransform textRect = text.transform as RectTransform;
+        RectTransform textRect = text.rectTransform;
+
+        if (result.qteResult == QuickTimeBase.QTEResult.Perfect)
+        {
+            textRect.DOPunchScale(Vector3.one * 1.25f, 0.5f, 0, 0).SetEase(Ease.OutCubic);
+        }
 
         text.DOFade(0, 0);
         text.DOFade(1, textFadeTime);
 
-        textRect.DOAnchorPosY(textRect.anchoredPosition.y + textVerticalTween, textFadeTime);
+        yield return new WaitForSeconds(textTweenDelay);
 
-        yield return new WaitForSeconds(1);
+        textRect.DOAnchorPosY(textRect.anchoredPosition.y + textVerticalTween, textTweenTime);
+
+        yield return new WaitForSeconds(textTweenTime);
 
         text.DOFade(0, textFadeTime);
+
+        yield return new WaitForSeconds(textFadeTime);
 
         Destroy(text);
     }

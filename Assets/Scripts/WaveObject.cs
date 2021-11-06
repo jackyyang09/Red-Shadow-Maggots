@@ -9,4 +9,5 @@ public class WaveObject : ScriptableObject
     public CharacterObject middleEnemy;
     public CharacterObject rightEnemy;
     public bool isBossWave;
+    public bool useSpecialCam;
 }

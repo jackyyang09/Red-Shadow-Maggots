@@ -1,14 +1,20 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
+using static Facade;
 
 public class SceneTweener : MonoBehaviour
 {
     [SerializeField] Transform worldCenter = null;
 
     [SerializeField] CinemachineVirtualCamera playerCam = null;
+
+    [SerializeField] Camera sceneCamera = null;
+    public Camera SceneCamera { get { return sceneCamera; } }
+
     /// <summary>
     /// The player-centric camera
     /// </summary>
@@ -22,6 +28,8 @@ public class SceneTweener : MonoBehaviour
 
     [SerializeField] CinemachineVirtualCamera enemyCam = null;
     CinemachineTrackedDolly enemyDolly;
+
+    [SerializeField] CinemachineVirtualCamera specialCam = null;
 
     [SerializeField] CinemachineSmoothPath playerPath = null;
 
@@ -48,6 +56,8 @@ public class SceneTweener : MonoBehaviour
 
     Animator anim;
 
+    public static Action OnBattleTransition;
+
     public static SceneTweener Instance;
 
     private void Awake()
@@ -55,10 +65,10 @@ public class SceneTweener : MonoBehaviour
         EstablishSingletonDominance();
 
         anim = GetComponent<Animator>();
-        composer = playerCam.GetCinemachineComponent<Cinemachine.CinemachineComposer>();
-        playerDolly = playerCam.GetCinemachineComponent<Cinemachine.CinemachineTrackedDolly>();
+        composer = playerCam.GetCinemachineComponent<CinemachineComposer>();
+        playerDolly = playerCam.GetCinemachineComponent<CinemachineTrackedDolly>();
 
-        enemyDolly = enemyCam.GetCinemachineComponent<Cinemachine.CinemachineTrackedDolly>();
+        enemyDolly = enemyCam.GetCinemachineComponent<CinemachineTrackedDolly>();
     }
 
     // Start is called before the first frame update
@@ -84,8 +94,8 @@ public class SceneTweener : MonoBehaviour
 
         ScreenEffects.instance.FadeFromBlack();
 
-        GlobalEvents.OnEnterWave?.Invoke();
-        if (EnemyWaveManager.instance.IsLastWave) GlobalEvents.OnEnterFinalWave?.Invoke();
+        playerCam.enabled = !waveManager.CurrentWave.useSpecialCam;
+        specialCam.enabled = waveManager.CurrentWave.useSpecialCam;
     }
 
     float lerpValue;
@@ -160,10 +170,10 @@ public class SceneTweener : MonoBehaviour
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                playerCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
+                playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
+                enemyCam.m_LookAt = battleSystem.ActivePlayer.transform;
                 break;
         }
 
@@ -172,9 +182,9 @@ public class SceneTweener : MonoBehaviour
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                var activePlayer = BattleSystem.Instance.GetActivePlayer();
+                var activePlayer = battleSystem.ActivePlayer;
 
-                BattleSystem.Instance.GetActiveEnemy().CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.15f);
+                battleSystem.ActiveEnemy.CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.15f);
                 activePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.1f);
                 break;
             case BattlePhases.EnemyTurn:
@@ -191,10 +201,10 @@ public class SceneTweener : MonoBehaviour
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                playerCam.m_LookAt = BattleSystem.Instance.GetActivePlayer().transform;
+                playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = BattleSystem.Instance.GetActiveEnemy().transform;
+                enemyCam.m_LookAt = battleSystem.ActiveEnemy.transform;
                 break;
         }
 
@@ -206,7 +216,7 @@ public class SceneTweener : MonoBehaviour
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                var activePlayer = BattleSystem.Instance.GetActivePlayer();
+                var activePlayer = battleSystem.ActivePlayer;
 
                 ogPos = activePlayer.CharacterMesh.transform.position;
                 ogRot = activePlayer.CharacterMesh.transform.eulerAngles;
@@ -235,7 +245,7 @@ public class SceneTweener : MonoBehaviour
 
                 break;
             case BattlePhases.EnemyTurn:
-                var activeEnemy = BattleSystem.Instance.GetActiveEnemy();
+                var activeEnemy = battleSystem.ActiveEnemy;
 
                 ogPos = activeEnemy.CharacterMesh.transform.position;
                 ogRot = activeEnemy.CharacterMesh.transform.eulerAngles;
@@ -269,6 +279,7 @@ public class SceneTweener : MonoBehaviour
 
     public void WaveClearSequence()
     {
+        OnBattleTransition?.Invoke();
         anim.enabled = true;
         ScreenEffects.instance.FadeToBlack(1.5f);
         anim.SetTrigger("OpenGate");

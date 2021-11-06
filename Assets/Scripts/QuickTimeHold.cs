@@ -90,6 +90,7 @@ public class QuickTimeHold : QuickTimeBase
 
     public void ExecuteAction()
     {
+        enabled = false;
         StopCoroutine(tickRoutine);
         DamageStruct dmg = GetMultiplier();
         onExecuteQuickTime?.Invoke(dmg);
@@ -101,7 +102,7 @@ public class QuickTimeHold : QuickTimeBase
         JSAM.AudioManager.StopSound(chargeSound);
     }
 
-    public override void InitializeBar(PlayerCharacter player)
+    public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> target = null)
     {
         tickRoutine = null;
         barLevel = 0;
@@ -113,11 +114,11 @@ public class QuickTimeHold : QuickTimeBase
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                activePlayer = player;
-                leniency = player.GetAttackLeniency();
+                activePlayer = attacker as PlayerCharacter;
+                leniency = attacker.AttackLeniency;
                 break;
             case BattlePhases.EnemyTurn:
-                leniency = player.GetDefenceLeniency();
+                leniency = attacker.DefenseLeniency;
                 break;
         }
 

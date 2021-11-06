@@ -21,8 +21,13 @@ public class OptimizedCanvas : MonoBehaviour
     [SerializeField] GraphicRaycaster caster;
 
     [SerializeField] OptimizedCanvas[] children = new OptimizedCanvas[0];
+    [SerializeField] bool flashLayoutGroups = true;
     [SerializeField] List<LayoutGroup> layoutGroups = null;
     [SerializeField] List<LayoutElement> layoutElements = null;
+    [SerializeField] List<RectTransform> dynamicUI = null;
+
+    [SerializeField] OptimizedTransitionBase transition = null;
+    [SerializeField] new OptimizedAnimationBase animation = null;
 
     [SerializeField] public UnityEngine.Events.UnityEvent onCanvasShow;
     [SerializeField] public UnityEngine.Events.UnityEvent onCanvasHide;
@@ -45,6 +50,16 @@ public class OptimizedCanvas : MonoBehaviour
         }
     }
 
+    //private void OnEnable()
+    //{
+    //    ResolutionListener.OnResolutionChanged += FlashLayoutComponents;
+    //}
+    //
+    //private void OnDisable()
+    //{
+    //    ResolutionListener.OnResolutionChanged -= FlashLayoutComponents;
+    //}
+
     [ContextMenu("Find Get References")]
     private void OnValidate()
     {
@@ -56,6 +71,29 @@ public class OptimizedCanvas : MonoBehaviour
             LocateChildCanvases();
         }
         LocateLayoutComponents();
+    }
+
+    private void Update()
+    {
+        if (dynamicUI.Count == 0) return;
+        // If a dynamic rectTransform changes, we need to re-flash our layout items 
+        if (flashLayoutGroups)
+        {
+            bool flash = false;
+            for (int i = 0; i < dynamicUI.Count; i++)
+            {
+                if (dynamicUI[i].transform.hasChanged)
+                {
+                    flash = true;
+                    break;
+                }
+            }
+
+            if (flash)
+            {
+                FlashLayoutComponents();
+            }
+        }
     }
 
 #if UNITY_EDITOR
@@ -175,6 +213,11 @@ public class OptimizedCanvas : MonoBehaviour
         SetActive(true);
     }
 
+    public void ShowDelayed(float time)
+    {
+        Invoke("Show", time);
+    }
+
     public void Hide()
     {
         SetActive(false);
@@ -183,11 +226,38 @@ public class OptimizedCanvas : MonoBehaviour
     public void SetActive(bool active)
     {
         if (canvas == null) return;
-        canvas.enabled = active;
+
+        // Disable GraphicRaycaster first to ensure buttons don't get pressed during transition
         if (caster)
         {
             caster.enabled = active;
         }
+
+        if (transition)
+        {
+            if (Application.isPlaying)
+            {
+                StartCoroutine(DoTransition(active));
+            }
+            // Can't run a coroutine during editor time
+            else
+            {
+                if (active)
+                {
+                    transition.EditorTransitionIn();
+                }
+                else
+                {
+                    transition.EditorTransitionOut();
+                }
+                canvas.enabled = active;
+            }
+        }
+        else
+        {
+            canvas.enabled = active;
+        }
+
         if (children != null)
         {
             if (active)
@@ -209,15 +279,15 @@ public class OptimizedCanvas : MonoBehaviour
             }
         }
 
-        if (Application.isPlaying)
+        if (Application.isPlaying && flashLayoutGroups && gameObject.activeInHierarchy)
         {
-            if (layoutRoutine != null) StopCoroutine(layoutRoutine);
-            layoutRoutine = StartCoroutine(FlashLayoutComponents(active));
+            FlashLayoutComponents();   
         }
 
+        // Invoke events immediately, will not invoke if transition is applied
         if (canvas.enabled) onCanvasShow.Invoke();
         else onCanvasHide.Invoke();
-    }   
+    }
 
     public void ShowIfPreviouslyVisible()
     {
@@ -239,6 +309,38 @@ public class OptimizedCanvas : MonoBehaviour
         }
     }
 
+    IEnumerator DoTransition(bool active)
+    {
+        if (active)
+        {
+            canvas.enabled = active;
+            yield return transition.TransitionIn();
+        }
+        else
+        {
+            yield return transition.TransitionOut();
+            canvas.enabled = active;
+            onCanvasHide.Invoke();
+        }
+    }
+
+    public void PlayAnimation()
+    {
+        if (animation != null) animation.StartAnimating();
+    }
+
+    public void StopAnimation()
+    {
+        if (animation != null) animation.StopAnimating();
+    }
+
+    public void FlashLayoutComponents()
+    {
+        if (!flashLayoutGroups || !gameObject.activeInHierarchy || !IsVisible) return;
+        if (layoutRoutine != null) StopCoroutine(layoutRoutine);
+        layoutRoutine = StartCoroutine(FlashLayoutComponents(true));
+    }
+
     IEnumerator FlashLayoutComponents(bool showForOneFrame)
     {
         if (showForOneFrame)
@@ -253,7 +355,7 @@ public class OptimizedCanvas : MonoBehaviour
                 layoutGroups[i].enabled = true;
             }
 
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSecondsRealtime(1);
         }
         
         for (int i = 0; i < layoutElements.Count; i++)
@@ -264,6 +366,11 @@ public class OptimizedCanvas : MonoBehaviour
         for (int i = 0; i < layoutGroups.Count; i++)
         {
             layoutGroups[i].enabled = false;
+        }
+
+        for (int i = 0; i < dynamicUI.Count; i++)
+        {
+            dynamicUI[i].hasChanged = false;
         }
 
         layoutRoutine = null;

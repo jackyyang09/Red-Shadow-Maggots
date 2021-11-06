@@ -13,23 +13,25 @@ MonoBehaviour:
   m_Name: Moorshoo
   m_EditorClassIdentifier: 
   characterName: Mo'r Scheu
-  attack: 2000
-  maxHealth: 20000
-  critChance: 0
-  critDamageMultiplier: 0
   sprite: {fileID: 21300000, guid: 45315700f69f30e4ca1f3f2ccb162548, type: 3}
   headshotSprite: {fileID: 0}
+  attack: 2000
+  maxHealth: 30000
+  critChance: 0
+  critDamageMultiplier: 0
   characterClass: 0
-  range: 0
+  range: 2
   attackQteType: 0
   attackLeniency: 0
-  defenceLeniency: 0
+  defenseLeniency: 0
   skills: []
   spriteObject: {fileID: 0}
   animator: {fileID: 0}
   characterRig: {fileID: 3617443292749478132, guid: 05e2c82f833833a41a094a74f818700a, type: 3}
+  attackAnimation: {fileID: 7400000, guid: 61cb6a9e507d8bc4e8279c646b52c23b, type: 2}
   attackEffectPrefab: {fileID: 0}
-  extraEffectPrefabs: []
+  extraEffectPrefabs:
+  - {fileID: 1559379273019282010, guid: 7dc64d9c1a38f1a4482c2473b98ef9b2, type: 3}
   voiceEntry: {fileID: 0}
   voiceAttack: {fileID: 0}
   voiceSelected: {fileID: 0}
@@ -39,4 +41,6 @@ MonoBehaviour:
   voiceDeath: {fileID: 0}
   voiceVictory: {fileID: 0}
   weaponSound: {fileID: 11400000, guid: be4bbeeabeda6c946b2c80158e903dda, type: 2}
-  extraSounds: []
+  extraSounds:
+  - {fileID: 11400000, guid: e8b753d36b7ef3046a4dfe2906dff927, type: 2}
+  - {fileID: 11400000, guid: 2f516552404b7fb4090022815eb4ee7c, type: 2}

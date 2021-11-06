@@ -33,6 +33,24 @@ namespace JSAM
             }
         }
 
+        public void StopSoundByEnum(string enumName)
+        {
+            int index = SoundNameToIndex(enumName);
+            if (index > -1)
+            {
+                AudioManager.StopSound(AudioManager.Instance.Library.Sounds[index], transform, false);
+            }
+        }
+
+        public void StopSoundByEnumInstantly(string enumName)
+        {
+            int index = SoundNameToIndex(enumName);
+            if (index > -1)
+            {
+                AudioManager.StopSound(AudioManager.Instance.Library.Sounds[index], transform);
+            }
+        }
+
         public void SetMasterVolume(float newVal)
         {
             AudioManager.SetMasterVolume(newVal);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using JSAM;
 using DG.Tweening;
+using static Facade;
 
 public class AnimationHelper : MonoBehaviour
 {
@@ -133,24 +134,24 @@ public class AnimationHelper : MonoBehaviour
 
     public void MakeTargetHoldHitFrame()
     {
-        BattleSystem.Instance.GetActiveEnemy().AnimHelper.HoldHitFrame();
+        battleSystem.ActiveEnemy.AnimHelper.HoldHitFrame();
     }
 
     public void MakeTargetFaceAttacker()
     {
-        BattleSystem.Instance.GetActiveEnemy().AnimHelper.FaceAttacker();
+        battleSystem.ActiveEnemy.AnimHelper.FaceAttacker();
     }
 
     public void FaceAttacker()
     {
-        baseCharacter.CharacterMesh.transform.LookAt(BattleSystem.Instance.GetActivePlayer().transform);
+        baseCharacter.CharacterMesh.transform.LookAt(battleSystem.ActivePlayer.transform);
     }
 
     public void HoldHitFrame() => anim.Play("Hit Reaction Frame");
 
     public void MakeTargetShakeMesh()
     {
-        BattleSystem.Instance.GetActiveEnemy().AnimHelper.ShakeMesh();
+        battleSystem.ActiveEnemy.AnimHelper.ShakeMesh();
     }
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
@@ -177,38 +178,62 @@ public class AnimationHelper : MonoBehaviour
             onFinishSkillAnimation[i]();
         }
         onFinishSkillAnimation.Clear();
-
-        SceneTweener.Instance.LerpCamera.enabled = true;
-        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;        
-        Invoke(nameof(DisableLerpCam), 1.5f);
     }
 
+    int superCritBuffsApplied = 0;
+    public void ApplyNextSuperCritBuff()
+    {
+        SkillObject superCrit = baseCharacter.Reference.superCritical;
+        baseCharacter.ApplyEffectToCharacter(superCrit.gameEffects[superCritBuffsApplied], baseCharacter);
+        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[superCritBuffsApplied].effect);
+        superCritBuffsApplied++;
+    }
+
+    public void FinishSuperCritical()
+    {
+        superCritBuffsApplied = 0;
+        GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
+    }
+
+    public void SkillUntween()
+    {
+        SceneTweener.Instance.LerpCamera.enabled = true;
+        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;
+        Invoke(nameof(DisableLerpCam), 1.5f);
+    }
     void DisableLerpCam() => SceneTweener.Instance.LerpCamera.enabled = false;
+
+    public void SuperCritUntween()
+    {
+        SceneTweener.Instance.LerpCamera.enabled = true;
+        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;
+        Invoke(nameof(DisableLerpCam), 0.01f);
+    }
 
     public void SpawnMiscEffectAtIndex(int index)
     {
-        BattleSystem.Instance.GetActiveEnemy().SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index], true);
+        battleSystem.ActiveEnemy.SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index], true);
     }
 
     public void SpawnAndParentMiscEffectAtIndex(int index)
     {
-        BattleSystem.Instance.GetActiveEnemy().SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index]);
+        battleSystem.ActiveEnemy.SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index]);
+    }
+
+    public void SpawnWorldEffectAtIndex(int index)
+    {
+        Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]);
     }
 
     public void PlayMiscSoundAtIndex(int index)
     {
         AudioManager.PlaySound(baseCharacter.Reference.extraSounds[index]);
     }
-    //
-    //public void PlayMiscLoopingSoundAtIndex(int index)
-    //{
-    //    AudioManager.PlaySoundLoop(baseCharacter.Reference.extraSounds[index]);
-    //}
-    //
-    //public void StopMiscLoopingSoundAtIndex(int index)
-    //{
-    //    AudioManager.Instance.StopSoundLoopInternal(baseCharacter.Reference.extraSounds[index]);
-    //}
+
+    public void StopMiscSoundAtIndex(int index)
+    {
+        AudioManager.StopSoundIfPlaying(baseCharacter.Reference.extraSounds[index], null);
+    }
 
     public void DashForward() => anim.Play("Dash");
 

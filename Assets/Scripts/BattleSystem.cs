@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public enum BattlePhases
 {
@@ -60,7 +62,7 @@ public class BattleSystem : MonoBehaviour
         get
         {
             if (priorityPlayers.Count > 0) return priorityPlayers[0];
-            return playerCharacters[Random.Range(0, PlayerCharacters.Count)];
+            return playerCharacters[UnityEngine.Random.Range(0, PlayerCharacters.Count)];
         }
     }
 
@@ -82,18 +84,36 @@ public class BattleSystem : MonoBehaviour
     
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
 
-    public static System.Action onStartPlayerTurn;
+    public static Action OnStartPlayerTurn;
     /// <summary>
-    /// Invokes after onStartPlayerTurn
+    /// Invokes after OnStartPlayerTurn
     /// </summary>
-    public static System.Action onStartPlayerTurnLate;
-    public static System.Action onStartEnemyTurn;
+    public static Action OnStartPlayerTurnLate;
+    public static Action OnStartEnemyTurn;
+    /// <summary>
+    /// Invokes after OnStartEnemyTurn
+    /// </summary>
+    public static Action OnStartEnemyTurnLate;
+    public static Action OnEndEnemyTurn;
 
-    public static BattleSystem Instance;
+    public static Action OnTargettableCharactersChanged;
 
-    private void Awake()
+    public static Action OnEnterFinalWave;
+    public static Action OnWaveClear;
+    public static Action OnFinalWaveClear;
+    public static Action OnPlayerDefeat;
+
+    static BattleSystem instance;
+    public static BattleSystem Instance
     {
-        EstablishSingletonDominance();
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<BattleSystem>();
+            }
+            return instance;
+        }
     }
 
     public void GameStart()
@@ -118,8 +138,11 @@ public class BattleSystem : MonoBehaviour
 
     public void InitiateNextBattle()
     {
-        var enemies = EnemyWaveManager.instance.SetupNextWave();
-        EnemyController.instance.AssignEnemies(enemies);
+        var enemies = waveManager.SetupNextWave();
+
+        if (waveManager.IsLastWave) OnEnterFinalWave?.Invoke();
+
+        enemyController.AssignEnemies(enemies);
         playerTargets.enemy = enemies[0];
         playerTargets.enemy.ShowCharacterUI();
 
@@ -128,7 +151,7 @@ public class BattleSystem : MonoBehaviour
             Destroy(deadMaggots[i].gameObject);
         }
 
-        SceneTweener.Instance.EnterBattle();
+        sceneTweener.EnterBattle();
     }
 
     // Update is called once per frame
@@ -174,24 +197,26 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    public void ExecutePlayerAttack()
+    public void BeginPlayerAttack()
     {
-        switch (playerTargets.player.Reference.range)
-        {
-            case AttackRange.CloseRange:
-                SceneTweener.Instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
-                break;
-            case AttackRange.LongRange:
-                SceneTweener.Instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
-                break;
-        }
+        playerTargets.player.BeginAttack(playerTargets.enemy.transform);
+        //switch (playerTargets.player.Reference.range)
+        //{
+        //    case AttackRange.CloseRange:
+        //        SceneTweener.Instance.MeleeTweenTo(playerTargets.player.transform, playerTargets.enemy.transform);
+        //        break;
+        //    case AttackRange.LongRange:
+        //        SceneTweener.Instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
+        //        break;
+        //}
     }
 
-    public void ExecuteEnemyAttack()
+    public void BeginEnemyAttack()
     {
-        UIManager.instance.StartDefending();
-        SceneTweener.Instance.MeleeTweenTo(enemyTargets.enemy.transform, enemyTargets.player.transform);
+        ui.StartDefending();
+        enemyTargets.enemy.BeginAttack(enemyTargets.player.transform);
         enemyTargets.enemy.PlayAttackAnimation();
+        enemyTargets.player.InitiateDefense();
     }
 
     public void SwitchTargets()
@@ -199,9 +224,9 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                if (EnemyController.instance.Enemies.Count > 0)
+                if (enemyController.Enemies.Count > 0)
                 {
-                    playerTargets.enemy = EnemyController.instance.RandomEnemy;
+                    playerTargets.enemy = enemyController.RandomEnemy;
                     playerTargets.enemy.ShowCharacterUI();
                 }
                 break;
@@ -244,11 +269,10 @@ public class BattleSystem : MonoBehaviour
 
     public void AttackAOE(DamageStruct damage)
     {
-        damage.source = null;
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                var enemies = EnemyController.instance.Enemies;
+                var enemies = enemyController.Enemies;
                 for (int i = 0; i < enemies.Count; i++)
                 {
                     if (playerTargets.player.Reference.attackEffectPrefab != null)
@@ -343,6 +367,9 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
+    public void SetEnemyAttackTarget(PlayerCharacter player) => enemyTargets.player = player;
+    public void SetEnemyAttacker(EnemyCharacter enemy) => enemyTargets.enemy = enemy;
+
     public void EndTurn()
     {
         StartCoroutine(TurnEndTransition());
@@ -353,15 +380,15 @@ public class BattleSystem : MonoBehaviour
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                yield return new WaitForSeconds(SceneTweener.Instance.EnemyTurnTransitionDelay);
-                if (EnemyController.instance.Enemies.Count > 0)
+                yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
+                if (enemyController.Enemies.Count > 0)
                 {
                     SetPhase(BattlePhases.EnemyTurn);
                 }
                 else SetPhase(BattlePhases.BattleWin);
                 break;
             case BattlePhases.EnemyTurn:
-                yield return new WaitForSeconds(SceneTweener.Instance.PlayerTurnTransitionDelay);
+                yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
                 if (playerCharacters.Count > 0)
                 {
                     SetPhase(BattlePhases.PlayerTurn);
@@ -394,32 +421,51 @@ public class BattleSystem : MonoBehaviour
 
     public void SetPhase(BattlePhases newPhase)
     {
-        currentPhase = newPhase;
         switch (currentPhase)
         {
             case BattlePhases.Entry:
                 break;
             case BattlePhases.PlayerTurn:
-                onStartPlayerTurn?.Invoke();
-                onStartPlayerTurnLate?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
-                onStartEnemyTurn?.Invoke();
-                EnemyController.instance.MakeYourMove();
+                ActiveEnemy.IncreaseChargeLevel();
+                OnEndEnemyTurn?.Invoke();
                 break;
             case BattlePhases.BattleWin:
-                if (EnemyWaveManager.instance.IsLastWave)
+                break;
+            case BattlePhases.BattleLose:
+                break;
+        }
+
+        currentPhase = newPhase;
+
+        switch (currentPhase)
+        {
+            case BattlePhases.Entry:
+                break;
+            case BattlePhases.PlayerTurn:
+                OnStartPlayerTurn?.Invoke();
+                enemyController.ChooseNewTargets();
+                OnStartPlayerTurnLate?.Invoke();
+                break;
+            case BattlePhases.EnemyTurn:
+                OnStartEnemyTurn?.Invoke();
+                enemyController.MakeYourMove();
+                OnStartEnemyTurnLate?.Invoke();
+                break;
+            case BattlePhases.BattleWin:
+                if (waveManager.IsLastWave)
                 {
-                    GlobalEvents.OnFinalWaveClear?.Invoke();
+                    OnFinalWaveClear?.Invoke();
                 }
                 else
                 {
                     SceneTweener.Instance.WaveClearSequence();
-                    GlobalEvents.OnWaveClear?.Invoke();
+                    OnWaveClear?.Invoke();
                 }
                 break;
             case BattlePhases.BattleLose:
-                GlobalEvents.OnPlayerDefeat?.Invoke();
+                OnPlayerDefeat?.Invoke();
                 break;
         }
     }
@@ -434,21 +480,25 @@ public class BattleSystem : MonoBehaviour
     public void ApplyTargetFocus(PlayerCharacter player)
     {
         priorityPlayers.Add(player);
+        OnTargettableCharactersChanged?.Invoke();
     }
 
     public void RemoveTargetFocus(PlayerCharacter player)
     {
         priorityPlayers.Remove(player);
+        OnTargettableCharactersChanged?.Invoke();
     }
 
     public void ApplyTargetFocus(EnemyCharacter enemy)
     {
         priorityEnemies.Add(enemy);
+        OnTargettableCharactersChanged?.Invoke();
     }
 
     public void RemoveTargetFocus(EnemyCharacter enemy)
     {
         priorityEnemies.Remove(enemy);
+        OnTargettableCharactersChanged?.Invoke();
     }
 
     public void ToggleGameSpeed()
@@ -458,45 +508,67 @@ public class BattleSystem : MonoBehaviour
         GlobalEvents.OnModifyGameSpeed?.Invoke();
     }
 
-    public PlayerCharacter GetActivePlayer()
+    public PlayerCharacter ActivePlayer
     {
-        switch (currentPhase)
+        get
         {
-            case BattlePhases.PlayerTurn:
-                return playerTargets.player;
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.player;
+            }
+            return enemyTargets.player;
         }
-        return enemyTargets.player;
     }
 
-    public EnemyCharacter GetActiveEnemy()
+    public EnemyCharacter ActiveEnemy
     {
-        switch (currentPhase)
+        get
         {
-            case BattlePhases.PlayerTurn:
-                return playerTargets.enemy;
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.enemy;
+            }
+            return enemyTargets.enemy;
         }
-        return enemyTargets.enemy;
     }
 
-    public BaseCharacter GetOpposingCharacter()
+    public PlayerCharacter EnemyAttackTarget { get { return enemyTargets.player; } }
+    public EnemyCharacter EnemyAttacker { get { return enemyTargets.enemy; } }
+
+    public BaseCharacter OpposingCharacter
     {
-        switch (currentPhase)
+        get
         {
-            case BattlePhases.PlayerTurn:
-                return playerTargets.enemy;
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.enemy;
+            }
+            return enemyTargets.player;
         }
-        return enemyTargets.player;
     }
 
     #region Debug Hacks
     [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 100%", MaxArgCount = 0)]
-    public static void MaxCrit(CommandTerminal.CommandArg[] args)
+    public static void MaxPlayerCrit(CommandTerminal.CommandArg[] args)
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
             Instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Crit rate maxed!");
+    }
+
+    [CommandTerminal.RegisterCommand(Help = "Set enemy characters crit chance to 100%", MaxArgCount = 0)]
+    public static void MaxEnemyCrit(CommandTerminal.CommandArg[] args)
+    {
+        for (int i = 0; i < enemyController.Enemies.Count; i++)
+        {
+            enemyController.Enemies[i].ApplyCritChanceModifier(1);
+        }
+        Debug.Log("Enemy crit maxed!");
     }
 
     [CommandTerminal.RegisterCommand(Help = "Instantly hurt players, leaving them at 1 health", MaxArgCount = 0)]
@@ -511,29 +583,4 @@ public class BattleSystem : MonoBehaviour
         Debug.Log("Players damaged!");
     }
     #endregion
-
-    void EstablishSingletonDominance()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (Instance.gameObject.scene.name == null)
-            {
-                Instance = this;
-            }
-            else if (!Instance.gameObject.activeInHierarchy)
-            {
-                Instance = this;
-            }
-            else if (Instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                Instance = this;
-            }
-            Destroy(gameObject);
-        }
-    }
 }

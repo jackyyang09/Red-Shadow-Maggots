@@ -277,6 +277,7 @@ namespace JSAM.JSAMEditor
                 if (GUILayout.Button(blontent))
                 {
                     AudioPlaybackToolEditor.helperSource.Stop();
+                    AudioPlaybackToolEditor.helperSource.time = 0;
                     if (playingClip != null && !clipPlaying)
                     {
                         if (playingRandom)

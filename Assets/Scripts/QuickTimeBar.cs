@@ -72,16 +72,15 @@ public class QuickTimeBar : QuickTimeBase
 
     public override void StartTicking()
     {
-        if (activePlayer) activePlayer.PlayAttackAnimation();
         fillBar.DOFillAmount(1, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
 
         float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
         //fillBar.DOGradientColor(barGradient, Mathf.Lerp(0, barFillTime, targetMin)).SetUpdate(true).SetDelay(barFillDelay);
         fillBar.DOGradientColor(barGradient, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
-        Invoke("Enable", barFillDelay);
+        Invoke(nameof(Enable), barFillDelay);
     }
 
-    public override void InitializeBar(PlayerCharacter player)
+    public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> target = null)
     {
         fillBar.fillAmount = 0;
         fillBar.color = Color.white;
@@ -90,11 +89,11 @@ public class QuickTimeBar : QuickTimeBase
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                activePlayer = player;
-                leniency = player.GetAttackLeniency();
+                activePlayer = attacker as PlayerCharacter;
+                leniency = attacker.AttackLeniency;
                 break;
             case BattlePhases.EnemyTurn:
-                leniency = player.GetDefenceLeniency();
+                leniency = attacker.DefenseLeniency;
                 break;
         }
 

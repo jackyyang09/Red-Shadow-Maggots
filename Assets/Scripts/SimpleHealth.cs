@@ -21,20 +21,27 @@ public class SimpleHealth : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        healthBar.fillAmount = baseCharacter.GetHealthPercent();
-        healthText.text = baseCharacter.CurrentHealth.ToString();
+        if (baseCharacter) InitializeWithCharacter(baseCharacter);
     }
 
-    private void OnEnable()
+    public void InitializeWithCharacter(BaseCharacter character)
     {
+        baseCharacter = character;
+
+        healthBar.fillAmount = baseCharacter.GetHealthPercent();
+        healthText.text = baseCharacter.CurrentHealth.ToString();
+
         baseCharacter.onTakeDamage += UpdateValue;
         baseCharacter.onHeal += UpdateValue;
     }
 
     private void OnDisable()
     {
-        baseCharacter.onTakeDamage -= UpdateValue;
-        baseCharacter.onHeal -= UpdateValue;
+        if (baseCharacter)
+        {
+            baseCharacter.onTakeDamage -= UpdateValue;
+            baseCharacter.onHeal -= UpdateValue;
+        }
     }
 
     // Update is called once per frame

@@ -2,12 +2,7 @@
 
 public class GlobalEvents
 {
-    public static Action OnEnterWave;
     public static Action OnAnyEnemyDeath;
-    public static Action OnWaveClear;
-    public static Action OnEnterFinalWave;
-    public static Action OnFinalWaveClear;
-    public static Action OnPlayerDefeat;
     public static Action OnAnyPlayerDeath;
     public static Action OnPlayerQuickTimeAttackSuccess;
     public static Action OnPlayerQuickTimeBlockSuccess;
@@ -21,6 +16,10 @@ public class GlobalEvents
     public static Action<BaseCharacter> OnCharacterAttacked;
 
     public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
+    public static Action<BaseCharacter> OnCharacterSuperCritical;
+    public static Action<BaseCharacter> OnCharacterFinishSuperCritical;
+
+    public static Action<BaseGameEffect> OnGameEffectApplied;
 
     public static Action<BaseCharacter> OnCharacterDeath;
 

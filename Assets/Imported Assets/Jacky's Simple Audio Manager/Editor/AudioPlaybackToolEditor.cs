@@ -607,7 +607,6 @@ namespace JSAM.JSAMEditor
 
                     if (loopClip)
                     {
-                        EditorApplication.QueuePlayerLoopUpdate();
                         if (selectedMusic.loopMode == LoopMode.LoopWithLoopPoints || selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
                         {
                             if (!helperSource.isPlaying && clipPlaying && !clipPaused)

@@ -212,18 +212,18 @@ namespace JSAM
         #endregion
 
         #region StopSound
-        public void StopAllSoundsInternal()
+        public void StopAllSoundsInternal(bool stopInstantly = true)
         {
             for (int i = 0; i < soundHelpers.Count; i++)
             {
                 if (soundHelpers[i].AudioSource.isPlaying)
                 {
-                    soundHelpers[i].Stop();
+                    soundHelpers[i].Stop(stopInstantly);
                 }
             }
         }
 
-        public void StopSoundInternal(JSAMSoundFileObject s, Transform t = null)
+        public void StopSoundInternal(JSAMSoundFileObject s, Transform t = null, bool stopInstantly = true)
         {
             for (int i = 0; i < soundHelpers.Count; i++)
             {
@@ -233,36 +233,36 @@ namespace JSAM
                     {
                         if (soundHelpers[i].SpatializationTarget != t) continue;
                     }
-                    soundHelpers[i].Stop(true);
+                    soundHelpers[i].Stop(stopInstantly);
                     return;
                 }
             }
         }
 
-        public void StopSoundInternal(JSAMSoundFileObject s, Vector3 pos)
+        public void StopSoundInternal(JSAMSoundFileObject s, Vector3 pos, bool stopInstantly = true)
         {
             for (int i = 0; i < soundHelpers.Count; i++)
             {
                 if (s.ContainsAudioClip(soundHelpers[i].AudioSource.clip))
                 {
                     if (soundHelpers[i].SpatializationPosition != pos && s.spatialize) continue;
-                    soundHelpers[i].Stop(true);
+                    soundHelpers[i].Stop(stopInstantly);
                     return;
                 }
             }
         }
 
-        public bool StopSoundIfPlayingInternal(JSAMSoundFileObject sound, Transform trans = null)
+        public bool StopSoundIfPlayingInternal(JSAMSoundFileObject sound, Transform trans = null, bool stopInstantly = true)
         {
             if (!IsSoundPlayingInternal(sound, trans)) return false;
-            StopSoundInternal(sound, trans);
+            StopSoundInternal(sound, trans, stopInstantly);
             return true;
         }
 
-        public bool StopSoundIfPlayingInternal(JSAMSoundFileObject sound, Vector3 pos)
+        public bool StopSoundIfPlayingInternal(JSAMSoundFileObject sound, Vector3 pos, bool stopInstantly = true)
         {
             if (!IsSoundPlayingInternal(sound, pos)) return false;
-            StopSoundInternal(sound, pos);
+            StopSoundInternal(sound, pos, stopInstantly);
             return true;
         }
         #endregion

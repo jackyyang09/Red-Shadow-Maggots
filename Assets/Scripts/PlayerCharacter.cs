@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
@@ -13,8 +14,9 @@ public class PlayerCharacter : BaseCharacter
     const float fingerHoldTime = 0.75f;
     float fingerHoldTimer = 0;
 
-    public static Action<PlayerCharacter> onSelectPlayer;
-    public static Action<PlayerCharacter> onSelectedPlayerCharacterChange;
+    public static Action<PlayerCharacter> OnSelectPlayer;
+    public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
+    public static Action<PlayerCharacter> OnPlayerQTEAttack;
 
     // Start is called before the first frame update
     protected override void Start()
@@ -22,18 +24,22 @@ public class PlayerCharacter : BaseCharacter
         base.Start();
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
+
+        var billboard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
+        billboard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+        billboard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
     }
 
     protected override void OnEnable()
     {
         base.OnEnable();
-        onSelectedPlayerCharacterChange += UpdateSelectedStatus;
+        OnSelectedPlayerCharacterChange += UpdateSelectedStatus;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
-        onSelectedPlayerCharacterChange -= UpdateSelectedStatus;
+        OnSelectedPlayerCharacterChange -= UpdateSelectedStatus;
     }
 
     // Update is called once per frame
@@ -71,12 +77,12 @@ public class PlayerCharacter : BaseCharacter
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             GlobalEvents.OnSelectCharacter?.Invoke(this);
-            onSelectPlayer?.Invoke(this);
-            if (BattleSystem.Instance.GetActivePlayer() == this) return;
+            OnSelectPlayer?.Invoke(this);
+            if (battleSystem.ActivePlayer == this) return;
             if (UIManager.SelectingAllyForSkill) return;
             if (IsDead) return;
             BattleSystem.Instance.SetActivePlayer(this);
-            onSelectedPlayerCharacterChange?.Invoke(this);
+            OnSelectedPlayerCharacterChange?.Invoke(this);
         }
     }
 
@@ -99,9 +105,90 @@ public class PlayerCharacter : BaseCharacter
         fingerHoldTimer = 0;
     }
 
+    public virtual void InitiateDefense()
+    {
+        if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
+        {
+            QuickTimeBase.onExecuteQuickTime += PlayBlockAnimation;
+        }
+    }
+
+    public virtual void EndDefense()
+    {
+        QuickTimeBase.onExecuteQuickTime -= PlayBlockAnimation;
+    }
+
+    void PlayBlockAnimation(DamageStruct d) => PlayBlockAnimation();
+    void PlayBlockAnimation()
+    {
+        if (rigAnim)
+        {
+            rigAnim.Play("Block Initiate");
+        }
+    }
+
+    public override void BeginAttack(Transform target)
+    {
+        base.BeginAttack(target);
+
+        if (CritChanceAdjusted >= 1)
+        {
+        }
+        else
+        {
+            OnPlayerQTEAttack?.Invoke(this);
+        }
+    }
+
+    public override void PlayAttackAnimation()
+    {
+        base.PlayAttackAnimation();
+
+        if (rigAnim)
+        {
+            rigAnim.Play("Attack Windup");
+        }
+        else
+        {
+            spriteAnim.Play("Attack Windup");
+        }
+    }
+
+    public override void ExecuteAttack(DamageStruct damage)
+    {
+        base.ExecuteAttack(damage);
+
+        if (rigAnim)
+        {
+            switch (Reference.attackQteType)
+            {
+                case QTEType.SimpleBar:
+                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+                    rigAnim.Play("Attack Execute");
+                    break;
+                case QTEType.Hold:
+                    if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
+                    {
+                        rigAnim.SetInteger("Charge Level", 0);
+                    }
+                    else
+                    {
+                        rigAnim.SetInteger("Charge Level", damage.chargeLevel);
+                    }
+                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+                    rigAnim.SetTrigger("Attack Execute");
+                    break;
+            }
+        }
+        else
+        {
+            spriteAnim.Play("Attack Execute");
+        }
+    }
+
     public override void ShowCharacterUI()
     {
-        bool isSelected = BattleSystem.Instance.GetActivePlayer() == this;
+        bool isSelected = battleSystem.ActivePlayer == this;
         selectionCircle.enabled = isSelected;
         anim.SetBool("Selected", isSelected);
     }
@@ -110,18 +197,6 @@ public class PlayerCharacter : BaseCharacter
     {
         selectionCircle.enabled = false;
         anim.SetBool("Selected", false);
-    }
-
-    public float attackLeniencyModifier;
-    public float GetAttackLeniency()
-    {
-        return characterReference.attackLeniency + attackLeniencyModifier;
-    }
-
-    public float defenceLeniencyModifier;
-    public float GetDefenceLeniency()
-    {
-        return characterReference.defenceLeniency + defenceLeniencyModifier;
     }
 
     public override void Die()

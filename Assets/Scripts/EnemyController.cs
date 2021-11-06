@@ -13,11 +13,24 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    public static EnemyController instance;
+    public static System.Action OnChangedAttackers;
+    public static System.Action OnChangedAttackTargets;
+
+    public static EnemyController Instance;
 
     private void Awake()
     {
         EstablishSingletonDominance();
+    }
+
+    private void OnEnable()
+    {
+        BattleSystem.OnTargettableCharactersChanged += ChooseAttackTarget;
+    }
+
+    private void OnDisable()
+    {
+        BattleSystem.OnTargettableCharactersChanged -= ChooseAttackTarget;
     }
 
     //void Update()
@@ -30,27 +43,44 @@ public class EnemyController : MonoBehaviour
         Enemies = enemyCharacters;
     }
 
+    public void ChooseNewTargets()
+    {
+        ChooseAttacker();
+        ChooseAttackTarget();
+    }
+
+    public void ChooseAttacker()
+    {
+        BattleSystem.Instance.SetEnemyAttacker(Enemies[Random.Range(0, Enemies.Count)]);
+        OnChangedAttackers?.Invoke();
+    }
+
+    public void ChooseAttackTarget()
+    {
+        BattleSystem.Instance.SetEnemyAttackTarget(BattleSystem.Instance.RandomPlayerCharacter);
+        OnChangedAttackTargets?.Invoke();
+    }
+
     public void MakeYourMove()
     {
-        BattleSystem.Instance.SetActiveEnemy(Enemies[Random.Range(0, Enemies.Count)]);
-        BattleSystem.Instance.SetActivePlayer(BattleSystem.Instance.RandomPlayerCharacter);
-        BattleSystem.Instance.ExecuteEnemyAttack();
+        BattleSystem.Instance.BeginEnemyAttack();
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)
     {
         Enemies.Remove(enemy);
+        ChooseAttacker();
     }
 
     #region Debug Hacks
     [CommandTerminal.RegisterCommand(Help = "Instantly hurt enemies, leaving them at 1 health")]
     public static void CrippleEnemies(CommandTerminal.CommandArg[] args)
     {
-        for (int i = 0; i < instance.Enemies.Count; i++)
+        for (int i = 0; i < Instance.Enemies.Count; i++)
         {
             DamageStruct dmg = new DamageStruct();
-            dmg.damage = instance.Enemies[i].CurrentHealth - 1;
-            instance.Enemies[i].TakeDamage(dmg);
+            dmg.damage = Instance.Enemies[i].CurrentHealth - 1;
+            Instance.Enemies[i].TakeDamage(dmg);
         }
         Debug.Log("Enemies damaged!");
     }
@@ -58,24 +88,24 @@ public class EnemyController : MonoBehaviour
 
     void EstablishSingletonDominance()
     {
-        if (instance == null)
+        if (Instance == null)
         {
-            instance = this;
+            Instance = this;
         }
-        else if (instance != this)
+        else if (Instance != this)
         {
             // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
+            if (Instance.gameObject.scene.name == null)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (!instance.gameObject.activeInHierarchy)
+            else if (!Instance.gameObject.activeInHierarchy)
             {
-                instance = this;
+                Instance = this;
             }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
+            else if (Instance.gameObject.scene.name != gameObject.scene.name)
             {
-                instance = this;
+                Instance = this;
             }
             Destroy(gameObject);
         }
