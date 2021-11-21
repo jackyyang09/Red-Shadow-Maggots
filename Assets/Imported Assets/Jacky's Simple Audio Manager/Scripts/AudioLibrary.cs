@@ -8,7 +8,7 @@ namespace JSAM
     public class AudioLibrary : ScriptableObject
     {
         [System.Serializable]
-        public struct CategoryToList
+        public class CategoryToList
         {
             public string name;
             public List<BaseAudioFileObject> files;

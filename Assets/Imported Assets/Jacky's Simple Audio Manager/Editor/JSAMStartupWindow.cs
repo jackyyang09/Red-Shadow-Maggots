@@ -69,7 +69,7 @@ namespace JSAM.JSAMEditor
         {
             GUILayout.Label(startupGraphic, new GUILayoutOption[] { GUILayout.ExpandHeight(false) });
 
-            EditorGUILayout.LabelField("You are currently using <b>Version 3.0</b>", JSAMEditorHelper.ApplyRichTextToStyle(GUI.skin.label));
+            EditorGUILayout.LabelField("You are currently using <b>Version 3.0</b>", GUI.skin.label.ApplyRichText());
 
             EditorGUILayout.LabelField("To get started with JSAM, visit the links below!");
 

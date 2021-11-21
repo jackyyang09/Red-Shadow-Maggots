@@ -129,15 +129,12 @@ public class PlayerCharacter : BaseCharacter
 
     public override void BeginAttack(Transform target)
     {
-        base.BeginAttack(target);
-
-        if (CritChanceAdjusted >= 1)
-        {
-        }
-        else
+        if (CritChanceAdjusted < 1 || usedSuperCritThisTurn)
         {
             OnPlayerQTEAttack?.Invoke(this);
         }
+
+        base.BeginAttack(target);
     }
 
     public override void PlayAttackAnimation()

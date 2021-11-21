@@ -122,7 +122,7 @@ namespace JSAM.JSAMEditor
             if (files.arraySize == 0)
             {
                 blontent = new GUIContent("Drag AudioClips here");
-                GUIStyle style = JSAMEditorHelper.ApplyFontSizeToStyle(JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.label, TextAnchor.MiddleCenter), 48);
+                GUIStyle style = GUI.skin.label.ApplyTextAnchor(TextAnchor.MiddleCenter).SetFontSize(48);
                 EditorGUILayout.LabelField(blontent, style, new GUILayoutOption[] { GUILayout.MinHeight(70), GUILayout.MaxHeight(200) });
             }
             else
@@ -218,7 +218,7 @@ namespace JSAM.JSAMEditor
             // Text shows up black for some reason? Why?
             //var skin = JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.box, TextAnchor.UpperLeft);
 
-            var skin = JSAMEditorHelper.ApplyTextColorToStyle(JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.box, TextAnchor.UpperLeft), GUI.skin.label.normal.textColor);
+            var skin = GUI.skin.box.ApplyTextAnchor(TextAnchor.UpperLeft).SetTextColor(GUI.skin.label.normal.textColor);
             EditorGUILayout.LabelField(new GUIContent("Preset Description"), blontent, skin, new GUILayoutOption[] { GUILayout.ExpandWidth(true) });
             EditorGUILayout.EndHorizontal();
 

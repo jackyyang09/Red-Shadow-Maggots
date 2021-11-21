@@ -50,7 +50,10 @@ namespace JSAM.JSAMEditor
         {
             EditorApplication.update -= Update;
             Undo.undoRedoPerformed -= OnUndoRedo;
-            AudioPlaybackToolEditor.DestroyAudioHelper();
+            if (!AudioPlaybackToolEditor.WindowOpen)
+            {
+                AudioPlaybackToolEditor.DestroyAudioHelper();
+            }
             Undo.postprocessModifications -= ApplyHelperEffects;
         }
 
@@ -459,33 +462,33 @@ namespace JSAM.JSAMEditor
             AudioPlaybackToolEditor.DoForceRepaint(true);
         }
 
-        public void DrawPropertyOverlay(AudioClip audio, int width, int height)
+        public static void DrawPropertyOverlay(JSAMMusicFileObject music, int width, int height)
         {
             if (Event.current.type != EventType.Repaint) return;
 
             #region Draw Loop Point Markers
-            if (myScript.loopMode >= LoopMode.LoopWithLoopPoints)
+            if (music.loopMode >= LoopMode.LoopWithLoopPoints)
             {
                 Rect newRect = new Rect();
 
                 // Draw Loop Start
                 newRect.height = height;
-                newRect.xMax = (myScript.loopStart / myScript.File.length) * width;
+                newRect.xMax = (music.loopStart / music.File.length) * width;
                 float firstLabel = newRect.xMax;
 
                 GUI.Box(newRect, "");
                 newRect.xMin = newRect.xMax - 65;
                 newRect.x += 60;
-                GUI.Label(newRect, new GUIContent("Loop Start"), JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperRight));
+                GUI.Label(newRect, new GUIContent("Loop Start"), EditorStyles.label.ApplyTextAnchor(TextAnchor.UpperRight));
 
                 // Draw Loop End
                 newRect.height = height;
-                newRect.xMin = (myScript.loopEnd / audio.length) * width;
+                newRect.xMin = (music.loopEnd / music.File.length) * width;
                 float secondLabel = newRect.xMin;
                 newRect.xMax = width;
                 GUI.Box(newRect, "");
 
-                var style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperLeft);
+                var style = EditorStyles.label.ApplyTextAnchor(TextAnchor.UpperLeft);
                 newRect.height = 35;
                 if (newRect.width < 60)
                 {
@@ -493,20 +496,20 @@ namespace JSAM.JSAMEditor
                     newRect.x -= 55;
                     if (secondLabel - firstLabel < 140)
                     {
-                        style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.LowerLeft);
+                        style = EditorStyles.label.ApplyTextAnchor(TextAnchor.LowerLeft);
                     }
                 }
                 else if (secondLabel - firstLabel < 70)
                 {
-                    style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.LowerLeft);
+                    style = EditorStyles.label.ApplyTextAnchor(TextAnchor.LowerLeft);
                 }
 
                 GUI.Label(newRect, new GUIContent("Loop End"), style);
 
                 newRect.x = 0;
                 newRect.height = height;
-                newRect.xMin = (myScript.loopStart / myScript.File.length) * width;
-                newRect.xMax = (myScript.loopEnd / audio.length) * width;
+                newRect.xMin = (music.loopStart / music.File.length) * width;
+                newRect.xMax = (music.loopEnd / music.File.length) * width;
                 JSAMEditorHelper.BeginColourChange(Color.green);
                 GUI.Box(newRect, "", "SelectionRect");
                 JSAMEditorHelper.EndColourChange();

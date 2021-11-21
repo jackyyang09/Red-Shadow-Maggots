@@ -260,7 +260,7 @@ namespace JSAM.JSAMEditor
 
             rect.xMin = rect.xMax - 100;
             GUI.Label(rect, "File Count: " + list.serializedProperty.arraySize,
-                JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.MiddleRight));
+                EditorStyles.label.ApplyTextAnchor(TextAnchor.MiddleRight));
 
             EditorGUILayout.EndHorizontal();
         }
@@ -405,23 +405,92 @@ namespace JSAM.JSAMEditor
             }
         }
 
+        void HandleAssetDeletion()
+        {
+            for (int i = sounds.arraySize - 1; i > -1; i--)
+            {
+                if (sounds.GetArrayElementAtIndex(i).objectReferenceValue == null)
+                {
+                    sounds.DeleteArrayElementAtIndex(i);
+                    if (sounds.GetArrayElementAtIndex(i) == null) // Once more just in-case
+                    {
+                        sounds.DeleteArrayElementAtIndex(i);
+                    }
+                }
+            }
+
+            for (int i = soundCategoriesToList.arraySize - 1; i > -1; i--)
+            {
+                var files = soundCategoriesToList.GetArrayElementAtIndex(i).FindPropertyRelative("files");
+                for (int j = files.arraySize - 1; j > -1; j--)
+                {
+                    if (files.GetArrayElementAtIndex(j).objectReferenceValue == null)
+                    {
+                        files.DeleteArrayElementAtIndex(j);
+                        if (files.GetArrayElementAtIndex(j) == null)
+                        {
+                            files.DeleteArrayElementAtIndex(j);
+                        }
+                    }
+                }
+            }
+
+            //for (int i = 0; i < asset.Music.Count; i++)
+            //{
+            //    if (asset.Music[i].IsNullOrMissing())
+            //    {
+            //        asset.Music.RemoveAt(i);
+            //        break;
+            //    }
+            //}
+            //
+            //for (int i = 0; i < asset.musicCategoriesToList.Count; i++)
+            //{
+            //    var files = asset.musicCategoriesToList[i].files;
+            //    for (int j = 0; j < files.Count; j++)
+            //    {
+            //        if (files[j].IsNullOrMissing())
+            //        {
+            //            files.RemoveAt(j);
+            //            break;
+            //        }
+            //    }
+            //}
+
+            if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
+
+            markedForDeletion = false;
+            Repaint();
+        }
+
+        void ReinitializeSerializedObject()
+        {
+            serializedObject = new SerializedObject(asset);
+            DesignateSerializedProperties();
+        }
+
         void AssignAsset(AudioLibrary newAsset = null)
         {
-            if (newAsset != null) asset = newAsset;
-
-            // Read from the Settings file first
-            var savedAsset = JSAMSettings.Settings.SelectedLibrary;
-            if (savedAsset != null)
+            if (newAsset != null) // Handle a basic reassign
             {
-                asset = JSAMSettings.Settings.SelectedLibrary;
+                asset = newAsset;
             }
-            else
+            else // Fallback
             {
-                // Write to Settings file if the project has libraries
-                if (projectLibraries.Count > 0)
+                // Read from the Settings file first
+                AudioLibrary savedAsset = JSAMSettings.Settings.SelectedLibrary;
+                if (savedAsset != null)
                 {
-                    asset = projectLibraries[0];
-                    JSAMSettings.Settings.SelectedLibrary = asset;
+                    asset = JSAMSettings.Settings.SelectedLibrary;
+                }
+                else
+                {
+                    // Write to Settings file if the project has libraries
+                    if (projectLibraries.Count > 0)
+                    {
+                        asset = projectLibraries[0];
+                        JSAMSettings.Settings.SelectedLibrary = asset;
+                    }
                 }
             }
 
@@ -430,16 +499,15 @@ namespace JSAM.JSAMEditor
                 selectedLibrary = projectLibraries.IndexOf(asset);
                 if (serializedObject == null)
                 {
-                    serializedObject = new SerializedObject(asset);
+                    ReinitializeSerializedObject();
                 }
                 else if (serializedObject != null)
                 {
                     if (serializedObject.targetObject != asset)
                     {
-                        serializedObject = new SerializedObject(asset);
+                        ReinitializeSerializedObject();
                     }
                 }
-                DesignateSerializedProperties();
             }
             else
             {
@@ -447,11 +515,17 @@ namespace JSAM.JSAMEditor
             }
         }
 
+        bool markedForDeletion = true;
         private void OnJSAMAssetDeleted(string filePath)
         {
-            if (filePath.Equals(AssetDatabase.GetAssetPath(JSAMSettings.Settings.SelectedLibrary)))
+            AudioLibrary library = JSAMSettings.Settings.SelectedLibrary;
+            if (filePath.Equals(AssetDatabase.GetAssetPath(library)))
             {
                 serializedObject = null;
+            }
+            else
+            {
+                markedForDeletion = true;
             }
         }
 
@@ -486,6 +560,7 @@ namespace JSAM.JSAMEditor
             musicCategories = FindProp(nameof(asset.musicCategories));
             musicCategoriesToList = FindProp("musicCategoriesToList");
 
+            HandleAssetDeletion();
             InitializeCategories();
             DocumentAudioFiles();
 
@@ -537,7 +612,6 @@ namespace JSAM.JSAMEditor
                 if (missingMusicNames == null) missingMusicNames = new List<string>();
                 if (newMusicNames == null) newMusicNames = new List<string>();
             }
-            
         }
 
         void InitializeCategories()
@@ -595,6 +669,11 @@ namespace JSAM.JSAMEditor
 
         private void OnGUI()
         {
+            if (markedForDeletion)
+            {
+                HandleAssetDeletion();
+            }
+
             GUIContent blontent = new GUIContent();
 
             // Apply leftover rename operation
@@ -701,7 +780,7 @@ namespace JSAM.JSAMEditor
                 if (!showMusic.boolValue) JSAMEditorHelper.BeginColourChange(GUI.color.Subtract(new Color(0.2f, 0.2f, 0.2f, 0)));
                 string topLabel = "Sound Library";
                 if (newSoundNames.Count > 0 || missingSoundNames.Count > 0) topLabel += "*";
-                if (GUILayout.Button(topLabel, JSAMEditorHelper.ApplyTextColorToStyle(EditorStyles.miniButtonLeft, Color.white)))
+                if (GUILayout.Button(topLabel, EditorStyles.miniButtonLeft.SetTextColor(Color.white)))
                 {
                     showMusic.boolValue = false;
                 }
@@ -789,10 +868,11 @@ namespace JSAM.JSAMEditor
                         }
                         if (dragging)
                         {
-                            GUIStyle style = JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.box, TextAnchor.MiddleCenter);
-                            style = JSAMEditorHelper.ApplyFontSizeToStyle(style, 15);
-                            style = JSAMEditorHelper.ApplyBoldTextToStyle(style);
-                            style = JSAMEditorHelper.ApplyTextColorToStyle(style, Color.white);
+                            GUIStyle style = GUI.skin.box.
+                                ApplyTextAnchor(TextAnchor.MiddleCenter).
+                                SetFontSize(15).
+                                ApplyBoldText().
+                                SetTextColor(Color.white);
                             JSAMEditorHelper.BeginColourChange(Color.white);
                             GUI.Box(rect, "Drop to Add Audio File(s)", style);
                             JSAMEditorHelper.EndColourChange();
@@ -887,10 +967,10 @@ namespace JSAM.JSAMEditor
                         }
 						if (dragging)
                         {
-                            GUIStyle style = JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.box, TextAnchor.MiddleCenter);
-                            style = JSAMEditorHelper.ApplyFontSizeToStyle(style, 15);
-                            style = JSAMEditorHelper.ApplyBoldTextToStyle(style);
-                            style = JSAMEditorHelper.ApplyTextColorToStyle(style, Color.white);
+                            GUIStyle style = GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter)
+                                .SetFontSize(15)
+                                .ApplyBoldText()
+                                .SetTextColor(Color.white);
                             JSAMEditorHelper.BeginColourChange(Color.white);
                             GUI.Box(rect, "Drop to Add Audio File(s)", style);
                             JSAMEditorHelper.EndColourChange();
@@ -959,16 +1039,14 @@ namespace JSAM.JSAMEditor
         void ApplyChangesHard()
         {
             serializedObject.ApplyModifiedProperties();
-            serializedObject = new SerializedObject(asset);
-            DesignateSerializedProperties();
+            ReinitializeSerializedObject();
         }
 
         void OnUndoRedoPerformed()
         {
             if (serializedObject != null)
             {
-                serializedObject = new SerializedObject(asset);
-                DesignateSerializedProperties();
+                ReinitializeSerializedObject();
                 window.Repaint();
             }
         }
@@ -1074,7 +1152,7 @@ namespace JSAM.JSAMEditor
                                     continue;
                                 }
 
-                                AddMusicFile(mimport[j]);
+                                AddMusicFile(mimport[j], categoryName);
                             }
                         }
                     }
@@ -1093,7 +1171,7 @@ namespace JSAM.JSAMEditor
                                     continue;
                                 }
 
-                                AddSoundFile(simport[j]);
+                                AddSoundFile(simport[j], categoryName);
                             }
                         }
                     }
@@ -1123,15 +1201,17 @@ namespace JSAM.JSAMEditor
             return -2;
         }
 
-        void AddSoundFile(JSAMSoundFileObject newSound)
+        void AddSoundFile(JSAMSoundFileObject newSound, string category)
         {
             sounds.AddNewArrayElement().objectReferenceValue = newSound;
+            categoryToSoundStructs[category].FindPropertyRelative("files").AddNewArrayElement().objectReferenceValue = newSound;
             serializedObject.ApplyModifiedProperties();
         }
 
-        void AddMusicFile(JSAMMusicFileObject newMusic)
+        void AddMusicFile(JSAMMusicFileObject newMusic, string category)
         {
             music.AddNewArrayElement().objectReferenceValue = newMusic;
+            categoryToMusicStructs[category].FindPropertyRelative("files").AddNewArrayElement().objectReferenceValue = newMusic;
             serializedObject.ApplyModifiedProperties();
         }
 

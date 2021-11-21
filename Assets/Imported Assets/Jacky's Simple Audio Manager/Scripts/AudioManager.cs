@@ -52,7 +52,10 @@ namespace JSAM
             {
                 if (internalInstance == null)
                 {
-                    internalInstance = Instance.gameObject.AddComponent<AudioManagerInternal>();
+                    if (Instance != null)
+                    {
+                        internalInstance = Instance.gameObject.AddComponent<AudioManagerInternal>();
+                    }
                 }
                 return internalInstance;
             }

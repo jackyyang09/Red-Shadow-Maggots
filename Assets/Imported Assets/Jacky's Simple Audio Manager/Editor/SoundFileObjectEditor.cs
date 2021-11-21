@@ -53,7 +53,10 @@ namespace JSAM.JSAMEditor
         {
             EditorApplication.update -= Update;
             Undo.undoRedoPerformed -= OnUndoRedo;
-            AudioPlaybackToolEditor.DestroyAudioHelper();
+            if (!AudioPlaybackToolEditor.WindowOpen)
+            {
+                AudioPlaybackToolEditor.DestroyAudioHelper();
+            }
             Undo.postprocessModifications -= ApplyHelperEffects;
         }
 
@@ -489,17 +492,17 @@ namespace JSAM.JSAMEditor
             return rect;
         }
 
-        public void DrawPropertyOverlay(AudioClip audio, int width, int height)
+        public static void DrawPropertyOverlay(JSAMSoundFileObject sound, int width, int height)
         {
             if (Event.current.type != EventType.Repaint) return;
 
-            if (asset.fadeInOut)
+            if (sound.fadeInOut)
             {
                 Rect newRect = new Rect();
 
                 // Draw Loop Start
                 newRect.height = height;
-                newRect.xMax = asset.fadeInDuration * width;
+                newRect.xMax = sound.fadeInDuration * width;
                 float firstLabel = newRect.xMax;
 
                 JSAMEditorHelper.BeginColourChange(Color.magenta);
@@ -507,7 +510,7 @@ namespace JSAM.JSAMEditor
                 newRect.xMin = newRect.xMax - 48;
                 newRect.x += 48;
                 JSAMEditorHelper.EndColourChange();
-                GUI.Label(newRect, new GUIContent("Fade In"), JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperRight));
+                GUI.Label(newRect, new GUIContent("Fade In"), EditorStyles.label.ApplyTextAnchor(TextAnchor.UpperRight));
                 newRect.xMax = newRect.xMin + 2;
                 JSAMEditorHelper.BeginColourChange(Color.black);
                 GUI.Box(newRect, "", "SelectionRect");
@@ -515,7 +518,7 @@ namespace JSAM.JSAMEditor
 
                 // Draw Loop End
                 newRect.height = height;
-                newRect.xMin = (1 - asset.fadeOutDuration) * width;
+                newRect.xMin = (1 - sound.fadeOutDuration) * width;
                 float secondLabel = newRect.xMin;
                 newRect.xMax = width;
                 JSAMEditorHelper.BeginColourChange(Color.magenta);
@@ -527,18 +530,18 @@ namespace JSAM.JSAMEditor
                     newRect.width = 100;
                     newRect.x -= 60;
                 }
-                var style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.UpperLeft);
+                var style = EditorStyles.label.ApplyTextAnchor(TextAnchor.UpperLeft);
                 newRect.x += 5;
 
                 if (secondLabel - firstLabel < 70)
                 {
-                    style = JSAMEditorHelper.ApplyTextAnchorToStyle(EditorStyles.label, TextAnchor.LowerLeft);
+                    style = EditorStyles.label.ApplyTextAnchor(TextAnchor.LowerLeft);
                 }
                 GUI.Label(newRect, new GUIContent("Fade Out"), style);
 
                 newRect.x = 0;
                 newRect.height = height;
-                newRect.xMin = (1 - asset.fadeOutDuration) * width;
+                newRect.xMin = (1 - sound.fadeOutDuration) * width;
                 newRect.xMax = newRect.xMin + 2;
                 JSAMEditorHelper.BeginColourChange(Color.black);
                 GUI.Box(newRect, "", "SelectionRect");

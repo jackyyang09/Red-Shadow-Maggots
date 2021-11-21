@@ -21,6 +21,7 @@ public class SkillNameUI : MonoBehaviour
     private void OnDisable()
     {
         GlobalEvents.OnCharacterActivateSkill -= ShowSkillName;
+        GlobalEvents.OnCharacterSuperCritical -= ShowSuperCritName;
     }
 
     private void ShowSkillName(BaseCharacter arg1, GameSkill arg2)

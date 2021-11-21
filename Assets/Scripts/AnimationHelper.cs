@@ -34,6 +34,8 @@ public class AnimationHelper : MonoBehaviour
     [SerializeField] Cinemachine.CinemachineVirtualCamera vCam = null;
     [SerializeField] Cinemachine.CinemachineImpulseSource impulse = null;
 
+    [SerializeField] SuperCriticalEffect superCrits = null;
+
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
 
@@ -189,9 +191,21 @@ public class AnimationHelper : MonoBehaviour
         superCritBuffsApplied++;
     }
 
+    public void StartSuperCritical()
+    {
+        if (superCrits)
+        {
+            superCrits.InvokeSuperCritStart();
+        }
+    }
+
     public void FinishSuperCritical()
     {
         superCritBuffsApplied = 0;
+        if (superCrits)
+        {
+            superCrits.InvokeSuperCritEnd();
+        }
         GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
     }
 

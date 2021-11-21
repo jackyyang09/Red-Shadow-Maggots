@@ -152,6 +152,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     List<GameSkill> gameSkills = new List<GameSkill>();
 
+    protected bool usedSuperCritThisTurn;
+
     protected Animator anim;
 
     public Action<BaseGameEffect> onApplyGameEffect;
@@ -219,8 +221,7 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void OnEnable()
     {
         UIManager.OnAttackCommit += HideCharacterUI;
-        BattleSystem.OnStartPlayerTurn += ShowCharacterUI;
-        BattleSystem.OnStartPlayerTurn += TickEffects;
+        BattleSystem.OnStartPlayerTurn += OnStartPlayerTurn;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -228,8 +229,7 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void OnDisable()
     {
         UIManager.OnAttackCommit -= HideCharacterUI;
-        BattleSystem.OnStartPlayerTurn -= ShowCharacterUI;
-        BattleSystem.OnStartPlayerTurn -= TickEffects;
+        BattleSystem.OnStartPlayerTurn -= OnStartPlayerTurn;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
@@ -244,12 +244,21 @@ public abstract class BaseCharacter : MonoBehaviour
     //    
     //}
 
-    public void PlaySuperCritical()
+    private void OnStartPlayerTurn()
+    {
+        usedSuperCritThisTurn = false;
+        ShowCharacterUI();
+        TickEffects();
+    }
+
+    public void UseSuperCritical()
     {
         if (rigAnim)
         {
             rigAnim.Play("Super Critical");
         }
+        GlobalEvents.OnCharacterSuperCritical?.Invoke(this);
+        usedSuperCritThisTurn = true;
     }
 
     public virtual void PlayAttackAnimation()
@@ -308,10 +317,9 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void BeginAttack(Transform target)
     {
-        if (CritChanceAdjusted >= 1)
+        if (CritChanceAdjusted >= 1 && !usedSuperCritThisTurn)
         {
-            PlaySuperCritical();
-            GlobalEvents.OnCharacterSuperCritical?.Invoke(this);
+            UseSuperCritical();
         }
         else
         {

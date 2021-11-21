@@ -44,6 +44,42 @@ namespace JSAM.JSAMEditor
             string fileExtension = trueFilePath.Substring(trueFilePath.Length - 4);
             return fileExtension == ".wav";
         }
+
+
+        public static GUIStyle ApplyRichText(this GUIStyle referenceStyle)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.richText = true;
+            return style;
+        }
+
+        public static GUIStyle SetTextColor(this GUIStyle referenceStyle, Color color)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.normal.textColor = color;
+            return style;
+        }
+
+        public static GUIStyle ApplyTextAnchor(this GUIStyle referenceStyle, TextAnchor anchor)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.alignment = anchor;
+            return style;
+        }
+
+        public static GUIStyle SetFontSize(this GUIStyle referenceStyle, int fontSize)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.fontSize = fontSize;
+            return style;
+        }
+
+        public static GUIStyle ApplyBoldText(this GUIStyle referenceStyle)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.fontStyle = FontStyle.Bold;
+            return style;
+        }
     }
 
     public class JSAMEditorHelper
@@ -281,7 +317,7 @@ namespace JSAM.JSAMEditor
                 {
                     if (text[i].Equals("Overview") || text[i].Equals("Tips"))
                     {
-                        EditorGUILayout.LabelField(text[i], ApplyFontSizeToStyle(EditorStyles.boldLabel, JSAMSettings.Settings.QuickReferenceFontSize));
+                        EditorGUILayout.LabelField(text[i], EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
                         continue;
                     }
                     RenderHelpbox(text[i]);
@@ -295,11 +331,11 @@ namespace JSAM.JSAMEditor
         {
             if (text.Equals("Overview") || text.Equals("Tips"))
             {
-                EditorGUILayout.LabelField(text, ApplyFontSizeToStyle(EditorStyles.boldLabel, JSAMSettings.Settings.QuickReferenceFontSize));
+                EditorGUILayout.LabelField(text, EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
             }
             else
             {
-                EditorGUILayout.LabelField(text, ApplyFontSizeToStyle(EditorStyles.helpBox, JSAMSettings.Settings.QuickReferenceFontSize));
+                EditorGUILayout.LabelField(text, EditorStyles.helpBox.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
             }
         }
 
@@ -312,40 +348,14 @@ namespace JSAM.JSAMEditor
 
         public static void EndColourChange() => GUI.color = guiColor;
 
-        public static GUIStyle ApplyRichTextToStyle(GUIStyle referenceStyle)
+        static Color guiBackgroundColor;
+        public static void BeginBackgroundColourChange(Color color)
         {
-            var style = new GUIStyle(referenceStyle);
-            style.richText = true;
-            return style;
+            guiBackgroundColor = GUI.backgroundColor;
+            GUI.backgroundColor = color;
         }
 
-        public static GUIStyle ApplyTextColorToStyle(GUIStyle referenceStyle, Color color)
-        {
-            var style = new GUIStyle(referenceStyle);
-            style.normal.textColor = color;
-            return style;
-        }
-
-        public static GUIStyle ApplyTextAnchorToStyle(GUIStyle referenceStyle, TextAnchor anchor)
-        {
-            var style = new GUIStyle(referenceStyle);
-            style.alignment = anchor;
-            return style;
-        }
-
-        public static GUIStyle ApplyFontSizeToStyle(GUIStyle referenceStyle, int fontSize)
-        {
-            var style = new GUIStyle(referenceStyle);
-            style.fontSize = fontSize;
-            return style;
-        }
-
-        public static GUIStyle ApplyBoldTextToStyle(GUIStyle referenceStyle)
-        {
-            var style = new GUIStyle(referenceStyle);
-            style.fontStyle = FontStyle.Bold;
-            return style;
-        }
+        public static void EndBackgroundColourChange() => GUI.backgroundColor = guiBackgroundColor;
     }
 
     public class JSAMAssetModificationProcessor : UnityEditor.AssetModificationProcessor

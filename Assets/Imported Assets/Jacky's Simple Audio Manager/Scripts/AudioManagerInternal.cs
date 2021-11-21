@@ -144,6 +144,7 @@ namespace JSAM
             if (!Application.isPlaying) return null;
             for (int i = 0; i < musicHelpers.Count; i++)
             {
+                if (musicHelpers[i].AudioSource == null) return null; // Prevent issues when called from OnDestroy
                 if (music.ContainsAudioClip(musicHelpers[i].AudioSource.clip))
                 {
                     if (t != null && music.spatialize)
@@ -162,6 +163,7 @@ namespace JSAM
             if (!Application.isPlaying) return null;
             for (int i = 0; i < musicHelpers.Count; i++)
             {
+                if (musicHelpers[i].AudioSource == null) return null; // Prevent issues when called from OnDestroy
                 if (s.ContainsAudioClip(musicHelpers[i].AudioSource.clip))
                 {
                     if (musicHelpers[i].SpatializationPosition != pos && s.spatialize) continue;
@@ -227,6 +229,7 @@ namespace JSAM
         {
             for (int i = 0; i < soundHelpers.Count; i++)
             {
+                if (soundHelpers[i].AudioSource == null) return; // Prevent issues when called from OnDestroy
                 if (s.ContainsAudioClip(soundHelpers[i].AudioSource.clip))
                 {
                     if (t != null && s.spatialize)
@@ -243,6 +246,7 @@ namespace JSAM
         {
             for (int i = 0; i < soundHelpers.Count; i++)
             {
+                if (soundHelpers[i].AudioSource == null) return; // Prevent issues when called from OnDestroy
                 if (s.ContainsAudioClip(soundHelpers[i].AudioSource.clip))
                 {
                     if (soundHelpers[i].SpatializationPosition != pos && s.spatialize) continue;
