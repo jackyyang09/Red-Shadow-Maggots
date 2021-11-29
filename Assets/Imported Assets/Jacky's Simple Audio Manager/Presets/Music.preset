@@ -9,8 +9,7 @@ Preset:
   m_Name: Music
   m_TargetType:
     m_NativeTypeID: 114
-    m_ManagedTypePPtr: {fileID: 11500000, guid: bfb8002b44af6934a9ae327c8311d458,
-      type: 3}
+    m_ManagedTypePPtr: {fileID: 11500000, guid: bfb8002b44af6934a9ae327c8311d458, type: 3}
     m_ManagedTypeFallback: 
   m_Properties:
   - target: {fileID: 0}
@@ -34,16 +33,24 @@ Preset:
     value: <Default Preset>
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: category
-    value: Looping
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: file
     value: 
     objectReference: {fileID: 8300000, guid: fe06d48e659b1434ba98e89445a43760, type: 3}
   - target: {fileID: 0}
     propertyPath: files.Array.size
     value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: loopStart
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: loopEnd
+    value: 12.800001
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: bpm
+    value: 160
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: useLibrary
@@ -71,11 +78,11 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: pitchShift
-    value: 1
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: playReversed
-    value: 0
+    propertyPath: loopMode
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: delay
@@ -86,7 +93,7 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: fadeMode
+    propertyPath: fadeInOut
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -258,24 +265,24 @@ Preset:
     value: 100
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: clampToLoopPoints
+    propertyPath: neverRepeat
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: loopMode
-    value: 1
+    propertyPath: lastClipIndex
+    value: -1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: loopStart
+    propertyPath: transitionMode
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: loopEnd
-    value: 12.800001
+    propertyPath: transitionInTime
+    value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: bpm
-    value: 160
+    propertyPath: transitionOutTime
+    value: 0
     objectReference: {fileID: 0}
   m_ExcludedProperties:
   - file

@@ -81,7 +81,7 @@ namespace JSAM
         /// </summary>
         public void Stop()
         {
-            AudioManager.StopSound(sound, transform);
+            AudioManager.StopSoundIfPlaying(sound, transform);
         }
 
         private void OnEnable()

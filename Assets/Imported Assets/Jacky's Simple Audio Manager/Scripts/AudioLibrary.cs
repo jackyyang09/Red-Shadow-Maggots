@@ -21,14 +21,26 @@ namespace JSAM
         public List<JSAMSoundFileObject> Sounds = new List<JSAMSoundFileObject>();
         public List<JSAMMusicFileObject> Music = new List<JSAMMusicFileObject>();
 
-        public string soundEnumName;
-        public string musicEnumName;
+        [Tooltip("Allows you to customize the enum and namespace names for your generated audio. You are recommended to leave this off, for your convenience.")]
+        public bool useCustomNames = false;
+
+        public string SafeName { get { return name.ConvertToAlphanumeric(); } }
+        public string generatedName;
+
+        public string musicEnum;
+        public string defaultMusicEnum { get { return name.ConvertToAlphanumeric() + "Music"; } }
+        public string musicEnumGenerated;
+        public string musicNamespace;
+        public string musicNamespaceGenerated;
+
+        public string soundEnum;
+        public string defaultSoundEnum { get { return name.ConvertToAlphanumeric() + "Sounds"; } }
+        public string soundEnumGenerated;
+        public string soundNamespace;
+        public string soundNamespaceGenerated;
 
         [SerializeField] public List<CategoryToList> soundCategoriesToList = new List<CategoryToList>();
         [SerializeField] public List<CategoryToList> musicCategoriesToList = new List<CategoryToList>();
-
-        public string safeName;
-        public bool showMusic;
 
         void Reset()
         {
@@ -40,6 +52,12 @@ namespace JSAM
             ctl.foldout = true;
             soundCategoriesToList.Add(ctl);
             musicCategoriesToList.Add(ctl);
+        }
+
+        public void InitializeValues()
+        {
+            soundEnum = defaultSoundEnum;
+            musicEnum = defaultMusicEnum;
         }
 
         /// <summary>

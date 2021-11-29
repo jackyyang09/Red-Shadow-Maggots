@@ -19,6 +19,7 @@ namespace JSAM
                 {
                     AssignNewAudioClip();
                     AudioSource.pitch = JSAMSoundFileObject.GetRandomPitch(audioFile);
+                    AudioSource.Play();
                 }
                 prevPlaybackTime = AudioSource.time;
             }

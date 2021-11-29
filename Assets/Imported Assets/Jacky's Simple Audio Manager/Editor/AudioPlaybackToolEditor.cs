@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using System;
+using UnityEngine.SceneManagement;
+using UnityEditor.SceneManagement;
 
 namespace JSAM.JSAMEditor
 {
@@ -13,6 +16,19 @@ namespace JSAM.JSAMEditor
     /// </summary>
     public class AudioPlaybackToolEditor : EditorWindow
     {
+        SoundEditorFader soundFader;
+        SoundEditorFader SoundFader
+        {
+            get
+            {
+                if (soundFader == null)
+                {
+                    soundFader = new SoundEditorFader(selectedSound);
+                }
+                return soundFader;
+            }
+        }
+
         static Texture2D cachedTex;
         public static bool forceRepaint;
 
@@ -30,11 +46,10 @@ namespace JSAM.JSAMEditor
         { 
             get
             {
-                if (helperSource)
-                {
-                    if (helperSource.clip) return true;
-                }
-                return false;
+                if (!helperSource) return false;
+                if (!AudioManager.Instance) return false;
+                if (!helperSource.clip) return false;
+                return true;
             } 
         }
         public static JSAMSoundChannelHelper soundHelper;
@@ -47,7 +62,6 @@ namespace JSAM.JSAMEditor
         static bool resized = false;
 
         static bool showHowTo;
-        static Vector2 guideScrollProgress = Vector2.zero;
         static float playbackPreviewClamped = 300;
         static bool showLibraryView = false;
 
@@ -74,6 +88,24 @@ namespace JSAM.JSAMEditor
 #endif
             }
         }
+
+        SoundFileObjectEditor soundFileEditorInstance 
+        { 
+            get
+            {
+                if (SoundFileObjectEditor.instance == null)
+                {
+                    if (selectedSound)
+                    {
+                        var lastSelection = Selection.activeObject;
+                        Selection.activeObject = selectedSound;
+                    }
+                }
+                return SoundFileObjectEditor.instance;
+            } 
+        }
+
+        static System.Action OnToggleHowTo;
 
         // Add menu named "My Window" to the Window menu
         [MenuItem("Window/JSAM/JSAM Playback Tool")]
@@ -116,11 +148,20 @@ namespace JSAM.JSAMEditor
 
         private void OnEnable()
         {
+            OnToggleHowTo += AdjustWindowSize;
             SetIcons();
         }
 
         private void OnDisable()
         {
+            if (SoundFader != null)
+            {
+                SoundFader.Dispose();
+                soundFader = null;
+            }
+
+            OnToggleHowTo -= AdjustWindowSize;
+
             window = null;
 
             if (selectedSound)
@@ -143,9 +184,32 @@ namespace JSAM.JSAMEditor
             DestroyAudioHelper();
         }
 
+        static float preHowToToggleWindowSize = 0;
+        private void AdjustWindowSize()
+        {
+            Rect newRect = new Rect(Window.position);
+
+            if (showHowTo)
+            {
+                preHowToToggleWindowSize = Window.position.height;
+                float heightIncrease = JSAMEditorHelper.lastGuideSize.y;
+                newRect.height += heightIncrease;
+            }
+            else
+            {
+                if (preHowToToggleWindowSize > 0)
+                {
+                    newRect.height = preHowToToggleWindowSize;
+                }
+            }
+
+            Window.position = newRect;
+        }
+
         private void OnGUI()
         {
             DrawPlaybackTool(selectedClip, selectedSound, selectedMusic);
+            EditorGUILayout.BeginHorizontal();
             if (HelperSourceActive)
             {
                 EditorGUILayout.LabelField("Now Playing - " + helperSource.clip.name);
@@ -154,6 +218,7 @@ namespace JSAM.JSAMEditor
             {
                 EditorGUILayout.LabelField("-");
             }
+            EditorGUILayout.EndHorizontal();
 
             if (!resized)
             {
@@ -182,7 +247,7 @@ namespace JSAM.JSAMEditor
                                 // Play the sound
                                 selectedClip = sound;
                                 helperSource.clip = selectedClip;
-                                SoundFileObjectEditor.instance.StartFading(helperSource.clip);
+                                SoundFader.StartFading(helperSource.clip);
                                 clipPlaying = true;
                             }
                             //EditorGUILayout.EndHorizontal();
@@ -194,35 +259,29 @@ namespace JSAM.JSAMEditor
             }
 
             #region Quick Reference Guide
-            showHowTo = EditorCompatability.SpecialFoldouts(showHowTo, "Quick Reference Guide (Expand window before opening)");
-            if (showHowTo)
+            EditorGUI.BeginChangeCheck();
+            JSAMEditorHelper.StartMeasureLastGuideSize();
+            showHowTo = JSAMEditorHelper.RenderQuickReferenceGuide(showHowTo, new string[]
             {
-                Window.minSize = new Vector2(Window.minSize.x, Mathf.Clamp(Window.minSize.x, playbackPreviewClamped, 4000));
-                guideScrollProgress = EditorGUILayout.BeginScrollView(guideScrollProgress, new GUILayoutOption[] { GUILayout.ExpandHeight(true) });
-
-                EditorGUILayout.Space();
-
-                EditorGUILayout.LabelField("Overview", EditorStyles.boldLabel);
-                EditorGUILayout.HelpBox(
-                    "This EditorWindow serves as a high-fidelity alternative to the small playback preview in the inspector window used when inspecting Audio File Objects."
-                    , MessageType.None);
-
-                EditorGUILayout.Space();
-
-                EditorGUILayout.LabelField("Tips", EditorStyles.boldLabel);
-                EditorGUILayout.HelpBox(
-                    "The active playing clip can be changed by selecting different assets in the Project window."
-                    , MessageType.None);
-                EditorGUILayout.HelpBox(
-                    "You can open the JSAM Playback Tool by double-clicking on Audio File assets in the Project window."
-                    , MessageType.None);
-                EditorGUILayout.HelpBox(
-                    "The JSAM Playback Tool can also play standard AudioClips!"
-                    , MessageType.None);
-
-                EditorGUILayout.EndScrollView();
+                "Overview",
+                "This EditorWindow serves as a high-fidelity alternative to the small playback preview in the" +
+                "inspector window used when inspecting Audio File Objects.",
+                "Tips",
+                "The active playing clip can be changed by selecting different assets in the Project window.",
+                "You can open the JSAM Playback Tool by double-clicking on Audio File assets in the Project window.",
+                "The JSAM Playback Tool can also play standard AudioClips!"
+            });
+            if (EditorGUI.EndChangeCheck())
+            {
+                OnToggleHowTo?.Invoke();
             }
-            EditorCompatability.EndSpecialFoldoutGroup();
+            if (!showHowTo)
+            {
+                // Dirty hack
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+                EditorGUILayout.Space();
+            }
             #endregion
         }
 
@@ -290,143 +349,147 @@ namespace JSAM.JSAMEditor
 
             PollMouseEvents(progressRect);
 
-            if (GUILayout.Button(s_BackIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+            using (new EditorGUI.DisabledScope(!HelperSourceActive))
             {
+                if (GUILayout.Button(s_BackIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                {
+                    if (selectedMusic)
+                    {
+                        if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
+                        {
+                            helperSource.timeSamples = Mathf.CeilToInt((selectedMusic.loopStart * selectedClip.frequency));
+                        }
+                    }
+                    else
+                    {
+                        helperSource.timeSamples = 0;
+                    }
+                    helperSource.Stop();
+                    mouseScrubbed = false;
+                    clipPaused = false;
+                    clipPlaying = false;
+                }
+
+                // Draw Play Button
+                GUIContent buttonIcon = (clipPlaying) ? s_PlayIcons[1] : s_PlayIcons[0];
+                if (clipPlaying) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
+                if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                {
+                    clipPlaying = !clipPlaying;
+                    if (clipPlaying)
+                    {
+                        // Note: For some reason, reading from helperSource.time returns 0 even if timeSamples is not 0
+                        // However, writing a value to helperSource.time changes timeSamples to the appropriate value just fine
+                        if (selectedSound)
+                        {
+                            SoundFader.StartFading(helperSource.clip);
+                        }
+                        else if (selectedMusic)
+                        {
+                            musicHelper.PlayDebug(selectedMusic, mouseScrubbed);
+                            MusicFileObjectEditor.firstPlayback = true;
+                            MusicFileObjectEditor.freePlay = false;
+                        }
+                        else if (selectedClip)
+                        {
+                            soundHelper.PlayDebug(mouseScrubbed);
+                        }
+                        if (clipPaused) helperSource.Pause();
+                    }
+                    else
+                    {
+                        helperSource.Stop();
+                        if (!mouseScrubbed)
+                        {
+                            helperSource.time = 0;
+                        }
+                        clipPaused = false;
+                    }
+                }
+                if (clipPlaying) JSAMEditorHelper.EndBackgroundColourChange();
+
+                // Pause button
+                GUIContent theText = (clipPaused) ? s_PauseIcons[1] : s_PauseIcons[0];
+                if (clipPaused) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
+                if (GUILayout.Button(theText, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                {
+                    clipPaused = !clipPaused;
+                    if (clipPaused)
+                    {
+                        helperSource.Pause();
+                    }
+                    else
+                    {
+                        helperSource.UnPause();
+                    }
+                }
+                if (clipPaused) JSAMEditorHelper.EndBackgroundColourChange();
+
+                // Loop button
+                buttonIcon = (loopClip) ? s_LoopIcons[1] : s_LoopIcons[0];
+                if (loopClip) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
+                if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                {
+                    loopClip = !loopClip;
+                    // helperSource.loop = true;
+                }
+                if (loopClip) JSAMEditorHelper.EndBackgroundColourChange();
+
+                if (selectedSound)
+                {
+                    using (new EditorGUI.DisabledScope(selectedSound.FileCount < 2))
+                    {
+                        if (GUILayout.Button(new GUIContent("Play Random", "Preview settings with a random track from your library. Only usable if this Audio File has \"Use Library\" enabled.")))
+                        {
+                            selectedClip = soundFileEditorInstance.DesignateRandomAudioClip();
+                            clipPlaying = true;
+                            helperSource.Stop();
+                            SoundFader.StartFading(selectedClip);
+                        }
+                    }
+                }
+
+                if (GUILayout.Button(lockIcon, new GUILayoutOption[] { GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true), GUILayout.MaxHeight(18) }))
+                {
+
+                }
+
+
+                int loopPointInputMode = 0;
+                // Reset loop point input mode if not using loop points so the duration shows up as time by default
                 if (selectedMusic)
                 {
-                    if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
+                    if (selectedMusic.loopMode != LoopMode.LoopWithLoopPoints) loopPointInputMode = 0;
+                }
+
+                GUIContent blontent = new GUIContent();
+                if (HelperSourceActive)
+                {
+                    switch ((MusicFileObjectEditor.LoopPointTool)loopPointInputMode)
                     {
-                        helperSource.timeSamples = Mathf.CeilToInt((selectedMusic.loopStart * selectedClip.frequency));
+                        case MusicFileObjectEditor.LoopPointTool.Slider:
+                        case MusicFileObjectEditor.LoopPointTool.TimeInput:
+                            blontent = new GUIContent(TimeToString((float)helperSource.timeSamples / helperSource.clip.frequency) + " / " + (TimeToString(helperSource.clip.length)),
+                                "The playback time in seconds");
+                            break;
+                        case MusicFileObjectEditor.LoopPointTool.TimeSamplesInput:
+                            blontent = new GUIContent(helperSource.timeSamples + " / " + helperSource.clip.samples, "The playback time in samples");
+                            break;
+                        case MusicFileObjectEditor.LoopPointTool.BPMInput:
+                            blontent = new GUIContent(string.Format("{0:0}", helperSource.time / (60f / selectedMusic.bpm)) + " / " + helperSource.clip.length / (60f / selectedMusic.bpm),
+                                "The playback time in beats");
+                            break;
                     }
                 }
                 else
                 {
-                    helperSource.timeSamples = 0;
+                    blontent = new GUIContent("00:00:00 / 00:00:00");
                 }
-                helperSource.Stop();
-                mouseScrubbed = false;
-                clipPaused = false;
-                clipPlaying = false;
-            }
 
-            // Draw Play Button
-            GUIContent buttonIcon = (clipPlaying) ? s_PlayIcons[1] : s_PlayIcons[0];
-            if (clipPlaying) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
-            if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-            {
-                clipPlaying = !clipPlaying;
-                if (clipPlaying)
-                {
-                    // Note: For some reason, reading from helperSource.time returns 0 even if timeSamples is not 0
-                    // However, writing a value to helperSource.time changes timeSamples to the appropriate value just fine
-                    if (selectedSound)
-                    {
-                        SoundFileObjectEditor.instance.StartFading(helperSource.clip);
-                    }
-                    else if (selectedMusic)
-                    {
-                        musicHelper.PlayDebug(selectedMusic, mouseScrubbed);
-                        MusicFileObjectEditor.firstPlayback = true;
-                        MusicFileObjectEditor.freePlay = false;
-                    }
-                    else if (selectedClip)
-                    {
-                        soundHelper.PlayDebug(mouseScrubbed);
-                    }
-                    if (clipPaused) helperSource.Pause();
-                }
-                else
-                {
-                    helperSource.Stop();
-                    if (!mouseScrubbed)
-                    {
-                        helperSource.time = 0;
-                    }
-                    clipPaused = false;
-                }
+                GUIStyle rightJustified = new GUIStyle(EditorStyles.label);
+                rightJustified.alignment = TextAnchor.UpperRight;
+                EditorGUILayout.LabelField(blontent, rightJustified);
             }
-            if (clipPlaying) JSAMEditorHelper.EndBackgroundColourChange();
-
-            // Pause button
-            GUIContent theText = (clipPaused) ? s_PauseIcons[1] : s_PauseIcons[0];
-            if (clipPaused) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
-            if (GUILayout.Button(theText, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-            {
-                clipPaused = !clipPaused;
-                if (clipPaused)
-                {
-                    helperSource.Pause();
-                }
-                else
-                {
-                    helperSource.UnPause();
-                }
-            }
-            if (clipPaused) JSAMEditorHelper.EndBackgroundColourChange();
-
-            // Loop button
-            buttonIcon = (loopClip) ? s_LoopIcons[1] : s_LoopIcons[0];
-            if (loopClip) JSAMEditorHelper.BeginBackgroundColourChange(buttonPressedColor);
-            if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-            {
-                loopClip = !loopClip;
-                // helperSource.loop = true;
-            }
-            if (loopClip) JSAMEditorHelper.EndBackgroundColourChange();
-
-            if (selectedSound)
-            {
-                using (new EditorGUI.DisabledScope(selectedSound.FileCount < 2))
-                {
-                    if (GUILayout.Button(new GUIContent("Play Random", "Preview settings with a random track from your library. Only usable if this Audio File has \"Use Library\" enabled.")))
-                    {
-                        selectedClip = SoundFileObjectEditor.instance.DesignateRandomAudioClip();
-                        clipPlaying = true;
-                        helperSource.Stop();
-                        SoundFileObjectEditor.instance.StartFading(selectedClip);
-                    }
-                }
-            }
-
-            if (GUILayout.Button(lockIcon, new GUILayoutOption[] { GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true) }))
-            {
-                //
-            }
-
-            int loopPointInputMode = 0;
-            // Reset loop point input mode if not using loop points so the duration shows up as time by default
-            if (selectedMusic)
-            {
-                if (selectedMusic.loopMode != LoopMode.LoopWithLoopPoints) loopPointInputMode = 0;
-            }
-
-            GUIContent blontent = new GUIContent();
-            if (HelperSourceActive)
-            {
-                switch ((MusicFileObjectEditor.LoopPointTool)loopPointInputMode)
-                {
-                    case MusicFileObjectEditor.LoopPointTool.Slider:
-                    case MusicFileObjectEditor.LoopPointTool.TimeInput:
-                        blontent = new GUIContent(TimeToString((float)helperSource.timeSamples / helperSource.clip.frequency) + " / " + (TimeToString(helperSource.clip.length)),
-                            "The playback time in seconds");
-                        break;
-                    case MusicFileObjectEditor.LoopPointTool.TimeSamplesInput:
-                        blontent = new GUIContent(helperSource.timeSamples + " / " + helperSource.clip.samples, "The playback time in samples");
-                        break;
-                    case MusicFileObjectEditor.LoopPointTool.BPMInput:
-                        blontent = new GUIContent(string.Format("{0:0}", helperSource.time / (60f / selectedMusic.bpm)) + " / " + helperSource.clip.length / (60f / selectedMusic.bpm),
-                            "The playback time in beats");
-                        break;
-                }
-            }
-            else
-            {
-                blontent = new GUIContent("00:00:00 / 00:00:00");
-            }
-            
-            GUIStyle rightJustified = new GUIStyle(EditorStyles.label);
-            rightJustified.alignment = TextAnchor.UpperRight;
-            EditorGUILayout.LabelField(blontent, rightJustified);
 
             EditorGUILayout.EndHorizontal();
 
@@ -454,6 +517,7 @@ namespace JSAM.JSAMEditor
                         break;
                     case EventType.MouseDown:
                     case EventType.MouseDrag:
+                        if (!HelperSourceActive) return;
                         if (evt.button == 0) // Left Mouse Events
                         {
                             if (evt.type == EventType.MouseDown)
@@ -539,24 +603,24 @@ namespace JSAM.JSAMEditor
         /// <returns></returns>
         public static Rect ProgressBar(float value, AudioClip selectedClip, JSAMSoundFileObject selectedSound = null, JSAMMusicFileObject selectedMusic = null)
         {
-            float maxHeight = (showHowTo) ? playbackPreviewClamped : 4000;
-            float minHeight = (showHowTo) ? playbackPreviewClamped : 64;
-            Rect rect = GUILayoutUtility.GetRect(64, 4000, 64, maxHeight);
+            //float maxHeight = (showHowTo) ? playbackPreviewClamped : 4000;
+            //float minHeight = (showHowTo) ? playbackPreviewClamped : 64;
+            Rect rect = GUILayoutUtility.GetRect(64, 4000, 64, 4000);
 
             Texture2D waveformTexture;
             if (selectedClip != null)
             {
                 if (selectedSound)
                 {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect);
+                    waveformTexture = RenderStaticPreview(selectedClip, rect, selectedSound.relativeVolume);
                 }
                 else if (selectedMusic)
                 {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect);
+                    waveformTexture = RenderStaticPreview(selectedClip, rect, selectedMusic.relativeVolume);
                 }
                 else
                 {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect);
+                    waveformTexture = RenderStaticPreview(selectedClip, rect, 1);
                 }
 
                 cachedTex = waveformTexture;
@@ -605,17 +669,6 @@ namespace JSAM.JSAMEditor
                 if ((clipPlaying && !clipPaused) || (mouseDragging && clipPlaying))
                 {
                     float clipPos = helperSource.timeSamples / (float)selectedClip.frequency;
-                    if (selectedSound)
-                    {
-                        if (selectedSound.fadeInOut)
-                        {
-                            SoundFileObjectEditor.instance.HandleFading(selectedSound);
-                        }
-                        else
-                        {
-                            helperSource.volume = selectedSound.relativeVolume;
-                        }
-                    }
                     
                     Repaint();
 
@@ -723,7 +776,7 @@ namespace JSAM.JSAMEditor
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect)
+        public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect, float relativeVolume)
         {
             GUI.Box(rect, "");
             float[] samples = new float[clip.samples];
@@ -745,7 +798,7 @@ namespace JSAM.JSAMEditor
             Handles.color = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
             for (int x = 0; x < waveform.Length; x++)
             {
-                Vector2 currentPoint = new Vector2(x, (waveform[x] * rect.height * 0.5f) + halfHeight);
+                Vector2 currentPoint = new Vector2(x, (waveform[x] * rect.height * 0.5f * relativeVolume) + halfHeight);
                 currentPoint += rect.position;
                 points.Add(currentPoint);
             }

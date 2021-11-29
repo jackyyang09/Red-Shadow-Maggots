@@ -2,9 +2,81 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEditorInternal;
+using System;
 
 namespace JSAM.JSAMEditor
 {
+    public class AudioClipList
+    {
+        ReorderableList list;
+        SerializedObject serializedObject;
+        SerializedProperty property;
+
+        public int Selected
+        {
+            get
+            {
+                return list.index;
+            }
+            set
+            {
+                list.index = value;
+            }
+        }
+
+        public AudioClipList(SerializedObject obj, SerializedProperty prop)
+        {
+            list = new ReorderableList(obj, prop, true, false, false, false);
+            list.drawElementCallback += DrawElement;
+            list.headerHeight = 1;
+            list.footerHeight = 0;
+            serializedObject = obj;
+            property = prop;
+        }
+
+        private void DrawElement(Rect rect, int index, bool isActive, bool isFocused)
+        {
+            var element = list.serializedProperty.GetArrayElementAtIndex(index);
+            var file = element.objectReferenceValue as AudioClip;
+
+            Rect prevRect = new Rect(rect);
+            Rect currentRect = new Rect(prevRect);
+
+            GUIContent blontent = new GUIContent(file.name);
+
+            currentRect.xMax = rect.width * 0.6f;
+            // Force a normal-colored label in a disabled scope
+            JSAMEditorHelper.BeginColourChange(Color.clear);
+            Rect decoyRect = EditorGUI.PrefixLabel(currentRect, blontent);
+            JSAMEditorHelper.EndColourChange();
+
+            EditorGUI.LabelField(currentRect, blontent);
+
+            decoyRect.xMin = currentRect.xMax + 5;
+            decoyRect.xMax = rect.xMax - 30;
+            using (new EditorGUI.DisabledScope(true))
+            {
+                EditorGUI.PropertyField(decoyRect, element, GUIContent.none);
+            }
+
+            JSAMEditorHelper.BeginColourChange(Color.red);
+            currentRect.xMax = rect.xMax;
+            currentRect.xMin = currentRect.xMax - 25;
+            blontent = new GUIContent("X", "Remove this Audio File from the library, can be undone with Edit -> Undo");
+            if (GUI.Button(currentRect, blontent))
+            {
+                property.DeleteArrayElementAtIndex(index);
+                property.DeleteArrayElementAtIndex(index);
+                serializedObject.ApplyModifiedProperties();
+                GUIUtility.ExitGUI();
+            }
+            JSAMEditorHelper.EndColourChange();
+        }
+
+        public void Draw() => list.DoLayoutList();
+    }
+
     public abstract class BaseAudioFileObjectEditor<EditorType> : Editor 
         where EditorType : Editor
     {
@@ -31,6 +103,8 @@ namespace JSAM.JSAMEditor
         protected List<string> excludedProperties = new List<string>() { "m_Script" };
 
         Color COLOR_BUTTONPRESSED_2 = new Color(0.75f, 0.75f, 0.75f);
+
+        protected AudioClipList list;
 
         protected GUIContent blontent;
 

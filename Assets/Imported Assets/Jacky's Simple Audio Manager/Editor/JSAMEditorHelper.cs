@@ -21,6 +21,27 @@ namespace JSAM.JSAMEditor
             return prop.GetArrayElementAtIndex(index);
         }
 
+        /// <summary>
+        /// Removes all null or missing elements from an array. 
+        /// For missing elements, invoke this method in Update or OnGUI
+        /// </summary>
+        /// <param name="prop"></param>
+        /// <returns></returns>
+        public static SerializedProperty RemoveNullElementsFromArray(this SerializedProperty prop)
+        {
+            for (int i = prop.arraySize - 1; i > -1; i--)
+            {
+                if (prop.GetArrayElementAtIndex(i).objectReferenceValue == null)
+                {
+                    // A dirty hack, but Unity serialization is real messy
+                    // https://answers.unity.com/questions/555724/serializedpropertydeletearrayelementatindex-leaves.html
+                    prop.DeleteArrayElementAtIndex(i);
+                    prop.DeleteArrayElementAtIndex(i);
+                }
+            }
+            return prop;
+        }
+
         public static PropertyModification FindProp(this Preset preset, string propName)
         {
             for (int i = 0; i < preset.PropertyModifications.Length; i++)
@@ -31,6 +52,15 @@ namespace JSAM.JSAMEditor
                 }
             }
             return null;
+        }
+
+        public static string TimeToString(this float time)
+        {
+            time *= 1000;
+            int minutes = (int)time / 60000;
+            int seconds = (int)time / 1000 - 60 * minutes;
+            int milliseconds = (int)time - minutes * 60000 - 1000 * seconds;
+            return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
         }
 
         /// <summary>
@@ -44,7 +74,6 @@ namespace JSAM.JSAMEditor
             string fileExtension = trueFilePath.Substring(trueFilePath.Length - 4);
             return fileExtension == ".wav";
         }
-
 
         public static GUIStyle ApplyRichText(this GUIStyle referenceStyle)
         {
@@ -78,6 +107,13 @@ namespace JSAM.JSAMEditor
         {
             var style = new GUIStyle(referenceStyle);
             style.fontStyle = FontStyle.Bold;
+            return style;
+        }
+
+        public static GUIStyle ApplyWordWrap(this GUIStyle referenceStyle)
+        {
+            var style = new GUIStyle(referenceStyle);
+            style.wordWrap = true;
             return style;
         }
     }
@@ -134,15 +170,6 @@ namespace JSAM.JSAMEditor
                 }
                 return path;
             }
-        }
-
-        public static string TimeToString(float time)
-        {
-            time *= 1000;
-            int minutes = (int)time / 60000;
-            int seconds = (int)time / 1000 - 60 * minutes;
-            int milliseconds = (int)time - minutes * 60000 - 1000 * seconds;
-            return string.Format("{0:00}:{1:00}:{2:000}", minutes, seconds, milliseconds);
         }
 
         /// <summary>
@@ -249,6 +276,10 @@ namespace JSAM.JSAMEditor
             if (GUILayout.Button(buttonContent, new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.MaxWidth(55) }))
             {
                 string filePath = folderProp.stringValue;
+                if (!Directory.Exists(filePath))
+                {
+                    filePath = Application.dataPath;
+                }
                 filePath = EditorUtility.OpenFolderPanel("Specify a new folder", filePath, string.Empty);
 
                 // If the user presses "cancel"
@@ -308,6 +339,14 @@ namespace JSAM.JSAMEditor
             AudioManager.Instance.DebugLog("Copied " + text + " to clipboard!");
         }
 
+        public static Vector2 lastGuideSize;
+        public static void StartMeasureLastGuideSize() => lastGuideSize = Vector2.zero;
+        
+        public static bool CondensedButton(string label)
+        {
+            return GUILayout.Button(" " + label + " ", new GUILayoutOption[] { GUILayout.ExpandWidth(false) });
+        }
+
         public static bool RenderQuickReferenceGuide(bool foldout, string[] text)
         {
             foldout = EditorCompatability.SpecialFoldouts(foldout, "Quick Reference Guide");
@@ -317,7 +356,9 @@ namespace JSAM.JSAMEditor
                 {
                     if (text[i].Equals("Overview") || text[i].Equals("Tips"))
                     {
-                        EditorGUILayout.LabelField(text[i], EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
+                        GUIStyle style = EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize);
+                        EditorGUILayout.LabelField(text[i], style);
+                        lastGuideSize += style.CalcSize(new GUIContent(text[i]));
                         continue;
                     }
                     RenderHelpbox(text[i]);
@@ -331,12 +372,65 @@ namespace JSAM.JSAMEditor
         {
             if (text.Equals("Overview") || text.Equals("Tips"))
             {
-                EditorGUILayout.LabelField(text, EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
+                GUIStyle style = EditorStyles.boldLabel.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize);
+                EditorGUILayout.LabelField(text, style);
+                lastGuideSize += style.CalcSize(new GUIContent(text));
             }
             else
             {
-                EditorGUILayout.LabelField(text, EditorStyles.helpBox.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize));
+                GUIStyle style = EditorStyles.helpBox.SetFontSize(JSAMSettings.Settings.QuickReferenceFontSize);
+                EditorGUILayout.LabelField(text, style);
+                lastGuideSize += style.CalcSize(new GUIContent(text));
             }
+        }
+
+        public static bool IsDragging(Rect dragRect) => dragRect.Contains(Event.current.mousePosition) && DragAndDrop.objectReferences.Length > 0;
+
+        const int DAD_FONTSIZE = 40;
+        const int DAD_BUFFER = 60;
+        public static bool DragAndDropRegion(Rect dragRect, string normalLabel, string dragLabel, GUIStyle style = null)
+        {
+            switch (Event.current.type)
+            {
+                case EventType.Repaint:
+                case EventType.Layout:
+                    string label;
+
+                    if (IsDragging(dragRect))
+                    {
+                        if (style == null) style = GUI.skin.box.SetFontSize(DAD_FONTSIZE).ApplyWordWrap();
+                        label = dragLabel;
+                    }
+                    else
+                    {
+                        if (style == null) style = EditorStyles.label.SetFontSize(DAD_FONTSIZE).ApplyWordWrap();
+                        label = normalLabel;
+                    }
+
+                    style = style
+                        .ApplyTextAnchor(TextAnchor.MiddleCenter)
+                        .SetFontSize((int)Mathf.Lerp(1f, (float)style.fontSize, dragRect.height / (float)(DAD_BUFFER)))
+                        .ApplyBoldText();
+
+                    GUI.Box(dragRect, label, style);
+
+                    return false;
+            }
+
+            if (dragRect.Contains(Event.current.mousePosition))
+            {
+                if (Event.current.type == EventType.DragUpdated)
+                {
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                    Event.current.Use();
+                }
+                else if (Event.current.type == EventType.DragPerform)
+                {
+                    Event.current.Use();
+                    return true;
+                }
+            }
+            return false;
         }
 
         static Color guiColor;

@@ -97,7 +97,8 @@ namespace JSAM.JSAMEditor
             }
             else if (asset == null)
             {
-                asset = JSAMSettings.Settings.SelectedSettings;
+                if (AudioManager.InternalInstance) asset = AudioManager.Instance.Settings;
+                else asset = JSAMSettings.Settings.SelectedSettings;
             }
 
             if (asset != null)

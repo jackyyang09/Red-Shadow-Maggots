@@ -11,6 +11,24 @@ namespace JSAM.JSAMEditor
     [CanEditMultipleObjects]
     public class MusicFileObjectEditor : BaseAudioFileObjectEditor<MusicFileObjectEditor>
     {
+        public class MusicEditorFader : System.IDisposable
+        {
+            public MusicEditorFader()
+            {
+                EditorApplication.update += Update;
+            }
+
+            public void Dispose()
+            {
+                EditorApplication.update -= Update;
+            }
+
+            void Update()
+            {
+
+            }
+        }
+
         JSAMMusicFileObject myScript;
 
         Color COLOR_BUTTONPRESSED = new Color(0.475f, 0.475f, 0.475f);
@@ -68,7 +86,7 @@ namespace JSAM.JSAMEditor
             serializedObject.ApplyModifiedProperties();
             Preset newPreset = new Preset(asset as JSAMMusicFileObject);
             newPreset.excludedProperties = new string[] {
-                "file", "files", "useLibrary", "category"
+                "useLibrary", "category"
             };
             string path = JSAMSettings.Settings.PresetsPath + "/" + input[0] + ".preset";
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
@@ -83,6 +101,8 @@ namespace JSAM.JSAMEditor
             EditorGUILayout.Space();
 
             RenderGeneratePresetButton();
+
+            EditorGUILayout.PropertyField(file);
 
             DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
 
@@ -334,7 +354,7 @@ namespace JSAM.JSAMEditor
 
             if (cachedTex == null || AudioPlaybackToolEditor.forceRepaint)
             {
-                Texture2D waveformTexture = AudioPlaybackToolEditor.RenderStaticPreview(music, rect);
+                Texture2D waveformTexture = AudioPlaybackToolEditor.RenderStaticPreview(music, rect, asset.relativeVolume);
                 cachedTex = waveformTexture;
                 if (waveformTexture != null)
                     GUI.DrawTexture(rect, waveformTexture);
@@ -513,8 +533,8 @@ namespace JSAM.JSAMEditor
                 JSAMEditorHelper.BeginColourChange(Color.green);
                 GUI.Box(newRect, "", "SelectionRect");
                 JSAMEditorHelper.EndColourChange();
-                #endregion
             }
+            #endregion
         }
 
         static GUIContent s_BackIcon = null;

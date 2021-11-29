@@ -51,21 +51,43 @@ namespace JSAM
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string ConvertToAlphanumeric(this string input)
+        public static string ConvertToAlphanumeric(this string input, bool allowPeriods = false)
         {
             char[] arr = input.ToCharArray();
 
-            arr = System.Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c)
-            || c == '_')));
-
-            // If the first index is a number
-            while (char.IsDigit(arr[0]))
+            if (allowPeriods)
             {
-                List<char> newArray = new List<char>();
-                newArray = new List<char>(arr);
-                newArray.RemoveAt(0);
-                arr = newArray.ToArray();
-                if (arr.Length == 0) break; // No valid characters to use, returning empty
+                arr = System.Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c) || c == '_' || c == '.')));
+            }
+            else
+            {
+                arr = System.Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c) || c == '_')));
+            }
+
+            if (arr.Length > 0)
+            {
+                // If the first index is a number
+                while (char.IsDigit(arr[0]) || arr[0] == '.')
+                {
+                    List<char> newArray = new List<char>();
+                    newArray = new List<char>(arr);
+                    newArray.RemoveAt(0);
+                    arr = newArray.ToArray();
+                    if (arr.Length == 0) break; // No valid characters to use, returning empty
+                }
+
+                if (arr.Length != 0)
+                {
+                    // If the last index is a period
+                    while (arr[arr.Length - 1] == '.')
+                    {
+                        List<char> newArray = new List<char>();
+                        newArray = new List<char>(arr);
+                        newArray.RemoveAt(newArray.Count - 1);
+                        arr = newArray.ToArray();
+                        if (arr.Length == 0) break; // No valid characters to use, returning empty
+                    }
+                }
             }
 
             return new string(arr);

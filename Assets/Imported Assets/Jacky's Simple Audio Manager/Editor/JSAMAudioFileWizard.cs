@@ -80,13 +80,29 @@ namespace JSAM.JSAMEditor
             base.OnEnable();
             DesignateSerializedProperties();
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
-
+            JSAMAssetModificationProcessor.OnJSAMAssetDeleted += OnJSAMAssetDeleted;
             LoadPresets();
         }
 
         private void OnDisable()
         {
+            JSAMAssetModificationProcessor.OnJSAMAssetDeleted -= OnJSAMAssetDeleted;
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
+        }
+
+        private void OnJSAMAssetDeleted(string filePath)
+        {
+            AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(filePath);
+            if (asset.files.Contains(clip)) markedForDeletion = true;
+        }
+
+        bool markedForDeletion;
+        void HandleAssetDeletion()
+        {
+            files.RemoveNullElementsFromArray();
+            markedForDeletion = false;
+
+            if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
         }
 
         protected override void SetWindowTitle()
@@ -106,39 +122,46 @@ namespace JSAM.JSAMEditor
             files = FindProp(nameof(asset.files));
             fileType = FindProp(nameof(asset.fileType));
             outputFolder = FindProp(nameof(asset.outputFolder));
+
+            HandleAssetDeletion();
         }
 
         private void OnGUI()
         {
-            serializedObject.Update();
+            serializedObject.UpdateIfRequiredOrScript();
+
+            if (markedForDeletion) HandleAssetDeletion();
+
+            if (Event.current.type == EventType.MouseEnterWindow)
+            {
+                window.Repaint();
+            }
 
             GUIContent blontent;
 
-            HandleDragAndDrop();
-
-            EditorGUILayout.BeginVertical(GUI.skin.box, new GUILayoutOption[] { GUILayout.MinHeight(70), GUILayout.MaxHeight(200) });
+            Rect overlay = EditorGUILayout.BeginVertical(GUI.skin.box, new GUILayoutOption[] { GUILayout.MinHeight(70), GUILayout.MaxHeight(200) });
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
-            if (files.arraySize == 0)
+            if (files.arraySize >= 0)
             {
-                blontent = new GUIContent("Drag AudioClips here");
-                GUIStyle style = GUI.skin.label.ApplyTextAnchor(TextAnchor.MiddleCenter).SetFontSize(48);
-                EditorGUILayout.LabelField(blontent, style, new GUILayoutOption[] { GUILayout.MinHeight(70), GUILayout.MaxHeight(200) });
-            }
-            else
-            {
-                List<AudioClip> toBeRemoved = new List<AudioClip>();
                 for (int i = 0; i < files.arraySize; i++)
                 {
-                    EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                    Rect rect = EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
                     var element = files.GetArrayElementAtIndex(i).objectReferenceValue;
-                    if (element == null) continue;
-                    blontent = new GUIContent(element.name/*, AssetDatabase.GetAssetPath(element)*/);
-                    EditorGUILayout.LabelField(blontent);
+                    blontent = new GUIContent(element.name);
+
+                    EditorGUILayout.LabelField(i.ToString(), new GUILayoutOption[] { GUILayout.MaxWidth(25) });
+
+                    EditorGUILayout.LabelField(blontent, new GUILayoutOption[] { GUILayout.MaxWidth(Window.position.width / 3) });
+
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.PropertyField(files.GetArrayElementAtIndex(i), GUIContent.none);
+                    }
 
                     JSAMEditorHelper.BeginColourChange(Color.red);
                     blontent = new GUIContent("X", "Remove this AudioClip from the list");
-                    if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
+                    if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.MaxWidth(25) }))
                     {
                         files.DeleteArrayElementAtIndex(i);
                         files.DeleteArrayElementAtIndex(i);
@@ -152,6 +175,8 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+
+            HandleDragAndDrop(overlay);
 
             blontent = new GUIContent("Clear Files", "Remove all files from the above list. This process can be undone with Edit -> Undo");
             if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
@@ -214,9 +239,6 @@ namespace JSAM.JSAMEditor
             {
                 blontent = new GUIContent("No preset selected");
             }
-
-            // Text shows up black for some reason? Why?
-            //var skin = JSAMEditorHelper.ApplyTextAnchorToStyle(GUI.skin.box, TextAnchor.UpperLeft);
 
             var skin = GUI.skin.box.ApplyTextAnchor(TextAnchor.UpperLeft).SetTextColor(GUI.skin.label.normal.textColor);
             EditorGUILayout.LabelField(new GUIContent("Preset Description"), blontent, skin, new GUILayoutOption[] { GUILayout.ExpandWidth(true) });
@@ -295,8 +317,13 @@ namespace JSAM.JSAMEditor
         void GenerateAudioFileObjects<T>(Preset preset) where T : BaseAudioFileObject
         {
             string folder = outputFolder.stringValue;
-            for (int i = 0; i < asset.files.Count; i++)
+            EditorUtility.DisplayProgressBar("Generating Audio File Objects", "Starting...", 0);
+            int i = 0;
+            for (; i < asset.files.Count; i++)
             {
+                if (EditorUtility.DisplayCancelableProgressBar("Generating Audio File Objects (" + i + "/" + asset.files.Count + ")", 
+                    asset.files[i].name, (float)i / (float)asset.files.Count)) break;
+
                 var newObject = CreateInstance<T>();
                 preset.ApplyTo(newObject);
                 SerializedObject newSO = new SerializedObject(newObject);
@@ -305,63 +332,55 @@ namespace JSAM.JSAMEditor
                 string finalPath = folder + "/" + asset.files[i].name + ".asset";
                 JSAMEditorHelper.CreateAssetSafe(newObject, finalPath);
             }
+            EditorUtility.ClearProgressBar();
             EditorUtility.FocusProjectWindow();
+            EditorUtility.DisplayDialog(
+                "Generation Finished",
+                "Successfully generated " + i + "/" + asset.files.Count + " files!", "OK");
             EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folder));
         }
 
-        void HandleDragAndDrop()
+        void HandleDragAndDrop(Rect dragRect)
         {
-            Rect dragRect = Window.position;
-            dragRect.x = 0;
-            dragRect.y = 0;
+            string label = files.arraySize == 0 ? "Drag AudioClips here" : "";
 
-            if (dragRect.Contains(Event.current.mousePosition))
+            if (JSAMEditorHelper.DragAndDropRegion(dragRect, label, "Release to Add AudioClips"))
             {
-                if (Event.current.type == EventType.DragUpdated)
+                List<AudioClip> duplicates = new List<AudioClip>();
+
+                for (int i = 0; i < DragAndDrop.objectReferences.Length; i++)
                 {
-                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                    Event.current.Use();
+                    string filePath = AssetDatabase.GetAssetPath(DragAndDrop.objectReferences[i]);
+                    var clips = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioClip>(filePath);
+
+                    for (int j = 0; j < clips.Count; j++)
+                    {
+                        if (asset.files.Contains(clips[j]))
+                        {
+                            duplicates.Add(clips[j]);
+                            continue;
+                        }
+
+                        files.AddNewArrayElement().objectReferenceValue = clips[j];
+                    }
                 }
-                else if (Event.current.type == EventType.DragPerform)
+
+                if (duplicates.Count > 0)
                 {
-                    List<AudioClip> duplicates = new List<AudioClip>();
-
-                    for (int i = 0; i < DragAndDrop.objectReferences.Length; i++)
+                    string multiLine = string.Empty;
+                    for (int i = 0; i < duplicates.Count; i++)
                     {
-                        string filePath = AssetDatabase.GetAssetPath(DragAndDrop.objectReferences[i]);
-                        var clips = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioClip>(filePath);
-
-                        for (int j = 0; j < clips.Count; j++)
-                        {
-                            if (asset.files.Contains(clips[j]))
-                            {
-                                duplicates.Add(clips[j]);
-                                continue;
-                            }
-
-                            files.AddNewArrayElement().objectReferenceValue = clips[j];
-                        }
+                        multiLine = duplicates[i].name + "\n";
                     }
+                    EditorUtility.DisplayDialog("Duplicate Audio Clips!",
+                        "The following Audio File Objects are already present in the wizard and have been skipped.\n" + multiLine,
+                        "OK");
+                }
 
-                    Event.current.Use();
-
-                    if (duplicates.Count > 0)
-                    {
-                        string multiLine = string.Empty;
-                        for (int i = 0; i < duplicates.Count; i++)
-                        {
-                            multiLine = duplicates[i].name + "\n";
-                        }
-                        EditorUtility.DisplayDialog("Duplicate Audio Clips!",
-                            "The following Audio File Objects are already present in the wizard and have been skipped.\n" + multiLine,
-                            "OK");
-                    }
-
-                    if (serializedObject.hasModifiedProperties)
-                    {
-                        serializedObject.ApplyModifiedProperties();
-                        Window.Repaint();
-                    }
+                if (serializedObject.hasModifiedProperties)
+                {
+                    serializedObject.ApplyModifiedProperties();
+                    Window.Repaint();
                 }
             }
         }

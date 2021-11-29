@@ -104,8 +104,11 @@ namespace JSAM
                 }
             }
 
-            // Disable self if not playing anymore
-            enabled = AudioSource.isPlaying;
+            if (audioFile.loopMode == LoopMode.NoLooping)
+            {
+                // Disable self if not playing anymore
+                enabled = AudioSource.isPlaying;
+            }
         }
 
         /// <summary>
@@ -162,6 +165,7 @@ namespace JSAM
             if (stopInstantly) AudioSource.Stop();
             StopAllCoroutines();
             enabled = false;
+            AudioSource.loop = false;
         }
 
         protected virtual void OnTimeScaleChanged(float previousTimeScale)

@@ -64,26 +64,6 @@ namespace JSAM.JSAMEditor
             }
         }
 
-        [Tooltip("If true, JSAM enums are generated under a namespace of your choosing")]
-        [SerializeField] bool useNamespace = false;
-        public bool UseNamespace
-        {
-            get
-            {
-                return useNamespace;
-            }
-        }
-
-        [Tooltip("The namespace that new JSAM enum files will be generated under.")]
-        [SerializeField] string enumNamespace = "JSAM";
-        public string EnumNamespace
-        {
-            get
-            {
-                return enumNamespace;
-            }
-        }
-
         [Tooltip("The font size used when rendering \"quick reference guides\" in JSAM editor windows")]
         [SerializeField] int quickReferenceFontSize = 10;
         public int QuickReferenceFontSize
@@ -177,8 +157,6 @@ namespace JSAM.JSAMEditor
             presetsPath = packagePath + "/Presets";
             libraryPath = PackagePath + "/Libraries";
             generatedEnumsPath = packagePath + "/JSAMGenerated";
-            useNamespace = false;
-            enumNamespace = "JSAM";
         }
     }
 
@@ -204,8 +182,6 @@ namespace JSAM.JSAMEditor
                     SerializedProperty presetsPath = settings.FindProperty(nameof(presetsPath));
                     SerializedProperty libraryPath = settings.FindProperty(nameof(libraryPath));
                     SerializedProperty enumPath = settings.FindProperty("generatedEnumsPath");
-                    SerializedProperty useNamespace = settings.FindProperty(nameof(useNamespace));
-                    SerializedProperty enumNamespace = settings.FindProperty(nameof(enumNamespace));
                     SerializedProperty fontSize = settings.FindProperty("quickReferenceFontSize");
                     SerializedProperty hideStartup = settings.FindProperty("hideStartupMessage");
 
@@ -213,11 +189,6 @@ namespace JSAM.JSAMEditor
                     JSAMEditorHelper.SmartFolderField(presetsPath);
                     JSAMEditorHelper.SmartFolderField(libraryPath);
                     JSAMEditorHelper.SmartFolderField(enumPath);
-                    EditorGUILayout.PropertyField(useNamespace);
-                    using (new EditorGUI.DisabledScope(!useNamespace.boolValue))
-                    {
-                        EditorGUILayout.PropertyField(enumNamespace);
-                    }
 
                     EditorGUILayout.BeginHorizontal();
 

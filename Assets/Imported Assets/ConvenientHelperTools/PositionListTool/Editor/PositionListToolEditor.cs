@@ -19,7 +19,6 @@ public class PositionListToolEditor : Editor
             Undo.RecordObject(myScript, "Changed position");
             myScript.SetPositionAtIndex(i, Handles.PositionHandle(myScript.GetPositionAtIndex(i), Quaternion.identity));
         }
-
     }
 
     private void OnEnable()

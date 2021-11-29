@@ -1,9 +1,4 @@
     public enum BattleSceneSounds {
-        UIClick,
-        UIPanelClose,
-        UIPanelOpen,
-        BlockSuccess,
-        BuffApplied,
         Chargeup,
         DebuffApplied,
         DrawAndInspect,
@@ -15,7 +10,12 @@
         PlayerDefeat,
         PlayerVictory,
         SkillGeneral,
-        SuperCritical
+        SuperCritical,
+        BlockSuccess,
+        BuffApplied,
+        UIClick,
+        UIPanelClose,
+        UIPanelOpen
     }
     public enum BattleSceneMusic {
         BattleTheme,

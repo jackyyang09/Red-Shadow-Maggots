@@ -63,19 +63,20 @@ namespace JSAM.JSAMEditor
                     
             GUIContent blontent;
 
-            //if (!showAdvancedSettings)
-            //{
-            //    blontent = new GUIContent("↓ Show Advanced Settings ↓", "Toggle this if you're an experienced Unity user");
-            //}
-            //else
-            //{
-            //    blontent = new GUIContent("↑ Hide Advanced Settings ↑", "Toggle this if you're an experienced Unity user");
-            //}
-
-            //if (GUILayout.Button(blontent))
-            //{
-            //    showAdvancedSettings = !showAdvancedSettings;
-            //}
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            if (AudioManager.Instance == myScript)
+            {
+                JSAMEditorHelper.BeginColourChange(Color.green);
+                EditorGUILayout.LabelField("Looks good! This is the active AudioManager!", EditorStyles.label.ApplyTextAnchor(TextAnchor.MiddleCenter));
+                JSAMEditorHelper.EndColourChange();
+            }
+            else
+            {
+                JSAMEditorHelper.BeginColourChange(Color.red);
+                EditorGUILayout.LabelField("This is NOT the active AudioManager!", EditorStyles.boldLabel.ApplyTextAnchor(TextAnchor.MiddleCenter));
+                JSAMEditorHelper.EndColourChange();
+            }
+            EditorGUILayout.EndVertical();
 
             //EditorGUILayout.Space();
 

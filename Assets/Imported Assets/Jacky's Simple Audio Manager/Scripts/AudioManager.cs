@@ -16,7 +16,18 @@ namespace JSAM
     {
         [Header("General Settings")]
 
-        public static AudioManager Instance;
+        static AudioManager instance;
+        public static AudioManager Instance
+        {
+            get
+            {
+                bool missing = false;
+                if (instance == null) missing = true;
+                else if (instance.gameObject.scene == null) missing = true;
+                if (missing) instance = FindObjectOfType<AudioManager>();
+                return instance;
+            }
+        }
 
         [Tooltip("The settings used for this AudioManager")]
         [SerializeField, HideInInspector] AudioManagerSettings settings = null;
@@ -73,7 +84,7 @@ namespace JSAM
                 DontDestroyOnLoad(gameObject);
             }
 
-            EstablishSingletonDominance(true);
+            EstablishSingletonDominance();
 
             if (!initialized)
             {
@@ -581,41 +592,32 @@ namespace JSAM
         /// Ensures that the AudioManager you think you're referring to actually exists in this scene
         /// </summary>
         [RuntimeInitializeOnLoadMethod]
-        public void EstablishSingletonDominance(bool killSelf = true)
+        public void EstablishSingletonDominance()
         {
-            if (Instance == null)
-            {
-                Instance = this;
-            }
-            else if (Instance != this)
+            if (Instance != this && Instance != null)
             {
                 // A unique case where the Singleton exists but not in this scene
-                if (Instance.gameObject.scene.name == null)
+                if (Instance.gameObject.scene.name != gameObject.scene.name)
                 {
-                    Instance = this;
+                    if (Instance.gameObject.scene.name == "DontDestroyOnLoad" || gameObject.scene == null) // Previous is still here and active
+                    {
+                        enabled = false;
+                    }
+                    else
+                    {
+                        instance = this;
+                    }
                 }
                 else if (!Instance.gameObject.activeInHierarchy)
                 {
-                    Instance = this;
-                }
-                else if (Instance.gameObject.scene.name == "DontDestroyOnLoad")
-                {
-                    Destroy(gameObject);
-                }
-                else if (Instance.gameObject.scene.name != gameObject.scene.name)
-                {
-                    Instance = this;
-                }
-                else if (killSelf)
-                {
-                    Destroy(gameObject);
+                    instance = this;
                 }
             }
         }
 
         private void OnDestroy()
         {
-            if (Instance == this) Instance = null;
+            if (Instance == this) instance = null;
         }
 
         /// <summary>
@@ -665,7 +667,7 @@ namespace JSAM
         /// </summary>
         private void OnValidate()
         {
-            EstablishSingletonDominance(false);
+            EstablishSingletonDominance();
             //if (GetListener() == null) FindNewListener();
             ValidateSourcePrefab();
 
