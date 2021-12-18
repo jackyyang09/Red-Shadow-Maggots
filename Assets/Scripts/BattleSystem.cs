@@ -25,6 +25,8 @@ public struct TargettedCharacters
 
 public class BattleSystem : MonoBehaviour
 {
+    [SerializeField] float effectTickTime = 2;
+
     public static float QuickTimeCritModifier = 0.15f;
 
     [SerializeField] List<float> gameSpeeds = new List<float>();
@@ -57,12 +59,23 @@ public class BattleSystem : MonoBehaviour
             return playerCharacters;
         }
     }
+
     public PlayerCharacter RandomPlayerCharacter
     {
         get
         {
             if (priorityPlayers.Count > 0) return priorityPlayers[0];
             return playerCharacters[UnityEngine.Random.Range(0, PlayerCharacters.Count)];
+        }
+    }
+
+    public List<BaseCharacter> AllCharacters
+    { 
+        get
+        {
+            List<BaseCharacter> list = new List<BaseCharacter>(playerCharacters);
+            list.AddRange(enemyController.Enemies);
+            return list;
         }
     }
 
@@ -97,6 +110,7 @@ public class BattleSystem : MonoBehaviour
     public static Action OnEndEnemyTurn;
 
     public static Action OnTargettableCharactersChanged;
+    public static Action<BaseGameEffect> OnTickEffect;
 
     public static Action OnEnterFinalWave;
     public static Action OnWaveClear;
@@ -336,6 +350,44 @@ public class BattleSystem : MonoBehaviour
 
         playerTargets.player.ResolveSkill();
 
+        // Wait for skill effects to finish animating
+        while (!finished) yield return null;
+
+        UIManager.instance.ResumePlayerControl();
+    }
+
+    public void ActivateEnemySkill(EnemyCharacter enemy, int index)
+    {
+        if (enemy.CanUseSkill(index))
+        {
+            StartCoroutine(EnemySkillSequence(enemy, index));
+        }
+    }
+
+    IEnumerator EnemySkillSequence(EnemyCharacter enemy, int index)
+    {
+        bool finished = false;
+        float skillUseTime = 1.5f;
+
+        // Activate Skill
+        enemy.UseSkill(index);
+
+        enemy.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
+
+        SceneTweener.Instance.SkillTween(enemy.transform, skillUseTime);
+
+        //yield return new WaitForSeconds(skillUseTime);
+        while (!finished) yield return null;
+
+        SceneTweener.Instance.SkillUntween();
+
+        finished = false;
+
+        enemy.RegisterOnFinishApplyingSkillEffects(() => finished = true);
+
+        enemy.ResolveSkill();
+
+        // Wait for skill effects to finish animating
         while (!finished) yield return null;
 
         UIManager.instance.ResumePlayerControl();
@@ -372,34 +424,7 @@ public class BattleSystem : MonoBehaviour
 
     public void EndTurn()
     {
-        StartCoroutine(TurnEndTransition());
-    }
-
-    IEnumerator TurnEndTransition()
-    {
-        switch (currentPhase)
-        {
-            case BattlePhases.PlayerTurn:
-                yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
-                if (enemyController.Enemies.Count > 0)
-                {
-                    SetPhase(BattlePhases.EnemyTurn);
-                }
-                else SetPhase(BattlePhases.BattleWin);
-                break;
-            case BattlePhases.EnemyTurn:
-                yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
-                if (playerCharacters.Count > 0)
-                {
-                    SetPhase(BattlePhases.PlayerTurn);
-                }
-                else SetPhase(BattlePhases.BattleLose);
-                break;
-            case BattlePhases.BattleWin:
-                break;
-            case BattlePhases.BattleLose:
-                break;
-        }
+        StartCoroutine(ChangeBattlePhase());
     }
 
     //bool enemyAttacked = false;
@@ -419,25 +444,35 @@ public class BattleSystem : MonoBehaviour
     //    EndTurn();
     //}
 
-    public void SetPhase(BattlePhases newPhase)
+    public IEnumerator ChangeBattlePhase()
     {
         switch (currentPhase)
         {
             case BattlePhases.Entry:
+                currentPhase = BattlePhases.PlayerTurn;
                 break;
             case BattlePhases.PlayerTurn:
+                yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
+                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
+                if (enemyController.Enemies.Count > 0)
+                {
+                    currentPhase = BattlePhases.EnemyTurn;
+                }
+                else currentPhase = BattlePhases.BattleWin;
                 break;
             case BattlePhases.EnemyTurn:
+                yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
+                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
+                if (playerCharacters.Count > 0 && enemyController.Enemies.Count > 0)
+                {
+                    currentPhase = BattlePhases.PlayerTurn;
+                }
+                else if (playerCharacters.Count == 0) currentPhase = BattlePhases.BattleLose;
+                else if (enemyController.Enemies.Count == 0) currentPhase = BattlePhases.BattleWin;
                 ActiveEnemy.IncreaseChargeLevel();
                 OnEndEnemyTurn?.Invoke();
                 break;
-            case BattlePhases.BattleWin:
-                break;
-            case BattlePhases.BattleLose:
-                break;
         }
-
-        currentPhase = newPhase;
 
         switch (currentPhase)
         {
@@ -468,6 +503,45 @@ public class BattleSystem : MonoBehaviour
                 OnPlayerDefeat?.Invoke();
                 break;
         }
+
+        yield return null;
+    }
+
+    IEnumerator TickEffects(List<BaseCharacter> affectedCharacters)
+    {
+        Dictionary<BaseGameEffect, List<(BaseCharacter, AppliedEffect)>> effects = new Dictionary<BaseGameEffect, List<(BaseCharacter, AppliedEffect)>>();
+        for (int i = 0; i < affectedCharacters.Count; i++)
+        {
+            var characterFX = affectedCharacters[i].AppliedEffects;
+            for (int j = 0; j < characterFX.Count; j++)
+            {
+                if (!effects.ContainsKey(characterFX[j].referenceEffect))
+                {
+                    effects.Add(characterFX[j].referenceEffect, new List<(BaseCharacter, AppliedEffect)>());
+                }
+                effects[characterFX[j].referenceEffect].Add((affectedCharacters[i], characterFX[j]));
+            }
+        }
+
+        BaseGameEffect[] effectKeys = new BaseGameEffect[effects.Keys.Count];
+        effects.Keys.CopyTo(effectKeys, 0);
+        for (int i = 0; i < effectKeys.Length; i++)
+        {
+            var tuples = effects[effectKeys[i]];
+            for (int j = 0; j < tuples.Count; j++)
+            {
+                tuples[j].Item1.TickEffect(tuples[j].Item2);
+            }
+
+            OnTickEffect?.Invoke(effectKeys[i]);
+
+            if (effectKeys[i].hasTickAnimation)
+            {
+                yield return new WaitForSeconds(effectTickTime);
+            }
+        }
+
+        yield return null;
     }
 
     public void RegisterPlayerDeath(PlayerCharacter player)

@@ -185,10 +185,10 @@ namespace JSAM.JSAMEditor
                     SerializedProperty fontSize = settings.FindProperty("quickReferenceFontSize");
                     SerializedProperty hideStartup = settings.FindProperty("hideStartupMessage");
 
-                    JSAMEditorHelper.SmartFolderField(packagePath);
-                    JSAMEditorHelper.SmartFolderField(presetsPath);
-                    JSAMEditorHelper.SmartFolderField(libraryPath);
-                    JSAMEditorHelper.SmartFolderField(enumPath);
+                    JSAMEditorHelper.RenderSmartFolderProperty(packagePath.GUIContent(), packagePath);
+                    JSAMEditorHelper.RenderSmartFolderProperty(presetsPath.GUIContent(), presetsPath);
+                    JSAMEditorHelper.RenderSmartFolderProperty(libraryPath.GUIContent(), libraryPath);
+                    JSAMEditorHelper.RenderSmartFolderProperty(enumPath.GUIContent(), enumPath);
 
                     EditorGUILayout.BeginHorizontal();
 

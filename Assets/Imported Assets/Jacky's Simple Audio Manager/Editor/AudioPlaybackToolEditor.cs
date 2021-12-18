@@ -230,7 +230,7 @@ namespace JSAM.JSAMEditor
             }
             if (selectedSound)
             {
-                if (selectedSound.UsingLibrary && selectedSound.FileCount > 1)
+                if (selectedSound.Files.Count > 1)
                 {
                     showLibraryView = EditorCompatability.SpecialFoldouts(showLibraryView, "Show Audio File Object Library");
                     if (showLibraryView)
@@ -247,7 +247,7 @@ namespace JSAM.JSAMEditor
                                 // Play the sound
                                 selectedClip = sound;
                                 helperSource.clip = selectedClip;
-                                SoundFader.StartFading(helperSource.clip);
+                                SoundFader.StartFading(helperSource.clip, selectedSound);
                                 clipPlaying = true;
                             }
                             //EditorGUILayout.EndHorizontal();
@@ -306,7 +306,7 @@ namespace JSAM.JSAMEditor
                 selectedMusic = null;
 
                 selectedSound = ((JSAMSoundFileObject)Selection.activeObject);
-                selectedClip = selectedSound.File;
+                selectedClip = selectedSound.Files[0];
                 CreateAudioHelper(selectedClip);
             }
             else if (activeType.Equals(typeof(JSAMMusicFileObject)))
@@ -314,7 +314,7 @@ namespace JSAM.JSAMEditor
                 selectedSound = null;
 
                 selectedMusic = ((JSAMMusicFileObject)Selection.activeObject);
-                selectedClip = selectedMusic.File;
+                selectedClip = selectedMusic.Files[0];
                 CreateAudioHelper(selectedClip);
             }
             else
@@ -382,7 +382,7 @@ namespace JSAM.JSAMEditor
                         // However, writing a value to helperSource.time changes timeSamples to the appropriate value just fine
                         if (selectedSound)
                         {
-                            SoundFader.StartFading(helperSource.clip);
+                            SoundFader.StartFading(helperSource.clip, selectedSound);
                         }
                         else if (selectedMusic)
                         {
@@ -437,14 +437,14 @@ namespace JSAM.JSAMEditor
 
                 if (selectedSound)
                 {
-                    using (new EditorGUI.DisabledScope(selectedSound.FileCount < 2))
+                    using (new EditorGUI.DisabledScope(selectedSound.Files.Count < 2))
                     {
                         if (GUILayout.Button(new GUIContent("Play Random", "Preview settings with a random track from your library. Only usable if this Audio File has \"Use Library\" enabled.")))
                         {
                             selectedClip = soundFileEditorInstance.DesignateRandomAudioClip();
                             clipPlaying = true;
                             helperSource.Stop();
-                            SoundFader.StartFading(selectedClip);
+                            SoundFader.StartFading(selectedClip, selectedSound);
                         }
                     }
                 }
@@ -538,8 +538,8 @@ namespace JSAM.JSAMEditor
                             {
                                 if (selectedMusic.loopMode == LoopMode.ClampedLoopPoints)
                                 {
-                                    float start = selectedMusic.loopStart * selectedMusic.File.frequency;
-                                    float end = selectedMusic.loopEnd * selectedMusic.File.frequency;
+                                    float start = selectedMusic.loopStart * selectedMusic.Files[0].frequency;
+                                    float end = selectedMusic.loopEnd * selectedMusic.Files[0].frequency;
                                     helperSource.timeSamples = (int)Mathf.Clamp(helperSource.timeSamples, start, end - AudioManagerInternal.EPSILON);
                                 }
                             }

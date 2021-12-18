@@ -17,7 +17,7 @@ public class BaseTargetFocus : BaseGameEffect
         BattleSystem.Instance.RemoveTargetFocus(player);
     }
 
-    public override void Tick()
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 

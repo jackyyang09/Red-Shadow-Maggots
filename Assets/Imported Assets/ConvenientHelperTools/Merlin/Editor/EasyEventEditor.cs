@@ -1513,7 +1513,7 @@ public class EasyEventEditorSettings : EditorWindow
 
                 if (EditorGUI.showMixedValue)
                 {
-                    buttonContent = new GUIContent("\u2014", "Mixed Values");
+                    buttonContent = new GUIContent("/u2014", "Mixed Values");
                 }
                 else
                 {

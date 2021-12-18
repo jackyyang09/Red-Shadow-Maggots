@@ -152,7 +152,7 @@ public class SceneTweener : MonoBehaviour
     public void DisableAnim()
     {
         anim.enabled = false;
-        BattleSystem.Instance.SetPhase(BattlePhases.PlayerTurn);
+        StartCoroutine(BattleSystem.Instance.ChangeBattlePhase());
     }
 
     public void ReturnToPosition()

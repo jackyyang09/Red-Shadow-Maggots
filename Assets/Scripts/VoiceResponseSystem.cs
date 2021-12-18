@@ -15,6 +15,7 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnWaveClear += WaveClear;
         BattleSystem.OnFinalWaveClear += GameClear;
         BattleSystem.OnPlayerDefeat += PlayerLose;
+        BattleSystem.OnTickEffect += OnTickEffect;
 
         GlobalEvents.OnCharacterStartAttack += Attack;
         GlobalEvents.OnCharacterAttacked += PlayerAttacked;
@@ -39,6 +40,7 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnWaveClear -= WaveClear;
         BattleSystem.OnFinalWaveClear -= GameClear;
         BattleSystem.OnPlayerDefeat -= PlayerLose;
+        BattleSystem.OnTickEffect -= OnTickEffect;
 
         GlobalEvents.OnCharacterStartAttack -= Attack;
         GlobalEvents.OnCharacterAttacked -= PlayerAttacked;
@@ -141,17 +143,11 @@ public class VoiceResponseSystem : MonoBehaviour
 
     private void GameEffectApplied(BaseGameEffect obj)
     {
-        switch (obj.effectType)
-        {
-            case EffectType.Heal:
-                AudioManager.PlaySound(BattleSceneSounds.HealApplied);
-                break;
-            case EffectType.Buff:
-                AudioManager.PlaySound(BattleSceneSounds.BuffApplied);
-                break;
-            case EffectType.Debuff:
-                AudioManager.PlaySound(BattleSceneSounds.DebuffApplied);
-                break;
-        }
+        AudioManager.PlaySound(obj.activationSound);
+    }
+
+    private void OnTickEffect(BaseGameEffect obj)
+    {
+        AudioManager.PlaySound(obj.tickSound);
     }
 }

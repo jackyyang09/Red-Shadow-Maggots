@@ -70,7 +70,31 @@ namespace JSAM
             AudioSource.timeSamples = (int)Mathf.Clamp((float)AudioSource.timeSamples, 0, (float)AudioSource.clip.samples - 1);
             AudioSource.pitch = JSAMSoundFileObject.GetRandomPitch(file);
 
-            base.Play(file);
+            audioFile = file;
+
+            if (AudioManager.Instance.Settings.Spatialize && audioFile.spatialize)
+            {
+                AudioSource.spatialBlend = 1;
+                if (file.maxDistance != 0)
+                {
+                    AudioSource.maxDistance = file.maxDistance;
+                }
+                else AudioSource.maxDistance = AudioManager.Instance.Settings.DefaultSoundMaxDistance;
+            }
+            else
+            {
+                AudioSource.spatialBlend = 0;
+            }
+
+            AudioSource.volume = file.relativeVolume;
+            AudioSource.priority = (int)file.priority;
+            float offset = AudioSource.pitch - 1;
+            AudioSource.pitch = Time.timeScale + offset;
+
+            ApplyEffects();
+
+            AudioSource.PlayDelayed(file.delay);
+            enabled = true; // Enable updates on the script
         }
 #endif
     }

@@ -63,9 +63,8 @@ public class BaseDefenceLeniency : BaseGameEffect
         ((PlayerCharacter)target).defenseLeniencyModifier -= percentageChange;
     }
 
-    public override void Tick()
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-
     }
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)

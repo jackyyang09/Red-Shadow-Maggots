@@ -34,6 +34,10 @@ public class BaseAttackLeniency : BaseGameEffect
         ((PlayerCharacter)target).attackLeniencyModifier += percentageChange;
     }
 
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+    }
+
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = 0;
@@ -61,11 +65,6 @@ public class BaseAttackLeniency : BaseGameEffect
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
         ((PlayerCharacter)target).attackLeniencyModifier -= percentageChange;
-    }
-
-    public override void Tick()
-    {
-
     }
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)

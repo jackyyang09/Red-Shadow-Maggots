@@ -131,6 +131,7 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected Animator spriteAnim;
 
     [SerializeField] Transform effectRegion = null;
+    public Transform EffectRegion { get { return effectRegion; } }
 
     protected GameObject characterMesh;
     public GameObject CharacterMesh { get { return characterMesh; } }
@@ -248,7 +249,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         usedSuperCritThisTurn = false;
         ShowCharacterUI();
-        TickEffects();
+        CooldownSkills();
     }
 
     public void UseSuperCritical()
@@ -406,7 +407,7 @@ public abstract class BaseCharacter : MonoBehaviour
         return gameSkills[index];
     }
 
-    List<BaseCharacter> targets;
+    List<BaseCharacter> targets = new List<BaseCharacter>();
 
     GameSkill currentSkill;
 
@@ -418,13 +419,18 @@ public abstract class BaseCharacter : MonoBehaviour
 
     bool cancelSkill;
 
+    public void AddSkillTarget(BaseCharacter character)
+    {
+        targets.Add(character);
+    }
+
+    public void ClearSkillTargets() => targets.Clear();
+
     IEnumerator SkillRoutine(int skillUsed)
     {
         cancelSkill = false;
 
-        targets = new List<BaseCharacter>();
-
-        Action<BaseCharacter> addTarget = (x) => targets.Add(x);
+        targets.Clear();
 
         switch (currentSkill.referenceSkill.targetMode)
         {
@@ -432,11 +438,11 @@ public abstract class BaseCharacter : MonoBehaviour
                 targets.Add(this);
                 break;
             case TargetMode.OneAlly:
-                PlayerCharacter.OnSelectPlayer += addTarget;
+                PlayerCharacter.OnSelectPlayer += AddSkillTarget;
                 UIManager.instance.EnterSkillTargetMode();
                 break;
             case TargetMode.OneEnemy:
-                EnemyCharacter.OnSelectedEnemyCharacterChange += addTarget;
+                EnemyCharacter.OnSelectedEnemyCharacterChange += AddSkillTarget;
                 break;
             case TargetMode.AllAllies:
                 for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
@@ -459,10 +465,10 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (currentSkill.referenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
-                        PlayerCharacter.OnSelectPlayer -= addTarget;
+                        PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
                         break;
                     case TargetMode.OneEnemy:
-                        EnemyCharacter.OnSelectedEnemyCharacterChange -= addTarget;
+                        EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
                         break;
                 }
                 UIManager.instance.ExitSkillTargetMode();
@@ -473,39 +479,44 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (!cancelSkill)
         {
-            Instantiate(skillParticles1, transform);
-            //animHelper.RegisterOnFinishSkillAnimation(() => Instantiate(skillParticles2, transform));
-
             switch (currentSkill.referenceSkill.targetMode)
             {
                 case TargetMode.OneAlly:
-                    PlayerCharacter.OnSelectPlayer -= addTarget;
+                    PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
                     UIManager.instance.ExitSkillTargetMode();
                     break;
                 case TargetMode.OneEnemy:
-                    EnemyCharacter.OnSelectedEnemyCharacterChange -= addTarget;
+                    EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
                     break;
             }
 
-            if (skillUsed == 0) JSAM.AudioManager.PlaySound(Reference.voiceFirstSkill);
-            else JSAM.AudioManager.PlaySound(Reference.voiceSecondSkill);
-
-            if (rigAnim)
-            {
-                rigAnim.Play("Skill");
-            }
-            else
-            { 
-                spriteAnim.Play("Skill");
-            }
-
-            GlobalEvents.OnCharacterActivateSkill?.Invoke(this, currentSkill);
-            for (int i = 0; i < onSkillFoundTargets.Count; i++)
-            {
-                onSkillFoundTargets[i]();
-            }
+            SkillExecuteRoutine(skillUsed);
         }
         onSkillFoundTargets.Clear();
+    }
+
+    public void SkillExecuteRoutine(int skillUsed)
+    {
+        Instantiate(skillParticles1, transform);
+        //animHelper.RegisterOnFinishSkillAnimation(() => Instantiate(skillParticles2, transform));
+
+        if (skillUsed == 0) JSAM.AudioManager.PlaySound(Reference.voiceFirstSkill);
+        else JSAM.AudioManager.PlaySound(Reference.voiceSecondSkill);
+
+        if (rigAnim)
+        {
+            rigAnim.Play("Skill");
+        }
+        else
+        {
+            spriteAnim.Play("Skill");
+        }
+
+        GlobalEvents.OnCharacterActivateSkill?.Invoke(this, currentSkill);
+        for (int i = 0; i < onSkillFoundTargets.Count; i++)
+        {
+            onSkillFoundTargets[i]();
+        }
     }
 
     /// <summary>
@@ -591,29 +602,22 @@ public abstract class BaseCharacter : MonoBehaviour
         onApplyGameEffect?.Invoke(newEffect.referenceEffect);
     }
 
-    public void TickEffects()
+    public void CooldownSkills()
     {
-        List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
         // Tick cooldown on skills
         for (int i = 0; i < gameSkills.Count; i++)
         {
-            gameSkills[i].Tick();
+            gameSkills[i].Cooldown();
         }
+    }
 
-        for (int i = 0; i < AppliedEffects.Count; i++)
-        {
-            if (!AppliedEffects[i].Tick(this))
-            {
-                // Queue removal of effect
-                effectsToRemove.Add(AppliedEffects[i]);
-            }
-        }
-
-        for (int i = 0; i < effectsToRemove.Count; i++)
+    public void TickEffect(AppliedEffect effect)
+    {
+        if (!effect.Tick(this)) // Check if still active after ticking
         {
             // Remove the effect
-            AppliedEffects.Remove(effectsToRemove[i]);
-            onRemoveGameEffect?.Invoke(effectsToRemove[i].referenceEffect);
+            AppliedEffects.Remove(effect);
+            onRemoveGameEffect?.Invoke(effect.referenceEffect);
         }
     }
 
@@ -647,12 +651,16 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void TakeDamage(DamageStruct damage)
     {
         var myClass = characterReference.characterClass;
-        var attackerClass = damage.source.Reference.characterClass;
+        CharacterClass attackerClass = CharacterClass.Offense;
+        if (damage.source != null)
+        {
+            attackerClass = damage.source.Reference.characterClass;
+            float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
+            damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-        float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
-        damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
+            damage.damage = damage.damageNormalized * (attack + attackModifier) * effectiveness;
+        }
 
-        damage.damage = damage.damageNormalized * (attack + attackModifier) * effectiveness;
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;
 
         float trueDamage = CalculateDefenseDamage(damage.damage);
@@ -712,7 +720,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    public void SpawnEffectPrefab(GameObject prefab, bool removeParent = false)
+    public GameObject SpawnEffectPrefab(GameObject prefab, bool removeParent = false, bool destroyAutomatically = true)
     {
         effectRegion.rotation = characterMesh.transform.rotation;
         var newEffect = Instantiate(prefab, effectRegion.transform.position, effectRegion.rotation);
@@ -721,7 +729,11 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             newEffect.transform.SetParent(animHelper.transform.GetChild(0).GetChild(0));
         }
-        Destroy(newEffect, 5);
+        if (destroyAutomatically)
+        {
+            Destroy(newEffect, 5);
+        }
+        return newEffect;
     }
 
     public void PlayDamageShakeEffect(float normalizedDamage) => transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);

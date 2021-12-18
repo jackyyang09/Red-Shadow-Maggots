@@ -43,6 +43,7 @@ public class SkillObject : ScriptableObject
 /// </summary>
 public class AppliedEffect
 {
+    public BaseCharacter target;
     public BaseGameEffect referenceEffect;
     public int remainingTurns;
     public EffectStrength strength;
@@ -55,7 +56,7 @@ public class AppliedEffect
     public bool Tick(BaseCharacter target)
     {
         remainingTurns--;
-        referenceEffect.Tick();
+        referenceEffect.Tick(target, strength, customValues);
         if (remainingTurns == 0)
         {
             referenceEffect.OnExpire(target, strength, customValues);
@@ -80,13 +81,7 @@ public class GameSkill
     /// How long to wait before skill recharges
     /// </summary>
     public int cooldownTimer = 0;
-    public bool CanUse
-    {
-        get
-        {
-            return cooldownTimer == 0;
-        }
-    }
+    public bool CanUse { get { return cooldownTimer == 0; } }
 
     public SkillObject referenceSkill { get; private set; }
 
@@ -100,7 +95,7 @@ public class GameSkill
         cooldownTimer = referenceSkill.skillCooldown;
     }
 
-    public void Tick()
+    public void Cooldown()
     {
         cooldownTimer = Mathf.Clamp(cooldownTimer - 1, 0, referenceSkill.skillCooldown);
     }

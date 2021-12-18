@@ -34,9 +34,8 @@ public class BaseCritChanceBuff : BaseGameEffect
         target.ApplyCritChanceModifier(percentageChange);
     }
 
-    public override void Tick()
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-
     }
 
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)

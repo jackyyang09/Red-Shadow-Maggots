@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class EnemyController : MonoBehaviour
 {
@@ -51,19 +52,21 @@ public class EnemyController : MonoBehaviour
 
     public void ChooseAttacker()
     {
-        BattleSystem.Instance.SetEnemyAttacker(Enemies[Random.Range(0, Enemies.Count)]);
+        if (Enemies.Count == 0) return;
+        battleSystem.SetEnemyAttacker(Enemies[Random.Range(0, Enemies.Count)]);
         OnChangedAttackers?.Invoke();
     }
 
     public void ChooseAttackTarget()
     {
-        BattleSystem.Instance.SetEnemyAttackTarget(BattleSystem.Instance.RandomPlayerCharacter);
+        battleSystem.SetEnemyAttackTarget(BattleSystem.Instance.RandomPlayerCharacter);
         OnChangedAttackTargets?.Invoke();
     }
 
     public void MakeYourMove()
     {
-        BattleSystem.Instance.BeginEnemyAttack();
+        battleSystem.BeginEnemyAttack();
+        //battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, Random.Range(0, 2));
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)

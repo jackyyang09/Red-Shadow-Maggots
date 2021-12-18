@@ -155,11 +155,6 @@ namespace JSAM
         }
         [SerializeField, HideInInspector] string presetDescription;
 
-        [Header("Attach audio file here to use")]
-        [SerializeField] protected AudioClip file;
-        public AudioClip File { get { return file; } }
-
-        [Header("Attach audio files here to use")]
         [SerializeField] protected List<AudioClip> files = new List<AudioClip>();
         public List<AudioClip> Files { get { return files; } }
 
@@ -173,67 +168,6 @@ namespace JSAM
         [HideInInspector] public float loopEnd;
 
         [HideInInspector] public int bpm = 120;
-
-        public AudioClip FirstAvailableFile
-        {
-            get
-            {
-                if (useLibrary)
-                {
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        if (files[i] != null) return files[i];
-                    }
-                }
-                else
-                {
-                    return file;
-                }
-                return null;
-            }
-        }
-
-        public int FileCount
-        {
-            get
-            {
-                if (!useLibrary) return (file == null) ? 0 : 1;
-                int count = 0;
-                for (int i = 0; i < files.Count; i++)
-                {
-                    if (files[i] != null)
-                    {
-                        count++;
-                    }
-                }
-                return count;
-            }
-        }
-
-        [SerializeField] bool useLibrary;
-        public bool UsingLibrary { get { return useLibrary; } }
-
-        public bool IsLibraryEmpty
-        {
-            get
-            {
-                if (!useLibrary)
-                {
-                    return file == null;
-                }
-                else
-                {
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        if (files[i] != null)
-                        {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            }
-        }
 
         [Range(0, 1)]
         [Tooltip("The volume of this Audio File relative to the volume levels defined in the main AudioManager. Leave at 1 to keep unchanged. The lower the value, the quieter it will be during playback.")]
@@ -300,18 +234,6 @@ namespace JSAM
         public void Initialize()
         {
             lastClipIndex = -1;
-        }
-
-        public bool ContainsAudioClip(AudioClip a)
-        {
-            if (UsingLibrary)
-            {
-                return files.Contains(a);
-            }
-            else
-            {
-                return file == a;
-            }
         }
     }
 }

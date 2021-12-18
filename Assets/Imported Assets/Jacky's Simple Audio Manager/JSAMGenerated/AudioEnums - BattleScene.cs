@@ -1,6 +1,4 @@
     public enum BattleSceneSounds {
-        Chargeup,
-        DebuffApplied,
         DrawAndInspect,
         Footsteps,
         HealApplied,
@@ -15,7 +13,9 @@
         BuffApplied,
         UIClick,
         UIPanelClose,
-        UIPanelOpen
+        UIPanelOpen,
+        Chargeup,
+        DebuffApplied
     }
     public enum BattleSceneMusic {
         BattleTheme,

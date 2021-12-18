@@ -123,7 +123,6 @@ namespace JSAM.JSAMEditor
 
         protected SerializedProperty safeName;
         protected SerializedProperty presetDescription;
-        protected SerializedProperty file;
         protected SerializedProperty files;
         protected SerializedProperty relativeVolume;
         protected SerializedProperty spatialize;
@@ -139,10 +138,6 @@ namespace JSAM.JSAMEditor
         protected virtual void DesignateSerializedProperties()
         {
             presetDescription = FindProp("presetDescription");
-            file = FindProp("presetDescription");
-
-            file = FindProp("file");
-            excludedProperties.Add("file");
 
             files = FindProp("files");
             excludedProperties.Add("files");
@@ -205,203 +200,203 @@ namespace JSAM.JSAMEditor
 
         protected void DrawLoopPointTools(BaseAudioFileObject myScript)
         {
-            if (myScript.File != null)
+            if (myScript.Files.Count == 0) return;
+
+            float loopStart = myScript.loopStart;
+            float loopEnd = myScript.loopEnd;
+
+            AudioClip music = myScript.Files[0];
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(loopMode);
+            if (EditorGUI.EndChangeCheck())
             {
-                float loopStart = myScript.loopStart;
-                float loopEnd = myScript.loopEnd;
-
-                AudioClip music = myScript.File;
-                EditorGUI.BeginChangeCheck();
-                EditorGUILayout.PropertyField(loopMode);
-                if (EditorGUI.EndChangeCheck())
+                // This won't do, reset loop point positions
+                if (myScript.loopStart >= myScript.loopEnd)
                 {
-                    // This won't do, reset loop point positions
-                    if (myScript.loopStart >= myScript.loopEnd)
-                    {
-                        loopStartProperty.floatValue = 0;
-                        loopEndProperty.floatValue = music.length;
-                        loopStart = myScript.loopStart;
-                        loopEnd = myScript.loopEnd;
-                        serializedObject.ApplyModifiedProperties();
-                    }
-                }
-
-                using (new EditorGUI.DisabledScope(myScript.loopMode < LoopMode.LoopWithLoopPoints))
-                {
-                    blontent = new GUIContent("Loop Point Tools", "Customize where music will loop between. " +
-                        "Loops may not appear to be seamless in the inspector but rest assured, they will be seamless in-game!");
-                    showLoopPointTool = EditorCompatability.SpecialFoldouts(showLoopPointTool, blontent);
-                    if (showLoopPointTool)
-                    {
-                        GUIContent[] contents = new GUIContent[] { new GUIContent("Slider"), new GUIContent("Time"), new GUIContent("Samples"), new GUIContent("BPM") };
-                        EditorGUILayout.BeginHorizontal();
-                        for (int i = 0; i < contents.Length; i++)
-                        {
-                            if (i == loopPointInputMode) JSAMEditorHelper.BeginColourChange(COLOR_BUTTONPRESSED_2);
-                            if (GUILayout.Button(contents[i], EditorStyles.miniButtonMid)) loopPointInputMode = i;
-                            JSAMEditorHelper.EndColourChange();
-                        }
-                        EditorGUILayout.EndHorizontal();
-
-                        switch ((LoopPointTool)loopPointInputMode)
-                        {
-                            case LoopPointTool.Slider:
-                                GUILayout.Label("Song Duration Samples: " + music.samples);
-                                EditorGUILayout.MinMaxSlider(ref loopStart, ref loopEnd, 0, music.length);
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("Loop Point Start: " + AudioPlaybackToolEditor.TimeToString(loopStart), new GUILayoutOption[] { GUILayout.Width(180) });
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Loop Point Start (Samples): " + myScript.loopStart * music.frequency);
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                GUILayout.Label("Loop Point End:   " + AudioPlaybackToolEditor.TimeToString(loopEnd), new GUILayoutOption[] { GUILayout.Width(180) });
-                                GUILayout.FlexibleSpace();
-                                GUILayout.Label("Loop Point End (Samples): " + myScript.loopEnd * music.frequency);
-                                GUILayout.EndHorizontal();
-                                break;
-                            case LoopPointTool.TimeInput:
-                                EditorGUILayout.Space();
-
-                                // int casts are used instead of Mathf.RoundToInt so that we truncate the floats instead of rounding up
-                                GUILayout.BeginHorizontal();
-                                float theTime = loopStart * 1000f;
-                                GUILayout.Label("Loop Point Start:");
-                                int minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
-                                GUILayout.Label(":");
-                                int seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
-                                GUILayout.Label(":");
-                                float milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
-                                loopStart = (float)minutes * 60f + (float)seconds + milliseconds;
-                                GUILayout.EndHorizontal();
-
-                                GUILayout.BeginHorizontal();
-                                theTime = loopEnd * 1000f;
-                                GUILayout.Label("Loop Point End:  ");
-                                minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
-                                GUILayout.Label(":");
-                                seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
-                                GUILayout.Label(":");
-                                milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
-                                milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
-                                loopEnd = (float)minutes * 60f + (float)seconds + milliseconds;
-                                GUILayout.EndHorizontal();
-                                break;
-                            case LoopPointTool.TimeSamplesInput:
-                                GUILayout.Label("Song Duration (Samples): " + music.samples);
-                                EditorGUILayout.Space();
-
-                                GUILayout.BeginHorizontal();
-                                float samplesStart = EditorGUILayout.FloatField("Loop Point Start:", myScript.loopStart * music.frequency);
-                                GUILayout.EndHorizontal();
-                                loopStart = samplesStart / music.frequency;
-
-                                GUILayout.BeginHorizontal();
-                                float samplesEnd = JSAMExtensions.Clamp(EditorGUILayout.FloatField("Loop Point End:", myScript.loopEnd * music.frequency), 0, music.samples);
-                                GUILayout.EndHorizontal();
-                                loopEnd = samplesEnd / music.frequency;
-                                break;
-                            case LoopPointTool.BPMInput/*WithBeats*/:
-                                Undo.RecordObject(myScript, "Modified song BPM");
-                                myScript.bpm = EditorGUILayout.IntField("Song BPM: ", myScript.bpm/*, new GUILayoutOption[] { GUILayout.MaxWidth(30)}*/);
-
-                                EditorGUILayout.Space();
-
-                                float startBeat = loopStart / (60f / (float)myScript.bpm);
-                                startBeat = EditorGUILayout.FloatField("Starting Beat:", startBeat);
-
-                                float endBeat = loopEnd / (60f / (float)myScript.bpm);
-                                endBeat = Mathf.Clamp(EditorGUILayout.FloatField("Ending Beat:", endBeat), 0, music.length / (60f / myScript.bpm));
-
-                                loopStart = (float)startBeat * 60f / (float)myScript.bpm;
-                                loopEnd = (float)endBeat * 60f / (float)myScript.bpm;
-                                break;
-                        }
-
-                        GUIContent buttonText = new GUIContent("Reset Loop Points", "Click to set loop points to the start and end of the track.");
-                        if (GUILayout.Button(buttonText))
-                        {
-                            loopStart = 0;
-                            loopEnd = music.length;
-                        }
-                        using (new EditorGUI.DisabledScope(!myScript.File.IsWavFile()))
-                        {
-                            if (myScript.File.IsWavFile())
-                            {
-                                buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
-                            }
-                            else
-                            {
-                                buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "This option is exclusive to .WAV files. Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
-                            }
-                            EditorGUILayout.BeginHorizontal();
-                            if (GUILayout.Button(buttonText))
-                            {
-                                // Zeugma440 and his Audio Tools Library is a godsend
-                                // https://github.com/Zeugma440/atldotnet/
-                                string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.File.name)[0]);
-                                string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
-
-                                ATL.Track theTrack = new ATL.Track(trueFilePath);
-
-                                float frequency = myScript.File.frequency;
-
-                                if (theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].Start") && theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].End"))
-                                {
-                                    loopStart = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].Start"]) / frequency;
-                                    loopEnd = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].End"]) / frequency;
-                                }
-                                else
-                                {
-                                    EditorUtility.DisplayDialog("Error Reading Metadata", "Could not find any loop point data in " + myScript.File.name + ".wav!\n" +
-                                        "Are you sure you wrote loop points in this file?", "OK");
-                                }
-
-                            }
-                            if (myScript.File.IsWavFile())
-                            {
-                                buttonText = new GUIContent("Embed Loop Points to File", "Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
-                            }
-                            else
-                            {
-                                buttonText = new GUIContent("Embed Loop Points to File", "This option is exclusive to .WAV files. Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
-                            }
-                            if (GUILayout.Button(buttonText))
-                            {
-                                string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.File.name)[0]);
-                                string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
-
-                                ATL.Track theTrack = new ATL.Track(trueFilePath);
-
-                                float frequency = myScript.File.frequency;
-
-                                if (EditorUtility.DisplayDialog("Confirm Loop Point saving", "This will overwrite loop point Start/End loop point markers saved in this .WAV file, are you sure you want to continue?", "Yes", "Cancel"))
-                                {
-                                    theTrack.AdditionalFields["sample.MIDIUnityNote"] = "60";
-                                    theTrack.AdditionalFields["sample.NumSampleLoops"] = "1";
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].Type"] = "0";
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].Start"] = (Mathf.RoundToInt(myScript.loopStart * frequency)).ToString();
-                                    theTrack.AdditionalFields["sample.SampleLoop[0].End"] = (Mathf.RoundToInt(myScript.loopEnd * frequency)).ToString();
-                                    theTrack.Save();
-                                }
-                            }
-                            EditorGUILayout.EndHorizontal();
-                        }
-
-                        if (myScript.loopStart != loopStart || myScript.loopEnd != loopEnd)
-                        {
-                            Undo.RecordObject(myScript, "Modified loop point properties");
-                            loopStartProperty.floatValue = Mathf.Clamp(loopStart, 0, music.length);
-                            loopEndProperty.floatValue = Mathf.Clamp(loopEnd, 0, Mathf.Ceil(music.length));
-                            EditorUtility.SetDirty(myScript);
-                            AudioPlaybackToolEditor.DoForceRepaint(true);
-                        }
-                    }
-                    EditorCompatability.EndSpecialFoldoutGroup();
+                    loopStartProperty.floatValue = 0;
+                    loopEndProperty.floatValue = music.length;
+                    loopStart = myScript.loopStart;
+                    loopEnd = myScript.loopEnd;
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
+
+            using (new EditorGUI.DisabledScope(myScript.loopMode < LoopMode.LoopWithLoopPoints))
+            {
+                blontent = new GUIContent("Loop Point Tools", "Customize where music will loop between. " +
+                    "Loops may not appear to be seamless in the inspector but rest assured, they will be seamless in-game!");
+                showLoopPointTool = EditorCompatability.SpecialFoldouts(showLoopPointTool, blontent);
+                if (showLoopPointTool)
+                {
+                    GUIContent[] contents = new GUIContent[] { new GUIContent("Slider"), new GUIContent("Time"), new GUIContent("Samples"), new GUIContent("BPM") };
+                    EditorGUILayout.BeginHorizontal();
+                    for (int i = 0; i < contents.Length; i++)
+                    {
+                        if (i == loopPointInputMode) JSAMEditorHelper.BeginColourChange(COLOR_BUTTONPRESSED_2);
+                        if (GUILayout.Button(contents[i], EditorStyles.miniButtonMid)) loopPointInputMode = i;
+                        JSAMEditorHelper.EndColourChange();
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    switch ((LoopPointTool)loopPointInputMode)
+                    {
+                        case LoopPointTool.Slider:
+                            GUILayout.Label("Song Duration Samples: " + music.samples);
+                            EditorGUILayout.MinMaxSlider(ref loopStart, ref loopEnd, 0, music.length);
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Loop Point Start: " + AudioPlaybackToolEditor.TimeToString(loopStart), new GUILayoutOption[] { GUILayout.Width(180) });
+                            GUILayout.FlexibleSpace();
+                            GUILayout.Label("Loop Point Start (Samples): " + myScript.loopStart * music.frequency);
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            GUILayout.Label("Loop Point End:   " + AudioPlaybackToolEditor.TimeToString(loopEnd), new GUILayoutOption[] { GUILayout.Width(180) });
+                            GUILayout.FlexibleSpace();
+                            GUILayout.Label("Loop Point End (Samples): " + myScript.loopEnd * music.frequency);
+                            GUILayout.EndHorizontal();
+                            break;
+                        case LoopPointTool.TimeInput:
+                            EditorGUILayout.Space();
+
+                            // int casts are used instead of Mathf.RoundToInt so that we truncate the floats instead of rounding up
+                            GUILayout.BeginHorizontal();
+                            float theTime = loopStart * 1000f;
+                            GUILayout.Label("Loop Point Start:");
+                            int minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
+                            GUILayout.Label(":");
+                            int seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
+                            GUILayout.Label(":");
+                            float milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
+                            milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
+                            loopStart = (float)minutes * 60f + (float)seconds + milliseconds;
+                            GUILayout.EndHorizontal();
+
+                            GUILayout.BeginHorizontal();
+                            theTime = loopEnd * 1000f;
+                            GUILayout.Label("Loop Point End:  ");
+                            minutes = EditorGUILayout.IntField((int)(theTime / 60000f));
+                            GUILayout.Label(":");
+                            seconds = Mathf.Clamp(EditorGUILayout.IntField((int)((theTime % 60000) / 1000f)), 0, 59);
+                            GUILayout.Label(":");
+                            milliseconds = Mathf.Clamp(EditorGUILayout.IntField(Mathf.RoundToInt(theTime % 1000f)), 0, 999.0f);
+                            milliseconds /= 1000.0f; // Ensures that our milliseconds never leave their decimal place
+                            loopEnd = (float)minutes * 60f + (float)seconds + milliseconds;
+                            GUILayout.EndHorizontal();
+                            break;
+                        case LoopPointTool.TimeSamplesInput:
+                            GUILayout.Label("Song Duration (Samples): " + music.samples);
+                            EditorGUILayout.Space();
+
+                            GUILayout.BeginHorizontal();
+                            float samplesStart = EditorGUILayout.FloatField("Loop Point Start:", myScript.loopStart * music.frequency);
+                            GUILayout.EndHorizontal();
+                            loopStart = samplesStart / music.frequency;
+
+                            GUILayout.BeginHorizontal();
+                            float samplesEnd = JSAMExtensions.Clamp(EditorGUILayout.FloatField("Loop Point End:", myScript.loopEnd * music.frequency), 0, music.samples);
+                            GUILayout.EndHorizontal();
+                            loopEnd = samplesEnd / music.frequency;
+                            break;
+                        case LoopPointTool.BPMInput/*WithBeats*/:
+                            Undo.RecordObject(myScript, "Modified song BPM");
+                            myScript.bpm = EditorGUILayout.IntField("Song BPM: ", myScript.bpm/*, new GUILayoutOption[] { GUILayout.MaxWidth(30)}*/);
+
+                            EditorGUILayout.Space();
+
+                            float startBeat = loopStart / (60f / (float)myScript.bpm);
+                            startBeat = EditorGUILayout.FloatField("Starting Beat:", startBeat);
+
+                            float endBeat = loopEnd / (60f / (float)myScript.bpm);
+                            endBeat = Mathf.Clamp(EditorGUILayout.FloatField("Ending Beat:", endBeat), 0, music.length / (60f / myScript.bpm));
+
+                            loopStart = (float)startBeat * 60f / (float)myScript.bpm;
+                            loopEnd = (float)endBeat * 60f / (float)myScript.bpm;
+                            break;
+                    }
+
+                    GUIContent buttonText = new GUIContent("Reset Loop Points", "Click to set loop points to the start and end of the track.");
+                    if (GUILayout.Button(buttonText))
+                    {
+                        loopStart = 0;
+                        loopEnd = music.length;
+                    }
+                    using (new EditorGUI.DisabledScope(!myScript.Files[0].IsWavFile()))
+                    {
+                        if (myScript.Files[0].IsWavFile())
+                        {
+                            buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
+                        }
+                        else
+                        {
+                            buttonText = new GUIContent("Import Loop Points from .WAV Metadata", "This option is exclusive to .WAV files. Using this option will overwrite existing loop point data. Check the quick reference guide for details!");
+                        }
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button(buttonText))
+                        {
+                            // Zeugma440 and his Audio Tools Library is a godsend
+                            // https://github.com/Zeugma440/atldotnet/
+                            string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.Files[0].name)[0]);
+                            string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
+
+                            ATL.Track theTrack = new ATL.Track(trueFilePath);
+
+                            float frequency = myScript.Files[0].frequency;
+
+                            if (theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].Start") && theTrack.AdditionalFields.ContainsKey("sample.SampleLoop[0].End"))
+                            {
+                                loopStart = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].Start"]) / frequency;
+                                loopEnd = float.Parse(theTrack.AdditionalFields["sample.SampleLoop[0].End"]) / frequency;
+                            }
+                            else
+                            {
+                                EditorUtility.DisplayDialog("Error Reading Metadata", "Could not find any loop point data in " + myScript.Files[0].name + ".wav!/n" +
+                                    "Are you sure you wrote loop points in this file?", "OK");
+                            }
+
+                        }
+                        if (myScript.Files[0].IsWavFile())
+                        {
+                            buttonText = new GUIContent("Embed Loop Points to File", "Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
+                        }
+                        else
+                        {
+                            buttonText = new GUIContent("Embed Loop Points to File", "This option is exclusive to .WAV files. Clicking this will write the above start and end loop points into the actual file itself. Check the quick reference guide for details!");
+                        }
+                        if (GUILayout.Button(buttonText))
+                        {
+                            string filePath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets(myScript.Files[0].name)[0]);
+                            string trueFilePath = Application.dataPath.Remove(Application.dataPath.LastIndexOf("/") + 1) + filePath;
+
+                            ATL.Track theTrack = new ATL.Track(trueFilePath);
+
+                            float frequency = myScript.Files[0].frequency;
+
+                            if (EditorUtility.DisplayDialog("Confirm Loop Point saving", "This will overwrite loop point Start/End loop point markers saved in this .WAV file, are you sure you want to continue?", "Yes", "Cancel"))
+                            {
+                                theTrack.AdditionalFields["sample.MIDIUnityNote"] = "60";
+                                theTrack.AdditionalFields["sample.NumSampleLoops"] = "1";
+                                theTrack.AdditionalFields["sample.SampleLoop[0].Type"] = "0";
+                                theTrack.AdditionalFields["sample.SampleLoop[0].Start"] = (Mathf.RoundToInt(myScript.loopStart * frequency)).ToString();
+                                theTrack.AdditionalFields["sample.SampleLoop[0].End"] = (Mathf.RoundToInt(myScript.loopEnd * frequency)).ToString();
+                                theTrack.Save();
+                            }
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+
+                    if (myScript.loopStart != loopStart || myScript.loopEnd != loopEnd)
+                    {
+                        Undo.RecordObject(myScript, "Modified loop point properties");
+                        loopStartProperty.floatValue = Mathf.Clamp(loopStart, 0, music.length);
+                        loopEndProperty.floatValue = Mathf.Clamp(loopEnd, 0, Mathf.Ceil(music.length));
+                        EditorUtility.SetDirty(myScript);
+                        AudioPlaybackToolEditor.DoForceRepaint(true);
+                    }
+                }
+                EditorCompatability.EndSpecialFoldoutGroup();
+            }
+            
         }
 
         #region Audio Effect Rendering

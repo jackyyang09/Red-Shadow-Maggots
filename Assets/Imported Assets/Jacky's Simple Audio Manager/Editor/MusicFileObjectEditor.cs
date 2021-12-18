@@ -58,7 +58,7 @@ namespace JSAM.JSAMEditor
             SetupIcons();
             EditorApplication.update += Update;
             Undo.undoRedoPerformed += OnUndoRedo;
-            AudioPlaybackToolEditor.CreateAudioHelper(myScript.File);
+            AudioPlaybackToolEditor.CreateAudioHelper(myScript.Files[0]);
             Undo.postprocessModifications += ApplyHelperEffects;
 
             DesignateSerializedProperties();
@@ -88,7 +88,7 @@ namespace JSAM.JSAMEditor
             newPreset.excludedProperties = new string[] {
                 "useLibrary", "category"
             };
-            string path = JSAMSettings.Settings.PresetsPath + "/" + input[0] + ".preset";
+            string path = JSAMSettings.Settings.PresetsPath + "\"" + input[0] + ".preset";
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
         }
 
@@ -102,18 +102,7 @@ namespace JSAM.JSAMEditor
 
             RenderGeneratePresetButton();
 
-            EditorGUILayout.PropertyField(file);
-
             DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
-
-            if (myScript.File == null)
-            {
-                EditorGUILayout.HelpBox("Error! Add an audio file before running!", MessageType.Error);
-            }
-            if (myScript.name.Contains("NEW AUDIO FILE") || myScript.name.Equals("None") || myScript.name.Equals("GameObject"))
-            {
-                EditorGUILayout.HelpBox("Warning! Change the name of this file to something different or things will break!", MessageType.Warning);
-            }
 
             DrawLoopPointTools(myScript);
 
@@ -198,7 +187,7 @@ namespace JSAM.JSAMEditor
             showPlaybackTool = EditorCompatability.SpecialFoldouts(showPlaybackTool, blontent);
             if (showPlaybackTool)
             {
-                AudioClip music = myScript.File;
+                AudioClip music = myScript.Files[0];
                 Rect progressRect = ProgressBar((float)AudioPlaybackToolEditor.helperSource.timeSamples / (float)AudioPlaybackToolEditor.helperSource.clip.samples, GetInfoString());
 
                 EditorGUILayout.BeginHorizontal();
@@ -228,8 +217,8 @@ namespace JSAM.JSAMEditor
                             AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp((newProgress * music.length), 0, music.length - AudioManagerInternal.EPSILON);
                             if (myScript.loopMode == LoopMode.ClampedLoopPoints)
                             {
-                                float start = myScript.loopStart * myScript.File.frequency;
-                                float end = myScript.loopEnd * myScript.File.frequency;
+                                float start = myScript.loopStart * myScript.Files[0].frequency;
+                                float end = myScript.loopEnd * myScript.Files[0].frequency;
                                 AudioPlaybackToolEditor.helperSource.timeSamples = (int)Mathf.Clamp(AudioPlaybackToolEditor.helperSource.timeSamples, start, end - AudioManagerInternal.EPSILON);
                             }
                             break;
@@ -350,7 +339,7 @@ namespace JSAM.JSAMEditor
             // Get a rect for the progress bar using the same margins as a text field
             Rect rect = GUILayoutUtility.GetRect(64, 64, "TextField");
 
-            AudioClip music = ((JSAMMusicFileObject)target).File;
+            AudioClip music = ((JSAMMusicFileObject)target).Files[0];
 
             if (cachedTex == null || AudioPlaybackToolEditor.forceRepaint)
             {
@@ -379,7 +368,7 @@ namespace JSAM.JSAMEditor
         {
             JSAMMusicFileObject myScript = (JSAMMusicFileObject)target;
             if (myScript == null) return;
-            AudioClip music = myScript.File;
+            AudioClip music = myScript.Files[0];
             if (music != cachedClip)
             {
                 AudioPlaybackToolEditor.DoForceRepaint(true);
@@ -493,7 +482,7 @@ namespace JSAM.JSAMEditor
 
                 // Draw Loop Start
                 newRect.height = height;
-                newRect.xMax = (music.loopStart / music.File.length) * width;
+                newRect.xMax = (music.loopStart / music.Files[0].length) * width;
                 float firstLabel = newRect.xMax;
 
                 GUI.Box(newRect, "");
@@ -503,7 +492,7 @@ namespace JSAM.JSAMEditor
 
                 // Draw Loop End
                 newRect.height = height;
-                newRect.xMin = (music.loopEnd / music.File.length) * width;
+                newRect.xMin = (music.loopEnd / music.Files[0].length) * width;
                 float secondLabel = newRect.xMin;
                 newRect.xMax = width;
                 GUI.Box(newRect, "");
@@ -528,8 +517,8 @@ namespace JSAM.JSAMEditor
 
                 newRect.x = 0;
                 newRect.height = height;
-                newRect.xMin = (music.loopStart / music.File.length) * width;
-                newRect.xMax = (music.loopEnd / music.File.length) * width;
+                newRect.xMin = (music.loopStart / music.Files[0].length) * width;
+                newRect.xMax = (music.loopEnd / music.Files[0].length) * width;
                 JSAMEditorHelper.BeginColourChange(Color.green);
                 GUI.Box(newRect, "", "SelectionRect");
                 JSAMEditorHelper.EndColourChange();

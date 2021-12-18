@@ -33,7 +33,7 @@ public class BaseHealEffect : BaseGameEffect
         target.Heal(healAmount);
     }
 
-    public override void Tick()
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
 
     }
@@ -67,6 +67,6 @@ public class BaseHealEffect : BaseGameEffect
                 healAmount = 5000;
                 break;
         }
-        return "Heal " + healAmount + " per turn";
+        return "Recover " + healAmount + " health";
     }
 }

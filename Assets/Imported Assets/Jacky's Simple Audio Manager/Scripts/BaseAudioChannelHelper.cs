@@ -193,35 +193,28 @@ namespace JSAM
 
         public void AssignNewAudioClip()
         {
-            if (audioFile.UsingLibrary)
+            AudioClip[] library = audioFile.Files.ToArray();
+            int index = 0;
+            if (audioFile.Files.Count > 1) // The user actually bothered to include multiple audioFiles
             {
-                AudioClip[] library = audioFile.Files.ToArray();
-                int index = 0;
-                if (audioFile.FileCount > 1) // The user actually bothered to include multiple audioFiles
+                do
                 {
-                    do
+                    index = Random.Range(0, library.Length);
+                    AudioSource.clip = library[index];
+                    if (AudioSource.clip == null)
                     {
-                        index = Random.Range(0, library.Length);
-                        AudioSource.clip = library[index];
-                        if (AudioSource.clip == null)
-                        {
-                            Debug.LogWarning("Missing AudioClip at index " + index +
-                                " in Audio audioFile " + audioFile.SafeName + "'s library!");
-                        }
-                    } while (index == audioFile.lastClipIndex && audioFile.neverRepeat);
-                    if (audioFile.neverRepeat)
-                    {
-                        audioFile.lastClipIndex = index;
+                        Debug.LogWarning("Missing AudioClip at index " + index +
+                            " in Audio audioFile " + audioFile.SafeName + "'s library!");
                     }
-                }
-                else
+                } while (index == audioFile.lastClipIndex && audioFile.neverRepeat);
+                if (audioFile.neverRepeat)
                 {
-                    AudioSource.clip = audioFile.FirstAvailableFile;
+                    audioFile.lastClipIndex = index;
                 }
             }
             else
             {
-                AudioSource.clip = audioFile.File;
+                AudioSource.clip = audioFile.Files[0];
             }
         }
 

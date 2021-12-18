@@ -15,7 +15,8 @@ namespace JSAM
             }
 
             List<string> enums = new List<string>();
-            System.Type enumType =  AudioLibrary.GetEnumType(AudioManager.Instance.Library.soundNamespaceGenerated);
+            var library = AudioManager.Instance.Library;
+            System.Type enumType =  AudioLibrary.GetEnumType(library.soundNamespaceGenerated + library.soundEnumGenerated);
             enums.AddRange(System.Enum.GetNames(enumType));
             return enums.IndexOf(name);
         }

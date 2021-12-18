@@ -782,7 +782,7 @@ namespace JSAM.JSAMEditor
                         "This process cannot be undone, but can be recovered from the system trash bin.", "Yes", "No");
                     if (result)
                     {
-                        string path = JSAMSettings.Settings.LibraryPath + "/" + projectLibrariesNames[selectedLibrary] + ".asset";
+                        string path = JSAMSettings.Settings.LibraryPath + "\"" + projectLibrariesNames[selectedLibrary] + ".asset";
                         AssetDatabase.MoveAssetToTrash(path);
                         LoadLibraries();
                     }
@@ -1097,7 +1097,7 @@ namespace JSAM.JSAMEditor
             var newLibrary = CreateInstance<AudioLibrary>();
             newLibrary.name = input[0];
             newLibrary.InitializeValues();
-            string path = JSAMSettings.Settings.LibraryPath + "/" + input[0] + ".asset";
+            string path = JSAMSettings.Settings.LibraryPath + "\"" + input[0] + ".asset";
             if (JSAMEditorHelper.CreateAssetSafe(newLibrary, path))
             {
                 LoadLibraries(newLibrary.name);
@@ -1196,10 +1196,10 @@ namespace JSAM.JSAMEditor
                     string multiLine = string.Empty;
                     for (int i = 0; i < duplicates.Count; i++)
                     {
-                        multiLine = duplicates[i].name + "\n";
+                        multiLine = duplicates[i].name + "/n";
                     }
                     EditorUtility.DisplayDialog("Duplicate Audio Files!",
-                        "The following Audio File Objects are already present in the Audio Library! They have been skipped.\n" + multiLine,
+                        "The following Audio File Objects are already present in the Audio Library! They have been skipped./n" + multiLine,
                         "OK");
                 }
 
@@ -1641,7 +1641,7 @@ namespace JSAM.JSAMEditor
             if (categorySize > 0)
             {
                 bool cancel = EditorUtility.DisplayDialog("Delete Category?", "This category holds " + categorySize + " Audio File object(s). " +
-                    "Are you sure you want to remove the category as well all its Audio Files from this library?\n" +
+                    "Are you sure you want to remove the category as well all its Audio Files from this library?/n" +
                     "(Note: This process can be undone with Edit -> Undo)", "Yes", "No");
                 if (!cancel)
                 {
@@ -1737,8 +1737,8 @@ namespace JSAM.JSAMEditor
                 }
             }
 
-            string fileName = "\\AudioEnums - " + asset.SafeName + ".cs";
-            string prevName = "\\AudioEnums - " + asset.generatedName + ".cs";
+            string fileName = "//AudioEnums - " + asset.SafeName + ".cs";
+            string prevName = "//AudioEnums - " + asset.generatedName + ".cs";
 
             if (!JSAMEditorHelper.GenerateFolderStructureAt(filePath))
             {
@@ -1800,7 +1800,7 @@ namespace JSAM.JSAMEditor
 
             EditorUtility.DisplayProgressBar("Re-generating Audio Library", "Generating enum code...", 0.15f);
 
-            // May want to use filePath = "//" + fileName instead?
+            // May want to use filePath = "/\" + fileName instead?
             filePath += fileName;
             File.WriteAllText(filePath, string.Empty);
             StreamWriter writer = new StreamWriter(filePath, true);
@@ -1916,9 +1916,9 @@ namespace JSAM.JSAMEditor
                 EditorUtility.DisplayDialog("Warning",
                     "Your entry contained elements that wouldn't work once converted into code! " +
                     "The name has been fixed for you, but remember to avoid the following: " +
-                    "\n - Spaces " +
-                    "\n - Non-alphanumeric characters " +
-                    "\n - Having a number in the very front ",
+                    "/n - Spaces " +
+                    "/n - Non-alphanumeric characters " +
+                    "/n - Having a number in the very front ",
                     "Got it.");
                 nextProperty.stringValue = fixedString;
             }

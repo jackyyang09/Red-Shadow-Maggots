@@ -224,7 +224,7 @@ namespace JSAM.JSAMEditor
                     "than what's shown on the Unity Asset Store, so give it a look just in case!"
                     );
                 JSAMEditorHelper.RenderHelpbox(
-                    "Here are some helpful links, more of which can be found under\nWindows -> JSAM -> JSAM Startup"
+                    "Here are some helpful links, more of which can be found under/nWindows -> JSAM -> JSAM Startup"
                     );
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();

@@ -14,13 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   safeName: Hit_Effective
   presetDescription: 
-  file: {fileID: 8300000, guid: b419ca4ff0d2b96488ee75d8874f0e68, type: 3}
-  files: []
+  files:
+  - {fileID: 8300000, guid: f9580bb6d56a155409a268acea95b5b6, type: 3}
   loopStart: 0
   loopEnd: 0
   bpm: 120
-  useLibrary: 0
-  relativeVolume: 0.266
+  relativeVolume: 0.35
   spatialize: 0
   maxDistance: 0
   priority: 64
@@ -68,15 +67,15 @@ MonoBehaviour:
     room: 0
     roomHF: 0
     roomLF: 0
-    decayTime: 0
-    decayHFRatio: 0
-    reflectionsLevel: 0
+    decayTime: 1
+    decayHFRatio: 0.5
+    reflectionsLevel: -10000
     reflectionsDelay: 0
     reverbLevel: 0
-    reverbDelay: 0
-    hFReference: 0
-    lFReference: 0
-    diffusion: 0
-    density: 0
+    reverbDelay: 0.04
+    hFReference: 5000
+    lFReference: 250
+    diffusion: 100
+    density: 100
   neverRepeat: 0
   lastClipIndex: -1

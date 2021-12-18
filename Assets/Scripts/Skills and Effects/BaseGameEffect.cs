@@ -7,7 +7,8 @@ public enum EffectType
     None,
     Heal,
     Buff,
-    Debuff
+    Debuff,
+    Damage
 }
 
 public enum EffectStrength
@@ -23,6 +24,7 @@ public enum EffectStrength
 /// <summary>
 /// The base definition of a singular game effect
 /// </summary>
+[UnityEditor.CanEditMultipleObjects]
 public abstract class BaseGameEffect : ScriptableObject
 {
     public Sprite effectIcon;
@@ -33,7 +35,12 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public EffectType effectType = EffectType.None;
 
+    public bool hasTickAnimation = false;
+
     public GameObject particlePrefab;
+
+    public JSAM.JSAMSoundFileObject activationSound;
+    public JSAM.JSAMSoundFileObject tickSound;
 
     /// <summary>
     /// Invoked immediately
@@ -44,7 +51,7 @@ public abstract class BaseGameEffect : ScriptableObject
     /// <summary>
     /// Called on every turn after it's activation
     /// </summary>
-    public abstract void Tick();
+    public abstract void Tick(BaseCharacter target, EffectStrength strength, float[] customValues);
 
     public abstract void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues);
 

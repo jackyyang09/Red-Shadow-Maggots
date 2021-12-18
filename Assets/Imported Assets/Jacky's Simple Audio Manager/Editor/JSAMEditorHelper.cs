@@ -54,6 +54,11 @@ namespace JSAM.JSAMEditor
             return null;
         }
 
+        public static GUIContent GUIContent(this SerializedProperty property)
+        {
+            return new GUIContent(property.displayName, property.tooltip);
+        }
+
         public static string TimeToString(this float time)
         {
             time *= 1000;
@@ -224,14 +229,20 @@ namespace JSAM.JSAMEditor
             return true;
         }
 
-        public static void SmartFolderField(SerializedProperty folderProp)
+        public static void RenderSmartFolderProperty(GUIContent content, SerializedProperty folderProp, bool limitToAssetFolder = true)
         {
             EditorGUILayout.BeginHorizontal();
+            SmartFolderField(content, folderProp, limitToAssetFolder);
+            SmartBrowseButton(folderProp, limitToAssetFolder);
+            EditorGUILayout.EndHorizontal();
+        }
+
+        public static void SmartFolderField(GUIContent content, SerializedProperty folderProp, bool limitToAssetsFolder = true)
+        {
             string filePath = folderProp.stringValue;
             if (filePath == string.Empty) filePath = Application.dataPath;
-            GUIContent blontent = new GUIContent(folderProp.displayName, folderProp.tooltip);
             EditorGUI.BeginChangeCheck();
-            filePath = EditorGUILayout.DelayedTextField(blontent, filePath);
+            filePath = EditorGUILayout.DelayedTextField(content, filePath);
             if (EditorGUI.EndChangeCheck())
             {
                 // If the user presses "cancel"
@@ -240,24 +251,58 @@ namespace JSAM.JSAMEditor
                     return;
                 }
                 // or specifies something outside of this folder, reset filePath and don't proceed
-                else if (!filePath.Contains("Assets"))
+                else if (limitToAssetsFolder)
                 {
-                    EditorUtility.DisplayDialog("Folder Browsing Error!", "AudioManager is a Unity editor tool and can only " +
-                        "function inside the project's Assets folder. Please choose a different folder.", "OK");
-                    return;
-                }
-                else
-                {
-                    // Fix path to be usable for AssetDatabase.FindAssets
-                    filePath = filePath.Remove(0, filePath.IndexOf("Assets"));
-                    if (filePath[filePath.Length - 1] == '/') filePath = filePath.Remove(filePath.Length - 1, 1);
+                    if (!filePath.Contains("Assets"))
+                    {
+                        EditorUtility.DisplayDialog("Folder Browsing Error!", "Please choose a different folder inside the project's Assets folder.", "OK");
+                        return;
+                    }
+                    else
+                    {
+                        // Fix path to be usable for AssetDatabase.FindAssets
+                        filePath = filePath.Remove(0, filePath.IndexOf("Assets"));
+                        if (filePath[filePath.Length - 1] == '/') filePath = filePath.Remove(filePath.Length - 1, 1);
+                    }
                 }
             }
-            SmartBrowseButton(folderProp);
-            EditorGUILayout.EndHorizontal();
+            folderProp.stringValue = filePath;
         }
-		
-		public static void OpenSmartSaveFileDialog<T>(string defaultName = "New Object", string startingPath = "Assets") where T : ScriptableObject
+
+        public static void SmartBrowseButton(SerializedProperty folderProp, bool limitToAssetFolder = true)
+        {
+            GUIContent buttonContent = new GUIContent("Browse", "Designate a New Folder");
+            if (GUILayout.Button(buttonContent, new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.MaxWidth(55) }))
+            {
+                string filePath = folderProp.stringValue;
+                filePath = EditorUtility.OpenFolderPanel("Specify a New Folder", filePath, string.Empty);
+
+                // If the user presses "cancel"
+                if (filePath.Equals(string.Empty))
+                {
+                    return;
+                }
+                if (limitToAssetFolder)
+                {
+                    // or specifies something outside of this folder, reset filePath and don't proceed
+                    if (!filePath.Contains("Assets"))
+                    {
+                        EditorUtility.DisplayDialog("Folder Browsing Error!", "AudioManager is a Unity editor tool and can only " +
+                            "function inside the project's Assets folder. Please choose a different folder.", "OK");
+                        return;
+                    }
+                    else if (filePath.Contains(Application.dataPath))
+                    {
+                        // Fix path to be usable for AssetDatabase.FindAssets
+                        filePath = filePath.Remove(0, filePath.IndexOf("Assets"));
+                    }
+                }
+
+                folderProp.stringValue = filePath;
+            }
+        }
+
+        public static void OpenSmartSaveFileDialog<T>(string defaultName = "New Object", string startingPath = "Assets") where T : ScriptableObject
         {
             string savePath = EditorUtility.SaveFilePanel("Designate save path", startingPath, defaultName, "asset");
             if (savePath != "") // Make sure user didn't press "Cancel"
@@ -267,6 +312,54 @@ namespace JSAM.JSAMEditor
                 CreateAssetSafe(asset, savePath);
                 EditorUtility.FocusProjectWindow();
                 Selection.activeObject = asset;
+            }
+        }
+
+        public static string OpenSmartSaveFileDialog<T>(out T asset, string defaultName = "New Object", string startingPath = "Assets") where T : ScriptableObject
+        {
+            string savePath = EditorUtility.SaveFilePanel("Designate save path", startingPath, defaultName, "asset");
+            asset = null;
+            if (savePath != "") // Make sure user didn't press "Cancel"
+            {
+                asset = ScriptableObject.CreateInstance<T>();
+                savePath = savePath.Remove(0, savePath.IndexOf("Assets/"));
+                CreateAssetSafe(asset, savePath);
+                EditorUtility.FocusProjectWindow();
+                Selection.activeObject = asset;
+            }
+            return savePath;
+        }
+
+        public static void SmartBrowseButton(SerializedProperty pathProp, string panelTitle = "Specify a New File", string extension = "", bool limitToAssetsFolder = true)
+        {
+            GUIContent buttonContent = new GUIContent(" Browse ", "Designate a New Folder");
+            if (GUILayout.Button(buttonContent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
+            {
+                string filePath = pathProp.stringValue;
+                filePath = EditorUtility.OpenFilePanel(panelTitle, filePath, extension);
+
+                // If the user presses "cancel"
+                if (filePath.Equals(string.Empty))
+                {
+                    return;
+                }
+                if (limitToAssetsFolder)
+                {
+                    // or specifies something outside of this folder, reset filePath and don't proceed
+                    if (!filePath.Contains("Assets"))
+                    {
+                        EditorUtility.DisplayDialog("Folder Browsing Error!", "AudioManager is a Unity editor tool and can only " +
+                            "function inside the project's Assets folder. Please choose a different folder.", "OK");
+                        return;
+                    }
+                    else if (filePath.Contains(Application.dataPath))
+                    {
+                        // Fix path to be usable for AssetDatabase.FindAssets
+                        filePath = filePath.Remove(0, filePath.IndexOf("Assets"));
+                    }
+                }
+
+                pathProp.stringValue = filePath;
             }
         }
 

@@ -63,7 +63,7 @@ public class BaseDefenceBuff : BaseGameEffect
         target.ApplyDefenseModifier(-percentageChange);
     }
 
-    public override void Tick()
+    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 

@@ -221,8 +221,8 @@ namespace JSAM.JSAMEditor
             }
 
             blontent = new GUIContent("Refresh Presets", "Reload your assets from your configured preset folder. " +
-                "\nPress this button if you recently created a new Audio File preset and don't see it in the drop-down menu. " +
-                "\nYou can change your preset folder location in Project Settings -> Audio - JSAM");
+                "/nPress this button if you recently created a new Audio File preset and don't see it in the drop-down menu. " +
+                "/nYou can change your preset folder location in Project Settings -> Audio - JSAM");
             if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
             {
                 LoadPresets();
@@ -244,7 +244,7 @@ namespace JSAM.JSAMEditor
             EditorGUILayout.LabelField(new GUIContent("Preset Description"), blontent, skin, new GUILayoutOption[] { GUILayout.ExpandWidth(true) });
             EditorGUILayout.EndHorizontal();
 
-            JSAMEditorHelper.SmartFolderField(outputFolder);
+            JSAMEditorHelper.RenderSmartFolderProperty(new GUIContent("Output Folder"), outputFolder);
 
             blontent = new GUIContent("Generate Audio File Objects", 
                 "Create audio file objects with the provided Audio Clips according to the selected preset. " +
@@ -327,7 +327,7 @@ namespace JSAM.JSAMEditor
                 var newObject = CreateInstance<T>();
                 preset.ApplyTo(newObject);
                 SerializedObject newSO = new SerializedObject(newObject);
-                newSO.FindProperty("file").objectReferenceValue = asset.files[i];
+                newSO.FindProperty("files").AddNewArrayElement().objectReferenceValue = asset.files[i];
                 newSO.ApplyModifiedProperties();
                 string finalPath = folder + "/" + asset.files[i].name + ".asset";
                 JSAMEditorHelper.CreateAssetSafe(newObject, finalPath);
@@ -370,10 +370,10 @@ namespace JSAM.JSAMEditor
                     string multiLine = string.Empty;
                     for (int i = 0; i < duplicates.Count; i++)
                     {
-                        multiLine = duplicates[i].name + "\n";
+                        multiLine = duplicates[i].name + "/n";
                     }
                     EditorUtility.DisplayDialog("Duplicate Audio Clips!",
-                        "The following Audio File Objects are already present in the wizard and have been skipped.\n" + multiLine,
+                        "The following Audio File Objects are already present in the wizard and have been skipped./n" + multiLine,
                         "OK");
                 }
 
