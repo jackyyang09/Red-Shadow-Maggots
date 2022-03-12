@@ -13,6 +13,8 @@ namespace JSAM.JSAMEditor
     [CustomEditor(typeof(AudioManager))]
     public class AudioManagerEditor : Editor
     {
+        static Color buttonPressedColor = new Color(1, 1, 1);
+
         AudioManager myScript;
 
         //static bool showAdvancedSettings;
@@ -29,6 +31,23 @@ namespace JSAM.JSAMEditor
         SerializedProperty mixer;
 
         List<string> excludedProperties = new List<string> { "m_Script" };
+
+        const string SHOW_VOLUME = "JSAM_AUDIOMANAGER_SHOWLIBRARY";
+        static bool showVolume
+        {
+            get
+            {
+                if (!EditorPrefs.HasKey(SHOW_VOLUME))
+                {
+                    EditorPrefs.SetBool(SHOW_VOLUME, false);
+                }
+                return EditorPrefs.GetBool(SHOW_VOLUME);
+            }
+            set
+            {
+                EditorPrefs.SetBool(SHOW_VOLUME, value);
+            }
+        }
 
         private void OnEnable()
         {
@@ -67,7 +86,7 @@ namespace JSAM.JSAMEditor
             if (AudioManager.Instance == myScript)
             {
                 JSAMEditorHelper.BeginColourChange(Color.green);
-                EditorGUILayout.LabelField("Looks good! This is the active AudioManager!", EditorStyles.label.ApplyTextAnchor(TextAnchor.MiddleCenter));
+                EditorGUILayout.LabelField("Looks good! This is the active AudioManager!", EditorStyles.boldLabel.ApplyTextAnchor(TextAnchor.MiddleCenter));
                 JSAMEditorHelper.EndColourChange();
             }
             else
@@ -77,6 +96,8 @@ namespace JSAM.JSAMEditor
                 JSAMEditorHelper.EndColourChange();
             }
             EditorGUILayout.EndVertical();
+
+            RenderVolumeControls();
 
             //EditorGUILayout.Space();
 
@@ -305,6 +326,98 @@ namespace JSAM.JSAMEditor
                 EditorGUIUtility.PingObject(existingAudioManager);
                 Debug.Log("AudioManager already exists in this scene!");
             }
+        }
+
+        void RenderVolumeControls()
+        {
+            showVolume = EditorCompatability.SpecialFoldouts(showVolume, new GUIContent("Volume Controls"));
+
+            float master = 1, music = 1, sound = 1;
+            bool masterMuted = false, musicMuted = false, soundMuted = false;
+
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            using (new EditorGUI.DisabledGroupScope(!Application.isPlaying))
+            {
+                if (Application.isPlaying)
+                {
+                    master = AudioManager.MasterVolume;
+                    music = AudioManager.MusicVolume;
+                    sound = AudioManager.SoundVolume;
+                    masterMuted = AudioManager.MasterMuted;
+                    musicMuted = AudioManager.MusicMuted;
+                    soundMuted = AudioManager.SoundMuted;
+                }
+                else
+                {
+                    EditorGUILayout.LabelField("Volume can only be changed during runtime!", GUI.skin.label.ApplyWordWrap().ApplyBoldText());
+                }
+
+                if (showVolume)
+                {
+                    {   // MASTER
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(new GUIContent("Master Volume"), new GUILayoutOption[] { GUILayout.MaxWidth(85) });
+                        if (masterMuted) JSAMEditorHelper.BeginColourChange(buttonPressedColor);
+                        if (JSAMEditorHelper.CondensedButton(" MUTE "))
+                        {
+                            AudioManager.MasterMuted = !AudioManager.MasterMuted;
+                        }
+                        if (masterMuted) JSAMEditorHelper.EndColourChange();
+                        using (new EditorGUI.DisabledGroupScope(masterMuted))
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            float vol = EditorGUILayout.Slider(master, 0, 1);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                AudioManager.SetMasterVolume(vol);
+                            }
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    {   // MUSIC
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(new GUIContent("Music Volume"), new GUILayoutOption[] { GUILayout.MaxWidth(85) });
+                        if (musicMuted) JSAMEditorHelper.BeginColourChange(buttonPressedColor);
+                        if (JSAMEditorHelper.CondensedButton(" MUTE "))
+                        {
+                            AudioManager.MusicMuted = !AudioManager.MusicMuted;
+                        }
+                        if (musicMuted) JSAMEditorHelper.EndColourChange();
+                        using (new EditorGUI.DisabledGroupScope(musicMuted))
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            float vol = EditorGUILayout.Slider(music, 0, 1);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                AudioManager.SetMusicVolume(vol);
+                            }
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                    {   // SOUND
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField(new GUIContent("Sound Volume"), new GUILayoutOption[] { GUILayout.MaxWidth(85) });
+                        if (soundMuted) JSAMEditorHelper.BeginColourChange(buttonPressedColor);
+                        if (JSAMEditorHelper.CondensedButton(" MUTE "))
+                        {
+                            AudioManager.SoundMuted = !AudioManager.SoundMuted;
+                        }
+                        if (soundMuted) JSAMEditorHelper.EndColourChange();
+                        using (new EditorGUI.DisabledGroupScope(soundMuted))
+                        {
+                            EditorGUI.BeginChangeCheck();
+                            float vol = EditorGUILayout.Slider(sound, 0, 1);
+                            if (EditorGUI.EndChangeCheck())
+                            {
+                                AudioManager.SetSoundVolume(vol);
+                            }
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+            }
+            EditorGUILayout.EndVertical();
+            EditorCompatability.EndSpecialFoldoutGroup();
         }
     }
 }

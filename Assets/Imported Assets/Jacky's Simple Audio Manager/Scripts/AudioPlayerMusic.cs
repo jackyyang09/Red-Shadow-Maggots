@@ -70,7 +70,7 @@ namespace JSAM
 
         public void Stop()
         {
-            AudioManager.StopMusic(music, transform, stopInstantly);
+            AudioManager.StopMusic(music, transform, true);
             helper = null;
         }
 
@@ -92,11 +92,11 @@ namespace JSAM
         {
             while (!AudioManager.Instance)
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
-            while (!AudioManager.Instance.Initialized())
+            while (!AudioManager.Instance.Initialized)
             {
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
 
             playRoutine = null;

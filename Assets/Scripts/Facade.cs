@@ -5,5 +5,6 @@
     public static EnemyWaveManager waveManager => EnemyWaveManager.Instance;
     public static GlobalIndex index => GlobalIndex.Instance;
     public static SceneTweener sceneTweener => SceneTweener.Instance;
-    public static UIManager ui => UIManager.instance;
+    public static UIManager ui => UIManager.Instance;
+    public static CanteenSystem canteenSystem => CanteenSystem.Instance;
 }

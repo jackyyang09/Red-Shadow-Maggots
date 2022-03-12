@@ -9,6 +9,7 @@ using static Facade;
 public class AnimationHelper : MonoBehaviour
 {
     BaseCharacter baseCharacter;
+    public BaseCharacter BaseCharacter { get { return baseCharacter; } }
 
     [Header("Knockback Properties")]
 
@@ -34,7 +35,7 @@ public class AnimationHelper : MonoBehaviour
     [SerializeField] Cinemachine.CinemachineVirtualCamera vCam = null;
     [SerializeField] Cinemachine.CinemachineImpulseSource impulse = null;
 
-    [SerializeField] SuperCriticalEffect superCrits = null;
+    [SerializeField] CritGlowEffect[] critEffects = null;
 
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
@@ -42,11 +43,19 @@ public class AnimationHelper : MonoBehaviour
     List<Action> onFinishSkillAnimation = new List<Action>();
     public void RegisterOnFinishSkillAnimation(Action newAction) => onFinishSkillAnimation.Add(newAction);
 
+    int exposureID;
     private void Awake()
     {
         baseCharacter = GetComponentInParent<BaseCharacter>();
 
         DisableRagdoll();
+
+        exposureID = Shader.PropertyToID("_Exposure");
+    }
+
+    private void OnDisable()
+    {
+        ResetSky();
     }
 
     [ContextMenu("Setup Ragdoll References")]
@@ -116,6 +125,19 @@ public class AnimationHelper : MonoBehaviour
         GlobalEvents.OnExitBattleCutscene?.Invoke();
     }
 
+    public void BeginSuperCritical()
+    {
+        EnterCutscene();
+        ShowVirtualCamera();
+        DarkenSky();
+        AudioManager.PlaySound(BattleSceneSounds.SuperCritical);
+    }
+
+    public void EndSuperCritical()
+    {
+        HideVirtualCamera();
+    }
+
     // TODO: Try the priority system instead
     public void ShowVirtualCamera() => vCam.enabled = true;
     public void HideVirtualCamera()
@@ -125,7 +147,7 @@ public class AnimationHelper : MonoBehaviour
     
     public void MakePlayerCamLookAtMe()
     {
-        SceneTweener.Instance.PlayerCamera.LookAt = transform;
+        sceneTweener.PlayerCamera.LookAt = transform;
     }
 
     [ContextMenu("Test Impulse")]
@@ -182,45 +204,35 @@ public class AnimationHelper : MonoBehaviour
         onFinishSkillAnimation.Clear();
     }
 
-    int superCritBuffsApplied = 0;
-    public void ApplyNextSuperCritBuff()
+    public void EnableCrits()
     {
-        SkillObject superCrit = baseCharacter.Reference.superCritical;
-        baseCharacter.ApplyEffectToCharacter(superCrit.gameEffects[superCritBuffsApplied], baseCharacter);
-        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[superCritBuffsApplied].effect);
-        superCritBuffsApplied++;
-    }
-
-    public void StartSuperCritical()
-    {
-        if (superCrits)
+        for (int i = 0; i < critEffects.Length; i++)
         {
-            superCrits.InvokeSuperCritStart();
+            critEffects[i].EnableCrits();
         }
     }
 
-    public void FinishSuperCritical()
+    public void DisableCrits()
     {
-        superCritBuffsApplied = 0;
-        if (superCrits)
+        for (int i = 0; i < critEffects.Length; i++)
         {
-            superCrits.InvokeSuperCritEnd();
+            critEffects[i].DisableCrits();
         }
-        GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
     }
 
     public void SkillUntween()
     {
-        SceneTweener.Instance.LerpCamera.enabled = true;
-        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;
+        sceneTweener.LerpCamera.enabled = true;
+        sceneTweener.LerpCamera.transform.position = vCam.transform.position;
         Invoke(nameof(DisableLerpCam), 1.5f);
     }
-    void DisableLerpCam() => SceneTweener.Instance.LerpCamera.enabled = false;
+    void DisableLerpCam() => sceneTweener.LerpCamera.enabled = false;
 
     public void SuperCritUntween()
     {
-        SceneTweener.Instance.LerpCamera.enabled = true;
-        SceneTweener.Instance.LerpCamera.transform.position = vCam.transform.position;
+        sceneTweener.LerpCamera.enabled = true;
+        sceneTweener.LerpCamera.transform.position = vCam.transform.position;
+        sceneTweener.RotateBackInstantly();
         Invoke(nameof(DisableLerpCam), 0.01f);
     }
 
@@ -265,11 +277,16 @@ public class AnimationHelper : MonoBehaviour
 
     public void DarkenSky()
     {
-        RenderSettings.skybox.DOFloat(0, "_Exposure", 0.25f);
+        RenderSettings.skybox.DOFloat(0, exposureID, 0.25f);
     }
 
     public void BrightenSky()
     {
-        RenderSettings.skybox.DOFloat(0.95f, "_Exposure", 0.25f);
+        RenderSettings.skybox.DOFloat(0.95f, exposureID, 0.25f);
+    }
+
+    void ResetSky()
+    {
+        RenderSettings.skybox.SetFloat(exposureID, 0.95f);
     }
 }

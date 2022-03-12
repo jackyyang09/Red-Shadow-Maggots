@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using DG.Tweening;
 using static Facade;
 
 public class CharacterUI : BaseGameUI
 {
     [SerializeField] protected BaseCharacter designatedCharacter = null;
-    [SerializeField] protected List<BaseGameEffect> effects = new List<BaseGameEffect>();
+    [SerializeField] protected List<AppliedEffect> effects = new List<AppliedEffect>();
+    List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
 
     [Header("Crit Charge Bars")]
     [SerializeField] GridLayoutGroup layoutGroup = null;
@@ -17,15 +19,23 @@ public class CharacterUI : BaseGameUI
     [SerializeField] Color chargeEmptyColor;
     [SerializeField] Color fullColor;
 
+    [Header("Crit Charge Fill")]
+    [SerializeField] float tweenTime = 0.35f;
+    [SerializeField] float barFlashSpeed = 0.5f;
+    [SerializeField] TextMeshProUGUI chargeText = null;
+    [SerializeField] Image chargeFill = null;
+
     [Header("Object References")]
     [SerializeField] protected TextMeshProUGUI nameText = null;
     [SerializeField] protected Image classIcon = null;
     [SerializeField] protected GameObject iconPrefab = null;
     [SerializeField] protected RectTransform iconContainer = null;
-    [SerializeField] protected GameObject critCanvas = null;
+    [SerializeField] protected GameObject playerCritCanvas = null;
+    [SerializeField] protected GameObject enemyCritCanvas = null;
     protected List<Image> iconImages = new List<Image>();
     [SerializeField] SimpleHealth health = null;
 
+    PlayerCharacter player;
     EnemyCharacter enemy;
 
     public virtual void InitializeWithCharacter(BaseCharacter character)
@@ -43,29 +53,40 @@ public class CharacterUI : BaseGameUI
         enemy = designatedCharacter as EnemyCharacter;
         if (enemy)
         {
-            enemy.onCritLevelChanged += UpdateCritChargeLevel;
-            critCanvas.SetActive(true);
+            enemy.onCritLevelChanged += UpdateEnemyCritCharge;
 
             for (int i = chargeBars.Count - 1; i >= enemy.Reference.turnsToCrit; i--)
             {
                 chargeBars[i].gameObject.SetActive(false);
                 chargeBars.RemoveAt(i);
-                UpdateCritChargeLevel(0);
+                UpdateEnemyCritCharge(0);
             }
         }
-        else
+
+        if (playerCritCanvas)
         {
-            critCanvas.SetActive(false);
+            playerCritCanvas.SetActive(!enemy);
+        }
+        if (enemyCritCanvas)
+        {
+            enemyCritCanvas.SetActive(enemy);
+        }
+
+        if (!enemy)
+        {
+            player = designatedCharacter as PlayerCharacter;
+            player.OnCharacterCritChanceChanged += UpdatePlayerCritCharge;
+            chargeFill.fillAmount = 0;
+            UpdatePlayerCritCharge();
         }
     }
-    
+
     private void OnEnable()
     {
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
         //UIManager.OnAttackCommit += UpdateUIState;
         UIManager.OnResumePlayerControl += OptimizedCanvas.Show;
-        //BattleSystem.OnStartEnemyTurnLate += UpdateUIState;
     }
 
     private void OnDisable()
@@ -79,14 +100,27 @@ public class CharacterUI : BaseGameUI
 
         if (enemy)
         {
-            enemy.onCritLevelChanged -= UpdateCritChargeLevel;
+            enemy.onCritLevelChanged -= UpdateEnemyCritCharge;
+        }
+
+        if (player)
+        {
+            player.OnCharacterCritChanceChanged -= UpdatePlayerCritCharge;
         }
 
         GlobalEvents.OnEnterBattleCutscene -= OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene -= OptimizedCanvas.Show;
         UIManager.OnAttackCommit -= UpdateUIState;
         UIManager.OnResumePlayerControl -= OptimizedCanvas.Show;
-        BattleSystem.OnStartEnemyTurnLate -= UpdateUIState;
+    }
+
+    private void Update()
+    {
+        if (!player) return;
+        if (chargeFill.fillAmount == 1)
+        {
+            chargeFill.color = new Color(1, 1, 1, Mathf.PingPong(Time.time * barFlashSpeed, 1));
+        }
     }
 
     private void UpdateUIState()
@@ -101,7 +135,7 @@ public class CharacterUI : BaseGameUI
         }
     }
 
-    private void UpdateCritChargeLevel(int chargeLevel)
+    private void UpdateEnemyCritCharge(int chargeLevel)
     {
         if (!enemy.CanCrit)
         {
@@ -124,17 +158,36 @@ public class CharacterUI : BaseGameUI
         }
     }
 
-    private void AddEffectIcon(BaseGameEffect obj)
+    private void UpdatePlayerCritCharge()
+    {
+        chargeFill.DOKill();
+        if (chargeFill.fillAmount < 1) chargeFill.color = Color.white;
+        chargeFill.DOFillAmount(designatedCharacter.CritChanceModified, tweenTime).OnUpdate(() =>
+        {
+            chargeText.text = Mathf.RoundToInt(chargeFill.fillAmount * 100).ToString() + "%";
+        }).OnComplete(() =>
+        {
+            //if (designatedCharacter.CritChanceModified >= 1)
+            //{
+            //    chargeFill.color = Color.white;
+            //    chargeFill.DOFade(0, barFlashTime).SetEase(Ease.Flash, 2).SetLoops(-1);
+            //}
+        });
+    }
+
+    private void AddEffectIcon(AppliedEffect obj)
     {
         effects.Add(obj);
         UpdateEffectIcons();
-        OptimizedCanvas.FlashLayoutComponents();
+        optimizedCanvas.FlashLayoutComponents();
     }
 
-    private void RemoveEffectIcon(BaseGameEffect obj)
+    private void RemoveEffectIcon(AppliedEffect obj)
     {
-        UpdateEffectIcons(effects.IndexOf(obj));
+        var index = effects.IndexOf(obj);
+        UpdateEffectIcons(index);
         effects.Remove(obj);
+        optimizedCanvas.FlashLayoutComponents();
     }
 
     void UpdateEffectIcons(int index = -1)
@@ -143,12 +196,13 @@ public class CharacterUI : BaseGameUI
         {
             var newIcon = Instantiate(iconPrefab, iconContainer).GetComponent<Image>();
             iconImages.Add(newIcon);
-            newIcon.sprite = effects[effects.Count - 1].effectIcon;
+            newIcon.sprite = effects[effects.Count - 1].referenceEffect.effectIcon;
         }
         else
         {
             Destroy(iconImages[index].gameObject);
             iconImages.RemoveAt(index);
+            // TODO: What is this?
             for (int i = index; i < iconImages.Count; i++)
             {
                 var icon = iconImages[i].transform as RectTransform;

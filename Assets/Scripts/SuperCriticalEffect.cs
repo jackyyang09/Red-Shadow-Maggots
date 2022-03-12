@@ -3,11 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class SuperCriticalEffect : MonoBehaviour
+public abstract class SuperCriticalEffect : MonoBehaviour
 {
-    [SerializeField] UnityEvent onSuperCriticalStart;
-    [SerializeField] UnityEvent onSuperCriticalEnd;
+    [SerializeField] protected AnimationHelper animHelper = null;
+    protected BaseCharacter baseCharacter { get { return animHelper.BaseCharacter; } }
 
-    public void InvokeSuperCritStart() => onSuperCriticalStart.Invoke();
-    public void InvokeSuperCritEnd() => onSuperCriticalStart.Invoke();
+    public abstract void BeginSuperCritEffect();
+
+    public virtual void FinishSuperCritEffect()
+    {
+        GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
+        superCritBuffsApplied = 0;
+    }
+
+    int superCritBuffsApplied = 0;
+    public void ApplyNextSuperCritBuff()
+    {
+        SkillObject superCrit = baseCharacter.Reference.superCritical;
+        baseCharacter.ApplyEffectToCharacter(superCrit.gameEffects[superCritBuffsApplied], baseCharacter);
+        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[superCritBuffsApplied].effect);
+        superCritBuffsApplied++;
+    }
 }

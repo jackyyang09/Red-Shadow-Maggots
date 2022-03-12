@@ -93,10 +93,10 @@ public static class DamageTriangle
     /// Vertical is defender
     /// </summary>
     public static float[,] matrix = new float[,]
-    {   /*           Offense    Defense    Support */
-        /*Offense*/{ NORMAL,    RESIST,    EFFECTIVE },
-        /*Defense*/{ EFFECTIVE, NORMAL,    RESIST },
-        /*Support*/{ RESIST,    EFFECTIVE, NORMAL }
+    {            /*  Offense    Defense    Support  */
+        /*Offense*/{ NORMAL   , RESIST   , EFFECTIVE },
+        /*Defense*/{ EFFECTIVE, NORMAL   , RESIST    },
+        /*Support*/{ RESIST   , EFFECTIVE, NORMAL    }
     };
 
     public static float GetEffectiveness(CharacterClass attacker, CharacterClass defender)

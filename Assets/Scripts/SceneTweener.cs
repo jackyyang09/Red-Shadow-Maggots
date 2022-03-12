@@ -6,7 +6,7 @@ using DG.Tweening;
 using Cinemachine;
 using static Facade;
 
-public class SceneTweener : MonoBehaviour
+public class SceneTweener : BasicSingleton<SceneTweener>
 {
     [SerializeField] Transform worldCenter = null;
 
@@ -57,23 +57,28 @@ public class SceneTweener : MonoBehaviour
     Animator anim;
 
     public static Action OnBattleTransition;
+    public static Action OnSkillUntween;
 
-    public static SceneTweener Instance;
-
-    private void Awake()
+    private void OnEnable()
     {
-        EstablishSingletonDominance();
+        GlobalEvents.OnCharacterUseSuperCritical += OnCharacterUseSuperCritical;
+        //GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
+    }
 
+    private void OnDisable()
+    {
+        GlobalEvents.OnCharacterUseSuperCritical -= OnCharacterUseSuperCritical;
+        //GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
+    }
+
+    private void Start()
+    {
         anim = GetComponent<Animator>();
         composer = playerCam.GetCinemachineComponent<CinemachineComposer>();
         playerDolly = playerCam.GetCinemachineComponent<CinemachineTrackedDolly>();
 
         enemyDolly = enemyCam.GetCinemachineComponent<CinemachineTrackedDolly>();
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
         //EnterBattle();
     }
 
@@ -144,9 +149,54 @@ public class SceneTweener : MonoBehaviour
     public void SkillUntween()
     {
         lerpCam.enabled = false;
+        OnSkillUntween?.Invoke();
         //playerCam.m_LookAt = worldCenter;
         //playerPath.transform.position = worldCenter.position;
         //DOTween.To(() => lerpValue, x => lerpValue = x, 0, 1.5f);
+    }
+
+    private void OnCharacterUseSuperCritical(BaseCharacter obj)
+    {
+        Transform target = null;
+        Vector3 offset = Vector3.zero;
+        CinemachineVirtualCamera cam;
+        CinemachineSmoothPath path;
+        switch (battleSystem.CurrentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                enemyCam.enabled = false;
+                path = playerPath;
+                cam = playerCam;
+                target = battleSystem.ActiveEnemy.transform;
+                offset = characterDestinationOffset;
+                break;
+            case BattlePhases.EnemyTurn:
+                enemyCam.enabled = true;
+                path = enemyPath;
+                cam = enemyCam;
+                target = battleSystem.ActivePlayer.transform;
+                offset = -characterDestinationOffset;
+                break;
+            default:
+                return;
+        }
+
+        switch (obj.Reference.range)
+        {
+            case AttackRange.CloseRange:
+                cam.m_LookAt = obj.transform;
+                savedPosition = obj.transform.position;
+                Vector3 position = target.position + offset;
+                obj.transform.position = position;
+                path.transform.position = position;
+                lerpValue = 2;
+                break;
+            case AttackRange.LongRange:
+                obj.CharacterMesh.transform.LookAt(target.position);
+                break;
+            case AttackRange.AOE:
+                break;
+        }
     }
 
     public void DisableAnim()
@@ -158,6 +208,12 @@ public class SceneTweener : MonoBehaviour
     public void ReturnToPosition()
     {
         StartCoroutine(ReturnToPositionDelayed());
+    }
+
+    public void RotateBackInstantly()
+    {
+        battleSystem.ActiveEnemy.CharacterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
+        battleSystem.ActivePlayer.CharacterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
     }
 
     public void RotateBack()
@@ -297,30 +353,5 @@ public class SceneTweener : MonoBehaviour
     public void GateEntered()
     {
         BattleSystem.Instance.InitiateNextBattle();
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (Instance.gameObject.scene.name == null)
-            {
-                Instance = this;
-            }
-            else if (!Instance.gameObject.activeInHierarchy)
-            {
-                Instance = this;
-            }
-            else if (Instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                Instance = this;
-            }
-            Destroy(gameObject);
-        }
     }
 }

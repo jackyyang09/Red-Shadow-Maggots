@@ -53,6 +53,10 @@ namespace JSAM
         bool doneLoading;
 
         bool initialized = false;
+        /// <summary>
+        /// True if AudioManager finishes setting up
+        /// </summary>
+        public bool Initialized { get { return initialized; } }
 
         public static JSAMMusicChannelHelper MainMusicHelper { get { return InternalInstance.mainMusic; } }
 
@@ -63,7 +67,7 @@ namespace JSAM
             {
                 if (internalInstance == null)
                 {
-                    if (Instance != null)
+                    if (Instance != null && Application.isPlaying)
                     {
                         internalInstance = Instance.gameObject.AddComponent<AudioManagerInternal>();
                     }
@@ -72,7 +76,30 @@ namespace JSAM
             }
         }
 
+        [ContextMenu(nameof(Test))]
+        void Test()
+        {
+            Debug.Log(internalInstance.gameObject.scene.name);
+        }
+
+        /// <summary>
+        /// Invoked when the AudioManager finishes setting up
+        /// </summary>
         public static Action OnAudioManagerInitialized;
+        public static Action<JSAMSoundFileObject> OnSoundPlayed;
+        public static Action<JSAMMusicFileObject> OnMusicPlayed;
+        /// <summary>
+        /// Invoked when the volume of the Music channel is changed. Passes the new volume as a normalized float value between 0 and 1
+        /// </summary>
+        public static Action<float> OnMasterVolumeChanged;
+        /// <summary>
+        /// Invoked when the volume of the Music channel is changed. Passes the new volume as a normalized float value between 0 and 1
+        /// </summary>
+        public static Action<float> OnMusicVolumeChanged;
+        /// <summary>
+        /// Invoked when the volume of the Sound channel is changed. Passes the new volume as a normalized float value between 0 and 1
+        /// </summary>
+        public static Action<float> OnSoundVolumeChanged;
 
         // Use this for initialization
         void Awake()
@@ -110,17 +137,19 @@ namespace JSAM
 
         void Start()
         {
-            for (int i = 0; i < library.Sounds.Count; i++)
+            if (!library)
             {
-                library.Sounds[i].Initialize();
+                Debug.LogWarning("AudioManager Warning: No Audio Library specified in AudioManager!");
+            }
+            else
+            {
+                for (int i = 0; i < library.Sounds.Count; i++)
+                {
+                    library.Sounds[i].Initialize();
+                }
             }
 
             initialized = true;
-        }
-
-        public bool Initialized()
-        {
-            return initialized;
         }
 
         void FindNewListener()
@@ -142,7 +171,7 @@ namespace JSAM
                 }
                 if (listener == null) // In the case that there still isn't an AudioListener
                 {
-                    Debug.LogWarning("AudioManager Warning: Scene is missing an AudioListener! Mark the listener with the \"Main Camera\" tag or set it manually!");
+                    Debug.LogWarning("AudioManager Warning: Scene is missing an AudioListener!");
                 }
             }
         }
@@ -578,13 +607,61 @@ namespace JSAM
         #endregion
 
         #region Volume
+        /// <summary>
+        /// Get the current overall volume as a normalized float from 0 to 1
+        /// </summary>
         public static float MasterVolume { get { return InternalInstance.MasterVolume; } }
+        public static bool MasterMuted { get { return InternalInstance.MasterMuted; } 
+            set 
+            { 
+                InternalInstance.MasterMuted = value;
+                OnMasterVolumeChanged?.Invoke(InternalInstance.MasterVolume); 
+                OnMusicVolumeChanged?.Invoke(InternalInstance.MusicVolume);
+                OnSoundVolumeChanged?.Invoke(InternalInstance.SoundVolume); 
+            }
+        }
+        /// <summary>
+        /// Get the current volume of Music as a normalized float from 0 to 1
+        /// </summary>
         public static float MusicVolume { get { return InternalInstance.MusicVolume; } }
+        public static bool MusicMuted { get { return InternalInstance.MusicMuted; }
+            set 
+            { 
+                InternalInstance.MusicMuted = value;
+                OnMusicVolumeChanged?.Invoke(InternalInstance.MusicVolume);
+            }
+        }
+        /// <summary>
+        /// Get the current volume of Sounds as a normalized float from 0 to 1
+        /// </summary>
         public static float SoundVolume { get { return InternalInstance.SoundVolume; } }
+        public static bool SoundMuted { get { return InternalInstance.SoundMuted; } 
+            set 
+            { 
+                InternalInstance.SoundMuted = value; 
+                OnSoundVolumeChanged?.Invoke(InternalInstance.SoundVolume);
+            }
+        }
 
-        public static void SetMasterVolume(float newVolume) => InternalInstance.SetMasterVolume(newVolume);
-        public static void SetMusicVolume(float newVolume) => InternalInstance.SetMusicVolume(newVolume);
-        public static void SetSoundVolume(float newVolume) => InternalInstance.SetSoundVolume(newVolume);
+        public static void SetMasterVolume(float newVolume)
+        {
+            InternalInstance.MasterVolume = newVolume;
+            OnMasterVolumeChanged?.Invoke(newVolume);
+            OnMusicVolumeChanged?.Invoke(InternalInstance.MusicVolume);
+            OnSoundVolumeChanged?.Invoke(InternalInstance.SoundVolume);
+        }
+
+        public static void SetMusicVolume(float newVolume)
+        {
+            InternalInstance.MusicVolume = newVolume;
+            OnMusicVolumeChanged?.Invoke(newVolume);
+        }
+
+        public static void SetSoundVolume(float newVolume)
+        {
+            InternalInstance.SoundVolume = newVolume;
+            OnSoundVolumeChanged?.Invoke(newVolume);
+        }
         #endregion
 
         /// <summary>
@@ -611,6 +688,10 @@ namespace JSAM
                 else if (!Instance.gameObject.activeInHierarchy)
                 {
                     instance = this;
+                }
+                else if (Application.isPlaying)
+                {
+                    Destroy(gameObject);
                 }
             }
         }
@@ -668,8 +749,8 @@ namespace JSAM
         private void OnValidate()
         {
             EstablishSingletonDominance();
-            //if (GetListener() == null) FindNewListener();
-            ValidateSourcePrefab();
+            if (listener == null) FindNewListener();
+            //ValidateSourcePrefab();
 
             if (!doneLoading) return;
         }

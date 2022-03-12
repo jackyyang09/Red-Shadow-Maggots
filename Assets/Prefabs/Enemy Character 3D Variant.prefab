@@ -30,10 +30,11 @@ MonoBehaviour:
   rigidBody: {fileID: 6209330831632785238}
   spriteAnim: {fileID: 963115686750960229}
   effectRegion: {fileID: 862932300679653139}
-  skillParticles1: {fileID: 0}
-  skillParticles2: {fileID: 0}
+  skillParticles1: {fileID: 1875884508201210202, guid: 4964d414b73cd3d4ebea9f08d7e3cbf6, type: 3}
+  skillParticles2: {fileID: 1348457881729523694, guid: 64d44ae222135674bac4b8cc7cd67fd8, type: 3}
   deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
-  selectionPointer: {fileID: 804616931616560963}
+  selectionCircle: {fileID: 282842722233752608}
+  selectionCircleScale: {x: 0.7, y: 1}
   animHelper: {fileID: 0}
   canvasPrefab: {fileID: 6807323996565836524, guid: 262b40bff528db54a9584801f3595719, type: 3}
   onDeath:
@@ -51,6 +52,7 @@ MonoBehaviour:
           m_StringArgument: BattleSceneSounds.KillSound
           m_BoolArgument: 0
         m_CallState: 2
+  chanceToUseSkill: 0.25
   critLevel: 0
   isBossCharacter: 0
 --- !u!1001 &2804561533146371845
@@ -123,6 +125,10 @@ PrefabInstance:
     - target: {fileID: 5760799031895615285, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6589696406217167595, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8329771520087254628, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
       propertyPath: m_ConnectedAnchor.x
@@ -264,9 +270,9 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 3149811949908241760, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
   m_PrefabInstance: {fileID: 2804561533146371845}
   m_PrefabAsset: {fileID: 0}
---- !u!212 &804616931616560963 stripped
+--- !u!212 &282842722233752608 stripped
 SpriteRenderer:
-  m_CorrespondingSourceObject: {fileID: 3297020911528378438, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
+  m_CorrespondingSourceObject: {fileID: 2668125699652848421, guid: a42ddc168372f7d49a4177f882fd3c8c, type: 3}
   m_PrefabInstance: {fileID: 2804561533146371845}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &862932300679653139 stripped

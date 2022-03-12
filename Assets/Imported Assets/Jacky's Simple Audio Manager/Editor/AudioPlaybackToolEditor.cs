@@ -47,7 +47,7 @@ namespace JSAM.JSAMEditor
             get
             {
                 if (!helperSource) return false;
-                if (!AudioManager.Instance) return false;
+                //if (!AudioManager.Instance) return false;
                 if (!helperSource.clip) return false;
                 return true;
             } 
@@ -150,6 +150,7 @@ namespace JSAM.JSAMEditor
         {
             OnToggleHowTo += AdjustWindowSize;
             SetIcons();
+            m_HandleLinesMaterial = EditorGUIUtility.LoadRequired("SceneView/HandleLines.mat") as Material;
         }
 
         private void OnDisable()
@@ -159,6 +160,8 @@ namespace JSAM.JSAMEditor
                 SoundFader.Dispose();
                 soundFader = null;
             }
+
+            m_HandleLinesMaterial = null;
 
             OnToggleHowTo -= AdjustWindowSize;
 
@@ -226,6 +229,7 @@ namespace JSAM.JSAMEditor
                 {
                     lastWindowSize = Window.position.size;
                     resized = true;
+                    cachedTex = null;
                 }
             }
             if (selectedSound)
@@ -306,6 +310,7 @@ namespace JSAM.JSAMEditor
                 selectedMusic = null;
 
                 selectedSound = ((JSAMSoundFileObject)Selection.activeObject);
+                if (selectedSound.Files.Count == 0) return;
                 selectedClip = selectedSound.Files[0];
                 CreateAudioHelper(selectedClip);
             }
@@ -314,6 +319,7 @@ namespace JSAM.JSAMEditor
                 selectedSound = null;
 
                 selectedMusic = ((JSAMMusicFileObject)Selection.activeObject);
+                if (selectedMusic.Files.Count == 0) return;
                 selectedClip = selectedMusic.Files[0];
                 CreateAudioHelper(selectedClip);
             }
@@ -562,16 +568,26 @@ namespace JSAM.JSAMEditor
                     helperSource.clip = selectedClip;
 
                     soundHelper = helperObject.AddComponent<JSAMSoundChannelHelper>();
-                    soundHelper.Init(AudioManager.Instance.Settings.SoundGroup);
                     musicHelper = helperObject.AddComponent<JSAMMusicChannelHelper>();
-                    musicHelper.Init(AudioManager.Instance.Settings.MusicGroup);
+                    UnityEngine.Audio.AudioMixerGroup sg = null;
+                    UnityEngine.Audio.AudioMixerGroup mg = null;
+                    if (AudioManager.Instance)
+                    {
+                        if (AudioManager.Instance.Settings)
+                        {
+                            sg = AudioManager.Instance.Settings.SoundGroup;
+                            mg = AudioManager.Instance.Settings.MusicGroup;
+                        }
+                    }
+                    soundHelper.Init(sg);
+                    musicHelper.Init(mg);
                 }
                 else
                 {
                     soundHelper = helperObject.GetComponent<JSAMSoundChannelHelper>();
                     musicHelper = helperObject.GetComponent<JSAMMusicChannelHelper>();
                 }
-                helperObject.hideFlags = HideFlags.HideAndDontSave;
+                helperObject.hideFlags = HideFlags.DontSave;
             }
 
             if (helperSource == null)
@@ -607,27 +623,27 @@ namespace JSAM.JSAMEditor
             //float minHeight = (showHowTo) ? playbackPreviewClamped : 64;
             Rect rect = GUILayoutUtility.GetRect(64, 4000, 64, 4000);
 
-            Texture2D waveformTexture;
             if (selectedClip != null)
             {
-                if (selectedSound)
+                if (cachedTex == null)
                 {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect, selectedSound.relativeVolume);
-                }
-                else if (selectedMusic)
-                {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect, selectedMusic.relativeVolume);
-                }
-                else
-                {
-                    waveformTexture = RenderStaticPreview(selectedClip, rect, 1);
+                    if (selectedSound)
+                    {
+                        cachedTex = RenderStaticPreview(selectedClip, rect, selectedSound.relativeVolume);
+                    }
+                    else if (selectedMusic)
+                    {
+                        cachedTex = RenderStaticPreview(selectedClip, rect, selectedMusic.relativeVolume);
+                    }
+                    else
+                    {
+                        cachedTex = RenderStaticPreview(selectedClip, rect, 1);
+                    }
                 }
 
-                cachedTex = waveformTexture;
-
-                if (waveformTexture != null)
+                if (cachedTex != null)
                 {
-                    GUI.DrawTexture(rect, waveformTexture);
+                    GUI.DrawTexture(rect, cachedTex);
                 }
             }
             else
@@ -653,7 +669,7 @@ namespace JSAM.JSAMEditor
             return rect;
         }
 
-        void Update()
+        private void Update()
         {
             if (selectedClip == null) return;
             if (helperSource == null) CreateAudioHelper(selectedClip);
@@ -768,6 +784,7 @@ namespace JSAM.JSAMEditor
         }
 
         #region Unity's Asset Preview render code
+        static Material m_HandleLinesMaterial;
         /// <summary>
         /// Borrowed from Unity
         /// <para>https://github.com/Unity-Technologies/UnityCsReference/blob/master/Editor/Mono/Inspector/AudioClipInspector.cs</para>
@@ -776,9 +793,70 @@ namespace JSAM.JSAMEditor
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
+        //public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect, float relativeVolume)
+        //{
+        //    AssetImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(clip));
+        //    AudioImporter audioImporter = importer as AudioImporter;
+        //
+        //    if (audioImporter == null || !ShaderUtil.hardwareSupportsRectRenderTexture)
+        //        return null;
+        //
+        //    if (m_PreviewUtility == null)
+        //        m_PreviewUtility = new PreviewRenderUtility();
+        //
+        //    m_PreviewUtility.BeginStaticPreview(rect);
+        //    m_HandleLinesMaterial.SetPass(0);
+        //
+        //    // We're drawing into an offscreen here which will have a resolution defined by EditorGUIUtility.pixelsPerPoint. This is different from the DoRenderPreview call below where we draw directly to the screen, so we need to take
+        //    // the higher resolution into account when drawing into the offscreen, otherwise only the upper-left quarter of the preview texture will be drawn.
+        //    DoRenderPreview(clip, audioImporter, new Rect(0, 0, rect.width, rect.height), relativeVolume);
+        //    //DoRenderPreview(true, clip, audioImporter, new Rect(0.05f * rect.width * EditorGUIUtility.pixelsPerPoint, 0.05f * rect.width * EditorGUIUtility.pixelsPerPoint, 1.9f * rect.width * EditorGUIUtility.pixelsPerPoint, 1.9f * rect.height * EditorGUIUtility.pixelsPerPoint), 1.0f);
+        //
+        //    return m_PreviewUtility.EndStaticPreview();
+        //}
+        //
+        //// Passing in clip and importer separately as we're not completely done with the asset setup at the time we're asked to generate the preview.
+        //private static void DoRenderPreview(AudioClip clip, AudioImporter audioImporter, Rect wantedRect, float scaleFactor)
+        //{
+        //    scaleFactor *= 0.95f; // Reduce amplitude slightly to make highly compressed signals fit.
+        //    float[] minMaxData = (audioImporter == null) ? null : AudioUtil.GetMinMaxData(audioImporter);
+        //    int numChannels = clip.channels;
+        //    int numSamples = (minMaxData == null) ? 0 : (minMaxData.Length / (2 * numChannels));
+        //    float h = (float)wantedRect.height / (float)numChannels;
+        //    for (int channel = 0; channel < numChannels; channel++)
+        //    {
+        //        Rect channelRect = new Rect(wantedRect.x, wantedRect.y + h * channel, Mathf.Max(wantedRect.width, 1024), h);
+        //        Color curveColor = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
+        //
+        //        AudioCurveRendering.AudioMinMaxCurveAndColorEvaluator dlg = delegate (float x, out Color col, out float minValue, out float maxValue)
+        //        {
+        //            col = curveColor;
+        //            if (numSamples <= 0)
+        //            {
+        //                minValue = 0.0f;
+        //                maxValue = 0.0f;
+        //            }
+        //            else
+        //            {
+        //                float p = Mathf.Clamp(x * (numSamples - 2), 0.0f, numSamples - 2);
+        //                int i = (int)Mathf.Floor(p);
+        //                int offset1 = (i * numChannels + channel) * 2;
+        //                int offset2 = offset1 + numChannels * 2;
+        //                minValue = Mathf.Min(minMaxData[offset1 + 1], minMaxData[offset2 + 1]) * scaleFactor;
+        //                maxValue = Mathf.Max(minMaxData[offset1 + 0], minMaxData[offset2 + 0]) * scaleFactor;
+        //                if (minValue > maxValue) { float tmp = minValue; minValue = maxValue; maxValue = tmp; }
+        //            }
+        //        };
+        //
+        //        AudioCurveRendering.DrawMinMaxFilledCurve(wantedRect, dlg);
+        //    }
+        //}
+        #endregion
+
         public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect, float relativeVolume)
         {
-            GUI.Box(rect, "");
+            if (Event.current.type != EventType.Repaint) return null;
+            //GUI.Box(rect, "");
             float[] samples = new float[clip.samples];
             float[] waveform = new float[(int)rect.width];
             clip.GetData(samples, 0);
@@ -791,22 +869,73 @@ namespace JSAM.JSAMEditor
                 s++;
             }
 
-            float halfHeight = rect.height / 2f;
+            int halfHeight = (int)rect.height / 2;
 
-            List<Vector3> points = new List<Vector3>();
-
-            Handles.color = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
-            for (int x = 0; x < waveform.Length; x++)
+            Texture2D tex = new Texture2D((int)rect.width, (int)rect.height, TextureFormat.RGBA32, false);
+            for (int x = 0; x < rect.width; x++)
             {
-                Vector2 currentPoint = new Vector2(x, (waveform[x] * rect.height * 0.5f * relativeVolume) + halfHeight);
-                currentPoint += rect.position;
-                points.Add(currentPoint);
+                for (int y = 0; y < rect.height; y++)
+                {
+                    tex.SetPixel(x, y, Color.clear);
+                }
             }
 
-            Handles.DrawPolyLine(points.ToArray());
-            return null;
+            Color color = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
+
+            for (int x = 0; x < waveform.Length; x++)
+            {
+                // Scale the wave vertically relative to half the rect height and the relative volume
+                float heightLimit = waveform[x] * halfHeight;
+
+                for (int y = (int)heightLimit; y >= 0; y--)
+                {
+                    //Color currentPixelColour = tex.GetPixel(x, halfHeight + y);
+                    //if (currentPixelColour == Color.black) continue;
+
+                    tex.SetPixel(x, halfHeight + y, color);
+
+                    // Get data from upper half offset by 1 unit due to int truncation
+                    tex.SetPixel(x, halfHeight - (y + 1), color);
+                }
+            }
+
+            tex.Apply();
+            return tex;
         }
-        #endregion
+
+        /// <summary>
+        /// Fallback solution with Handles.DrawPolyline
+        /// </summary>
+        //public static Texture2D RenderStaticPreview(AudioClip clip, Rect rect, float relativeVolume)
+        //{
+        //    GUI.Box(rect, "");
+        //    float[] samples = new float[clip.samples];
+        //    float[] waveform = new float[(int)rect.width];
+        //    clip.GetData(samples, 0);
+        //    int packSize = clip.samples / (int)rect.width + 1;
+        //    int s = 0;
+        //
+        //    for (int i = 0; i < clip.samples; i += packSize)
+        //    {
+        //        waveform[s] = samples[i];
+        //        s++;
+        //    }
+        //
+        //    float halfHeight = rect.height / 2f;
+        //
+        //    List<Vector3> points = new List<Vector3>();
+        //
+        //    Handles.color = new Color(1.0f, 140.0f / 255.0f, 0.0f, 1.0f);
+        //    for (int x = 0; x < waveform.Length; x++)
+        //    {
+        //        Vector2 currentPoint = new Vector2(x, (waveform[x] * rect.height * 0.5f * relativeVolume) + halfHeight);
+        //        currentPoint += rect.position;
+        //        points.Add(currentPoint);
+        //    }
+        //    
+        //    Handles.DrawPolyLine(points.ToArray());
+        //    return null;
+        //}
 
         static GUIContent s_BackIcon = null;
         static GUIContent[] s_PlayIcons = { null, null };

@@ -9,6 +9,7 @@ public class UICharacterDetails : MonoBehaviour
     [SerializeField] TMPro.TextMeshProUGUI health = null;
     [SerializeField] TMPro.TextMeshProUGUI attack = null;
     [SerializeField] TMPro.TextMeshProUGUI critChance = null;
+    [SerializeField] GameObject descriptionPrefab = null;
     [SerializeField] List<UIStatusDescription> statusDescriptions = null;
     [SerializeField] RectTransform contentRect = null;
 
@@ -61,13 +62,34 @@ public class UICharacterDetails : MonoBehaviour
             critChance.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(negativeModifier) + ">(" + modifiedCritChance + "%)</color>";
         }
 
-        for (int i = 0; i < character.AppliedEffects.Count; i++)
+        List<AppliedEffect> effects = new List<AppliedEffect>();
+        var keys = character.AppliedEffects.GetKeysCached();
+        for (int i = 0; i < keys.Length; i++)
         {
-            statusDescriptions[i].ApplyStatus(character.AppliedEffects[i]);
+            var list = character.AppliedEffects[keys[i]];
+            for (int j = 0; j < list.Count; j++)
+            {
+                effects.Add(list[j]);
+            }
         }
+
+        if (statusDescriptions.Count < effects.Count)
+        {
+            int diff = effects.Count - statusDescriptions.Count;
+            for (int i = 0; i < diff; i++)
+            {
+                statusDescriptions.Add(Instantiate(descriptionPrefab, contentRect).GetComponent<UIStatusDescription>());
+            }
+        }
+
+        for (int i = 0; i < effects.Count; i++)
+        {
+            statusDescriptions[i].ApplyStatus(effects[i]);
+        }
+
         contentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, character.AppliedEffects.Count * 100);
 
-        for (int i = character.AppliedEffects.Count; i < statusDescriptions.Count; i++)
+        for (int i = effects.Count; i < statusDescriptions.Count; i++)
         {
             statusDescriptions[i].Hide();
         }

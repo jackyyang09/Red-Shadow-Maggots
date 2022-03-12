@@ -35,6 +35,8 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public EffectType effectType = EffectType.None;
 
+    public bool canStack = false;
+
     public bool hasTickAnimation = false;
 
     public GameObject particlePrefab;
@@ -53,7 +55,32 @@ public abstract class BaseGameEffect : ScriptableObject
     /// </summary>
     public abstract void Tick(BaseCharacter target, EffectStrength strength, float[] customValues);
 
+    /// <summary>
+    /// Stackable effects will implement this
+    /// </summary>
+    /// <param name="target"></param>
+    /// <param name="customValues"></param>
+    public virtual void TickCustom(BaseCharacter target, List<object> values) { }
+
+    public List<AppliedEffect> TickMultiple(BaseCharacter target, List<AppliedEffect> effects)
+    {
+        var remainingEffects = new List<AppliedEffect>(effects);
+        var values = new List<object>();
+        for (int i = 0; i < effects.Count; i++)
+        {
+            values.Add(GetEffectStrength(effects[i].strength, effects[i].customValues));
+            if (!effects[i].TickSilent())
+            {
+                remainingEffects.Remove(effects[i]);
+            }
+        }
+        TickCustom(target, values);
+        return remainingEffects;
+    }
+
     public abstract void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues);
 
     public abstract string GetEffectDescription(EffectStrength strength, float[] customValues);
+
+    public abstract object GetEffectStrength(EffectStrength strength, float[] customValues);
 }

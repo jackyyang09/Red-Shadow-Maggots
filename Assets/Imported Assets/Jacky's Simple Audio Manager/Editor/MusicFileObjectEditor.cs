@@ -58,10 +58,11 @@ namespace JSAM.JSAMEditor
             SetupIcons();
             EditorApplication.update += Update;
             Undo.undoRedoPerformed += OnUndoRedo;
-            AudioPlaybackToolEditor.CreateAudioHelper(myScript.Files[0]);
             Undo.postprocessModifications += ApplyHelperEffects;
 
             DesignateSerializedProperties();
+
+            AudioPlaybackToolEditor.CreateAudioHelper(files.arraySize > 0 ? asset.Files[0] : null);
         }
 
         void OnDisable()
@@ -85,9 +86,11 @@ namespace JSAM.JSAMEditor
             presetDescription.stringValue = input[1];
             serializedObject.ApplyModifiedProperties();
             Preset newPreset = new Preset(asset as JSAMMusicFileObject);
+#if UNITY_2020_OR_NEWER
             newPreset.excludedProperties = new string[] {
                 "useLibrary", "category"
             };
+#endif
             string path = JSAMSettings.Settings.PresetsPath + "\"" + input[0] + ".preset";
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
         }
@@ -102,7 +105,28 @@ namespace JSAM.JSAMEditor
 
             RenderGeneratePresetButton();
 
+            GUIContent clipContent = new GUIContent("Music", "AudioClip associated with this Music File Object");
+            if (files.arraySize == 0)
+            {
+                AudioClip clip = null;
+                EditorGUI.BeginChangeCheck();
+                clip = EditorGUILayout.ObjectField(clipContent, clip, typeof(AudioClip), false) as AudioClip;
+                if (EditorGUI.EndChangeCheck())
+                {
+                    if (clip != null)
+                    {
+                        files.AddAndReturnNewArrayElement().objectReferenceValue = clip;
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.PropertyField(files.GetArrayElementAtIndex(0), clipContent);
+            }
+
             DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
+
+            DrawPlaybackTool();
 
             DrawLoopPointTools(myScript);
 
@@ -121,7 +145,7 @@ namespace JSAM.JSAMEditor
                 }
             }
 
-            #region Quick Reference Guide 
+#region Quick Reference Guide 
             showHowTo = EditorCompatability.SpecialFoldouts(showHowTo, "Quick Reference Guide");
             if (showHowTo)
             {
@@ -172,7 +196,7 @@ namespace JSAM.JSAMEditor
                     "to use in other programs!");
             }
             EditorCompatability.EndSpecialFoldoutGroup();
-            #endregion  
+#endregion
         }
 
         /// <summary>
@@ -185,143 +209,147 @@ namespace JSAM.JSAMEditor
                 "Allows you to preview how your AudioFileMusicObject will sound during runtime right here in the inspector. " +
                 "Some effects, like spatialization, will not be available to preview");
             showPlaybackTool = EditorCompatability.SpecialFoldouts(showPlaybackTool, blontent);
+
             if (showPlaybackTool)
             {
-                AudioClip music = myScript.Files[0];
-                Rect progressRect = ProgressBar((float)AudioPlaybackToolEditor.helperSource.timeSamples / (float)AudioPlaybackToolEditor.helperSource.clip.samples, GetInfoString());
-
-                EditorGUILayout.BeginHorizontal();
-
-                Event evt = Event.current;
-
-                if (evt.isMouse)
+                Rect progressRect;
+                if (ProgressBar(out progressRect))
                 {
-                    switch (evt.type)
-                    {
-                        case EventType.MouseUp:
-                            mouseDragging = false;
-                            break;
-                        case EventType.MouseDown:
-                        case EventType.MouseDrag:
-                            if (evt.type == EventType.MouseDown)
-                            {
-                                if (evt.mousePosition.y > progressRect.yMin && evt.mousePosition.y < progressRect.yMax)
-                                {
-                                    mouseDragging = true;
-                                    mouseScrubbed = true;
-                                }
-                                else mouseDragging = false;
-                            }
-                            if (!mouseDragging) break;
-                            float newProgress = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, evt.mousePosition.x);
-                            AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp((newProgress * music.length), 0, music.length - AudioManagerInternal.EPSILON);
-                            if (myScript.loopMode == LoopMode.ClampedLoopPoints)
-                            {
-                                float start = myScript.loopStart * myScript.Files[0].frequency;
-                                float end = myScript.loopEnd * myScript.Files[0].frequency;
-                                AudioPlaybackToolEditor.helperSource.timeSamples = (int)Mathf.Clamp(AudioPlaybackToolEditor.helperSource.timeSamples, start, end - AudioManagerInternal.EPSILON);
-                            }
-                            break;
-                    }
-                }
+                    AudioClip music = files.GetArrayElementAtIndex(0).objectReferenceValue as AudioClip;
 
-                if (GUILayout.Button(s_BackIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-                {
-                    if (myScript.loopMode == LoopMode.ClampedLoopPoints)
-                    {
-                        AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt((myScript.loopStart * music.frequency));
-                    }
-                    else
-                    {
-                        AudioPlaybackToolEditor.helperSource.timeSamples = 0;
-                    }
-                    AudioPlaybackToolEditor.helperSource.Stop();
-                    mouseScrubbed = false;
-                    clipPaused = false;
-                    clipPlaying = false;
-                }
+                    EditorGUILayout.BeginHorizontal();
 
-                Color colorbackup = GUI.backgroundColor;
-                GUIContent buttonIcon = (clipPlaying) ? s_PlayIcons[1] : s_PlayIcons[0];
-                if (clipPlaying) GUI.backgroundColor = COLOR_BUTTONPRESSED;
-                if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-                {
-                    clipPlaying = !clipPlaying;
-                    if (clipPlaying)
+                    Event evt = Event.current;
+
+                    if (evt.isMouse)
                     {
-                        // Note: For some reason, reading from AudioPlaybackToolEditor.helperSource.time returns 0 even if timeSamples is not 0
-                        // However, writing a value to AudioPlaybackToolEditor.helperSource.time changes timeSamples to the appropriate value just fine
-                        AudioPlaybackToolEditor.musicHelper.PlayDebug(myScript, mouseScrubbed);
-                        if (clipPaused) AudioPlaybackToolEditor.helperSource.Pause();
-                        firstPlayback = true;
-                        freePlay = false;
-                    }
-                    else
-                    {
-                        AudioPlaybackToolEditor.helperSource.Stop();
-                        if (!mouseScrubbed)
+                        switch (evt.type)
                         {
-                            AudioPlaybackToolEditor.helperSource.time = 0;
+                            case EventType.MouseUp:
+                                mouseDragging = false;
+                                break;
+                            case EventType.MouseDown:
+                            case EventType.MouseDrag:
+                                if (evt.type == EventType.MouseDown)
+                                {
+                                    if (evt.mousePosition.y > progressRect.yMin && evt.mousePosition.y < progressRect.yMax)
+                                    {
+                                        mouseDragging = true;
+                                        mouseScrubbed = true;
+                                    }
+                                    else mouseDragging = false;
+                                }
+                                if (!mouseDragging) break;
+                                float newProgress = Mathf.InverseLerp(progressRect.xMin, progressRect.xMax, evt.mousePosition.x);
+                                AudioPlaybackToolEditor.helperSource.time = Mathf.Clamp((newProgress * music.length), 0, music.length - AudioManagerInternal.EPSILON);
+                                if (myScript.loopMode == LoopMode.ClampedLoopPoints)
+                                {
+                                    float start = myScript.loopStart * myScript.Files[0].frequency;
+                                    float end = myScript.loopEnd * myScript.Files[0].frequency;
+                                    AudioPlaybackToolEditor.helperSource.timeSamples = (int)Mathf.Clamp(AudioPlaybackToolEditor.helperSource.timeSamples, start, end - AudioManagerInternal.EPSILON);
+                                }
+                                break;
                         }
+                    }
+
+                    if (GUILayout.Button(s_BackIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                    {
+                        if (myScript.loopMode == LoopMode.ClampedLoopPoints)
+                        {
+                            AudioPlaybackToolEditor.helperSource.timeSamples = Mathf.CeilToInt((myScript.loopStart * music.frequency));
+                        }
+                        else
+                        {
+                            AudioPlaybackToolEditor.helperSource.timeSamples = 0;
+                        }
+                        AudioPlaybackToolEditor.helperSource.Stop();
+                        mouseScrubbed = false;
                         clipPaused = false;
+                        clipPlaying = false;
                     }
-                }
 
-                GUI.backgroundColor = colorbackup;
-                GUIContent theText = (clipPaused) ? s_PauseIcons[1] : s_PauseIcons[0];
-                if (clipPaused) GUI.backgroundColor = COLOR_BUTTONPRESSED;
-                if (GUILayout.Button(theText, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-                {
-                    clipPaused = !clipPaused;
-                    if (clipPaused)
+                    Color colorbackup = GUI.backgroundColor;
+                    GUIContent buttonIcon = (clipPlaying) ? s_PlayIcons[1] : s_PlayIcons[0];
+                    if (clipPlaying) GUI.backgroundColor = COLOR_BUTTONPRESSED;
+                    if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                     {
-                        AudioPlaybackToolEditor.helperSource.Pause();
+                        clipPlaying = !clipPlaying;
+                        if (clipPlaying)
+                        {
+                            // Note: For some reason, reading from AudioPlaybackToolEditor.helperSource.time returns 0 even if timeSamples is not 0
+                            // However, writing a value to AudioPlaybackToolEditor.helperSource.time changes timeSamples to the appropriate value just fine
+                            AudioPlaybackToolEditor.musicHelper.PlayDebug(myScript, mouseScrubbed);
+                            if (clipPaused) AudioPlaybackToolEditor.helperSource.Pause();
+                            firstPlayback = true;
+                            freePlay = false;
+                        }
+                        else
+                        {
+                            AudioPlaybackToolEditor.helperSource.Stop();
+                            if (!mouseScrubbed)
+                            {
+                                AudioPlaybackToolEditor.helperSource.time = 0;
+                            }
+                            clipPaused = false;
+                        }
                     }
-                    else
+
+                    GUI.backgroundColor = colorbackup;
+                    GUIContent theText = (clipPaused) ? s_PauseIcons[1] : s_PauseIcons[0];
+                    if (clipPaused) GUI.backgroundColor = COLOR_BUTTONPRESSED;
+                    if (GUILayout.Button(theText, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
                     {
-                        AudioPlaybackToolEditor.helperSource.UnPause();
+                        clipPaused = !clipPaused;
+                        if (clipPaused)
+                        {
+                            AudioPlaybackToolEditor.helperSource.Pause();
+                        }
+                        else
+                        {
+                            AudioPlaybackToolEditor.helperSource.UnPause();
+                        }
                     }
+
+                    GUI.backgroundColor = colorbackup;
+                    buttonIcon = (loopClip) ? s_LoopIcons[1] : s_LoopIcons[0];
+                    if (loopClip) GUI.backgroundColor = COLOR_BUTTONPRESSED;
+                    if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
+                    {
+                        loopClip = !loopClip;
+                        // AudioPlaybackToolEditor.helperSource.loop = true;
+                    }
+                    GUI.backgroundColor = colorbackup;
+
+                    if (GUILayout.Button(openIcon, new GUILayoutOption[] { GUILayout.MaxHeight(19) }))
+                    {
+                        AudioPlaybackToolEditor.Init();
+                    }
+
+                    // Reset loop point input mode if not using loop points so the duration shows up as time by default
+                    if (myScript.loopMode != LoopMode.LoopWithLoopPoints) loopPointInputMode = 0;
+
+                    switch ((LoopPointTool)loopPointInputMode)
+                    {
+                        case LoopPointTool.Slider:
+                        case LoopPointTool.TimeInput:
+                            blontent = new GUIContent(AudioPlaybackToolEditor.TimeToString((float)AudioPlaybackToolEditor.helperSource.timeSamples / music.frequency) + " / " + (AudioPlaybackToolEditor.TimeToString(music.length)),
+                                "The playback time in seconds");
+                            break;
+                        case LoopPointTool.TimeSamplesInput:
+                            blontent = new GUIContent(AudioPlaybackToolEditor.helperSource.timeSamples + " / " + music.samples, "The playback time in samples");
+                            break;
+                        case LoopPointTool.BPMInput:
+                            blontent = new GUIContent(string.Format("{0:0}", AudioPlaybackToolEditor.helperSource.time / (60f / myScript.bpm)) + " / " + music.length / (60f / myScript.bpm),
+                                "The playback time in beats");
+                            break;
+                    }
+                    GUIStyle rightJustified = new GUIStyle(EditorStyles.label);
+                    rightJustified.alignment = TextAnchor.UpperRight;
+                    EditorGUILayout.LabelField(blontent, rightJustified);
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Space();
                 }
-
-                GUI.backgroundColor = colorbackup;
-                buttonIcon = (loopClip) ? s_LoopIcons[1] : s_LoopIcons[0];
-                if (loopClip) GUI.backgroundColor = COLOR_BUTTONPRESSED;
-                if (GUILayout.Button(buttonIcon, new GUILayoutOption[] { GUILayout.MaxHeight(20) }))
-                {
-                    loopClip = !loopClip;
-                    // AudioPlaybackToolEditor.helperSource.loop = true;
-                }
-                GUI.backgroundColor = colorbackup;
-
-                if (GUILayout.Button(openIcon, new GUILayoutOption[] { GUILayout.MaxHeight(19) }))
-                {
-                    AudioPlaybackToolEditor.Init();
-                }
-
-                // Reset loop point input mode if not using loop points so the duration shows up as time by default
-                if (myScript.loopMode != LoopMode.LoopWithLoopPoints) loopPointInputMode = 0;
-
-                switch ((LoopPointTool)loopPointInputMode)
-                {
-                    case LoopPointTool.Slider:
-                    case LoopPointTool.TimeInput:
-                        blontent = new GUIContent(AudioPlaybackToolEditor.TimeToString((float)AudioPlaybackToolEditor.helperSource.timeSamples / music.frequency) + " / " + (AudioPlaybackToolEditor.TimeToString(music.length)),
-                            "The playback time in seconds");
-                        break;
-                    case LoopPointTool.TimeSamplesInput:
-                        blontent = new GUIContent(AudioPlaybackToolEditor.helperSource.timeSamples + " / " + music.samples, "The playback time in samples");
-                        break;
-                    case LoopPointTool.BPMInput:
-                        blontent = new GUIContent(string.Format("{0:0}", AudioPlaybackToolEditor.helperSource.time / (60f / myScript.bpm)) + " / " + music.length / (60f / myScript.bpm),
-                            "The playback time in beats");
-                        break;
-                }
-                GUIStyle rightJustified = new GUIStyle(EditorStyles.label);
-                rightJustified.alignment = TextAnchor.UpperRight;
-                EditorGUILayout.LabelField(blontent, rightJustified);
-                EditorGUILayout.EndHorizontal();
-
-                EditorGUILayout.Space();
             }
             EditorCompatability.EndSpecialFoldoutGroup();
         }
@@ -333,13 +361,48 @@ namespace JSAM.JSAMEditor
         /// </summary>
         /// <param name="value"></param>
         /// <param name="label"></param>
-        /// <returns></returns>
-        Rect ProgressBar(float value, string label)
+        /// <returns>True if tools successfully rendered</returns>
+        bool ProgressBar(out Rect rect)
         {
-            // Get a rect for the progress bar using the same margins as a text field
-            Rect rect = GUILayoutUtility.GetRect(64, 64, "TextField");
+            string label = GetInfoString();
 
-            AudioClip music = ((JSAMMusicFileObject)target).Files[0];
+            // Get a rect for the progress bar using the same margins as a text field
+            rect = GUILayoutUtility.GetRect(64, 64, "TextField");
+
+            bool hide = false;
+            GUIContent content = new GUIContent();
+
+            if (files.arraySize == 0)
+            {
+                content.text = "Add some AudioClips above to preview them";
+                hide = true;
+            }
+
+            if (AudioPlaybackToolEditor.WindowOpen)
+            {
+                content.text = "JSAM Playback Tool is Open";
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Re-focus Playback Tool"))
+                {
+                    EditorWindow.FocusWindowIfItsOpen<AudioPlaybackToolEditor>();
+                }
+                if (GUILayout.Button("Close Playback Tool"))
+                {
+                    AudioPlaybackToolEditor.Window.Close();
+                }
+                EditorGUILayout.EndHorizontal();
+                hide = true;
+            }
+
+            if (hide)
+            {
+                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20));
+                return false;
+            }
+
+            AudioClip music = files.GetArrayElementAtIndex(0).objectReferenceValue as AudioClip;
+            var helperSource = AudioPlaybackToolEditor.helperSource;
+            var value = helperSource.time / music.length;
 
             if (cachedTex == null || AudioPlaybackToolEditor.forceRepaint)
             {
@@ -361,13 +424,14 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.Space();
 
-            return rect;
+            return true;
         }
 
         void Update()
         {
             JSAMMusicFileObject myScript = (JSAMMusicFileObject)target;
             if (myScript == null) return;
+            if (asset.Files.Count == 0) return;
             AudioClip music = myScript.Files[0];
             if (music != cachedClip)
             {
@@ -475,7 +539,7 @@ namespace JSAM.JSAMEditor
         {
             if (Event.current.type != EventType.Repaint) return;
 
-            #region Draw Loop Point Markers
+#region Draw Loop Point Markers
             if (music.loopMode >= LoopMode.LoopWithLoopPoints)
             {
                 Rect newRect = new Rect();
@@ -523,7 +587,7 @@ namespace JSAM.JSAMEditor
                 GUI.Box(newRect, "", "SelectionRect");
                 JSAMEditorHelper.EndColourChange();
             }
-            #endregion
+#endregion
         }
 
         static GUIContent s_BackIcon = null;

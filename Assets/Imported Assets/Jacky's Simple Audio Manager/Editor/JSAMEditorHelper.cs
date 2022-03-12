@@ -14,7 +14,7 @@ namespace JSAM.JSAMEditor
         /// </summary>
         /// <param name="prop"></param>
         /// <returns></returns>
-        public static SerializedProperty AddNewArrayElement(this SerializedProperty prop)
+        public static SerializedProperty AddAndReturnNewArrayElement(this SerializedProperty prop)
         {
             int index = prop.arraySize;
             prop.InsertArrayElementAtIndex(index);
@@ -239,21 +239,38 @@ namespace JSAM.JSAMEditor
 
         public static void SmartFolderField(GUIContent content, SerializedProperty folderProp, bool limitToAssetsFolder = true)
         {
-            string filePath = folderProp.stringValue;
-            if (filePath == string.Empty) filePath = Application.dataPath;
+            string folderPath = folderProp.stringValue;
+            //if (folderPath == string.Empty) folderPath = Application.dataPath;
+            bool touchedFolder = false;
+            bool touchedString = false;
+
             EditorGUI.BeginChangeCheck();
-            filePath = EditorGUILayout.DelayedTextField(content, filePath);
-            if (EditorGUI.EndChangeCheck())
+            folderPath = EditorGUILayout.TextField(content, folderPath);
+            touchedString = EditorGUI.EndChangeCheck();
+
+            if (limitToAssetsFolder)
+            {
+                DefaultAsset folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(folderPath);
+                EditorGUI.BeginChangeCheck();
+                folderAsset = (DefaultAsset)EditorGUILayout.ObjectField(GUIContent.none, folderAsset, typeof(DefaultAsset), false, new GUILayoutOption[] { GUILayout.Width(100) });
+                if (EditorGUI.EndChangeCheck())
+                {
+                    touchedFolder = true;
+                    folderPath = AssetDatabase.GetAssetPath(folderAsset);
+                }
+            }
+
+            if (touchedString || touchedFolder)
             {
                 // If the user presses "cancel"
-                if (filePath.Equals(string.Empty))
+                if (folderPath.Equals(string.Empty))
                 {
                     return;
                 }
                 // or specifies something outside of this folder, reset filePath and don't proceed
                 else if (limitToAssetsFolder)
                 {
-                    if (!filePath.Contains("Assets"))
+                    if (!folderPath.Contains("Assets"))
                     {
                         EditorUtility.DisplayDialog("Folder Browsing Error!", "Please choose a different folder inside the project's Assets folder.", "OK");
                         return;
@@ -261,12 +278,11 @@ namespace JSAM.JSAMEditor
                     else
                     {
                         // Fix path to be usable for AssetDatabase.FindAssets
-                        filePath = filePath.Remove(0, filePath.IndexOf("Assets"));
-                        if (filePath[filePath.Length - 1] == '/') filePath = filePath.Remove(filePath.Length - 1, 1);
+                        if (folderPath[folderPath.Length - 1] == '/') folderPath = folderPath.Remove(folderPath.Length - 1, 1);
                     }
                 }
             }
-            folderProp.stringValue = filePath;
+            folderProp.stringValue = folderPath;
         }
 
         public static void SmartBrowseButton(SerializedProperty folderProp, bool limitToAssetFolder = true)

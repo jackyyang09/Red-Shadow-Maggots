@@ -53,10 +53,25 @@ public class AppliedEffect
     /// </summary>
     /// <param name="target"></param>
     /// <returns>Is effect still active?</returns>
-    public bool Tick(BaseCharacter target)
+    public bool Tick()
     {
         remainingTurns--;
         referenceEffect.Tick(target, strength, customValues);
+        if (remainingTurns == 0)
+        {
+            referenceEffect.OnExpire(target, strength, customValues);
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Unlike Tick, doesn't activate the effect when called
+    /// </summary>
+    /// <returns>Is effect still active?</returns>
+    public bool TickSilent()
+    {
+        remainingTurns--;
         if (remainingTurns == 0)
         {
             referenceEffect.OnExpire(target, strength, customValues);

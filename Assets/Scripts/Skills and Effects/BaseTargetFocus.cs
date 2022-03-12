@@ -25,4 +25,9 @@ public class BaseTargetFocus : BaseGameEffect
     {
         return "High Priority Target";
     }
+
+    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
+    {
+        return null;
+    }
 }

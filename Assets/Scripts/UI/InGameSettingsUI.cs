@@ -6,14 +6,34 @@ using JSAM;
 
 public class InGameSettingsUI : MonoBehaviour
 {
-    [SerializeField] Slider masterSlider;
-    [SerializeField] Slider musicSlider;
-    [SerializeField] Slider soundSlider;
+    [SerializeField] Slider masterSlider = null;
+    [SerializeField] Slider musicSlider = null;
+    [SerializeField] Slider soundSlider = null;
 
-    public void UpdateSliderValues()
+    private void OnEnable()
     {
-        //masterSlider.value = AudioManager.GetMasterVolume();
-        //musicSlider.value = AudioManager.GetMusicVolume();
-        //soundSlider.value = AudioManager.GetSoundVolume();
+        AudioManager.OnAudioManagerInitialized += UpdateAllSliders;
+        AudioManager.OnMasterVolumeChanged += UpdateMaster;
+        AudioManager.OnMusicVolumeChanged += UpdateMusic;
+        AudioManager.OnSoundVolumeChanged += UpdateSound;
+    }
+
+    private void OnDisable()
+    {
+        AudioManager.OnAudioManagerInitialized -= UpdateAllSliders;
+        AudioManager.OnMasterVolumeChanged -= UpdateMaster;
+        AudioManager.OnMusicVolumeChanged -= UpdateMusic;
+        AudioManager.OnSoundVolumeChanged -= UpdateSound;
+    }
+
+    void UpdateMaster(float vol) => masterSlider.value = vol;
+    void UpdateMusic(float vol) => musicSlider.value = vol;
+    void UpdateSound(float vol) => soundSlider.value = vol;
+
+    void UpdateAllSliders()
+    {
+        UpdateMaster(AudioManager.MasterVolume);
+        UpdateMusic(AudioManager.MusicVolume);
+        UpdateSound(AudioManager.SoundVolume);
     }
 }

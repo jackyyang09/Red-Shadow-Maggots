@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : BasicSingleton<EnemyController>
 {
     public List<EnemyCharacter> Enemies { get; private set; }
     public EnemyCharacter RandomEnemy
@@ -16,13 +16,6 @@ public class EnemyController : MonoBehaviour
 
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
-
-    public static EnemyController Instance;
-
-    private void Awake()
-    {
-        EstablishSingletonDominance();
-    }
 
     private void OnEnable()
     {
@@ -65,8 +58,15 @@ public class EnemyController : MonoBehaviour
 
     public void MakeYourMove()
     {
-        battleSystem.BeginEnemyAttack();
-        //battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, Random.Range(0, 2));
+        if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
+        {
+            //if (enemy.CanUseSkill(index))
+            battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, Random.Range(0, 2));
+        }
+        else
+        {
+            battleSystem.BeginEnemyAttack();
+        }
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)
@@ -81,36 +81,10 @@ public class EnemyController : MonoBehaviour
     {
         for (int i = 0; i < Instance.Enemies.Count; i++)
         {
-            DamageStruct dmg = new DamageStruct();
-            dmg.damage = Instance.Enemies[i].CurrentHealth - 1;
-            Instance.Enemies[i].TakeDamage(dmg);
+            BaseCharacter.IncomingDamage.damage = Instance.Enemies[i].CurrentHealth - 1;
+            Instance.Enemies[i].TakeDamage();
         }
         Debug.Log("Enemies damaged!");
     }
     #endregion
-
-    void EstablishSingletonDominance()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (Instance.gameObject.scene.name == null)
-            {
-                Instance = this;
-            }
-            else if (!Instance.gameObject.activeInHierarchy)
-            {
-                Instance = this;
-            }
-            else if (Instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                Instance = this;
-            }
-            Destroy(gameObject);
-        }
-    }
 }

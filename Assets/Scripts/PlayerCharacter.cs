@@ -7,12 +7,21 @@ using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
-    [SerializeField] SpriteRenderer selectionCircle = null;
-
     [SerializeField] Transform cardMesh = null;
 
     const float fingerHoldTime = 0.75f;
     float fingerHoldTimer = 0;
+
+    float canteenCharge;
+
+    public override float CritChanceModified
+    {
+        get
+        { 
+            return base.CritChanceModified + canteenCharge +
+                System.Convert.ToInt32(IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
+        }
+    }
 
     public static Action<PlayerCharacter> OnSelectPlayer;
     public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
@@ -34,12 +43,14 @@ public class PlayerCharacter : BaseCharacter
     {
         base.OnEnable();
         OnSelectedPlayerCharacterChange += UpdateSelectedStatus;
+        BattleSystem.OnStartPlayerTurn += RemoveCanteenEffects;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
         OnSelectedPlayerCharacterChange -= UpdateSelectedStatus;
+        BattleSystem.OnEndPlayerTurn -= RemoveCanteenEffects;
     }
 
     // Update is called once per frame
@@ -52,7 +63,6 @@ public class PlayerCharacter : BaseCharacter
     {
         bool isSelected = newSelection == this;
         selectionCircle.enabled = isSelected;
-        anim.SetBool("Selected", isSelected);
         if (isSelected)
         {
             cardMesh.DOLocalJump(cardMesh.localPosition, 0.5f, 1, 0.25f).SetUpdate(UpdateType.Late);
@@ -62,21 +72,19 @@ public class PlayerCharacter : BaseCharacter
     public void ForceSelect()
     {
         selectionCircle.enabled = true;
-        anim.SetBool("Selected", true);
     }
 
     public void ForceDeselct()
     {
         selectionCircle.enabled = false;
-        anim.SetBool("Selected", false);
     }
 
     private void OnMouseDown()
     {
-        if (UIManager.instance.CharacterPanelOpen) return;
+        if (ui.CharacterPanelOpen) return;
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
-            GlobalEvents.OnSelectCharacter?.Invoke(this);
+            OnSelectCharacter?.Invoke(this);
             OnSelectPlayer?.Invoke(this);
             if (battleSystem.ActivePlayer == this) return;
             if (UIManager.SelectingAllyForSkill) return;
@@ -89,12 +97,12 @@ public class PlayerCharacter : BaseCharacter
     private void OnMouseDrag()
     {
         if (!UIManager.CanSelectPlayer) return;
-        if (!UIManager.instance.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
+        if (!ui.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
         {
             fingerHoldTimer += Time.deltaTime;
             if (fingerHoldTimer >= fingerHoldTime)
             {
-                UIManager.instance.OpenCharacterPanel();
+                ui.OpenCharacterPanel();
                 fingerHoldTimer = 0;
             }
         }
@@ -129,7 +137,7 @@ public class PlayerCharacter : BaseCharacter
 
     public override void BeginAttack(Transform target)
     {
-        if (CritChanceAdjusted < 1 || usedSuperCritThisTurn)
+        if (CritChanceModified < 1 || usedSuperCritThisTurn)
         {
             OnPlayerQTEAttack?.Invoke(this);
         }
@@ -151,28 +159,28 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
-    public override void ExecuteAttack(DamageStruct damage)
+    public override void ExecuteAttack()
     {
-        base.ExecuteAttack(damage);
+        base.ExecuteAttack();
 
         if (rigAnim)
         {
             switch (Reference.attackQteType)
             {
                 case QTEType.SimpleBar:
-                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+                    if (IncomingDamage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
                     rigAnim.Play("Attack Execute");
                     break;
                 case QTEType.Hold:
-                    if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
+                    if (IncomingDamage.qteResult != QuickTimeBase.QTEResult.Perfect)
                     {
                         rigAnim.SetInteger("Charge Level", 0);
                     }
                     else
                     {
-                        rigAnim.SetInteger("Charge Level", damage.chargeLevel);
+                        rigAnim.SetInteger("Charge Level", IncomingDamage.chargeLevel);
                     }
-                    if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+                    if (IncomingDamage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
                     rigAnim.SetTrigger("Attack Execute");
                     break;
             }
@@ -183,17 +191,27 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
+    public void ApplyCanteenEffect(float critCharge)
+    {
+        canteenCharge += critCharge;
+        OnCharacterCritChanceChanged?.Invoke();
+    }
+
+    public void RemoveCanteenEffects()
+    {
+        canteenCharge = 0;
+        OnCharacterCritChanceChanged?.Invoke();
+    }
+
     public override void ShowCharacterUI()
     {
         bool isSelected = battleSystem.ActivePlayer == this;
         selectionCircle.enabled = isSelected;
-        anim.SetBool("Selected", isSelected);
     }
 
     public override void HideCharacterUI()
     {
         selectionCircle.enabled = false;
-        anim.SetBool("Selected", false);
     }
 
     public override void Die()
@@ -205,7 +223,7 @@ public class PlayerCharacter : BaseCharacter
     {
         BattleSystem.Instance.RegisterPlayerDeath(this);
         onDeath?.Invoke();
-        GlobalEvents.OnCharacterDeath?.Invoke(this);
+        OnCharacterDeath?.Invoke(this);
         GlobalEvents.OnAnyPlayerDeath?.Invoke();
     }
 
@@ -214,7 +232,7 @@ public class PlayerCharacter : BaseCharacter
         InvokeDeathEvents();
 
         Instantiate(deathParticles, transform.position, Quaternion.identity);
-        anim.SetTrigger("Death");
+        //anim.SetTrigger("Death");
     }
 
     public override void HideSelectionPointer()

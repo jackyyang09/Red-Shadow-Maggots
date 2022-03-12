@@ -133,6 +133,14 @@ namespace JSAM.JSAMEditor
         SerializedProperty soundGroup;
         SerializedProperty soundVolumeParam;
 
+        SerializedProperty saveVolumeToPlayerPrefs;
+        SerializedProperty masterVolumeKey;
+        SerializedProperty masterMutedKey;
+        SerializedProperty musicVolumeKey;
+        SerializedProperty musicMutedKey;
+        SerializedProperty soundVolumeKey;
+        SerializedProperty soundMutedKey;
+
         protected override void DesignateSerializedProperties()
         {
             disableConsoleLogs = FindProp(nameof(disableConsoleLogs));
@@ -151,6 +159,14 @@ namespace JSAM.JSAMEditor
             musicVolumeParam = FindProp(nameof(musicVolumeParam));
             soundGroup = FindProp(nameof(soundGroup));
             soundVolumeParam = FindProp(nameof(soundVolumeParam));
+
+            saveVolumeToPlayerPrefs = FindProp(nameof(saveVolumeToPlayerPrefs));
+            masterVolumeKey = FindProp(nameof(masterVolumeKey));
+            masterMutedKey = FindProp(nameof(masterMutedKey));
+            musicVolumeKey = FindProp(nameof(musicVolumeKey));
+            musicMutedKey = FindProp(nameof(musicMutedKey));
+            soundVolumeKey = FindProp(nameof(soundVolumeKey));
+            soundMutedKey = FindProp(nameof(soundMutedKey));
 
             Window.Repaint();
         }
@@ -177,12 +193,25 @@ namespace JSAM.JSAMEditor
                 EditorGUILayout.PropertyField(timeScaledSounds);
 
                 EditorGUILayout.PropertyField(masterGroup);
-                EditorGUILayout.PropertyField(masterVolumeParam);
+                //EditorGUILayout.PropertyField(masterVolumeParam);
                 EditorGUILayout.PropertyField(musicGroup);
-                EditorGUILayout.PropertyField(musicVolumeParam);
+                //EditorGUILayout.PropertyField(musicVolumeParam);
                 EditorGUILayout.PropertyField(soundGroup);
-                EditorGUILayout.PropertyField(soundVolumeParam);
-
+                //EditorGUILayout.PropertyField(soundVolumeParam);
+                EditorGUILayout.PropertyField(saveVolumeToPlayerPrefs);
+                
+                if (saveVolumeToPlayerPrefs.boolValue)
+                {
+                    EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                    EditorGUILayout.PropertyField(masterVolumeKey);
+                    EditorGUILayout.PropertyField(masterMutedKey);
+                    EditorGUILayout.PropertyField(musicVolumeKey);
+                    EditorGUILayout.PropertyField(musicMutedKey);
+                    EditorGUILayout.PropertyField(soundVolumeKey);
+                    EditorGUILayout.PropertyField(soundMutedKey);
+                    EditorGUILayout.EndVertical();
+                }
+                
                 if (serializedObject.hasModifiedProperties)
                 {
                     serializedObject.ApplyModifiedProperties();

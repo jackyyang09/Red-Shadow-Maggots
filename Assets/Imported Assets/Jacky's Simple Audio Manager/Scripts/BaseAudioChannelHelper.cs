@@ -40,15 +40,16 @@ namespace JSAM
         protected AudioReverbFilter reverbFilter;
 
         public AudioSource AudioSource { get; private set; }
+        protected AudioMixerGroup defaultMixerGroup;
 
         protected Transform originalParent;
 
-        public void Init(AudioMixerGroup mixerGroup)
+        public void Init(AudioMixerGroup defaultGroup)
         {
             AudioSource = GetComponent<AudioSource>();
             enabled = false;
             originalParent = transform.parent;
-            AudioSource.outputAudioMixerGroup = mixerGroup;
+            defaultMixerGroup = defaultGroup;
         }
 
         protected virtual void OnEnable()
@@ -66,6 +67,8 @@ namespace JSAM
                     AudioManagerInternal.OnSpatializeFixedUpdate += OnSpatializeFixedUpdate;
                     AudioManagerInternal.OnSpatializeLateUpdate += OnSpatializeLateUpdate;
                 }
+
+                AudioManager.OnMasterVolumeChanged += OnUpdateVolume;
             }
         }
 
@@ -84,6 +87,8 @@ namespace JSAM
                     AudioManagerInternal.OnSpatializeFixedUpdate -= OnSpatializeFixedUpdate;
                     AudioManagerInternal.OnSpatializeLateUpdate -= OnSpatializeLateUpdate;
                 }
+
+                AudioManager.OnMasterVolumeChanged -= OnUpdateVolume;
             }
         }
 
@@ -147,7 +152,8 @@ namespace JSAM
                 StartCoroutine(FadeOut(audioFile.fadeOutDuration * AudioSource.clip.length));
             }
 
-            AudioSource.volume = file.relativeVolume;
+            AudioSource.outputAudioMixerGroup = file.mixerGroupOverride ? file.mixerGroupOverride : defaultMixerGroup;
+
             AudioSource.priority = (int)file.priority;
             float offset = AudioSource.pitch - 1;
             AudioSource.pitch = Time.timeScale + offset;
@@ -193,18 +199,17 @@ namespace JSAM
 
         public void AssignNewAudioClip()
         {
-            AudioClip[] library = audioFile.Files.ToArray();
-            int index = 0;
             if (audioFile.Files.Count > 1) // The user actually bothered to include multiple audioFiles
             {
+                int index;
                 do
                 {
-                    index = Random.Range(0, library.Length);
-                    AudioSource.clip = library[index];
+                    index = Random.Range(0, audioFile.Files.Count);
+                    AudioSource.clip = audioFile.Files[index];
                     if (AudioSource.clip == null)
                     {
                         Debug.LogWarning("Missing AudioClip at index " + index +
-                            " in Audio audioFile " + audioFile.SafeName + "'s library!");
+                            " in " + audioFile.SafeName + "'s library!");
                     }
                 } while (index == audioFile.lastClipIndex && audioFile.neverRepeat);
                 if (audioFile.neverRepeat)
@@ -264,28 +269,19 @@ namespace JSAM
             transform.position = position;
         }
 
+        protected abstract void OnUpdateVolume(float volume);
+
         #region Fade Logic
         /// <summary>
         /// </summary>
         /// <param name="fadeTime">Fade-in time in seconds</param>
         /// <returns></returns>
-        protected IEnumerator FadeIn(float fadeTime)
-        {
-            // Check if FadeTime isn't actually just 0
-            if (fadeTime != 0) // To prevent a division by zero
-            {
-                float timer = 0;
-                while (timer < fadeTime)
-                {
-                    if (audioFile.ignoreTimeScale) timer += Time.unscaledDeltaTime;
-                    else timer += Time.deltaTime;
+        protected abstract IEnumerator FadeIn(float fadeTime);
 
-                    AudioSource.volume = Mathf.Lerp(0, audioFile.relativeVolume, timer / fadeTime);
-                    yield return null;
-                }
-            }
-        }
-
+        /// <summary>
+        /// </summary>
+        /// <param name="fadeTime">Fade-out time in seconds</param>
+        /// <returns></returns>
         protected IEnumerator FadeOut(float fadeTime)
         {
             if (fadeTime != 0)

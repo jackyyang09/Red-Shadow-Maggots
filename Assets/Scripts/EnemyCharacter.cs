@@ -6,6 +6,9 @@ using static Facade;
 
 public class EnemyCharacter : BaseCharacter
 {
+    [SerializeField] float chanceToUseSkill = 0.3f;
+    public float ChanceToUseSkill { get { return chanceToUseSkill; } }
+
     [SerializeField] int critLevel = 0;
     public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
     [SerializeField] bool isBossCharacter = false;
@@ -40,12 +43,6 @@ public class EnemyCharacter : BaseCharacter
         OnSelectedEnemyCharacterChange += UpdateSelectedStatus;
     }
 
-    public void IncreaseChargeLevel()
-    {
-        critLevel = (int)Mathf.Repeat(critLevel + 1, Reference.turnsToCrit + 1);
-        onCritLevelChanged?.Invoke(critLevel);
-    }
-
     protected override void OnDisable()
     {
         base.OnDisable();
@@ -58,6 +55,12 @@ public class EnemyCharacter : BaseCharacter
     //{
     //    
     //}
+
+    public void IncreaseChargeLevel()
+    {
+        critLevel = (int)Mathf.Repeat(critLevel + 1, Reference.turnsToCrit + 1);
+        onCritLevelChanged?.Invoke(critLevel);
+    }
 
     public override void PlayAttackAnimation()
     {
@@ -88,20 +91,12 @@ public class EnemyCharacter : BaseCharacter
     public override void ShowCharacterUI()
     {
         bool isSelected = battleSystem.ActiveEnemy == this;
-        if (!isBossCharacter)
-        {
-            selectionPointer.enabled = isSelected;
-            anim.SetBool("Selected", isSelected);
-        }
+        selectionCircle.enabled = isSelected;
     }
 
     public override void HideCharacterUI()
     {
-        if (!isBossCharacter)
-        {
-            selectionPointer.enabled = false;
-            anim.SetBool("Selected", false);
-        }
+        selectionCircle.enabled = false;
     }
 
     private void OnMouseDown()
@@ -109,20 +104,21 @@ public class EnemyCharacter : BaseCharacter
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             if (IsDead) return;
-            GlobalEvents.OnSelectCharacter?.Invoke(this);
+            OnSelectCharacter?.Invoke(this);
             if (battleSystem.ActiveEnemy == this) return;
             BattleSystem.Instance.SetActiveEnemy(this);
             OnSelectedEnemyCharacterChange?.Invoke(this);
         }
     }
 
-    public override void ExecuteAttack(DamageStruct damage)
+    public override void ExecuteAttack()
     {
-        CalculateAttackDamage(damage);
+        CalculateAttackDamage();
+
         if (CanCrit)
         {
-            incomingDamage.isSuperCritical = true;
-            incomingDamage.isCritical = true;
+            IncomingDamage.isSuperCritical = true;
+            IncomingDamage.isCritical = true;
         }
 
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
@@ -148,7 +144,7 @@ public class EnemyCharacter : BaseCharacter
         onDeath?.Invoke();
         EnemyController.Instance.RegisterEnemyDeath(this);
         GlobalEvents.OnAnyEnemyDeath?.Invoke();
-        GlobalEvents.OnCharacterDeath?.Invoke(this);
+        OnCharacterDeath?.Invoke(this);
     }
 
     public void DeathEffects()
@@ -156,7 +152,7 @@ public class EnemyCharacter : BaseCharacter
         InvokeDeathEvents();
 
         Instantiate(deathParticles, transform.position, Quaternion.identity);
-        anim.SetTrigger("Death");
+        //anim.SetTrigger("Death");
     }
 
     public void ForceHideSelectionPointer()

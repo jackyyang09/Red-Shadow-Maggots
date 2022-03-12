@@ -15,7 +15,11 @@
         UIPanelClose,
         UIPanelOpen,
         Chargeup,
-        DebuffApplied
+        DebuffApplied,
+        CritPower,
+        CanteenDrop,
+        CanteenGrab,
+        CanteenUse
     }
     public enum BattleSceneMusic {
         BattleTheme,

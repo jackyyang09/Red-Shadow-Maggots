@@ -16,17 +16,17 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     protected PlayerCharacter activePlayer = null;
 
-    public static System.Action<DamageStruct> onExecuteQuickTime;
+    public static System.Action onExecuteQuickTime;
 
     public abstract void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null);
 
     public abstract void StartTicking();
 
-    public abstract DamageStruct GetMultiplier();
+    public abstract void GetMultiplier();
 
     [SerializeField] protected float hideDelay = 0.5f;
 
-    public System.Action<DamageStruct> OnQuickTimeComplete;
+    public System.Action OnQuickTimeComplete;
 
     protected void OnEnable()
     {

@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div class="versionHeader">
-			<p class="versionText">Version: <b>1.24p01</b> </p>
+			<p class="versionText">Version: <b>1.28</b> </p>
 		</div>
 		<div class="leftContent">
 			<div class="leftContentInner">
@@ -249,12 +249,75 @@
         </br>
         </br>The beta version is incremented with every change related to the current beta generation (includes bug fixes, new features or changes to the manual). Beta versions are watermarked as "beta" in the Clip Editor and are not available via the Asset Store.</td>
     </tr>
-</table></br></br><h2 class="headline2" id="">UMotion V1.24p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+</table></br></br><h2 class="headline2" id="">UMotion V1.28</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added new methods/properties to the UMotion API. It is now possible to add custom menu items to the Clip Editor, add custom buttons to the Pose Editor, to modify the bones/transforms local position, rotation and scale, create key frames and more.</span></li>
+</ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed an index out of range exception when the root animated game object is assigned to the "Target" field in the IK setup wizard's "Custom IK" section.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added descriptions of the new properties/methods in the "UMotion API" chapter.</span></li>
+</ul></br></br><h2 class="headline2" id="">UMotion V1.27</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added a "No (all clips)" option for the "... contains animation data for bones/transforms configured as locked" dialog (clip import).</span></li>
+    <li class="listItem"><span class="listText">Properties in the channels view are now displayed as full resolution float values.</span></li>
+    <li class="listItem"><span class="listText">When the UMotion manual was removed from the current Unity project, UMotion now automatically opens the online version of the manual.</span></li>
+</ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that when exporting to *.FBX the animation take end time isn't correct in situations where a long animation take is followed by a shorter animation take.</span></li>
+    <li class="listItem"><span class="listText">Fixed that using undo after opening the IK Setup Wizard doesn't close the window.</span></li>
+    <li class="listItem"><span class="listText">Fixed that if an IK constraint is used in a muted layer, all the bones affected by that IK constraint are included in the exported animation, even if those bones and the IK constraint are not animated in the active animation layers.</span></li>
+    <li class="listItem"><span class="listText">Fixed that if a child-of constraint is used in a muted layer, all the bone/transform affected by that child-of constraint is included in the exported animation, even if the bone/transform is not animated in the active animation layers.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p07</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed a "A Native Collection has not been disposed" error message shown when switching between Untiy editor layouts containing UMotion windows.</span></li>
+    <li class="listItem"><span class="listText">Supressed an exception thrown as a result of a Untiy bug in Unity 2021.2. The same bug prevents the tool assistant windows from being displayed in the scene view. Until a fixed Untiy version is available, please either downgrade to 2021.1 or keep using UMotion without the tool assistant windows. Thanks for your understanding.</span></li>
+    <li class="listItem"><span class="listText">Fixed that when exporting to *.anim of type "generic", animated properties are always re-sampled when they have an IK or a child-of constraint setup, even if the constraint isn't actively in-use.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added issue 11 to the "Known Issues" chapter.</span></li>
+</ul></br></br><h2 class="headline2" id="">UMotion V1.26p06</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed a null reference exception that is thrown under specific circumstances when trying to modify a timeline animation.</span></li>
+    <li class="listItem"><span class="listText">Unity 2021.2 now displays asset post processors in the model import inspector. Fixed that UMotion's asset post processor (used by the FBX export feature) is shown with a weird name.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p05</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that when using "Select All" (to select all bones) and then pressing "Set FK To IK" the FK bones are rotated in a wrong way.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p04</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that in newer versions of Unity 2019.4, the buttons in the mirror mapping dialog don't line up with the names of the mirror mapped bones/transforms.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p03</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that in Unity 2020.2 and above, the buttons in the mirror mapping dialog don't line up with the names of the mirror mapped bones/transforms.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Regression: Fixed that it is not possible to save a new UMotion project file in a folder that has just been created inside the "save file dialog".</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed an exception that is thrown when executing the IK setup wizard but the animated character has transforms named exactly like the IK handles that are created by the wizard.</span></li>
+    <li class="listItem"><span class="listText">Fixed that opening or saving project files and importing or exporting animation clips within local embedded unity packages is not possible.</span></li>
+    <li class="listItem"><span class="listText">Fixed that the "Root Transform Position (XZ)" isn't set to "Original" by default for exported humanoid animation clips. Thus the root motion offsets authored in UMotion aren't played by the Unity animator by default.</span></li>
+    <li class="listItem"><span class="listText">Fixed that when exporting a humanoid animation clip, "Root Transform Rotation" is always set to "Original" thus overriding any user inteded change of this setting. Now this setting is only set to original when exporting the animation for the first time, and then isn't touched anymore.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.26</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Changed the default value of the "Animator Foot/Hand IK" setting in the clip import settings to OFF. This change was introduced to be in-line with Unity's Animator default value for Foot IK (OFF). Please note that in Unity Timeline, Foot IK is ON by default! The new default value is automatically used by all new UMotion project files.</span></li>
+    <li class="listItem"><span class="listText">Changed the default value of the FBX export write mode to "Update Existing File".</span></li>
+    <li class="listItem"><span class="listText">Added info texts to the export settings dialog that are answering some of the most commonly asked support requests.</span></li>
+    <li class="listItem"><span class="listText">It is now possible to add an empty GameObject to the hierarchy of your animated 3D model in Unity and name it the same as a custom transform in your UMotion Project (e.g. "IK_Hand_R"). When assigning the 3D model to the pose editor, UMotion is automatically going to ask if it should convert the custom transform defined in the UMotion project to the existing one. This is useful when the IK handle positions/rotations should also be included in the exported animation.</span></li>
+</ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that when assigning a character to the pose editor, in some special cases the error message "Editing the hierachy of a GameObject that is currently used as UMotion preview object is not allowed." is shown.</span></li>
+    <li class="listItem"><span class="listText">Fixed that copy and pasting keys from one animated property to another only copied the X component.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.25p03</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that the docked clip editor window can't be resized in Unity 2021.2.</span></li>
+    <li class="listItem"><span class="listText">Fixed a null reference exception when switching from config mode to pose mode and there are at least two custom property constraints in "component property" mode that have nothing assigned to the "object" field.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.25p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed wrong position/rotation offsets when syncing with Unity Timeline.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.25p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed an exception that is thrown as soon as the UMotion clip editor window is opened in Unity 2021.2.</span></li>
+    <li class="listItem"><span class="listText">Fixed that the "Close" button is only partly visible in the settings window in Unity 2020.2 or higher.</span></li>
+    <li class="listItem"><span class="listText">Fixed that a script update dialog shows up when installing UMotion in Unity 2021.2 or higher.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.25</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">The pivot rotation (local/global) is now synchronized between Unity and UMotion.</span></li>
+    <li class="listItem"><span class="listText">Keying the parent channel/IK pinning channel now only creates additional keys (at current frame - 1) if the parent/IK pinning state actually changed.</span></li>
+    <li class="listItem"><span class="listText">The button "Camera Follow Selected" was added to the selection category of the pose editor. Pressing this button lets the scene view camera follow a bone/transform (very useful for previewing root motion animations).</span></li>
+</ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that the "edit key" window (in the curves view) automatically closes as soon as an input field is selected (regression introduced in V1.22p11).</span></li>
+    <li class="listItem"><span class="listText">Fixed that when manually adjusting an euler rotation value in the channels view (e.g. adding +360°), the value modified as soon as it was keyed to be the shortest path rotation instead (discarding the extra 360° rotation). When typing a value manually, the expected behaviour would be to key exactly the value that was previously typed in.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added a description of the "Camera Follow Selected" button to the "Pose Editor --&gt Pose Mode --&gt Selection" chapter.</span></li>
+</ul></br></br><h2 class="headline2" id="">UMotion V1.24p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed an "invalid cast exception" that is thrown under specific situations when selecting a bone/transform via a bone/transform selection field's selection dialog.</span></li>
     <li class="listItem"><span class="listText">Fixed the "Look rotation viewing vector is zero" log message that is logged when an IK target is on the same position as the IK handle.</span></li>
 </ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.24</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
     <li class="listItem"><span class="listText">The "frame view" functionality of the clip editor was improved. Furthermore it can now also be used in the dopesheet.</span></li>
-    <li class="listItem"><span class="listText">The "frame view" functionality now has a default shortcut assigned (SHIFT + F). For existing UMotion installations it is required to set the shortcut manually via the Edit --> Preferences window in the clip editor window.</span></li>
+    <li class="listItem"><span class="listText">The "frame view" functionality now has a default shortcut assigned (SHIFT + F). For existing UMotion installations it is required to set the shortcut manually via the Edit --&gt Preferences window in the clip editor window.</span></li>
 </ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed that browsing for a destination file in the settings window (i.e. clicking on "...") doesn't show the previous selected folder.</span></li>
     <li class="listItem"><span class="listText">Fixed that selecting a GameObject for the Pose Editor doesn't work on Mac OS when doen via the selection dialog (shown when the white circle is pressed).</span></li>
@@ -263,7 +326,7 @@
 </ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed wrong information regarding generic bones in humanoid projects in chapter "Pose Editor/Config Mode/Configuration".</span></li>
     <li class="listItem"><span class="listText">Removed a dead link from the "UMotion In Practice - Our First Animation (FPS)" video description.</span></li>
-    <li class="listItem"><span class="listText">Added a description of the "Frame View" context menu entry to the "Clip Editor --> Dopesheet / Curves View" chapter.</span></li>
+    <li class="listItem"><span class="listText">Added a description of the "Frame View" context menu entry to the "Clip Editor --&gt Dopesheet / Curves View" chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.23</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Updated the FBX SDK to 2020.0.1. This thus adds compatibility with FBX files created with FBX version 2020.</span></li>
     <li class="listItem"><span class="listText">The Mac version of UMotion now uses a the same custom FBX library as the windows version of UMotion. This solves the random crashes that the old library had and also adds feature parity between the Mac and Windows version.</span></li>
@@ -288,8 +351,8 @@
     <li class="listItem"><span class="listText">Fixed that the OK button was only partly visible in the preference's window's settings tab on Mac.</span></li>
 </ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">All manual pages are now in the root folder of the manual. This solves an issue with Safari not displaying sub pages correctly.</span></li>
-    <li class="listItem"><span class="listText">Added a description of the new "Zero Property" menu item to the "Pose Editor-> Pose Mode -> Channels" chapter.</span></li>
-    <li class="listItem"><span class="listText">Added a description of the new enum popup feature for animation events to the "Clip Editor -> Dopesheet / Curves View -> Dopesheet" chapter.</span></li>
+    <li class="listItem"><span class="listText">Added a description of the new "Zero Property" menu item to the "Pose Editor-&gt Pose Mode -&gt Channels" chapter.</span></li>
+    <li class="listItem"><span class="listText">Added a description of the new enum popup feature for animation events to the "Clip Editor -&gt Dopesheet / Curves View -&gt Dopesheet" chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.22p14</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed that the about window is automatically closed when it looses focus.</span></li>
     <li class="listItem"><span class="listText">Fixed an exception that is thrown in Unity 2020.2 when the "Sync" button is pressed.</span></li>
@@ -413,7 +476,7 @@
     <li class="listItem"><span class="listText">Updated the UMotion folder description in the "Getting Started" chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.19p03</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed that custom joints/transforms (like the IK handles) are displayed with the wrong size if a Unity UI canvas is within the GameObject's hierarchy.</span></li>
-    <li class="listItem"><span class="listText">Fixed that right-click on key then clicking on "Left Tangent --> Constant" automatically sets the right tangent to constant, too. The expected behavior would be that the right tangent is set to "free" instead.</span></li>
+    <li class="listItem"><span class="listText">Fixed that right-click on key then clicking on "Left Tangent --&gt Constant" automatically sets the right tangent to constant, too. The expected behavior would be that the right tangent is set to "free" instead.</span></li>
     <li class="listItem"><span class="listText">Fixed an error message that is shown when the "Sync" button is clicked when the "Unity Recorder" package is installed in Unity 2018.4.</span></li>
     <li class="listItem"><span class="listText">Fixed that quaternion rotation curves of generic animation clips aren't exported correctly if the last scale curve in the animation has no key.</span></li>
 </ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.19p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
@@ -576,11 +639,11 @@
     <li class="listItem"><span class="listText">Added a description of the new button in the Selection chapter of the Pose Editor.</span></li>
     <li class="listItem"><span class="listText">Updated the description of the context menu in the Channels chapter.</span></li>
     <li class="listItem"><span class="listText">Updated the description of the context menu in the Animated Properties List chapter.</span></li>
-    <li class="listItem"><span class="listText">Removed the descriptions related to the vertex weight visualization from the "Pose Editor -> Options" and "Pose Editor -> Display" chapters.</span></li>
-    <li class="listItem"><span class="listText">Added a description of the new "duplicate clip" button to the "Clip Editor -> Main Navigation" chapter.</span></li>
-    <li class="listItem"><span class="listText">Updated the screenshots in the "Clip Editor" and "Clip Editor -> Playback Navigation" chapters.</span></li>
-    <li class="listItem"><span class="listText">Added descriptions for the new menu items in the "Clip Editor -> Menu Bar -> Edit" chapter.</span></li>
-    <li class="listItem"><span class="listText">Added descriptions for the new menu items in the "Clip Editor -> Dopesheet / Curves View" chapter.</span></li>
+    <li class="listItem"><span class="listText">Removed the descriptions related to the vertex weight visualization from the "Pose Editor -&gt Options" and "Pose Editor -&gt Display" chapters.</span></li>
+    <li class="listItem"><span class="listText">Added a description of the new "duplicate clip" button to the "Clip Editor -&gt Main Navigation" chapter.</span></li>
+    <li class="listItem"><span class="listText">Updated the screenshots in the "Clip Editor" and "Clip Editor -&gt Playback Navigation" chapters.</span></li>
+    <li class="listItem"><span class="listText">Added descriptions for the new menu items in the "Clip Editor -&gt Menu Bar -&gt Edit" chapter.</span></li>
+    <li class="listItem"><span class="listText">Added descriptions for the new menu items in the "Clip Editor -&gt Dopesheet / Curves View" chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.14p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed that white boxes randomly appeared on some PCs as soon a character is assigned to the Pose Editor.</span></li>
     <li class="listItem"><span class="listText">Fixed that the text in the Shortcut Binding Dialog has no word wrap.</span></li>
@@ -705,8 +768,8 @@
     <li class="listItem"><span class="listText">Improved exception handling so that other assets that throw exceptions in events like OnProjectChange() don't break UMotion's functionality.</span></li>
     <li class="listItem"><span class="listText">Fixed exceptions that are thrown when AssetDatabase methods issue a nested OnGUI call.</span></li>
 </ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.10p03</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
-    <li class="listItem"><span class="listText">Fixed an exception that is thrown when clicking on "Window --> UMotion Editor --> Manual" when the Clip Editor is not opened.</span></li>
-    <li class="listItem"><span class="listText">Fixed an exception that is thrown when clicking on "Window --> UMotion Editor --> Video Tutorials" when the Clip Editor is not opened.</span></li>
+    <li class="listItem"><span class="listText">Fixed an exception that is thrown when clicking on "Window --&gt UMotion Editor --&gt Manual" when the Clip Editor is not opened.</span></li>
+    <li class="listItem"><span class="listText">Fixed an exception that is thrown when clicking on "Window --&gt UMotion Editor --&gt Video Tutorials" when the Clip Editor is not opened.</span></li>
     <li class="listItem"><span class="listText">Fixed an exception that is thrown by the rotation tool assistant under very specific circumstances.</span></li>
     <li class="listItem"><span class="listText">Fixed an exception that is thrown when undo is performed after the UMotion project file was deleted.</span></li>
     <li class="listItem"><span class="listText">Fixed that UMotion windows are closed when restarting UMotion (regression V1.10p02).</span></li>
@@ -791,14 +854,14 @@
     <li class="listItem"><span class="listText">Updated the "Editor Default Resources" folder description in the "Getting Started" chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.08</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
     <li class="listItem"><span class="listText">The algorithm of the IK Constraint was improved. The new constraint produces more stable results (less jitter). The new algorithm is automatically used when a new IK constraint is created. For compatibility reasons, old projects keep using the old implementation.</span></li>
-    <li class="listItem"><span class="listText">"Legacy Mode" property was added to the IK Constraint settings. Disable this property (in Config Mode --> Constraints tab) to use the new (more stable) IK algorithm.</span></li>
+    <li class="listItem"><span class="listText">"Legacy Mode" property was added to the IK Constraint settings. Disable this property (in Config Mode --&gt Constraints tab) to use the new (more stable) IK algorithm.</span></li>
     <li class="listItem"><span class="listText">The shape of transforms can now be changed in config mode. Available shapes: Solid, Wire Cube and Wire Sphere.</span></li>
     <li class="listItem"><span class="listText">The IK Setup Wizard now automatically configures IK Handles to be displayed as "Wire Cubes" and IK Pole Targets as "Wire Spheres".</span></li>
     <li class="listItem"><span class="listText">The IK Setup wizard now has "Create Pole Targets" enabled by default for human IK.</span></li>
     <li class="listItem"><span class="listText">The IK Setup wizard now has "IK Handle" enabled by default for human IK "target rotation".</span></li>
     <li class="listItem"><span class="listText">The rig rendering was reworked making UMotion compatible with Unity's new "Scriptable Render Pipeline" (introduced in Unity 2018.1).</span></li>
     <li class="listItem"><span class="listText">The "Stick Deselected" color's default value was changed to gray. Additionally the color is now also used for dashed lines and wires.</span></li>
-    <li class="listItem"><span class="listText">The max. limit of the Size parameter for bones/transforms has been increased (Config Mode --> Properties and IK Setup Wizard).</span></li>
+    <li class="listItem"><span class="listText">The max. limit of the Size parameter for bones/transforms has been increased (Config Mode --&gt Properties and IK Setup Wizard).</span></li>
 </ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed an exception when assigning a humanoid GameObject to the Pose Editor that has multiple transforms named like the transforms that are used as bones.</span></li>
     <li class="listItem"><span class="listText">Fixed that SkinnedMeshRenderers are always enabled when a GameObject is applied to the Pose Editor.</span></li>
@@ -812,7 +875,7 @@
 </ul></br></br><h2 class="headline2" id="">UMotion V1.07</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Support for Unity 5.3 is deprecated. Please use Unity 5.4 or higher or keep using UMotion V1.06p02.</span></li>
     <li class="listItem"><span class="listText">GameObjects with "Optimize GameObjects" enabled are now automatically deoptimized to allow animation editing when applied to the Pose Editor. The changes are reverted as soon as the GameObject is removed from the Pose Editor.</span></li>
-    <li class="listItem"><span class="listText">Editing animation clips that are used in Unity Timeline (Sync --> Timeline Window --> Edit Selected Clip).</span></li>
+    <li class="listItem"><span class="listText">Editing animation clips that are used in Unity Timeline (Sync --&gt Timeline Window --&gt Edit Selected Clip).</span></li>
     <li class="listItem"><span class="listText">Selecting parent GameObjects of the current animated GameObject is now allowed.</span></li>
     <li class="listItem"><span class="listText">It is now possible to play an animation on a parent object (e.g. a horse) using the Unity Timeline or Animation Window while the child object (e.g. a equestrian) is edited using UMotion.</span></li>
 </ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
@@ -1071,7 +1134,7 @@
 </ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Added the first episode of the new tutorial series UMotion "In Practice" to the video tutorials chapter.</span></li>
 </ul></br></br><h2 class="headline2" id="">UMotion V1.00p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
-    <li class="listItem"><span class="listText">Fixed an exception that appeared when editing the frame of a key in the "edit key window" that can be opened in the curves view when right click --> edit key.</span></li>
+    <li class="listItem"><span class="listText">Fixed an exception that appeared when editing the frame of a key in the "edit key window" that can be opened in the curves view when right click --&gt edit key.</span></li>
     <li class="listItem"><span class="listText">Fixed an exception that appeared when models with no bones or "Optimize GameObjects" enabled in the model import settings have been applied to the Pose Editor for the first time. Added a warning dialog that is shown when a model with "Optimize GameObjects" enabled is applied to the Pose Editor for the first time.</span></li>
     <li class="listItem"><span class="listText">Fixed inconsistent naming of the "Ik Fk Blend" channel in the custom property constraint by renaming it to "Fk Ik Blend".</span></li>
     <li class="listItem"><span class="listText">Fixed that the Pose Editor wasn't repainted immediately after the tool mode was changed from/to the scale tool.</span></li>

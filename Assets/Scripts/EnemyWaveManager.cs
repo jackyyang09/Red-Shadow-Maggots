@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyWaveManager : MonoBehaviour
+public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 {
     [SerializeField] int waveCount = 0;
 
@@ -25,13 +25,6 @@ public class EnemyWaveManager : MonoBehaviour
     [SerializeField] GameObject enemyPrefab = null;
 
     [SerializeField] GameObject bossPrefab = null;
-
-    public static EnemyWaveManager Instance;
-
-    private void Awake()
-    {
-        EstablishSingletonDominance();
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -95,30 +88,5 @@ public class EnemyWaveManager : MonoBehaviour
         newEnemy.SetCharacterAndRarity(character, Rarity.Common);
 
         return newEnemy;
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else if (Instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (Instance.gameObject.scene.name == null)
-            {
-                Instance = this;
-            }
-            else if (!Instance.gameObject.activeInHierarchy)
-            {
-                Instance = this;
-            }
-            else if (Instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                Instance = this;
-            }
-            Destroy(gameObject);
-        }
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
 
-public class UIManager : MonoBehaviour
+public class UIManager : BasicSingleton<UIManager>
 {
     [SerializeField] Canvas viewPortBillboardCanvas = null;
     public Canvas ViewportBillboardCanvas { get { return viewPortBillboardCanvas; } }
@@ -41,12 +41,8 @@ public class UIManager : MonoBehaviour
     public static Action OnAttackCommit;
     public static Action OnRemovePlayerControl;
     public static Action OnResumePlayerControl;
-    public static UIManager instance;
-
-    private void Awake()
-    {
-        EstablishSingletonDominance();
-    }
+    public static Action OnEnterSkillTargetMode;
+    public static Action OnExitSkillTargetMode;
 
     // Start is called before the first frame update
     void Start()
@@ -98,7 +94,10 @@ public class UIManager : MonoBehaviour
 
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)
     {
-        ResumePlayerControl();
+        if (!battleSystem.FinishedTurn && battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            ResumePlayerControl();
+        }
     }
 
     public void ResumePlayerControl()
@@ -176,6 +175,8 @@ public class UIManager : MonoBehaviour
         {
             e.ForceHideSelectionPointer();
         }
+
+        OnEnterSkillTargetMode?.Invoke();
     }
 
     public void CancelSkillInvocation()
@@ -270,30 +271,5 @@ public class UIManager : MonoBehaviour
     {
         bossUI.InitializeWithCharacter(character);
         bossUI.OptimizedCanvas.Show();
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
     }
 }   

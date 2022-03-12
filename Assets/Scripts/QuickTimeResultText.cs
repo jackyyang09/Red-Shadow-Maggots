@@ -25,9 +25,9 @@ public class QuickTimeResultText : MonoBehaviour
         quickTimeEntity.OnQuickTimeComplete -= OnQuickTimeComplete;
     }
 
-    private void OnQuickTimeComplete(DamageStruct result)
+    private void OnQuickTimeComplete()
     {
-        StartCoroutine(AnimateText(result));
+        StartCoroutine(AnimateText(BaseCharacter.IncomingDamage));
     }
 
     IEnumerator AnimateText(DamageStruct result)

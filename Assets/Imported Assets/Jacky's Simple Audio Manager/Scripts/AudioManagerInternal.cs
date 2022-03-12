@@ -11,7 +11,6 @@ namespace JSAM
         /// <summary>
         /// Sources dedicated to playing sound
         /// </summary>
-        List<AudioSource> sources = new List<AudioSource>();
         List<JSAMSoundChannelHelper> soundHelpers = new List<JSAMSoundChannelHelper>();
 
         /// <summary>
@@ -19,6 +18,70 @@ namespace JSAM
         /// </summary>
         List<JSAMMusicChannelHelper> musicHelpers = new List<JSAMMusicChannelHelper>();
         public JSAMMusicChannelHelper mainMusic { get; private set; }
+
+        #region Volume Logic
+        public bool MasterMuted = false;
+        public float MasterVolume = 1;
+        public float ModifiedMasterVolume { get { return MasterVolume * Convert.ToInt32(!MasterMuted); } }
+
+        public bool MusicMuted = false;
+        public float MusicVolume = 1;
+        public float ModifiedMusicVolume { get { return ModifiedMasterVolume * MusicVolume * Convert.ToInt32(!MusicMuted); } }
+
+        public bool SoundMuted = false;
+        public float SoundVolume = 1;
+        public float ModifiedSoundVolume { get { return ModifiedMasterVolume * SoundVolume * Convert.ToInt32(!SoundMuted); } }
+
+        public void SaveVolumeSettings()
+        {
+            if (!Settings.SaveVolumeToPlayerPrefs) return;
+
+            PlayerPrefs.SetFloat(Settings.MasterVolumeKey, MasterVolume);
+            PlayerPrefs.SetFloat(Settings.MusicVolumeKey, MusicVolume);
+            PlayerPrefs.SetFloat(Settings.SoundVolumeKey, SoundVolume);
+
+            PlayerPrefs.SetInt(Settings.MasterMutedKey, Convert.ToInt16(MasterMuted));
+            PlayerPrefs.SetInt(Settings.MusicMutedKey, Convert.ToInt16(MusicMuted));
+            PlayerPrefs.SetInt(Settings.SoundMutedKey, Convert.ToInt16(SoundMuted));
+
+            PlayerPrefs.Save();
+        }
+
+        public void LoadVolumeSettings()
+        {
+            if (!Settings.SaveVolumeToPlayerPrefs) return;
+
+            if (PlayerPrefs.HasKey(Settings.MasterVolumeKey))
+            {
+                MasterVolume = PlayerPrefs.GetFloat(Settings.MasterVolumeKey, 1);
+            }
+
+            if (PlayerPrefs.HasKey(Settings.MusicVolumeKey))
+            {
+                MusicVolume = PlayerPrefs.GetFloat(Settings.MusicVolumeKey, 1);
+            }
+
+            if (PlayerPrefs.HasKey(Settings.SoundVolumeKey))
+            {
+                SoundVolume = PlayerPrefs.GetFloat(Settings.SoundVolumeKey, 1);
+            }
+
+            if (PlayerPrefs.HasKey(Settings.MasterMutedKey))
+            {
+                MasterMuted = Convert.ToBoolean(PlayerPrefs.GetInt(Settings.MasterMutedKey, 0));
+            }
+
+            if (PlayerPrefs.HasKey(Settings.MusicMutedKey))
+            {
+                MusicMuted = Convert.ToBoolean(PlayerPrefs.GetInt(Settings.MusicMutedKey, 0));
+            }
+
+            if (PlayerPrefs.HasKey(Settings.SoundMutedKey))
+            {
+                SoundMuted = Convert.ToBoolean(PlayerPrefs.GetInt(Settings.SoundMutedKey, 0));
+            }
+        }
+        #endregion
 
         /// <summary>
         /// This object holds all AudioChannels
@@ -65,12 +128,20 @@ namespace JSAM
         {
             audioManager = GetComponent<AudioManager>();
 
+            LoadVolumeSettings();
+
             sourceHolder = new GameObject("Sources").transform;
             sourceHolder.SetParent(transform);
             for (int i = 0; i < Settings.StartingSoundChannels; i++)
             {
                 soundHelpers.Add(CreateSoundChannel());
             }
+
+            for (int i = 0; i < Settings.StartingMusicChannels; i++)
+            {
+                musicHelpers.Add(CreateMusicChannel());
+            }
+            if (musicHelpers.Count > 0) mainMusic = musicHelpers[0];
         }
 
         // Update is called once per frame
@@ -95,6 +166,15 @@ namespace JSAM
             OnSpatializeLateUpdate?.Invoke();
         }
 
+        private void OnDestroy()
+        {
+            SaveVolumeSettings();
+        }
+
+        private void OnApplicationQuit()
+        {
+        }
+
         /// <summary>
         /// Set whether or not sounds are 2D or 3D (spatial)
         /// </summary>
@@ -114,6 +194,8 @@ namespace JSAM
             {
                 mainMusic = helper;
             }
+            AudioManager.OnMusicPlayed?.Invoke(music);
+
             return mainMusic;
         }
 
@@ -123,6 +205,7 @@ namespace JSAM
             if (helper == null) helper = musicHelpers[GetFreeMusicChannel()];
             helper.Play(music);
             helper.SetSpatializationTarget(newTransform);
+            AudioManager.OnMusicPlayed?.Invoke(music);
 
             return helper;
         }
@@ -133,6 +216,7 @@ namespace JSAM
             if (helper == null) helper = musicHelpers[GetFreeMusicChannel()];
             helper.Play(music);
             helper.SetSpatializationTarget(position);
+            AudioManager.OnMusicPlayed?.Invoke(music);
 
             return helper;
         }
@@ -144,7 +228,7 @@ namespace JSAM
             if (!Application.isPlaying) return null;
             for (int i = 0; i < musicHelpers.Count; i++)
             {
-                if (musicHelpers[i].AudioSource == null) return null; // Prevent issues when called from OnDestroy
+                if (musicHelpers[i].AudioSource == null) return null; // Prevent issues when called during OnApplicationQuit
                 if (music.Files.Contains(musicHelpers[i].AudioSource.clip))
                 {
                     if (t != null && music.spatialize)
@@ -197,6 +281,7 @@ namespace JSAM
             if (helper == null) helper = soundHelpers[GetFreeSoundChannel()];
             helper.Play(sound);
             helper.SetSpatializationTarget(newTransform);
+            AudioManager.OnSoundPlayed?.Invoke(sound);
 
             return helper;
         }
@@ -208,6 +293,7 @@ namespace JSAM
             if (helper == null) helper = soundHelpers[GetFreeSoundChannel()];
             helper.Play(sound);
             helper.SetSpatializationTarget(position);
+            AudioManager.OnSoundPlayed?.Invoke(sound);
 
             return helper;
         }
@@ -327,38 +413,6 @@ namespace JSAM
             return -1;
         }
 
-        /// <summary>
-        /// Deprecated
-        /// Returns -1 if all sources are used
-        /// </summary>
-        /// <returns></returns>
-        int GetAvailableSource()
-        {
-            for (int i = 0; i < sources.Count; i++)
-            {
-                if (!sources[i].isPlaying/* && !loopingSources.Contains(sources[i])*/)
-                {
-                    return i;
-                }
-            }
-
-            if (audioManager.Settings.DynamicSourceAllocation)
-            {
-                AudioSource newSource = Instantiate(sourcePrefab, sourceHolder.transform).GetComponent<AudioSource>();
-                JSAMSoundChannelHelper newHelper = newSource.gameObject.AddComponent<JSAMSoundChannelHelper>();
-                newSource.name = "AudioSource " + sources.Count;
-                //newHelper.Init();
-                sources.Add(newSource);
-                soundHelpers.Add(newHelper);
-                return sources.Count - 1;
-            }
-            else
-            {
-                Debug.LogError("AudioManager Error: Ran out of Audio Sources!");
-            }
-            return -1;
-        }
-
         #region IsPlaying
         public bool IsSoundPlayingInternal(JSAMSoundFileObject s, Transform trans)
         {
@@ -473,42 +527,6 @@ namespace JSAM
             newHelper.Init(Settings.SoundGroup);
             return newHelper;
         }
-        #endregion
-
-        #region Volume Logic
-        public float MasterVolume
-        {
-            get
-            {
-                float volume;
-                Settings.Mixer.GetFloat(Settings.MasterVolumePararm, out volume);
-                return volume;
-            }
-        }
-
-        public float MusicVolume
-        {
-            get
-            {
-                float volume;
-                Settings.Mixer.GetFloat(Settings.MusicVolumePararm, out volume);
-                return volume;
-            }
-        }
-
-        public float SoundVolume
-        {
-            get
-            {
-                float volume;
-                Settings.Mixer.GetFloat(Settings.SoundVolumePararm, out volume);
-                return volume;
-            }
-        }
-
-        public void SetMasterVolume(float newVolume) => Settings.Mixer.SetFloat(Settings.MasterVolumePararm, newVolume);
-        public void SetMusicVolume(float newVolume) => Settings.Mixer.SetFloat(Settings.MusicVolumePararm, newVolume);
-        public void SetSoundVolume(float newVolume) => Settings.Mixer.SetFloat(Settings.SoundVolumePararm, newVolume);
         #endregion
     }
 }

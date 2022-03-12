@@ -7,28 +7,7 @@ public class BaseCritChanceBuff : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        float percentageChange = 0;
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                percentageChange = customValues[0];
-                break;
-            case EffectStrength.Weak:
-                percentageChange = 0.1f;
-                break;
-            case EffectStrength.Small:
-                percentageChange = 0.2f;
-                break;
-            case EffectStrength.Medium:
-                percentageChange = 0.3f;
-                break;
-            case EffectStrength.Large:
-                percentageChange = 0.4f;
-                break;
-            case EffectStrength.EX:
-                percentageChange = 0.5f;
-                break;
-        }
+        float percentageChange = (float)GetEffectStrength(strength, customValues);
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
         target.ApplyCritChanceModifier(percentageChange);
@@ -40,61 +19,39 @@ public class BaseCritChanceBuff : BaseGameEffect
 
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        float percentageChange = 0;
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                percentageChange = customValues[0];
-                break;
-            case EffectStrength.Weak:
-                percentageChange = 0.1f;
-                break;
-            case EffectStrength.Small:
-                percentageChange = 0.2f;
-                break;
-            case EffectStrength.Medium:
-                percentageChange = 0.3f;
-                break;
-            case EffectStrength.Large:
-                percentageChange = 0.4f;
-                break;
-            case EffectStrength.EX:
-                percentageChange = 0.5f;
-                break;
-        }
+        float percentageChange = (float)GetEffectStrength(strength, customValues);
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyCritChanceModifier(-percentageChange);
+        target.RemoveCritChanceModifier(percentageChange);
     }
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
-        float percentageChange = 0;
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                percentageChange = customValues[0];
-                break;
-            case EffectStrength.Weak:
-                percentageChange = 0.1f;
-                break;
-            case EffectStrength.Small:
-                percentageChange = 0.2f;
-                break;
-            case EffectStrength.Medium:
-                percentageChange = 0.3f;
-                break;
-            case EffectStrength.Large:
-                percentageChange = 0.4f;
-                break;
-            case EffectStrength.EX:
-                percentageChange = 0.5f;
-                break;
-        }
+        float percentageChange = (float)GetEffectStrength(strength, customValues);
 
         if (effectType == EffectType.Debuff)
             return "Crit Chance Reduced by " + percentageChange * 100 + "%";
         else
             return "Crit Chance Increased by " + percentageChange * 100 + "%";
+    }
+
+    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
+    {
+        switch (strength)
+        {
+            case EffectStrength.Custom:
+                return customValues[0];
+            case EffectStrength.Weak:
+                return 0.1f;
+            case EffectStrength.Small:
+                return 0.2f;
+            case EffectStrength.Medium:
+                return 0.3f;
+            case EffectStrength.Large:
+                return 0.4f;
+            case EffectStrength.EX:
+                return 0.5f;
+        }
+        return 0;
     }
 }

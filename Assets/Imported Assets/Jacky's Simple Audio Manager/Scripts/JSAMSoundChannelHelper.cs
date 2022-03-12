@@ -10,6 +10,22 @@ namespace JSAM
     {
         float prevPlaybackTime;
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+
+            if (audioFile)
+            {
+                AudioManager.OnSoundVolumeChanged += OnUpdateVolume;
+            }
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            AudioManager.OnSoundVolumeChanged -= OnUpdateVolume;
+        }
+
         protected override void Update()
         {
             if (AudioSource.loop)
@@ -37,7 +53,10 @@ namespace JSAM
                 return AudioSource;
             }
 
+            audioFile = file;
+
             AudioSource.pitch = JSAMSoundFileObject.GetRandomPitch(file);
+            OnUpdateVolume(AudioManager.SoundVolume);
 
             switch (file.loopMode)
             {
@@ -60,6 +79,36 @@ namespace JSAM
             prevPlaybackTime = -1;
         }
 
+        protected override void OnUpdateVolume(float volume)
+        {
+            AudioSource.volume = AudioManager.InternalInstance.ModifiedSoundVolume;
+            if (audioFile) AudioSource.volume *= audioFile.relativeVolume;
+        }
+
+        #region Fade Logic
+        /// <summary>
+        /// </summary>
+        /// <param name="fadeTime">Fade-in time in seconds</param>
+        /// <returns></returns>
+        protected override IEnumerator FadeIn(float fadeTime)
+        {
+            // Check if FadeTime isn't actually just 0
+            if (fadeTime != 0) // To prevent a division by zero
+            {
+                float timer = 0;
+                while (timer < fadeTime)
+                {
+                    if (audioFile.ignoreTimeScale) timer += Time.unscaledDeltaTime;
+                    else timer += Time.deltaTime;
+
+                    float volume = audioFile.relativeVolume * AudioManager.SoundVolume;
+                    AudioSource.volume = Mathf.Lerp(0, volume, timer / fadeTime);
+                    yield return null;
+                }
+            }
+        }
+        #endregion
+
 #if UNITY_EDITOR
         public void PlayDebug(JSAMSoundFileObject file, bool dontReset)
         {
@@ -71,20 +120,6 @@ namespace JSAM
             AudioSource.pitch = JSAMSoundFileObject.GetRandomPitch(file);
 
             audioFile = file;
-
-            if (AudioManager.Instance.Settings.Spatialize && audioFile.spatialize)
-            {
-                AudioSource.spatialBlend = 1;
-                if (file.maxDistance != 0)
-                {
-                    AudioSource.maxDistance = file.maxDistance;
-                }
-                else AudioSource.maxDistance = AudioManager.Instance.Settings.DefaultSoundMaxDistance;
-            }
-            else
-            {
-                AudioSource.spatialBlend = 0;
-            }
 
             AudioSource.volume = file.relativeVolume;
             AudioSource.priority = (int)file.priority;

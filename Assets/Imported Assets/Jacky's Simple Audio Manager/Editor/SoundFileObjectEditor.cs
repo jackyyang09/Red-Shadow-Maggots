@@ -232,9 +232,11 @@ namespace JSAM.JSAMEditor
             presetDescription.stringValue = input[1];
             serializedObject.ApplyModifiedProperties();
             Preset newPreset = new Preset(asset as JSAMSoundFileObject);
+#if UNITY_2020_OR_NEWER
             newPreset.excludedProperties = new string[] {
                 "files", "UsingLibrary", "category"
             };
+#endif
             string path = JSAMSettings.Settings.PresetsPath + "\"" + input[0] + ".preset";
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
         }
@@ -256,63 +258,65 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.Space();
 
-            Rect overlay = new Rect();
-            showLibrary = EditorCompatability.SpecialFoldouts(showLibrary, "Library");
-            if (showLibrary)
+            #region Library Region
+            if (!isPreset)
             {
-                GUILayoutOption[] layoutOptions;
-                layoutOptions = expandLibrary && files.arraySize > 5 ? new GUILayoutOption[0] : new GUILayoutOption[] { GUILayout.MinHeight(150) } ;
-                overlay = EditorGUILayout.BeginVertical(GUI.skin.box, layoutOptions);
-
-                scroll = EditorGUILayout.BeginScrollView(scroll);
-
-                if (files.arraySize > 5) // Magic number haha
+                Rect overlay = new Rect();
+                showLibrary = EditorCompatability.SpecialFoldouts(showLibrary, "Library");
+                if (showLibrary)
                 {
-                    string label = expandLibrary ? "Retract Library" : "Expand Library";
-                    if (JSAMEditorHelper.CondensedButton(label))
+                    GUILayoutOption[] layoutOptions;
+                    layoutOptions = expandLibrary && files.arraySize > 5 ? new GUILayoutOption[0] : new GUILayoutOption[] { GUILayout.MinHeight(150) };
+                    overlay = EditorGUILayout.BeginVertical(GUI.skin.box, layoutOptions);
+
+                    scroll = EditorGUILayout.BeginScrollView(scroll);
+
+                    if (files.arraySize > 5) // Magic number haha
                     {
-                        expandLibrary = !expandLibrary;
-                    }
-                }
-
-                if (files.arraySize > 0)
-                {
-                    list.Draw();
-                }
-                EditorGUILayout.EndScrollView();
-                EditorGUILayout.EndVertical();
-            }
-
-            EditorCompatability.EndSpecialFoldoutGroup();
-
-            if (showLibrary)
-            {
-                string normalLabel = files.arraySize == 0 ? "Drag AudioClips here" : string.Empty;
-                if (JSAMEditorHelper.DragAndDropRegion(overlay, normalLabel, "Release to add AudioClips"))
-                {
-                    for (int i = 0; i < DragAndDrop.objectReferences.Length; i++)
-                    {
-                        string filePath = AssetDatabase.GetAssetPath(DragAndDrop.objectReferences[i]);
-                        var clips = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioClip>(filePath);
-
-                        for (int j = 0; j < clips.Count; j++)
+                        string label = expandLibrary ? "Retract Library" : "Expand Library";
+                        if (JSAMEditorHelper.CondensedButton(label))
                         {
-                            files.AddNewArrayElement().objectReferenceValue = clips[j];
+                            expandLibrary = !expandLibrary;
+                        }
+                    }
+
+                    if (files.arraySize > 0)
+                    {
+                        list.Draw();
+                    }
+                    EditorGUILayout.EndScrollView();
+                    EditorGUILayout.EndVertical();
+                }
+
+                EditorCompatability.EndSpecialFoldoutGroup();
+
+                if (showLibrary)
+                {
+                    string normalLabel = files.arraySize == 0 ? "Drag AudioClips here" : string.Empty;
+                    if (JSAMEditorHelper.DragAndDropRegion(overlay, normalLabel, "Release to add AudioClips"))
+                    {
+                        for (int i = 0; i < DragAndDrop.objectReferences.Length; i++)
+                        {
+                            string filePath = AssetDatabase.GetAssetPath(DragAndDrop.objectReferences[i]);
+                            var clips = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioClip>(filePath);
+
+                            for (int j = 0; j < clips.Count; j++)
+                            {
+                                files.AddAndReturnNewArrayElement().objectReferenceValue = clips[j];
+                            }
                         }
                     }
                 }
+                EditorGUILayout.LabelField("File Count: " + files.arraySize);
             }
-            EditorGUILayout.LabelField("File Count: " + files.arraySize);
+            #endregion
 
             EditorGUILayout.Space();
 
-            using (new EditorGUI.DisabledScope(files.arraySize > 1))
-            {
-                blontent = new GUIContent("Never Repeat", "Sometimes, AudioManager will allow the same sound from the Audio " +
-                "library to play twice in a row, enabling this option will ensure that this audio file never plays the same " +
-                "sound until after it plays a different sound.");
-                EditorGUILayout.PropertyField(neverRepeat, blontent);
-            }
+            blontent = new GUIContent("Never Repeat", "Sometimes, AudioManager will allow the same sound from the Audio " +
+            "library to play twice in a row, enabling this option will ensure that this audio file never plays the same " +
+            "sound until after it plays a different sound.");
+            EditorGUILayout.PropertyField(neverRepeat, blontent);
 
             bool noFiles = files.arraySize == 0;
 
@@ -333,24 +337,20 @@ namespace JSAM.JSAMEditor
 
             DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
 
-            if (noFiles)
+            if (noFiles && !isPreset)
             {
                 EditorGUILayout.HelpBox("Error! Add an audio file before running!", MessageType.Error);
-            }
-            if (asset.name.Contains("NEW AUDIO FILE") || asset.name.Equals("None") || asset.name.Equals("GameObject"))
-            {
-                EditorGUILayout.HelpBox("Warning! Change the name of the gameObject to something different or things will break!", MessageType.Warning);
             }
 
             if (playingClip == null)
             {
                 RedesignateActiveAudioClip();
             }
-            if (!noFiles && !AudioPlaybackToolEditor.WindowOpen) DrawPlaybackTool();
+            DrawPlaybackTool();
 
             DrawLoopPointTools(target as JSAMSoundFileObject);
 
-            #region Fade Tools
+#region Fade Tools
             EditorGUILayout.PropertyField(fadeInOut);
 
             using (new EditorGUI.DisabledScope(!fadeInOut.boolValue))
@@ -431,57 +431,57 @@ namespace JSAM.JSAMEditor
 
             if (showPlaybackTool)
             {
-                var helperSource = AudioPlaybackToolEditor.helperSource;
-                ProgressBar(AudioPlaybackToolEditor.helperSource.time / playingClip.length, GetInfoString());
-
-                EditorGUILayout.BeginHorizontal();
-                Color colorbackup = GUI.backgroundColor;
-                if (clipPlaying)
+                if (ProgressBar())
                 {
-                    GUI.backgroundColor = buttonPressedColor;
-                    blontent = new GUIContent("Stop", "Stop playback");
-                }
-                else
-                {
-                    blontent = new GUIContent("Play", "Play a preview of the sound with it's current sound settings.");
-                }
-                if (GUILayout.Button(blontent))
-                {
+                    EditorGUILayout.BeginHorizontal();
+                    Color colorbackup = GUI.backgroundColor;
                     if (clipPlaying)
                     {
-                        AudioPlaybackToolEditor.helperSource.Stop();
-                        AudioPlaybackToolEditor.helperSource.time = 0;
-                        if (playingRandom)
-                        {
-                            playingRandom = false;
-                        }
+                        GUI.backgroundColor = buttonPressedColor;
+                        blontent = new GUIContent("Stop", "Stop playback");
                     }
                     else
                     {
-                        if (playingClip != null)
+                        blontent = new GUIContent("Play", "Play a preview of the sound with it's current sound settings.");
+                    }
+                    if (GUILayout.Button(blontent))
+                    {
+                        if (clipPlaying)
                         {
+                            AudioPlaybackToolEditor.helperSource.Stop();
+                            AudioPlaybackToolEditor.helperSource.time = 0;
+                            if (playingRandom)
+                            {
+                                playingRandom = false;
+                            }
+                        }
+                        else
+                        {
+                            if (playingClip != null)
+                            {
+                                editorFader.StartFading(playingClip, asset as JSAMSoundFileObject);
+                            }
+                        }
+                        AudioPlaybackToolEditor.DoForceRepaint(true);
+                    }
+                    GUI.backgroundColor = colorbackup;
+                    using (new EditorGUI.DisabledScope(files.arraySize < 2))
+                    {
+                        if (GUILayout.Button(new GUIContent("Play Random", "Preview settings with a random track from your library. Only usable if this Audio File has \"Use Library\" enabled.")))
+                        {
+                            DesignateRandomAudioClip();
+                            AudioPlaybackToolEditor.helperSource.Stop();
                             editorFader.StartFading(playingClip, asset as JSAMSoundFileObject);
                         }
                     }
-                    AudioPlaybackToolEditor.DoForceRepaint(true);
-                }
-                GUI.backgroundColor = colorbackup;
-                using (new EditorGUI.DisabledScope(files.arraySize < 2))
-                {
-                    if (GUILayout.Button(new GUIContent("Play Random", "Preview settings with a random track from your library. Only usable if this Audio File has \"Use Library\" enabled.")))
-                    {
-                        DesignateRandomAudioClip();
-                        helperSource.Stop();
-                        editorFader.StartFading(playingClip, asset as JSAMSoundFileObject);
-                    }
-                }
 
-                if (GUILayout.Button(openIcon, new GUILayoutOption[] { GUILayout.MaxHeight(19) }))
-                {
-                    AudioPlaybackToolEditor.Init();
+                    if (GUILayout.Button(openIcon, new GUILayoutOption[] { GUILayout.MaxHeight(19) }))
+                    {
+                        AudioPlaybackToolEditor.Init();
+                    }
+                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.EndHorizontal();
                 }
-                GUILayout.FlexibleSpace();
-                EditorGUILayout.EndHorizontal();
             }
             EditorCompatability.EndSpecialFoldoutGroup();
         }
@@ -570,13 +570,47 @@ namespace JSAM.JSAMEditor
         /// </summary>
         /// <param name="value"></param>
         /// <param name="label"></param>
-        /// <returns></returns>
-        Rect ProgressBar(float value, string label)
+        /// <returns>True if tools successfully rendered</returns>
+        bool ProgressBar()
         {
+            string label = GetInfoString();
             // Get a rect for the progress bar using the same margins as a TextField:
             Rect rect = GUILayoutUtility.GetRect(64, 64, "TextField");
 
+            bool hide = false;
+            GUIContent content = new GUIContent();
+
+            if (files.arraySize == 0)
+            {
+                content.text = "Add some AudioClips above to preview them";
+                hide = true;
+            }
+
+            if (AudioPlaybackToolEditor.WindowOpen)
+            {
+                content.text = "JSAM Playback Tool is Open";
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("Re-focus Playback Tool"))
+                {
+                    EditorWindow.FocusWindowIfItsOpen<AudioPlaybackToolEditor>();
+                }
+                if (GUILayout.Button("Close Playback Tool"))
+                {
+                    AudioPlaybackToolEditor.Window.Close();
+                }
+                EditorGUILayout.EndHorizontal();
+                hide = true;
+            }
+
+            if (hide)
+            {
+                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20));
+                return false;
+            }
+
             AudioClip sound = playingClip;
+            var helperSource = AudioPlaybackToolEditor.helperSource;
+            var value = helperSource.time / playingClip.length;
 
             if ((cachedTex == null || AudioPlaybackToolEditor.forceRepaint) && Event.current.type == EventType.Repaint)
             {
@@ -601,7 +635,7 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.Space();
 
-            return rect;
+            return true;
         }
 
         public static void DrawPropertyOverlay(JSAMSoundFileObject sound, int width, int height)

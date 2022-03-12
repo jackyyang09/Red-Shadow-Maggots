@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
+using System.Linq;
 using static Facade;
 
 public struct DamageStruct
@@ -70,13 +71,8 @@ public abstract class BaseCharacter : MonoBehaviour
     /// </summary>
     [SerializeField]
     float attackModifier;
-    public float AttackModifier
-    {
-        get
-        {
-            return attackModifier;
-        }
-    }
+    public float AttackModifier { get { return attackModifier; } }
+    public float AttackModified { get { return characterReference.attack + attackModifier; } }
 
     /// <summary>
     /// Additive modifier from skills
@@ -100,14 +96,14 @@ public abstract class BaseCharacter : MonoBehaviour
     /// <summary>
     /// The sum of the character's base crit chance and any modifiers before QTEs
     /// </summary>
-    public float CritChanceAdjusted { get { return critChance + critChanceModifier; } }
+    public virtual float CritChanceModified { get { return critChance + critChanceModifier; } }
 
     [SerializeField] float critChanceModifier = 0;
     public float CritChanceModifier { get { return critChanceModifier; } }
 
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
-    public float CritDamageAdjusted { get { return critMultiplier + critDamageModifier; } }
+    public float CritDamageModified { get { return critMultiplier + critDamageModifier; } }
 
     [SerializeField]
     AttackRange range;
@@ -142,28 +138,40 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] protected GameObject deathParticles;
 
-    [SerializeField] protected SpriteRenderer selectionPointer;
+    [SerializeField] protected SpriteRenderer selectionCircle;
+    [SerializeField] protected Vector2 selectionCircleScale = new Vector2(0.7f, 1f);
 
     [SerializeField] AnimationHelper animHelper = null;
     public AnimationHelper AnimHelper { get { return animHelper; } }
 
     [SerializeField] protected GameObject canvasPrefab = null;
 
-    public List<AppliedEffect> AppliedEffects { get; } = new List<AppliedEffect>();
+    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects { get; } = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
 
     List<GameSkill> gameSkills = new List<GameSkill>();
 
     protected bool usedSuperCritThisTurn;
 
-    protected Animator anim;
-
-    public Action<BaseGameEffect> onApplyGameEffect;
-    public Action<BaseGameEffect> onRemoveGameEffect;
+    public Action<AppliedEffect> onApplyGameEffect;
+    public Action<AppliedEffect> onRemoveGameEffect;
 
     public Action onHeal;
     public Action onTakeDamage;
 
-    public static DamageStruct incomingDamage;
+    public Action OnCharacterCritChanceChanged;
+
+    public static Action<BaseCharacter> OnCharacterStartAttack;
+    public static Action<BaseCharacter> OnCharacterAttacked;
+
+    public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
+
+    public static Action<BaseCharacter> OnCharacterDeath;
+
+    public static Action<BaseCharacter> OnSelectCharacter;
+    public static Action<BaseCharacter, DamageStruct> OnCharacterExecuteAttack;
+    public static Action<BaseCharacter, float> OnCharacterCritChanceReduced;
+
+    public static DamageStruct IncomingDamage;
 
     public UnityEngine.Events.UnityEvent onDeath;
 
@@ -194,8 +202,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected virtual void Awake()
     {
-        anim = GetComponent<Animator>();
-
         ApplyCharacterStats();
     }
 
@@ -240,10 +246,14 @@ public abstract class BaseCharacter : MonoBehaviour
     public abstract void HideCharacterUI();
 
     // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
+    void Update()
+    {
+        if (selectionCircle.enabled)
+        {
+            float scale = Mathf.Lerp(selectionCircleScale.x, selectionCircleScale.y, Mathf.PingPong(Time.time, 1));
+            selectionCircle.transform.localScale = new Vector3(scale, scale, 1);
+        }
+    }
 
     private void OnStartPlayerTurn()
     {
@@ -258,19 +268,23 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             rigAnim.Play("Super Critical");
         }
-        GlobalEvents.OnCharacterSuperCritical?.Invoke(this);
+        GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
+        IncomingDamage.isCritical = true;
+        IncomingDamage.isSuperCritical = true;
+        IncomingDamage.critDamageModifier = CritDamageModified;
+        animHelper.EnableCrits();
     }
 
     public virtual void PlayAttackAnimation()
     {
-        GlobalEvents.OnCharacterStartAttack?.Invoke(this);
+        OnCharacterStartAttack?.Invoke(this);
         QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
     }
 
-    public virtual void ExecuteAttack(DamageStruct damage)
+    public virtual void ExecuteAttack()
     {
-        CalculateAttackDamage(damage);
+        CalculateAttackDamage();
 
         QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
 
@@ -304,21 +318,24 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void DealDamage()
     {
-        incomingDamage.isAOE = false;
-        BattleSystem.Instance.AttackTarget(incomingDamage);
-        GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
+        IncomingDamage.isAOE = false;
+        BattleSystem.Instance.AttackTarget();
+        OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
     }
 
     public void DealAOEDamage()
     {
-        incomingDamage.isAOE = true;
-        BattleSystem.Instance.AttackAOE(incomingDamage);
-        GlobalEvents.OnCharacterExecuteAttack?.Invoke(this, incomingDamage);
+        IncomingDamage.isAOE = true;
+        BattleSystem.Instance.AttackAOE();
+        OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
     }
 
     public virtual void BeginAttack(Transform target)
     {
-        if (CritChanceAdjusted >= 1 && !usedSuperCritThisTurn)
+        IncomingDamage = new DamageStruct();
+        IncomingDamage.source = this;
+
+        if (CritChanceModified >= 1 && !usedSuperCritThisTurn)
         {
             UseSuperCritical();
         }
@@ -353,6 +370,11 @@ public abstract class BaseCharacter : MonoBehaviour
                 SceneTweener.Instance.RotateBack();
                 break;
         }
+        if (IncomingDamage.isCritical)
+        {
+            animHelper.DisableCrits();
+        }
+        battleSystem.FinishTurn();
     }
 
     public void PlayReturnAnimation()
@@ -363,27 +385,25 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    public virtual void CalculateAttackDamage(DamageStruct damageStruct)
+    public virtual void CalculateAttackDamage()
     {
-        damageStruct.source = this;
-
-        float finalCritChance = CritChanceAdjusted;
+        float finalCritChance = CritChanceModified;
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            if (damageStruct.qteResult == QuickTimeBase.QTEResult.Perfect)
+            if (IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
             {
                 finalCritChance += BattleSystem.QuickTimeCritModifier;
             }
         }
-        damageStruct.isCritical = UnityEngine.Random.value < finalCritChance;
-        if (damageStruct.isCritical)
+        OnCharacterCritChanceChanged?.Invoke();
+        IncomingDamage.isCritical = UnityEngine.Random.value < finalCritChance;
+        if (IncomingDamage.isCritical)
         {
-            damageStruct.isSuperCritical = finalCritChance >= 1.0f;
+            IncomingDamage.isSuperCritical = finalCritChance >= 1.0f;
+            animHelper.EnableCrits();
         }
-        damageStruct.critDamageModifier = CritDamageAdjusted;
-
-        incomingDamage = damageStruct;
+        IncomingDamage.critDamageModifier = CritDamageModified;
     }
 
     public virtual float CalculateDefenseDamage(float damage)
@@ -438,11 +458,27 @@ public abstract class BaseCharacter : MonoBehaviour
                 targets.Add(this);
                 break;
             case TargetMode.OneAlly:
-                PlayerCharacter.OnSelectPlayer += AddSkillTarget;
-                UIManager.instance.EnterSkillTargetMode();
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        PlayerCharacter.OnSelectPlayer += AddSkillTarget;
+                        ui.EnterSkillTargetMode();
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.Add(enemyController.RandomEnemy);
+                        break;
+                }
                 break;
             case TargetMode.OneEnemy:
-                EnemyCharacter.OnSelectedEnemyCharacterChange += AddSkillTarget;
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        EnemyCharacter.OnSelectedEnemyCharacterChange += AddSkillTarget;
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.Add(battleSystem.EnemyAttackTarget);
+                        break;
+                }
                 break;
             case TargetMode.AllAllies:
                 for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
@@ -471,7 +507,7 @@ public abstract class BaseCharacter : MonoBehaviour
                         EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
                         break;
                 }
-                UIManager.instance.ExitSkillTargetMode();
+                ui.ExitSkillTargetMode();
                 break;
             }
             yield return null;
@@ -483,7 +519,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 case TargetMode.OneAlly:
                     PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
-                    UIManager.instance.ExitSkillTargetMode();
+                    ui.ExitSkillTargetMode();
                     break;
                 case TargetMode.OneEnemy:
                     EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
@@ -512,7 +548,7 @@ public abstract class BaseCharacter : MonoBehaviour
             spriteAnim.Play("Skill");
         }
 
-        GlobalEvents.OnCharacterActivateSkill?.Invoke(this, currentSkill);
+        OnCharacterActivateSkill?.Invoke(this, currentSkill);
         for (int i = 0; i < onSkillFoundTargets.Count; i++)
         {
             onSkillFoundTargets[i]();
@@ -540,6 +576,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         AppliedEffect newEffect = new AppliedEffect();
 
+        newEffect.target = character;
         newEffect.referenceEffect = effectAndDuration.effect;
         newEffect.remainingTurns = effectAndDuration.effectDuration;
         newEffect.strength = effectAndDuration.strength;
@@ -597,9 +634,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ApplyEffect(AppliedEffect newEffect)
     {
-        AppliedEffects.Add(newEffect);
+        // TODO: Make some effects stack-able and some not
+        // if (newEffect.referenceEffect.canStack)
+        if (!AppliedEffects.ContainsKey(newEffect.referenceEffect))
+        {
+            AppliedEffects.Add(newEffect.referenceEffect, new List<AppliedEffect>());
+        }
+        AppliedEffects[newEffect.referenceEffect].Add(newEffect);
         EffectTextSpawner.instance.SpawnEffectAt(newEffect.referenceEffect, transform);
-        onApplyGameEffect?.Invoke(newEffect.referenceEffect);
+        onApplyGameEffect?.Invoke(newEffect);
     }
 
     public void CooldownSkills()
@@ -611,13 +654,32 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    public void TickEffect(AppliedEffect effect)
+    public void TickEffect(BaseGameEffect effect)
     {
-        if (!effect.Tick(this)) // Check if still active after ticking
+        if (AppliedEffects[effect].Count == 1)
         {
-            // Remove the effect
+            if (!AppliedEffects[effect][0].Tick()) // Check if still active after ticking
+            {
+                // Remove the effect
+                onRemoveGameEffect?.Invoke(AppliedEffects[effect][0]);
+                AppliedEffects[effect].RemoveAt(0);
+            }
+        }
+        else if (AppliedEffects[effect].Count > 1) 
+        {
+            var newList = effect.TickMultiple(this, AppliedEffects[effect]);
+            var diff = AppliedEffects[effect].Except(newList).ToList();
+
+            for (int i = 0; i < diff.Count; i++)
+            {
+                onRemoveGameEffect?.Invoke(diff.ElementAt(i));
+            }
+            AppliedEffects[effect] = newList;
+        }
+
+        if (AppliedEffects[effect].Count == 0)
+        {
             AppliedEffects.Remove(effect);
-            onRemoveGameEffect?.Invoke(effect.referenceEffect);
         }
     }
 
@@ -640,12 +702,24 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ApplyCritChanceModifier(float modifier)
     {
-        critChanceModifier += modifier;
+        critChanceModifier += Mathf.Max(modifier, 0);
+        OnCharacterCritChanceChanged?.Invoke();
+    }
+
+    public void RemoveCritChanceModifier(float modifier)
+    {
+        critChanceModifier -= Mathf.Max(modifier, 0);
+        OnCharacterCritChanceReduced?.Invoke(this, modifier);
     }
 
     public void ApplyCritDamageModifier(float modifier)
     {
         critDamageModifier += modifier;
+    }
+
+    public virtual void TakeDamage()
+    {
+        TakeDamage(IncomingDamage);
     }
 
     public virtual void TakeDamage(DamageStruct damage)
@@ -658,7 +732,7 @@ public abstract class BaseCharacter : MonoBehaviour
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-            damage.damage = damage.damageNormalized * (attack + attackModifier) * effectiveness;
+            damage.damage = damage.damageNormalized * damage.source.AttackModified * effectiveness;
         }
 
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;
@@ -669,7 +743,7 @@ public abstract class BaseCharacter : MonoBehaviour
         DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)
         {
-            if (incomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
+            if (IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
             {
                 if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
                     rigAnim.Play("Hit Reaction");
@@ -691,7 +765,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         onTakeDamage?.Invoke();
-        GlobalEvents.OnCharacterAttacked?.Invoke(this);
+        OnCharacterAttacked?.Invoke(this);
 
         if (health == 0)
         {
@@ -748,12 +822,12 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ShowSelectionPointer()
     {
-        selectionPointer.enabled = true;
+        selectionCircle.enabled = true;
     }
 
     public virtual void HideSelectionPointer()
     {
-        selectionPointer.enabled = false;
+        selectionCircle.enabled = false;
     }
 
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)

@@ -53,17 +53,17 @@ public class QuickTimeBar : QuickTimeBase
     public void ExecuteAction()
     {
         enabled = false;
-        DamageStruct dmg = GetMultiplier();
-        onExecuteQuickTime?.Invoke(dmg);
-        BonusFeedback(dmg);
+        GetMultiplier();
+        onExecuteQuickTime?.Invoke();
+        BonusFeedback();
         Invoke("Hide", hideDelay);
         fillBar.DOKill();
-        OnQuickTimeComplete?.Invoke(dmg);
+        OnQuickTimeComplete?.Invoke();
     }
 
-    void BonusFeedback(DamageStruct damage)
+    void BonusFeedback()
     {
-        if (damage.qteResult == QTEResult.Perfect)
+        if (BaseCharacter.IncomingDamage.qteResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
         }
@@ -102,42 +102,38 @@ public class QuickTimeBar : QuickTimeBase
         StartTicking();
     }
 
-    public override DamageStruct GetMultiplier()
+    public override void GetMultiplier()
     {
         float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
         float targetMax = barSize / BAR_WIDTH;
 
-        DamageStruct newStruct = new DamageStruct();
-
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            newStruct.damageNormalized = barSuccessValue;
-            newStruct.damageType = DamageType.Heavy;
-            newStruct.qteResult = QTEResult.Perfect;
+            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValue;
+            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            newStruct.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            newStruct.damageType = DamageType.Medium;
-            newStruct.qteResult = QTEResult.Early;
+            BaseCharacter.IncomingDamage.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            BaseCharacter.IncomingDamage.damageType = DamageType.Medium;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
         }
         else
         {
-            newStruct.damageNormalized = barMissValue;
-            newStruct.damageType = DamageType.Light;
-            newStruct.qteResult = QTEResult.Late;
+            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
+            BaseCharacter.IncomingDamage.damageType = DamageType.Light;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
         }
 
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
         {
-            newStruct.damageType -= DamageType.Heavy;
-            newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
+            BaseCharacter.IncomingDamage.damageType -= DamageType.Heavy;
+            BaseCharacter.IncomingDamage.damageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.damageType);
         }
 
-        newStruct.barFill = fillBar.fillAmount;
-
-        return newStruct;
+        BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
     }
 }

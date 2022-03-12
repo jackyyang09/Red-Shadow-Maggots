@@ -7,30 +7,7 @@ public class BaseHealEffect : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        float healAmount = 0;
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                healAmount = customValues[0];
-                break;
-            case EffectStrength.Weak:
-                healAmount = 800f;
-                break;
-            case EffectStrength.Small:
-                healAmount = 1500f;
-                break;
-            case EffectStrength.Medium:
-                healAmount = 2000;
-                break;
-            case EffectStrength.Large:
-                healAmount = 3000;
-                break;
-            case EffectStrength.EX:
-                healAmount = 5000;
-                break;
-        }
-
-        target.Heal(healAmount);
+        target.Heal((float)GetEffectStrength(strength, customValues));
     }
 
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -45,28 +22,26 @@ public class BaseHealEffect : BaseGameEffect
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
-        float healAmount = 0;
+        return "Recover " + GetEffectStrength(strength, customValues) + " health";
+    }
+
+    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
+    {
         switch (strength)
         {
             case EffectStrength.Custom:
-                healAmount = customValues[0];
-                break;
+                return customValues[0];
             case EffectStrength.Weak:
-                healAmount = 800f;
-                break;
+                return 800f;
             case EffectStrength.Small:
-                healAmount = 1500f;
-                break;
+                return 1500f;
             case EffectStrength.Medium:
-                healAmount = 2000;
-                break;
+                return 2000;
             case EffectStrength.Large:
-                healAmount = 3000;
-                break;
+                return 3000;
             case EffectStrength.EX:
-                healAmount = 5000;
-                break;
+                return 5000;
         }
-        return "Recover " + healAmount + " health";
+        return 0;
     }
 }

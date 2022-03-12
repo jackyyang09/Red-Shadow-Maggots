@@ -55,10 +55,10 @@ namespace JSAM.JSAMEditor
 
             decoyRect.xMin = currentRect.xMax + 5;
             decoyRect.xMax = rect.xMax - 30;
-            using (new EditorGUI.DisabledScope(true))
-            {
+            //using (new EditorGUI.DisabledScope(true))
+            //{
                 EditorGUI.PropertyField(decoyRect, element, GUIContent.none);
-            }
+            //}
 
             JSAMEditorHelper.BeginColourChange(Color.red);
             currentRect.xMax = rect.xMax;

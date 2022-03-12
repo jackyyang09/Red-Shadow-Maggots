@@ -28,7 +28,7 @@ public sealed class ScreenshotUtility : EditorWindow, IHasCustomMenu
     private int ssHeight = 1080;
     private bool transparency;
 
-    private static string[] reslist = new string[] { "720p", "1080p", "1140p", "4K", "8K", "Custom..." };
+    private static string[] reslist = new string[] { "720p", "1080p", "1440p", "4K", "8K", "Custom..." };
     
     public static int Resolution
     {
@@ -355,11 +355,11 @@ public sealed class ScreenshotUtility : EditorWindow, IHasCustomMenu
 
                         CheckFolderValidity(SavePath);
 
-                        string path = SavePath + "/" + filename;
+                        string path = SavePath + filename;
 
-                        ScreenCapture.CaptureScreenshot(path, 1);
+                        ScreenCapture.CaptureScreenshot(path, Resolution);
 
-                        if (OpenAfterCapture) Application.OpenURL(path);
+                        if (OpenAfterCapture) Application.OpenURL("file://" + SavePath);
                     }
                 }
             }

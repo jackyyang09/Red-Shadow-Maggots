@@ -327,10 +327,16 @@ namespace JSAM.JSAMEditor
                 var newObject = CreateInstance<T>();
                 preset.ApplyTo(newObject);
                 SerializedObject newSO = new SerializedObject(newObject);
-                newSO.FindProperty("files").AddNewArrayElement().objectReferenceValue = asset.files[i];
+                var files = newSO.FindProperty("files");
+                files.ClearArray();
+                files.AddAndReturnNewArrayElement().objectReferenceValue = asset.files[i];
                 newSO.ApplyModifiedProperties();
                 string finalPath = folder + "/" + asset.files[i].name + ".asset";
-                JSAMEditorHelper.CreateAssetSafe(newObject, finalPath);
+                if (!JSAMEditorHelper.CreateAssetSafe(newObject, finalPath))
+                {
+                    EditorUtility.DisplayDialog("Generation Interrupted", "Failed to create folders/assets!", "OK");
+                    break;
+                }
             }
             EditorUtility.ClearProgressBar();
             EditorUtility.FocusProjectWindow();
@@ -361,7 +367,7 @@ namespace JSAM.JSAMEditor
                             continue;
                         }
 
-                        files.AddNewArrayElement().objectReferenceValue = clips[j];
+                        files.AddAndReturnNewArrayElement().objectReferenceValue = clips[j];
                     }
                 }
 

@@ -4,45 +4,48 @@ using UnityEngine;
 using TMPro;
 using System;
 
-public class SkillNameUI : MonoBehaviour
+public class SkillNameUI : BaseGameUI
 {
-    [SerializeField] float showTime = 2;
-
+    [SerializeField] float timeToHide = 2;
     [SerializeField] TextMeshProUGUI skillTypeText = null;
     [SerializeField] TextMeshProUGUI skillText = null;
-    [SerializeField] OptimizedCanvas canvas = null;
 
     private void OnEnable()
     {
-        GlobalEvents.OnCharacterActivateSkill += ShowSkillName;
-        GlobalEvents.OnCharacterSuperCritical += ShowSuperCritName;
+        BaseCharacter.OnCharacterActivateSkill += ShowSkillName;
+        GlobalEvents.OnCharacterUseSuperCritical += ShowSuperCritName;
+        SceneTweener.OnSkillUntween += Hide;
     }
 
     private void OnDisable()
     {
-        GlobalEvents.OnCharacterActivateSkill -= ShowSkillName;
-        GlobalEvents.OnCharacterSuperCritical -= ShowSuperCritName;
+        BaseCharacter.OnCharacterActivateSkill -= ShowSkillName;
+        GlobalEvents.OnCharacterUseSuperCritical -= ShowSuperCritName;
+        SceneTweener.OnSkillUntween -= Hide;
     }
 
     private void ShowSkillName(BaseCharacter arg1, GameSkill arg2)
     {
         skillTypeText.text = "Skill";
-        StartCoroutine(ShowSkillRoutine(arg2.referenceSkill.skillName));
+        ShowPanel(arg2.referenceSkill.skillName);
     }
 
     private void ShowSuperCritName(BaseCharacter obj)
     {
         skillTypeText.text = "Super Critical";
-        StartCoroutine(ShowSkillRoutine(obj.Reference.superCritical.skillName));
+        ShowPanel(obj.Reference.superCritical.skillName);
     }
 
-    IEnumerator ShowSkillRoutine(string skillName)
+    void ShowPanel(string skillName)
     {
         skillText.text = skillName;
-        canvas.Show();
+        optimizedCanvas.Show();
+        Invoke(nameof(Hide), timeToHide);
+    }
 
-        yield return new WaitForSeconds(showTime);
-
-        canvas.Hide();
+    void Hide()
+    {
+        if (IsInvoking(nameof(Hide))) CancelInvoke(nameof(Hide));
+        optimizedCanvas.Hide();
     }
 }

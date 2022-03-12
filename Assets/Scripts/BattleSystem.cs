@@ -23,7 +23,7 @@ public struct TargettedCharacters
     public EnemyCharacter enemy;
 }
 
-public class BattleSystem : MonoBehaviour
+public class BattleSystem : BasicSingleton<BattleSystem>
 {
     [SerializeField] float effectTickTime = 2;
 
@@ -42,13 +42,10 @@ public class BattleSystem : MonoBehaviour
 
     [SerializeField]
     BattlePhases currentPhase;
-    public BattlePhases CurrentPhase
-    {
-        get
-        {
-            return currentPhase;
-        }
-    }
+    public BattlePhases CurrentPhase { get { return currentPhase; } }
+    bool finishedTurn;
+    public bool FinishedTurn { get { return finishedTurn; } }
+    public void FinishTurn() => finishedTurn = true;
 
     [SerializeField] List<PlayerCharacter> playerCharacters = null;
 
@@ -102,6 +99,8 @@ public class BattleSystem : MonoBehaviour
     /// Invokes after OnStartPlayerTurn
     /// </summary>
     public static Action OnStartPlayerTurnLate;
+    public static Action OnEndPlayerTurn;
+
     public static Action OnStartEnemyTurn;
     /// <summary>
     /// Invokes after OnStartEnemyTurn
@@ -116,19 +115,6 @@ public class BattleSystem : MonoBehaviour
     public static Action OnWaveClear;
     public static Action OnFinalWaveClear;
     public static Action OnPlayerDefeat;
-
-    static BattleSystem instance;
-    public static BattleSystem Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = FindObjectOfType<BattleSystem>();
-            }
-            return instance;
-        }
-    }
 
     public void GameStart()
     {
@@ -258,7 +244,7 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    public void AttackTarget(DamageStruct damage)
+    public void AttackTarget()
     {
         switch (currentPhase)
         {
@@ -268,7 +254,7 @@ public class BattleSystem : MonoBehaviour
                     var targetEnemy = playerTargets.enemy;
                     targetEnemy.SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                 }
-                playerTargets.enemy.TakeDamage(damage);
+                playerTargets.enemy.TakeDamage();
                 break;
             case BattlePhases.EnemyTurn:
                 if (enemyTargets.enemy.Reference.attackEffectPrefab != null)
@@ -276,12 +262,12 @@ public class BattleSystem : MonoBehaviour
                     var targetPlayer = enemyTargets.player;
                     targetPlayer.SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
                 }
-                enemyTargets.player.TakeDamage(damage);
+                enemyTargets.player.TakeDamage();
                 break;
         }
     }
 
-    public void AttackAOE(DamageStruct damage)
+    public void AttackAOE()
     {
         switch (currentPhase)
         {
@@ -293,7 +279,7 @@ public class BattleSystem : MonoBehaviour
                     {
                         enemies[i].SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                     }
-                    enemies[i].TakeDamage(damage);
+                    enemies[i].TakeDamage();
                 }
                 break;
             case BattlePhases.EnemyTurn:
@@ -303,7 +289,7 @@ public class BattleSystem : MonoBehaviour
                     {
                         playerCharacters[i].SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
                     }
-                    playerCharacters[i].TakeDamage(damage);
+                    playerCharacters[i].TakeDamage();
                 }
                 break;
         }
@@ -335,7 +321,7 @@ public class BattleSystem : MonoBehaviour
 
         playerTargets.player.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
 
-        UIManager.instance.RemovePlayerControl();
+        ui.RemovePlayerControl();
 
         SceneTweener.Instance.SkillTween(playerTargets.player.transform, skillUseTime);
 
@@ -353,15 +339,12 @@ public class BattleSystem : MonoBehaviour
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
 
-        UIManager.instance.ResumePlayerControl();
+        ui.ResumePlayerControl();
     }
 
     public void ActivateEnemySkill(EnemyCharacter enemy, int index)
     {
-        if (enemy.CanUseSkill(index))
-        {
-            StartCoroutine(EnemySkillSequence(enemy, index));
-        }
+        StartCoroutine(EnemySkillSequence(enemy, index));
     }
 
     IEnumerator EnemySkillSequence(EnemyCharacter enemy, int index)
@@ -390,7 +373,7 @@ public class BattleSystem : MonoBehaviour
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
 
-        UIManager.instance.ResumePlayerControl();
+        EndTurn();
     }
 
     public void SetActivePlayer(PlayerCharacter player)
@@ -459,6 +442,7 @@ public class BattleSystem : MonoBehaviour
                     currentPhase = BattlePhases.EnemyTurn;
                 }
                 else currentPhase = BattlePhases.BattleWin;
+                OnEndPlayerTurn?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
@@ -473,6 +457,8 @@ public class BattleSystem : MonoBehaviour
                 OnEndEnemyTurn?.Invoke();
                 break;
         }
+
+        finishedTurn = false;
 
         switch (currentPhase)
         {
@@ -509,28 +495,28 @@ public class BattleSystem : MonoBehaviour
 
     IEnumerator TickEffects(List<BaseCharacter> affectedCharacters)
     {
-        Dictionary<BaseGameEffect, List<(BaseCharacter, AppliedEffect)>> effects = new Dictionary<BaseGameEffect, List<(BaseCharacter, AppliedEffect)>>();
+        Dictionary<BaseGameEffect, List<BaseCharacter>> effects = new Dictionary<BaseGameEffect, List<BaseCharacter>>();
         for (int i = 0; i < affectedCharacters.Count; i++)
         {
             var characterFX = affectedCharacters[i].AppliedEffects;
-            for (int j = 0; j < characterFX.Count; j++)
+            var keys = characterFX.GetKeysCached();
+            for (int j = 0; j < keys.Length; j++)
             {
-                if (!effects.ContainsKey(characterFX[j].referenceEffect))
+                if (!effects.ContainsKey(keys[j]))
                 {
-                    effects.Add(characterFX[j].referenceEffect, new List<(BaseCharacter, AppliedEffect)>());
+                    effects.Add(keys[j], new List<BaseCharacter>());
                 }
-                effects[characterFX[j].referenceEffect].Add((affectedCharacters[i], characterFX[j]));
+                effects[keys[j]].Add(affectedCharacters[i]);
             }
         }
 
-        BaseGameEffect[] effectKeys = new BaseGameEffect[effects.Keys.Count];
-        effects.Keys.CopyTo(effectKeys, 0);
+        var effectKeys = effects.GetKeysCached();
         for (int i = 0; i < effectKeys.Length; i++)
         {
-            var tuples = effects[effectKeys[i]];
-            for (int j = 0; j < tuples.Count; j++)
+            var characters = effects[effectKeys[i]];
+            for (int j = 0; j < characters.Count; j++)
             {
-                tuples[j].Item1.TickEffect(tuples[j].Item2);
+                characters[j].TickEffect(effectKeys[i]);
             }
 
             OnTickEffect?.Invoke(effectKeys[i]);
@@ -635,6 +621,16 @@ public class BattleSystem : MonoBehaviour
         Debug.Log("Crit rate maxed!");
     }
 
+    [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 50%", MaxArgCount = 0)]
+    public static void MinMaxPlayerCrit(CommandTerminal.CommandArg[] args)
+    {
+        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        {
+            Instance.playerCharacters[i].ApplyCritChanceModifier(0.5f);
+        }
+        Debug.Log("Crit rate min-maxed!");
+    }
+
     [CommandTerminal.RegisterCommand(Help = "Set enemy characters crit chance to 100%", MaxArgCount = 0)]
     public static void MaxEnemyCrit(CommandTerminal.CommandArg[] args)
     {
@@ -650,9 +646,8 @@ public class BattleSystem : MonoBehaviour
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
-            DamageStruct dmg = new DamageStruct();
-            dmg.damage = Instance.playerCharacters[i].CurrentHealth - 1;
-            Instance.playerCharacters[i].TakeDamage(dmg);
+            BaseCharacter.IncomingDamage.damage = Instance.playerCharacters[i].CurrentHealth - 1;
+            Instance.playerCharacters[i].TakeDamage();
         }
         Debug.Log("Players damaged!");
     }

@@ -71,9 +71,9 @@ public class QuickTimeHold : QuickTimeBase
         }
     }
 
-    void BonusFeedback(DamageStruct damage)
+    void BonusFeedback()
     {
-        if (damage.qteResult == QTEResult.Perfect)
+        if (BaseCharacter.IncomingDamage.qteResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
             gaugeArrow.DORotate(new Vector3(0, 0, successSpinCount * -360), successSpinTime, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuart);
@@ -92,13 +92,13 @@ public class QuickTimeHold : QuickTimeBase
     {
         enabled = false;
         StopCoroutine(tickRoutine);
-        DamageStruct dmg = GetMultiplier();
-        onExecuteQuickTime?.Invoke(dmg);
+        GetMultiplier();
+        onExecuteQuickTime?.Invoke();
         Invoke("Hide", hideDelay);
         fillBar.DOKill();
         gaugeArrow.DOKill();
-        BonusFeedback(dmg);
-        OnQuickTimeComplete?.Invoke(dmg);
+        BonusFeedback();
+        OnQuickTimeComplete?.Invoke();
         JSAM.AudioManager.StopSound(chargeSound);
     }
 
@@ -158,32 +158,30 @@ public class QuickTimeHold : QuickTimeBase
         }
     }
 
-    public override DamageStruct GetMultiplier()
+    public override void GetMultiplier()
     {
         float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_HEIGHT;
         float targetMax = barSize / BAR_HEIGHT;
 
-        DamageStruct damageStruct = new DamageStruct();
-
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            damageStruct.damageNormalized = barSuccessValues[barLevel];
-            damageStruct.damageType = DamageType.Heavy;
-            damageStruct.qteResult = QTEResult.Perfect;
+            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValues[barLevel];
+            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            damageStruct.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            damageStruct.damageType = DamageType.Medium;
-            damageStruct.qteResult = QTEResult.Early;
+            BaseCharacter.IncomingDamage.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            BaseCharacter.IncomingDamage.damageType = DamageType.Medium;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
         }
         else
         {
-            damageStruct.damageNormalized = barMissValue;
-            damageStruct.damageType = DamageType.Light;
-            damageStruct.qteResult = QTEResult.Late;
+            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
+            BaseCharacter.IncomingDamage.damageType = DamageType.Light;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
         }
 
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
@@ -192,9 +190,7 @@ public class QuickTimeHold : QuickTimeBase
             //newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
         }
 
-        damageStruct.barFill = fillBar.fillAmount;
-        damageStruct.chargeLevel = barLevel;
-
-        return damageStruct;
+        BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
+        BaseCharacter.IncomingDamage.chargeLevel = barLevel;
     }
 }

@@ -190,7 +190,7 @@ namespace JSAM
         [Range(0, 0.5f)]
         public float pitchShift = 0.05f;
 
-        [Tooltip("Standard looping disregards all loop point logic and will make the music loop from start to end, " + "\"Loop with Loop Points\" enables loop point use and makes the music start from the start point upon reaching the end")]
+        [Tooltip("Standard looping disregards all loop point logic and will make the music loop from start to end." + "\n\n\"Loop with Loop Points\" enables loop point use and makes the music start from the start point upon reaching the end")]
         [SerializeField] public LoopMode loopMode = LoopMode.NoLooping;
 
         [Tooltip("Adds a delay in seconds before this sound is played. If the sound loops, delay is only added to when the sound is first played before the first loop.")]
@@ -198,6 +198,9 @@ namespace JSAM
 
         [Tooltip("If true, will ignore the \"Time Scaled Sounds\" parameter in AudioManager and will keep playing the sound even when the Time Scale is set to 0")]
         public bool ignoreTimeScale = false;
+
+        [Tooltip("If this property is null, audio will play through the mixer group specified in the AudioManager settings.")]
+        public UnityEngine.Audio.AudioMixerGroup mixerGroupOverride = null;
 
         [Tooltip("Add fade to your sound. Set the details of this fade using the FadeMode tools.")]
         public bool fadeInOut;

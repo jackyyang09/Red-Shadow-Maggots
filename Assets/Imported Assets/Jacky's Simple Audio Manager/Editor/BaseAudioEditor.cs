@@ -31,6 +31,7 @@ namespace JSAM
         {
             if (AudioManager.Instance)
             {
+                if (AudioManager.Instance.Library == null) return;
                 var sounds = AudioManager.Instance.Library.Sounds;
                 for (int i = 0; i < sounds.Count; i++)
                 {

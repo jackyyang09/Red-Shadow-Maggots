@@ -21,7 +21,7 @@ namespace JSAM
         public List<JSAMSoundFileObject> Sounds = new List<JSAMSoundFileObject>();
         public List<JSAMMusicFileObject> Music = new List<JSAMMusicFileObject>();
 
-        [Tooltip("Allows you to customize the enum and namespace names for your generated audio. You are recommended to leave this off, for your convenience.")]
+        [Tooltip("Allows you to customize the enum and namespace names for your generated audio. For advanced users.")]
         public bool useCustomNames = false;
 
         public string SafeName { get { return name.ConvertToAlphanumeric(); } }
@@ -68,6 +68,7 @@ namespace JSAM
         /// <returns></returns>
         public static System.Type GetEnumType(string enumName)
         {
+            if (enumName.IsNullEmptyOrWhiteSpace()) return null;
             var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
             for (int i = 0; i < assemblies.Length; i++)
             {

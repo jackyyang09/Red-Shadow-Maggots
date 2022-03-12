@@ -17,11 +17,11 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnPlayerDefeat += PlayerLose;
         BattleSystem.OnTickEffect += OnTickEffect;
 
-        GlobalEvents.OnCharacterStartAttack += Attack;
-        GlobalEvents.OnCharacterAttacked += PlayerAttacked;
-        GlobalEvents.OnCharacterExecuteAttack += WeaponHit;
-        GlobalEvents.OnCharacterActivateSkill += UsedSkill;
-        GlobalEvents.OnCharacterDeath += CharacterDeath;
+        BaseCharacter.OnCharacterStartAttack += Attack;
+        BaseCharacter.OnCharacterAttacked += PlayerAttacked;
+        BaseCharacter.OnCharacterExecuteAttack += WeaponHit;
+        BaseCharacter.OnCharacterActivateSkill += UsedSkill;
+        BaseCharacter.OnCharacterDeath += CharacterDeath;
         GlobalEvents.OnPlayerQuickTimeAttackSuccess += HitEffective;
         GlobalEvents.OnPlayerQuickTimeBlockSuccess += BlockEffective;
         GlobalEvents.OnGameEffectApplied += GameEffectApplied;
@@ -42,11 +42,11 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnPlayerDefeat -= PlayerLose;
         BattleSystem.OnTickEffect -= OnTickEffect;
 
-        GlobalEvents.OnCharacterStartAttack -= Attack;
-        GlobalEvents.OnCharacterAttacked -= PlayerAttacked;
-        GlobalEvents.OnCharacterExecuteAttack -= WeaponHit;
-        GlobalEvents.OnCharacterActivateSkill -= UsedSkill;
-        GlobalEvents.OnCharacterDeath -= CharacterDeath;
+        BaseCharacter.OnCharacterStartAttack -= Attack;
+        BaseCharacter.OnCharacterAttacked -= PlayerAttacked;
+        BaseCharacter.OnCharacterExecuteAttack -= WeaponHit;
+        BaseCharacter.OnCharacterActivateSkill -= UsedSkill;
+        BaseCharacter.OnCharacterDeath -= CharacterDeath;
         GlobalEvents.OnPlayerQuickTimeAttackSuccess -= HitEffective;
         GlobalEvents.OnPlayerQuickTimeBlockSuccess -= BlockEffective;
         GlobalEvents.OnGameEffectApplied -= GameEffectApplied;

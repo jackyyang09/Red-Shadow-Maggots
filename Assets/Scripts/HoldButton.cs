@@ -9,8 +9,11 @@ public class HoldButton : MonoBehaviour
     [SerializeField] float holdTriggerTime = 0.5f;
     [SerializeField] float holdGraphicDelay = 0.2f;
 
+    public bool ForceReleaseAfterInvoke = true;
+
     float holdTimer;
     bool isHeld;
+    bool delayBypassed;
 
     [SerializeField] UnityEngine.Events.UnityEvent onHoldEvent = null;
     [SerializeField] UnityEngine.Events.UnityEvent onClick = null;
@@ -21,17 +24,33 @@ public class HoldButton : MonoBehaviour
     {
         if (isHeld)
         {
-            if (holdTimer >= holdTriggerTime)
+            if (!delayBypassed)
             {
-                onHoldEvent.Invoke();
-                isHeld = false;
-                holdProgressImage.enabled = false;
+                if (holdTimer >= holdGraphicDelay)
+                {
+                    holdTimer = 0;
+                    delayBypassed = true;
+                }
             }
             else
             {
-                holdTimer += Time.deltaTime;
-                holdProgressImage.fillAmount = Mathf.Clamp01((holdTimer - holdGraphicDelay) / (holdTriggerTime - holdGraphicDelay));
+                if (holdTimer >= holdTriggerTime)
+                {
+                    onHoldEvent.Invoke();
+                    if (ForceReleaseAfterInvoke)
+                    {
+                        isHeld = false;
+                        holdProgressImage.enabled = false;
+                    }
+                    else
+                    {
+                        holdTimer = 0;
+                        holdProgressImage.fillAmount = 0;
+                    }
+                }
+                holdProgressImage.fillAmount = Mathf.Clamp01(holdTimer / holdTriggerTime);
             }
+            holdTimer += Time.deltaTime;
         }
     }
 
@@ -53,5 +72,6 @@ public class HoldButton : MonoBehaviour
         isHeld = false;
         holdProgressImage.enabled = false;
         holdProgressImage.fillAmount = 0;
+        delayBypassed = false;
     }
 }

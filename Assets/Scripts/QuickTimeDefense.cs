@@ -55,18 +55,17 @@ public class QuickTimeDefense : QuickTimeBase
     public void CheckDefense()
     {
         enabled = false;
-        DamageStruct dmg = GetMultiplier();
-        OnQuickTimeComplete?.Invoke(dmg);
-        onExecuteQuickTime?.Invoke(dmg);
+        GetMultiplier();
+        OnQuickTimeComplete?.Invoke();
+        onExecuteQuickTime?.Invoke();
         for (int i = 0; i < targetPlayers.Count; i++)
         {
             ((PlayerCharacter)targetPlayers[i]).EndDefense();
         }
     }
 
-    public override DamageStruct GetMultiplier()
+    public override void GetMultiplier()
     {
-        DamageStruct damage = new DamageStruct();
         float timeElapsed = Time.time - startTime;
         float timeDiff = Mathf.Abs(timeElapsed - animationEvents[0].time);
 
@@ -78,22 +77,20 @@ public class QuickTimeDefense : QuickTimeBase
 
         if (missed)
         {
-            damage.damageNormalized = barMissValue;
-            damage.qteResult = QTEResult.Late;
+            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
         }
         else if (timeDiff <= window)
         {
-            damage.damageNormalized = barSuccessValue;
-            damage.qteResult = QTEResult.Perfect;
+            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValue;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
             GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (!missed)
         {
-            damage.damageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, window, timeDiff));
-            damage.qteResult = QTEResult.Early;
+            BaseCharacter.IncomingDamage.damageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, window, timeDiff));
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
         }
-        
-        return damage;
     }
 
     public override void StartTicking()
