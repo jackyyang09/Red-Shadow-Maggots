@@ -199,7 +199,7 @@ namespace JSAM
 
         public void AssignNewAudioClip()
         {
-            if (audioFile.Files.Count > 1) // The user actually bothered to include multiple audioFiles
+            if (audioFile.Files.Count > 2) // The user actually bothered to include multiple audioFiles
             {
                 int index;
                 do
@@ -217,7 +217,7 @@ namespace JSAM
                     audioFile.lastClipIndex = index;
                 }
             }
-            else
+            else if (audioFile.Files.Count == 1)
             {
                 AudioSource.clip = audioFile.Files[0];
             }
