@@ -14,30 +14,46 @@ public class HealPerTurnEffect : BaseHealEffect
         base.Activate(target, strength, customValues);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        float healAmount = 0;
+        float change = (float)GetEffectStrength(strength, customValues);
+
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "recovers ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "recover ";
+                break;
+        }
+
+        s += change + " health per turn";
+
+        return s + DurationDescriptor(duration);
+    }
+
+    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
+    {
         switch (strength)
         {
             case EffectStrength.Custom:
-                healAmount = customValues[0];
-                break;
+                return customValues[0];
             case EffectStrength.Weak:
-                healAmount = 800f;
-                break;
+                return 800f;
             case EffectStrength.Small:
-                healAmount = 1500f;
-                break;
+                return 1500f;
             case EffectStrength.Medium:
-                healAmount = 2000;
-                break;
+                return 2000;
             case EffectStrength.Large:
-                healAmount = 3000;
-                break;
+                return 3000;
             case EffectStrength.EX:
-                healAmount = 5000;
-                break;
+                return 5000;
         }
-        return "Recover " + healAmount + " health per turn";
+        return 0;
     }
 }

@@ -40,8 +40,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    [SerializeField]
-    BattlePhases currentPhase;
+    [SerializeField] BattlePhases currentPhase;
     public BattlePhases CurrentPhase { get { return currentPhase; } }
     bool finishedTurn;
     public bool FinishedTurn { get { return finishedTurn; } }
@@ -152,6 +151,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
 
         sceneTweener.EnterBattle();
+        ChangeBattlePhase();
     }
 
     // Update is called once per frame
@@ -455,6 +455,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 else if (enemyController.Enemies.Count == 0) currentPhase = BattlePhases.BattleWin;
                 ActiveEnemy.IncreaseChargeLevel();
                 OnEndEnemyTurn?.Invoke();
+                break;
+            case BattlePhases.BattleWin:
+                currentPhase = BattlePhases.PlayerTurn;
                 break;
         }
 

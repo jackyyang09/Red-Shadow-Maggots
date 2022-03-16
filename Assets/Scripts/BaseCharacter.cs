@@ -250,7 +250,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (selectionCircle.enabled)
         {
-            float scale = Mathf.Lerp(selectionCircleScale.x, selectionCircleScale.y, Mathf.PingPong(Time.time, 1));
+            float scale = Mathf.Lerp(selectionCircleScale.x, selectionCircleScale.y, Mathf.PingPong(Time.time / 2f, 1));
             selectionCircle.transform.localScale = new Vector3(scale, scale, 1);
         }
     }
@@ -568,19 +568,21 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    public void ApplyEffectToCharacter(SkillObject.EffectProperties effectAndDuration, BaseCharacter character)
+    public void ApplyEffectToCharacter(SkillObject.EffectProperties props, BaseCharacter character, TargetMode targetMode)
     {
-        Instantiate(effectAndDuration.effect.particlePrefab, character.transform);
-        effectAndDuration.effect.Activate(character, effectAndDuration.strength, effectAndDuration.customValues);
-        if (effectAndDuration.effectDuration == 0) return;
+        Instantiate(props.effect.particlePrefab, character.transform);
+        props.effect.Activate(character, props.strength, props.customValues);
+        if (props.effectDuration == 0) return;
 
         AppliedEffect newEffect = new AppliedEffect();
 
         newEffect.target = character;
-        newEffect.referenceEffect = effectAndDuration.effect;
-        newEffect.remainingTurns = effectAndDuration.effectDuration;
-        newEffect.strength = effectAndDuration.strength;
-        newEffect.customValues = effectAndDuration.customValues;
+        newEffect.referenceEffect = props.effect;
+        newEffect.remainingTurns = props.effectDuration;
+        newEffect.strength = props.strength;
+        newEffect.customValues = props.customValues;
+        newEffect.description = props.effect.GetEffectDescription(TargetMode.Self, props.strength, props.customValues, props.effectDuration);
+        newEffect.description = newEffect.description.Remove(newEffect.description.IndexOf("("));
         character.ApplyEffect(newEffect);
     }
 
@@ -591,33 +593,29 @@ public abstract class BaseCharacter : MonoBehaviour
         for (int i = 0; i < currentSkill.referenceSkill.gameEffects.Length; i++)
         {
             SkillObject.EffectProperties effect = currentSkill.referenceSkill.gameEffects[i];
-            if (effect.effect.targetOverride != TargetMode.None)
+            switch (effect.targetOverride)
             {
-                switch (effect.effect.targetOverride)
-                {
-                    case TargetMode.AllAllies:
-                        for (int j = 0; j < BattleSystem.Instance.PlayerCharacters.Count; j++)
-                        {
-                            ApplyEffectToCharacter(effect, BattleSystem.Instance.PlayerCharacters[j]);
-                        }
-                        break;
-                    case TargetMode.AllEnemies:
-                        for (int j = 0; j < EnemyController.Instance.Enemies.Count; j++)
-                        {
-                            ApplyEffectToCharacter(effect, EnemyController.Instance.Enemies[j]);
-                        }
-                        break;
-                    case TargetMode.Self:
-                        ApplyEffectToCharacter(effect, this);
-                        break;
-                }
-            }
-            else
-            {
-                for (int j = 0; j < targets.Count; j++)
-                {
-                    ApplyEffectToCharacter(effect, targets[j]);
-                }
+                case TargetMode.None:
+                    for (int j = 0; j < targets.Count; j++)
+                    {
+                        ApplyEffectToCharacter(effect, targets[j], currentSkill.referenceSkill.targetMode);
+                    }
+                    break;
+                case TargetMode.AllAllies:
+                    for (int j = 0; j < BattleSystem.Instance.PlayerCharacters.Count; j++)
+                    {
+                        ApplyEffectToCharacter(effect, BattleSystem.Instance.PlayerCharacters[j], TargetMode.AllAllies);
+                    }
+                    break;
+                case TargetMode.AllEnemies:
+                    for (int j = 0; j < EnemyController.Instance.Enemies.Count; j++)
+                    {
+                        ApplyEffectToCharacter(effect, EnemyController.Instance.Enemies[j], TargetMode.AllEnemies);
+                    }
+                    break;
+                case TargetMode.Self:
+                    ApplyEffectToCharacter(effect, this, TargetMode.Self);
+                    break;
             }
 
             GlobalEvents.OnGameEffectApplied?.Invoke(effect.effect);
@@ -820,7 +818,7 @@ public abstract class BaseCharacter : MonoBehaviour
         return health / maxHealth;
     }
 
-    public void ShowSelectionPointer()
+    public void ShowSelectionCircle()
     {
         selectionCircle.enabled = true;
     }

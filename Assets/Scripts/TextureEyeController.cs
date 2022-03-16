@@ -142,12 +142,14 @@ public class TextureEyeController : MonoBehaviour
         UpdateEyeLookDirection();
     }
 
+#if UNITY_EDITOR
     public void AnimationCallback()
     {
         if (!editorTimeEyes) return;
         AssignMaterialReferences();
         UpdateEyeLookDirection();
     }
+#endif
 
     public void AssignMaterialReferences()
     {

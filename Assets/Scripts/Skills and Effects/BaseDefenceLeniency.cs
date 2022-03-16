@@ -27,14 +27,20 @@ public class BaseDefenceLeniency : BaseGameEffect
     {
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
+        string s = TargetModeDescriptor(targetMode);
+
+        s += "Defence Window ";
+
         if (effectType == EffectType.Debuff)
-            return "Defence Window Reduced by " + percentageChange * 100 + "%";
+            s += "reduced";
         else
-            return "Defence Window Increased by " + percentageChange * 100 + "%";
+            s += "increased";
+
+        return s + " by " + percentageChange * 100 + "% " + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

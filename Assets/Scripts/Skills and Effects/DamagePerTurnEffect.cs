@@ -30,8 +30,26 @@ public class DamagePerTurnEffect : BaseDamageEffect
         target.TakeDamage(damageStruct);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        return "Lose " + GetEffectStrength(strength, customValues) + " health every turn";
+        float change = (float)GetEffectStrength(strength, customValues);
+
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "loses ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "lose ";
+                break;
+        }
+
+        s += change + " health every turn ";
+
+        return s + DurationDescriptor(duration);
     }
 }

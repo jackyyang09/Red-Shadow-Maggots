@@ -21,9 +21,20 @@ public class BaseTargetFocus : BaseGameEffect
     {
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        return "High Priority Target";
+        string s = "Increases likelihood of ";
+
+        switch (targetMode)
+        {
+            case TargetMode.OneAlly:
+                s += "an Ally ";
+                break;
+            case TargetMode.OneEnemy:
+                s += "an Enemy ";
+                break;
+        }
+        return s + "being attacked " + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

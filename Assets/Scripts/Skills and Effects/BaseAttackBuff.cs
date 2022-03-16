@@ -27,14 +27,20 @@ public class BaseAttackBuff : BaseGameEffect
         target.ApplyAttackModifier(-percentageChange);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
+        string s = TargetModeDescriptor(targetMode);
+
+        s += "Attack Damage ";
+
         if (effectType == EffectType.Debuff)
-            return "Attack Damage Reduced by " + percentageChange * 100 + "%";
+            s += "reduced";
         else
-            return "Attack Damage Increased by " + percentageChange * 100 + "%";
+            s += "increased";
+
+        return s + " by " + percentageChange * 100 + "% " + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

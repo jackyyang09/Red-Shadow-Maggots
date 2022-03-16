@@ -24,14 +24,14 @@ public enum EffectStrength
 /// <summary>
 /// The base definition of a singular game effect
 /// </summary>
+#if UNITY_EDITOR
 [UnityEditor.CanEditMultipleObjects]
+#endif
 public abstract class BaseGameEffect : ScriptableObject
 {
     public Sprite effectIcon;
 
     public string effectText;
-
-    public TargetMode targetOverride = TargetMode.None;
 
     public EffectType effectType = EffectType.None;
 
@@ -80,7 +80,35 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public abstract void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues);
 
-    public abstract string GetEffectDescription(EffectStrength strength, float[] customValues);
-
     public abstract object GetEffectStrength(EffectStrength strength, float[] customValues);
+
+    public abstract string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration);
+
+    protected string DurationDescriptor(int turns)
+    {
+        string s = "";
+        if (turns > 0)
+        {
+            s += "(" + turns + " Turn";
+            if (turns > 1) s += "s";
+            s += ")";
+        }
+        return s;
+    }
+
+    protected string TargetModeDescriptor(TargetMode mode)
+    {
+        switch (mode)
+        {
+            case TargetMode.OneAlly:
+                return "Ally ";
+            case TargetMode.OneEnemy:
+                return "Enemy ";
+            case TargetMode.AllAllies:
+                return "All Allies ";
+            case TargetMode.AllEnemies:
+                return "All Enemies ";
+        }
+        return "";
+    }
 }

@@ -13,15 +13,15 @@ public abstract class SuperCriticalEffect : MonoBehaviour
     public virtual void FinishSuperCritEffect()
     {
         GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
-        superCritBuffsApplied = 0;
+        effectsApplied = 0;
     }
 
-    int superCritBuffsApplied = 0;
+    int effectsApplied = 0;
     public void ApplyNextSuperCritBuff()
     {
         SkillObject superCrit = baseCharacter.Reference.superCritical;
-        baseCharacter.ApplyEffectToCharacter(superCrit.gameEffects[superCritBuffsApplied], baseCharacter);
-        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[superCritBuffsApplied].effect);
-        superCritBuffsApplied++;
+        baseCharacter.ApplyEffectToCharacter(superCrit.gameEffects[effectsApplied], baseCharacter, TargetMode.Self);
+        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[effectsApplied].effect);
+        effectsApplied++;
     }
 }

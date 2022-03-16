@@ -279,8 +279,11 @@ namespace JSAM
             if (!Application.isPlaying) return null;
 
             if (helper == null) helper = soundHelpers[GetFreeSoundChannel()];
-            helper.Play(sound);
-            helper.SetSpatializationTarget(newTransform);
+            if (sound)
+            {
+                helper.Play(sound);
+                helper.SetSpatializationTarget(newTransform);
+            }
             AudioManager.OnSoundPlayed?.Invoke(sound);
 
             return helper;
@@ -291,8 +294,11 @@ namespace JSAM
             if (!Application.isPlaying) return null;
 
             if (helper == null) helper = soundHelpers[GetFreeSoundChannel()];
-            helper.Play(sound);
-            helper.SetSpatializationTarget(position);
+            if (sound)
+            {
+                helper.Play(sound);
+                helper.SetSpatializationTarget(position);
+            }
             AudioManager.OnSoundPlayed?.Invoke(sound);
 
             return helper;

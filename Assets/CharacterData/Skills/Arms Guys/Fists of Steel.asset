@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Name: Fists of Steel
+  m_EditorClassIdentifier: 
+  skillName: Fists of Steel
+  skillDescription:
+  - +15% Defence Window to Team (3 Turns)
+  - +20% Attack to Team (3 Turns)
+  - +20% Defence to Self (3 Turns)
+  sprite: {fileID: 21300000, guid: 72a922d5288a58647ba4bc7ccdfbb5ce, type: 3}
+  targetMode: 3
+  skillCooldown: 5
+  gameEffects:
+  - effect: {fileID: 11400000, guid: 4f1e08f41e5298843878353fc5cf3f32, type: 2}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 2
+    customValues: []
+  - effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 3
+    customValues: []
+  - effect: {fileID: 11400000, guid: e1e99e69d46ef884a91912252eb8261f, type: 2}
+    effectDuration: 3
+    targetOverride: 5
+    strength: 3
+    customValues: []

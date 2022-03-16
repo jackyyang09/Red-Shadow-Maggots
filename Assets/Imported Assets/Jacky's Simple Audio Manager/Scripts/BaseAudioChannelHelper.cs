@@ -130,7 +130,10 @@ namespace JSAM
         {
             audioFile = file;
 
-            AssignNewAudioClip();
+            if (!AssignNewAudioClip())
+            {
+                return AudioSource;
+            }
 
             if (AudioManager.Instance.Settings.Spatialize && audioFile.spatialize)
             {
@@ -197,9 +200,13 @@ namespace JSAM
             Spatialize();
         }
 
-        public void AssignNewAudioClip()
+        /// <summary>
+        /// Returns false if no AudioClips exists
+        /// </summary>
+        /// <returns></returns>
+        public bool AssignNewAudioClip()
         {
-            if (audioFile.Files.Count > 2) // The user actually bothered to include multiple audioFiles
+            if (audioFile.Files.Count > 1) // The user actually bothered to include multiple audioFiles
             {
                 int index;
                 do
@@ -216,11 +223,14 @@ namespace JSAM
                 {
                     audioFile.lastClipIndex = index;
                 }
+                return true;
             }
             else if (audioFile.Files.Count == 1)
             {
                 AudioSource.clip = audioFile.Files[0];
+                return true;
             }
+            return false;
         }
 
         void Spatialize()

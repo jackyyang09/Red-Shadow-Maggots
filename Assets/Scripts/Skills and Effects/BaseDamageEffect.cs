@@ -13,10 +13,27 @@ public class BaseDamageEffect : BaseGameEffect
     {
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        float damage = (float)GetEffectStrength(strength, customValues);
-        return "Lose " + damage + " health";
+        float change = (float)GetEffectStrength(strength, customValues);
+
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "loses ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "lose ";
+                break;
+        }
+
+        s += change + " health ";
+
+        return s;
     }
 
     public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)

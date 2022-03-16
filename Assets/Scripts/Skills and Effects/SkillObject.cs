@@ -23,6 +23,7 @@ public class SkillObject : ScriptableObject
     {
         public BaseGameEffect effect;
         public int effectDuration;
+        public TargetMode targetOverride;
         public EffectStrength strength;
         public float[] customValues;
     }
@@ -36,6 +37,21 @@ public class SkillObject : ScriptableObject
     public int skillCooldown;
 
     public EffectProperties[] gameEffects;
+
+    public string[] GetSkillDescriptions()
+    {
+        string[] d = new string[gameEffects.Length];
+        for (int i = 0; i < d.Length; i++)
+        {
+            var f = gameEffects[i];
+            if (gameEffects[i].effect == null) continue;
+
+            var target = f.targetOverride == TargetMode.None ? targetMode : f.targetOverride;
+
+            d[i] += f.effect.GetEffectDescription(target, f.strength, f.customValues, f.effectDuration).ToString();
+        }
+        return d;
+    }
 }
 
 /// <summary>
@@ -48,6 +64,7 @@ public class AppliedEffect
     public int remainingTurns;
     public EffectStrength strength;
     public float[] customValues;
+    public string description;
 
     /// <summary>
     /// </summary>
@@ -78,11 +95,6 @@ public class AppliedEffect
             return false;
         }
         return true;
-    }
-
-    public string GetEffectDescription()
-    {
-        return referenceEffect.GetEffectDescription(strength, customValues);
     }
 }
 

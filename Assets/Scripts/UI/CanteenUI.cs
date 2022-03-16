@@ -241,7 +241,6 @@ public class CanteenUI : BaseGameUI
         canteenMesh.LookAt(ray.origin);
     }
 
-#if UNITY_EDITOR
     public void PostHackUpdate()
     {
         float currentFill = canteenSystem.AvailableCharge % canteenSystem.ChargePerCanteen;
@@ -252,5 +251,4 @@ public class CanteenUI : BaseGameUI
 
         UpdateCanteenCount();
     }
-#endif
 }

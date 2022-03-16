@@ -20,10 +20,29 @@ public class BaseHealEffect : BaseGameEffect
 
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        return "Recover " + GetEffectStrength(strength, customValues) + " health";
+        int change = (int)GetEffectStrength(strength, customValues);
+
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "recovers ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "recover ";
+                break;
+        }
+
+        s += change + " health ";
+
+        return s + DurationDescriptor(duration);
     }
+
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)
     {
@@ -32,9 +51,9 @@ public class BaseHealEffect : BaseGameEffect
             case EffectStrength.Custom:
                 return customValues[0];
             case EffectStrength.Weak:
-                return 800f;
+                return 800;
             case EffectStrength.Small:
-                return 1500f;
+                return 1500;
             case EffectStrength.Medium:
                 return 2000;
             case EffectStrength.Large:

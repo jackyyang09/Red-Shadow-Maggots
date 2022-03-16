@@ -7,4 +7,7 @@
     public static SceneTweener sceneTweener => SceneTweener.Instance;
     public static UIManager ui => UIManager.Instance;
     public static CanteenSystem canteenSystem => CanteenSystem.Instance;
+
+    // System Objects
+    public static GraphicsSettings graphicsSettings => GraphicsSettings.Instance;
 }

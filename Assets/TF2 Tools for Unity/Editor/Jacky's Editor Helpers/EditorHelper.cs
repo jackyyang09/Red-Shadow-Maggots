@@ -320,6 +320,20 @@ namespace JackysEditorHelpers
         {
             return GUILayout.Button(" " + label + " ", new GUILayoutOption[] { GUILayout.ExpandWidth(false) });
         }
+
+        public static void RenderSequentialIntPopup(SerializedProperty property, int firstValue, int lastValue)
+        {
+            int size = (lastValue + 1) - firstValue;
+            var displayOptions = new GUIContent[size];
+            var optionValues = new int[size];
+            for (int i = 0; i < size; i++)
+            {
+                displayOptions[i] = new GUIContent(i.ToString());
+                optionValues[i] = i;
+            }
+
+            EditorGUILayout.IntPopup(property, displayOptions, optionValues);
+        }
     }
 
     public static class EditorExtensions

@@ -25,14 +25,20 @@ public class BaseAttackLeniency : BaseGameEffect
         ((PlayerCharacter)target).attackLeniencyModifier -= percentageChange;
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
+        string s = TargetModeDescriptor(targetMode);
+
+        s += "Attack Window ";
+
         if (effectType == EffectType.Debuff)
-            return "Attack Window Reduced by " + percentageChange * 100 + "%";
+            s += "reduced";
         else
-            return "Attack Window Increased by " + percentageChange * 100 + "%";
+            s += "increased";
+
+        return s + " by " + percentageChange * 100 + "% " + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

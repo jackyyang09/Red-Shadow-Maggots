@@ -27,14 +27,37 @@ public class BaseDefenceBuff : BaseGameEffect
     {
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.None:
+            case TargetMode.Self:
+                s = "Receive ";
+                break;
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "receives ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "receive ";
+                break;
+        }
+
+        s += percentageChange * 100;
+
         if (effectType == EffectType.Debuff)
-            return "Receive " + percentageChange * 100 + "% More Damage";
+            s += "% more ";
         else
-            return "Receive " + percentageChange * 100 + "% Less Damage";
+            s += "% less ";
+
+
+        return s + "damage " + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

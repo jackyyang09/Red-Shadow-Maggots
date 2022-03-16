@@ -30,65 +30,6 @@ Transform:
   m_Father: {fileID: 6730094783777427730}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &3067155697372600526
-Animator:
-  serializedVersion: 3
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9160884392521976346}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 970aa10fd8830434a9c9461a403194e7, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &8800174788161595758
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9160884392521976346}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1597ef7ea80efd4197d28581c9aeee8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  characterReference: {fileID: 0}
-  health: 0
-  maxHealth: 0
-  attack: 0
-  attackModifier: 0
-  defenseModifier: 0
-  attackLeniencyModifier: 0
-  defenseLeniencyModifier: 0
-  critChance: 0.02
-  critChanceModifier: 0
-  critMultiplier: 3
-  critDamageModifier: 0
-  range: 0
-  rarity: 0
-  cardHolder: {fileID: 8102806241173106588}
-  rigidBody: {fileID: 326040640313975215}
-  spriteAnim: {fileID: 6913027486754178204}
-  effectRegion: {fileID: 0}
-  skillParticles1: {fileID: 1875884508201210202, guid: 4964d414b73cd3d4ebea9f08d7e3cbf6, type: 3}
-  skillParticles2: {fileID: 1348457881729523694, guid: 64d44ae222135674bac4b8cc7cd67fd8, type: 3}
-  deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
-  selectionCircle: {fileID: 5855091519011627737}
-  animHelper: {fileID: 0}
-  canvasPrefab: {fileID: 6807323996565836524, guid: 262b40bff528db54a9584801f3595719, type: 3}
-  onDeath:
-    m_PersistentCalls:
-      m_Calls: []
-  cardMesh: {fileID: 6730094783777427730}
 --- !u!1 &7312910059917117321
 GameObject:
   m_ObjectHideFlags: 0
@@ -157,8 +98,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 1538658363
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 977ba82d80973674393c4e76c47212a1, type: 3}
   m_Color: {r: 0.27117586, g: 1, b: 0, a: 1}
@@ -171,6 +112,66 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &3067155697372600526
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9160884392521976346}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 970aa10fd8830434a9c9461a403194e7, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &8800174788161595758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9160884392521976346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1597ef7ea80efd4197d28581c9aeee8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterReference: {fileID: 0}
+  health: 0
+  maxHealth: 0
+  attack: 0
+  attackModifier: 0
+  defenseModifier: 0
+  attackLeniencyModifier: 0
+  defenseLeniencyModifier: 0
+  critChance: 0.02
+  critChanceModifier: 0
+  critMultiplier: 3
+  critDamageModifier: 0
+  range: 0
+  rarity: 0
+  cardHolder: {fileID: 8102806241173106588}
+  rigidBody: {fileID: 326040640313975215}
+  spriteAnim: {fileID: 6913027486754178204}
+  effectRegion: {fileID: 0}
+  skillParticles1: {fileID: 1875884508201210202, guid: 4964d414b73cd3d4ebea9f08d7e3cbf6, type: 3}
+  skillParticles2: {fileID: 1348457881729523694, guid: 64d44ae222135674bac4b8cc7cd67fd8, type: 3}
+  deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
+  selectionCircle: {fileID: 5855091519011627737}
+  selectionCircleScale: {x: 0.7, y: 1}
+  animHelper: {fileID: 0}
+  canvasPrefab: {fileID: 6807323996565836524, guid: 262b40bff528db54a9584801f3595719, type: 3}
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  cardMesh: {fileID: 6730094783777427730}
 --- !u!1001 &6762398275229310808
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -168,7 +168,7 @@ public class UIManager : BasicSingleton<UIManager>
 
         foreach (PlayerCharacter p in BattleSystem.Instance.PlayerCharacters)
         {
-            p.ShowSelectionPointer();
+            p.ShowSelectionCircle();
         }
 
         foreach (EnemyCharacter e in EnemyController.Instance.Enemies)
@@ -197,7 +197,8 @@ public class UIManager : BasicSingleton<UIManager>
             p.HideSelectionPointer();
         }
 
-        battleSystem.ActiveEnemy.ShowSelectionPointer();
+        battleSystem.ActivePlayer.ShowSelectionCircle();
+        battleSystem.ActiveEnemy.ShowSelectionCircle();
     }
 
     public void ShowSkillDetails(int index)
