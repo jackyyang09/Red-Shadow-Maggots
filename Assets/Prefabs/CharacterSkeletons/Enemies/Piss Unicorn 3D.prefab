@@ -7,6 +7,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1589842857519330939}
     m_Modifications:
+    - target: {fileID: 4352868241284334507, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+      propertyPath: liquidTweenTime
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 5153352721892211965, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
       propertyPath: m_Name
       value: urinejar - armature
@@ -75,9 +79,19 @@ CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 6929956805943234778, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 1344725842282731365}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &3061890694603102808 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 1344725842282731365}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1344725842194934588 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 98434137, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 1344725842282731365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &7793363730850476879 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 9119501185379574826, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 1344725842282731365}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5312185297188402982
@@ -87,6 +101,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1154112690225302991, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1154112690225302991, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1154112690225302991, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664497760315, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: m_RootOrder
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 6893020664784276119, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -155,6 +185,26 @@ PrefabInstance:
       propertyPath: rigidBodies.Array.data[0]
       value: 
       objectReference: {fileID: 8914316307637101015}
+    - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: meshRoot
+      value: 
+      objectReference: {fileID: 3061890694603102808}
+    - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: distanceOffset
+      value: -0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: defaultRenderers.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: defaultRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 9015591554576555949}
+    - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: defaultRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 7793363730850476879}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
 --- !u!4 &1589842857519330939 stripped
@@ -235,3 +285,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e7ac9734384f1b547bb3f24a5b019c06, type: 3}
+--- !u!23 &9015591554576555949 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7511558181221131132, guid: e7ac9734384f1b547bb3f24a5b019c06, type: 3}
+  m_PrefabInstance: {fileID: 7700105746887639849}
+  m_PrefabAsset: {fileID: 0}

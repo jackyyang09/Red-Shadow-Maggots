@@ -39,6 +39,8 @@ public class AnimationHelper : MonoBehaviour
 
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
+    [SerializeField] Transform skeletonRoot = null;
+    public Transform SkeletonRoot { get { return skeletonRoot; } }
 
     List<Action> onFinishSkillAnimation = new List<Action>();
     public void RegisterOnFinishSkillAnimation(Action newAction) => onFinishSkillAnimation.Add(newAction);

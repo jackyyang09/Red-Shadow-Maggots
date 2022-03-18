@@ -8,6 +8,7 @@ public class EnemyCharacter : BaseCharacter
 {
     [SerializeField] float chanceToUseSkill = 0.3f;
     public float ChanceToUseSkill { get { return chanceToUseSkill; } }
+    bool usedSkillThisTurn;
 
     [SerializeField] int critLevel = 0;
     public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
@@ -58,8 +59,12 @@ public class EnemyCharacter : BaseCharacter
 
     public void IncreaseChargeLevel()
     {
-        critLevel = (int)Mathf.Repeat(critLevel + 1, Reference.turnsToCrit + 1);
-        onCritLevelChanged?.Invoke(critLevel);
+        if (!usedSkillThisTurn || (usedSkillThisTurn && critLevel != Reference.turnsToCrit - 1))
+        {
+            critLevel = (int)Mathf.Repeat(critLevel + 1, Reference.turnsToCrit + 1);
+            onCritLevelChanged?.Invoke(critLevel);
+        }
+        usedSkillThisTurn = false;
     }
 
     public override void PlayAttackAnimation()
@@ -109,6 +114,12 @@ public class EnemyCharacter : BaseCharacter
             BattleSystem.Instance.SetActiveEnemy(this);
             OnSelectedEnemyCharacterChange?.Invoke(this);
         }
+    }
+
+    public override void UseSkill(int index)
+    {
+        usedSkillThisTurn = true;
+        base.UseSkill(index);
     }
 
     public override void ExecuteAttack()

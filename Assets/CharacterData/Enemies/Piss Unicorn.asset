@@ -13,22 +13,28 @@ MonoBehaviour:
   m_Name: Piss Unicorn
   m_EditorClassIdentifier: 
   characterName: Piss Unicorn
+  sprite: {fileID: 21300000, guid: a7d2753334debc644836def5dbe82490, type: 3}
+  headshotSprite: {fileID: 0}
   attack: 1500
   maxHealth: 5000
   critChance: 0
   critDamageMultiplier: 0
-  sprite: {fileID: 21300000, guid: a7d2753334debc644836def5dbe82490, type: 3}
-  headshotSprite: {fileID: 0}
   characterClass: 0
   range: 0
   attackQteType: 0
+  turnsToCrit: 3
   attackLeniency: 0
-  defenceLeniency: 0
-  skills: []
+  defenseLeniency: 0
+  skills:
+  - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
+  - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
+  superCritical: {fileID: 0}
   spriteObject: {fileID: 0}
   animator: {fileID: 0}
   characterRig: {fileID: 1589842857904274894, guid: fbf463863c534e84dbff20600813bac7, type: 3}
+  attackAnimation: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
   attackEffectPrefab: {fileID: 3773689495526468024, guid: 43238d9d76a9237459a1b47d20a920c5, type: 3}
+  extraEffectPrefabs: []
   voiceEntry: {fileID: 0}
   voiceAttack: {fileID: 0}
   voiceSelected: {fileID: 0}

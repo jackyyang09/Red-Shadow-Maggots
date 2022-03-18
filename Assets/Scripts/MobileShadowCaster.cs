@@ -13,19 +13,27 @@ public class MobileShadowCaster : MonoBehaviour
     [SerializeField] float maxDistance = 5;
     [SerializeField] LayerMask layerMask;
     [SerializeField] new SpriteRenderer renderer;
+    //[SerializeField] new Renderer renderer;
+    Material material;
+    int colorProp;
     [SerializeField] Vector2 shadowOpacity = new Vector2(0, 200);
 
+#if UNITY_ANDROID
     private void Start()
     {
-        //if (graphicsSettings.ShadowLevel == 1)
+        //if (graphicsSettings.ShadowLevel > 1)
         //{
-        //    enabled = false;
+        //    gameObject.SetActive(false);
+        //    return;
         //}
 
         for (int i = 0; i < defaultRenderers.Length; i++)
         {
             defaultRenderers[i].shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
+
+        material = renderer.material;
+        colorProp = Shader.PropertyToID("_Color");
     }
 
     private void Update()
@@ -38,8 +46,11 @@ public class MobileShadowCaster : MonoBehaviour
         {
             transform.position = hit.point + Vector3.up * shadowOffset;
             transform.forward = Vector3.up;
-            renderer.color = new Color32(0, 0, 0, (byte)Mathf.Lerp(shadowOpacity.y, shadowOpacity.x, hit.distance / maxDistance));
+            Color newColor = new Color32(0, 0, 0, (byte)Mathf.Lerp(shadowOpacity.y, shadowOpacity.x, hit.distance / maxDistance));
+            renderer.color = newColor;
+            //material.SetColor(colorProp, newColor);
         }
         renderer.enabled = hit.collider;
     }
+#endif
 }

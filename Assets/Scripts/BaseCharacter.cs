@@ -138,7 +138,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] protected GameObject deathParticles;
 
-    [SerializeField] protected SpriteRenderer selectionCircle;
+    [SerializeField] protected Renderer selectionCircle;
     [SerializeField] protected Vector2 selectionCircleScale = new Vector2(0.7f, 1f);
 
     [SerializeField] AnimationHelper animHelper = null;
@@ -251,7 +251,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (selectionCircle.enabled)
         {
             float scale = Mathf.Lerp(selectionCircleScale.x, selectionCircleScale.y, Mathf.PingPong(Time.time / 2f, 1));
-            selectionCircle.transform.localScale = new Vector3(scale, scale, 1);
+            selectionCircle.transform.localScale = new Vector3(scale, 1, scale);
         }
     }
 
@@ -411,7 +411,7 @@ public abstract class BaseCharacter : MonoBehaviour
         return Mathf.Clamp(damage - (damage * defenseModifier), 1, damage);
     }
 
-    public void UseSkill(int index)
+    public virtual void UseSkill(int index)
     {
         currentSkill = gameSkills[index];
         StartCoroutine(SkillRoutine(index));
@@ -799,7 +799,7 @@ public abstract class BaseCharacter : MonoBehaviour
         //newEffect.transform.localEulerAngles = Vector3.zero;
         if (!removeParent)
         {
-            newEffect.transform.SetParent(animHelper.transform.GetChild(0).GetChild(0));
+            newEffect.transform.SetParent(animHelper.SkeletonRoot);
         }
         if (destroyAutomatically)
         {

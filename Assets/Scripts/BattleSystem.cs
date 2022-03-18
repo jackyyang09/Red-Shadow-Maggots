@@ -453,7 +453,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 }
                 else if (playerCharacters.Count == 0) currentPhase = BattlePhases.BattleLose;
                 else if (enemyController.Enemies.Count == 0) currentPhase = BattlePhases.BattleWin;
-                ActiveEnemy.IncreaseChargeLevel();
+                enemyTargets.enemy.IncreaseChargeLevel();
                 OnEndEnemyTurn?.Invoke();
                 break;
             case BattlePhases.BattleWin:

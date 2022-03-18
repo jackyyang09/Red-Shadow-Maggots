@@ -21,9 +21,12 @@ public class JarateHealth : MonoBehaviour
 
     [SerializeField] new Renderer renderer = null;
 
+    int colorProp;
+
     void Start()
     {
         liquidTransform.localPosition = new Vector3(0, liquidRange.y, 0);
+        colorProp = Shader.PropertyToID("_Color");
     }
 
     private void OnEnable()
@@ -37,15 +40,19 @@ public class JarateHealth : MonoBehaviour
         character.onTakeDamage -= TweenLiquid;
     }
 
+    [ContextMenu(nameof(TweenLiquid))]
     private void TweenLiquid()
     {
         float lerpValue = character.GetHealthPercent();
         liquidTransform.DOLocalMoveY(Mathf.Lerp(liquidRange.x, liquidRange.y, lerpValue), liquidTweenTime).SetDelay(liquidTweenDelay);
         for (int i = 0; i < renderer.materials.Length; i++)
         {
-            Color savedColour = renderer.materials[i].color;
-            renderer.materials[i].DOColor(tweenColor, 0).SetDelay(colourTweenDelay);
-            renderer.materials[i].DOColor(savedColour, colourTweenTime).SetDelay(colourTweenDelay);
+            if (renderer.materials[i].HasProperty(colorProp))
+            {
+                Color savedColour = renderer.materials[i].GetColor(colorProp);
+                renderer.materials[i].SetColor(colorProp, tweenColor);
+                renderer.materials[i].DOColor(savedColour, colourTweenTime).SetDelay(colourTweenDelay);
+            }
         }
     }
 }
