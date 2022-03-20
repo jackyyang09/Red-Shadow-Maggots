@@ -48,4 +48,12 @@ public class SkillNameUI : BaseGameUI
         if (IsInvoking(nameof(Hide))) CancelInvoke(nameof(Hide));
         optimizedCanvas.Hide();
     }
+
+    public override void ShowUI()
+    {
+    }
+
+    public override void HideUI()
+    {
+    }
 }

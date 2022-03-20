@@ -581,7 +581,7 @@ GameObject:
   - component: {fileID: 3841318371093679126}
   - component: {fileID: 7302758439634448094}
   - component: {fileID: 4589889901918221136}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Charge Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -793,7 +793,7 @@ GameObject:
   - component: {fileID: 4390622130918161123}
   - component: {fileID: 6698217871104932464}
   - component: {fileID: 845550364038988645}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1167,7 +1167,7 @@ GameObject:
   - component: {fileID: 6807323995909047838}
   - component: {fileID: 6807323995909047824}
   - component: {fileID: 6807323995909047825}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Healthbar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1242,7 +1242,7 @@ GameObject:
   - component: {fileID: 6807323996316326427}
   - component: {fileID: 6807323996316326429}
   - component: {fileID: 6807323996316326426}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1317,7 +1317,7 @@ GameObject:
   - component: {fileID: 6807323996417590613}
   - component: {fileID: 6807323996417590615}
   - component: {fileID: 6807323996417590612}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Tweenbar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1392,7 +1392,7 @@ GameObject:
   - component: {fileID: 6807323996452567477}
   - component: {fileID: 6807323996452567479}
   - component: {fileID: 6807323996452567476}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: ClassIcon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1472,7 +1472,7 @@ GameObject:
   - component: {fileID: 6807323996565836526}
   - component: {fileID: 6987524507153386156}
   - component: {fileID: 7684996682996668035}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CharacterUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1538,18 +1538,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: faca9b9987d9e0242bfc7a5526f8f663, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hideOnAwake: 0
   canvas: {fileID: 6807323996565836515}
-  caster: {fileID: 0}
-  children: []
-  flashLayoutGroups: 1
-  layoutGroups:
-  - {fileID: 6807323997779213260}
-  layoutElements: []
+  hideOnAwake: 0
   dynamicUI: []
-  transition: {fileID: 7684996682996668035}
+  caster: {fileID: 0}
+  transitions: []
   animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -1637,6 +1635,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7407db0a4c39beb47812e2f680b8b8ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnTransitionInStartUnityEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTransitionInEndUnityEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTransitionOutStartUnityEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTransitionOutEndUnityEvent:
+    m_PersistentCalls:
+      m_Calls: []
   ignoreTimescale: 0
   fadeInTime: 0.1
   fadeOutTime: 0.1
@@ -1653,7 +1663,7 @@ GameObject:
   - component: {fileID: 6807323996668760937}
   - component: {fileID: 6807323996668760939}
   - component: {fileID: 6807323996668760936}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: NameText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1787,7 +1797,7 @@ GameObject:
   - component: {fileID: 6807323996704536288}
   - component: {fileID: 6807323996704536290}
   - component: {fileID: 6807323996704536291}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1862,7 +1872,7 @@ GameObject:
   - component: {fileID: 6807323996986767774}
   - component: {fileID: 6807323996986767763}
   - component: {fileID: 6807323996986767761}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HealthbarBack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1928,7 +1938,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6807323997567575568}
   - component: {fileID: 6807323997567575571}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HealthCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1987,7 +1997,7 @@ GameObject:
   - component: {fileID: 6807323997779213261}
   - component: {fileID: 6807323997779213263}
   - component: {fileID: 6807323997779213260}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Effect Icons
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2069,7 +2079,7 @@ GameObject:
   - component: {fileID: 6807323997824180562}
   - component: {fileID: 6807323997824180564}
   - component: {fileID: 6807323997824180565}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: BackgroundBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2144,7 +2154,7 @@ GameObject:
   - component: {fileID: 6807323997870787728}
   - component: {fileID: 6807323997870787730}
   - component: {fileID: 6807323997870787731}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: HealthText
   m_TagString: Untagged
   m_Icon: {fileID: 0}

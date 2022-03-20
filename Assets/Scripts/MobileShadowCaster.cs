@@ -40,13 +40,16 @@ public class MobileShadowCaster : MonoBehaviour
     {
         Ray ray = new Ray();
         ray.direction = Vector3.down;
-        ray.origin = meshRoot.position - new Vector3(0, distanceOffset, 0);
+        ray.origin = meshRoot.position;
         RaycastHit hit = new RaycastHit();
-        if (Physics.Raycast(ray, out hit, maxDistance, layerMask))
+
+        if (Physics.Raycast(ray, out hit, maxDistance + distanceOffset, layerMask))
         {
             transform.position = hit.point + Vector3.up * shadowOffset;
             transform.forward = Vector3.up;
-            Color newColor = new Color32(0, 0, 0, (byte)Mathf.Lerp(shadowOpacity.y, shadowOpacity.x, hit.distance / maxDistance));
+            float distance = hit.distance - distanceOffset;
+            byte alpha = (byte)Mathf.Lerp(shadowOpacity.y, shadowOpacity.x, distance / maxDistance);
+            Color newColor = new Color32(0, 0, 0, alpha);
             renderer.color = newColor;
             //material.SetColor(colorProp, newColor);
         }

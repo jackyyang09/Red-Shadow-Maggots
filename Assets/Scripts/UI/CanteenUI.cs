@@ -16,6 +16,7 @@ public class CanteenUI : BaseGameUI
     [SerializeField] float canteenShakeTime = 0.25f;
     [SerializeField] int canteenShakeVibrato = 10;
     [SerializeField] float canteenScaleTime = 0.075f;
+    [SerializeField] Vector2 canteenShakeScale = new Vector2(150, 175);
     [SerializeField] float canteenMaxSpeed = 10;
     [SerializeField] float canteenSmoothTime = 0.5f;
 
@@ -26,6 +27,7 @@ public class CanteenUI : BaseGameUI
     Vector2 filledOrigin;
 
     [Header("Object References")]
+    [SerializeField] Canvas viewportBillboardCanvas = null;
     [SerializeField] TextMeshProUGUI canteenChargeText = null;
     [SerializeField] TextMeshProUGUI canteenCountText = null;
     [SerializeField] RectTransform canteen = null;
@@ -69,14 +71,16 @@ public class CanteenUI : BaseGameUI
         UIManager.OnRemovePlayerControl -= HideUI;
     }
 
-    private void ShowUI()
+    public override void ShowUI()
     {
         optimizedCanvas.Show();
+        viewportBillboardCanvas.renderMode = RenderMode.ScreenSpaceCamera;
     }
 
-    private void HideUI()
+    public override void HideUI()
     {
         optimizedCanvas.Hide();
+        viewportBillboardCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
     }
 
     Vector3 canteenVelocity;
@@ -99,9 +103,7 @@ public class CanteenUI : BaseGameUI
         {
             canteenCount = (int)(canteenSystem.AvailableCharge / canteenSystem.ChargePerCanteen);
         }
-        else
-        {
-        }
+
         canteenCountText.text = canteenCount.ToString();
 
         for (int i = 0; i < canteenCount; i++)
@@ -113,8 +115,6 @@ public class CanteenUI : BaseGameUI
         {
             canteenIcons[i].SetActive(false);
         }
-
-        optimizedCanvas.FlashLayoutComponents();
     }
 
     void UpdateUI()
@@ -185,11 +185,11 @@ public class CanteenUI : BaseGameUI
             }
 
             canteen.DOPunchRotation(new Vector3(0, 0, 10), canteenShakeTime, canteenShakeVibrato);
-            canteen.DOSizeDelta(Vector2.one * 150, canteenScaleTime);
+            canteen.DOSizeDelta(Vector2.one * canteenShakeScale.y, canteenScaleTime);
 
             yield return new WaitForSeconds(canteenShakeTime);
 
-            canteen.DOSizeDelta(Vector2.one * 125, canteenScaleTime);
+            canteen.DOSizeDelta(Vector2.one * canteenShakeScale.x, canteenScaleTime);
         }
 
         previousFill = fill;

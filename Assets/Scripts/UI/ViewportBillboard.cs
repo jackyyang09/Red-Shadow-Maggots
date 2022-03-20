@@ -54,7 +54,7 @@ public class ViewportBillboard : MonoBehaviour
         UpdatePosition();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         UpdatePosition();
 

@@ -179,7 +179,6 @@ public class CharacterUI : BaseGameUI
     {
         effects.Add(obj);
         UpdateEffectIcons();
-        optimizedCanvas.FlashLayoutComponents();
     }
 
     private void RemoveEffectIcon(AppliedEffect obj)
@@ -187,7 +186,6 @@ public class CharacterUI : BaseGameUI
         var index = effects.IndexOf(obj);
         UpdateEffectIcons(index);
         effects.Remove(obj);
-        optimizedCanvas.FlashLayoutComponents();
     }
 
     void UpdateEffectIcons(int index = -1)
@@ -213,5 +211,13 @@ public class CharacterUI : BaseGameUI
     void SelfDestruct()
     {
         Destroy(gameObject);
+    }
+
+    public override void ShowUI()
+    {
+    }
+
+    public override void HideUI()
+    {
     }
 }
