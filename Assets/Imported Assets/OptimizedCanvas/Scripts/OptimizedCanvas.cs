@@ -20,11 +20,6 @@ public class OptimizedCanvas : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Might be deprecated, UI whose position can change doesn't work with rigid layout groups?
-    /// </summary>
-    [SerializeField] List<RectTransform> dynamicUI = null;
-
     [SerializeField] GraphicRaycaster caster;
 
     List<OptimizedCanvas> children = new List<OptimizedCanvas>();

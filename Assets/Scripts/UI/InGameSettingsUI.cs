@@ -12,6 +12,7 @@ public class InGameSettingsUI : MonoBehaviour
     [Header("Graphics")]
     [SerializeField] Slider qualitySlider = null;
     [SerializeField] Toggle postProcessingToggle = null;
+    [SerializeField] Toggle antiAliasingToggle = null;
 
     [Header("Volume")]
     [SerializeField] Slider masterSlider = null;
@@ -47,6 +48,19 @@ public class InGameSettingsUI : MonoBehaviour
     public void TogglePostProcessing()
     {
         graphicsSettings.PostProcessing.enabled = !graphicsSettings.PostProcessing.enabled;
+    }
+
+    public void ToggleAntiAliasing()
+    {
+        switch (graphicsSettings.PostProcessing.antialiasingMode)
+        {
+            case UnityEngine.Rendering.PostProcessing.PostProcessLayer.Antialiasing.None:
+            graphicsSettings.PostProcessing.antialiasingMode = UnityEngine.Rendering.PostProcessing.PostProcessLayer.Antialiasing.FastApproximateAntialiasing;
+                break;
+            case UnityEngine.Rendering.PostProcessing.PostProcessLayer.Antialiasing.FastApproximateAntialiasing:
+            graphicsSettings.PostProcessing.antialiasingMode = UnityEngine.Rendering.PostProcessing.PostProcessLayer.Antialiasing.None;
+                break;
+        }
     }
 
     public void ShowGraphicsUI()

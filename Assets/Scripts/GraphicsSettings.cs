@@ -6,13 +6,10 @@ using UnityEngine.Rendering.PostProcessing;
 public class GraphicsSettings : BasicSingleton<GraphicsSettings>
 {
     [SerializeField] PostProcessLayer cameraPostProcess;
-    public PostProcessLayer PostProcessing
-    {
-        get
-        {
-            return cameraPostProcess;
-        }
-    }
+    public PostProcessLayer PostProcessing { get { return cameraPostProcess; } }
+
+    [SerializeField] PostProcessVolume postProcessVolume;
+    public PostProcessVolume MainPostProcessVolume { get { return postProcessVolume; } }
 
     int shadowLevel = 5;
     public int ShadowLevel

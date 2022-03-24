@@ -18,13 +18,17 @@ MonoBehaviour:
   attack: 2000
   maxHealth: 30000
   critChance: 0
-  critDamageMultiplier: 0
+  critDamageMultiplier: 1
   characterClass: 0
   range: 2
   attackQteType: 0
+  turnsToCrit: 3
   attackLeniency: 0
   defenseLeniency: 0
-  skills: []
+  skills:
+  - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
+  - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
+  superCritical: {fileID: 0}
   spriteObject: {fileID: 0}
   animator: {fileID: 0}
   characterRig: {fileID: 3617443292749478132, guid: 05e2c82f833833a41a094a74f818700a, type: 3}

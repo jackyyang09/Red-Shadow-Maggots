@@ -29,7 +29,7 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
     // Start is called before the first frame update
     void Start()
     {
-        //waveCount = -1;
+        waveCount--;
     }
 
     public List<EnemyCharacter> SetupNextWave()

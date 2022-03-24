@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using static Facade;
 
 public class MobileShadowCaster : MonoBehaviour
@@ -14,26 +15,42 @@ public class MobileShadowCaster : MonoBehaviour
     [SerializeField] LayerMask layerMask;
     [SerializeField] new SpriteRenderer renderer;
     //[SerializeField] new Renderer renderer;
-    Material material;
-    int colorProp;
+    //Material material;
+    //int colorProp;
+
     [SerializeField] Vector2 shadowOpacity = new Vector2(0, 200);
 
 #if UNITY_ANDROID
-    private void Start()
+    private void OnEnable()
     {
-        //if (graphicsSettings.ShadowLevel > 1)
-        //{
-        //    gameObject.SetActive(false);
-        //    return;
-        //}
+        GraphicsSettings.OnQualityLevelChanged += UpdateShadowCasting;
+    }
+
+    private void OnDisable()
+    {
+        GraphicsSettings.OnQualityLevelChanged -= UpdateShadowCasting;
+    }
+
+    //private void Start()
+    //{
+    //    colorProp = Shader.PropertyToID("_Color");
+    //
+    //    material = renderer.material;
+    //}
+
+    void UpdateShadowCasting(int level)
+    {
+        bool lowQuality = level >= 3;
+
+        var castMode = lowQuality ? ShadowCastingMode.Off : ShadowCastingMode.On;
 
         for (int i = 0; i < defaultRenderers.Length; i++)
         {
-            defaultRenderers[i].shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            defaultRenderers[i].shadowCastingMode = castMode;
         }
 
-        material = renderer.material;
-        colorProp = Shader.PropertyToID("_Color");
+        enabled = lowQuality;
+        renderer.enabled = !lowQuality;
     }
 
     private void Update()

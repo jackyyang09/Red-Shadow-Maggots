@@ -14,6 +14,11 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
     }
 
+#if UNITY_EDITOR
+    [Header("Debug Options")]
+    [SerializeField] bool disableSkillUsage;
+#endif
+
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
 
@@ -58,6 +63,13 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void MakeYourMove()
     {
+#if UNITY_EDITOR
+        if (disableSkillUsage)
+        {
+            battleSystem.BeginEnemyAttack();
+            return;
+        }
+#endif
         if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
         {
             //if (enemy.CanUseSkill(index))

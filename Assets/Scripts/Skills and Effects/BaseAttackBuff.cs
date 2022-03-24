@@ -48,7 +48,8 @@ public class BaseAttackBuff : BaseGameEffect
         switch (strength)
         {
             case EffectStrength.Custom:
-                return customValues[0];
+                if (customValues.Length > 0) return customValues[0];
+                else return 0f;
             case EffectStrength.Weak:
                 return 0.05f;
             case EffectStrength.Small:

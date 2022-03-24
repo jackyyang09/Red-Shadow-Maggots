@@ -26,6 +26,7 @@ public class SkillObject : ScriptableObject
         public TargetMode targetOverride;
         public EffectStrength strength;
         public float[] customValues;
+        public object EffectStrength { get { return effect.GetEffectStrength(strength, customValues); } }
     }
 
     public string skillName;

@@ -130,11 +130,13 @@ public class SkillObjectEditor : Editor
             }
         }
 
-        gameEffectsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(gameEffectsFoldout, gameEffects.GUIContent());
+        gameEffectsFoldout = EditorGUILayout.Foldout(gameEffectsFoldout, gameEffects.GUIContent());
+        //gameEffectsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(gameEffectsFoldout, gameEffects.GUIContent());
         if (gameEffectsFoldout && Selection.objects.Length == 1)
         {
+            var cachedSize = gameEffects.arraySize;
             gameEffects.arraySize = EditorGUILayout.IntField("Size", gameEffects.arraySize);
-            for (int i = 0; i < gameEffects.arraySize; i++)
+            for (int i = 0; i < Mathf.Min(cachedSize, gameEffects.arraySize); i++)
             {
                 EditorGUI.indentLevel++;
                 var prop = gameEffects.GetArrayElementAtIndex(i);
@@ -161,7 +163,7 @@ public class SkillObjectEditor : Editor
                 EditorGUI.indentLevel--;
             }
         }
-        EditorGUILayout.EndFoldoutHeaderGroup();
+        //EditorGUILayout.EndFoldoutHeaderGroup();
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
     }

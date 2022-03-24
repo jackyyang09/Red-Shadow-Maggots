@@ -77,8 +77,7 @@ public abstract class BaseCharacter : MonoBehaviour
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
-    [SerializeField]
-    float defenseModifier;
+    [SerializeField] float defenseModifier;
 
     public float attackLeniencyModifier;
     public float AttackLeniency
@@ -270,6 +269,16 @@ public abstract class BaseCharacter : MonoBehaviour
         }
         GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
+        var superCrit = characterReference.superCritical;
+        // Check if the Super Critical deals damage
+        for (int i = 0; i < superCrit.gameEffects.Length; i++)
+        {
+            if (superCrit.gameEffects[i].effect.GetType() == typeof(BaseAttackEffect))
+            {
+                IncomingDamage.damageNormalized = (float)superCrit.gameEffects[i].EffectStrength;
+                break;
+            }
+        }
         IncomingDamage.isCritical = true;
         IncomingDamage.isSuperCritical = true;
         IncomingDamage.critDamageModifier = CritDamageModified;
@@ -408,7 +417,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual float CalculateDefenseDamage(float damage)
     {
-        return Mathf.Clamp(damage - (damage * defenseModifier), 1, damage);
+        return Mathf.Clamp(damage - (damage * defenseModifier), 1, int.MaxValue);
     }
 
     public virtual void UseSkill(int index)
@@ -568,7 +577,7 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    public void ApplyEffectToCharacter(SkillObject.EffectProperties props, BaseCharacter character, TargetMode targetMode)
+    public static void ApplyEffectToCharacter(SkillObject.EffectProperties props, BaseCharacter character, TargetMode targetMode)
     {
         Instantiate(props.effect.particlePrefab, character.transform);
         props.effect.Activate(character, props.strength, props.customValues);
@@ -737,6 +746,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         float trueDamage = CalculateDefenseDamage(damage.damage);
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
+        damage.damage = trueDamage;
 
         DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)

@@ -17,15 +17,15 @@ public class QuickTimeResultText : MonoBehaviour
 
     private void OnEnable()
     {
-        quickTimeEntity.OnQuickTimeComplete += OnQuickTimeComplete;
+        quickTimeEntity.OnExecuteQuickTime += OnExecuteQuickTime;
     }
 
     private void OnDisable()
     {
-        quickTimeEntity.OnQuickTimeComplete -= OnQuickTimeComplete;
+        quickTimeEntity.OnExecuteQuickTime -= OnExecuteQuickTime;
     }
 
-    private void OnQuickTimeComplete()
+    private void OnExecuteQuickTime()
     {
         StartCoroutine(AnimateText(BaseCharacter.IncomingDamage));
     }

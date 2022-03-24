@@ -357,7 +357,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 56889371}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -943.3916, y: -566.6067, z: 90.541534}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 874473865}
@@ -926,6 +926,7 @@ MonoBehaviour:
   health: {fileID: 0}
   attack: {fileID: 0}
   critChance: {fileID: 0}
+  descriptionPrefab: {fileID: 0}
   statusDescriptions:
   - {fileID: 0}
   - {fileID: 0}
@@ -955,11 +956,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 172907936}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 172907933}
-  children:
-  - {fileID: 1489076765}
-  - {fileID: 895642246}
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -1363,7 +1368,7 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 90
+    FieldOfView: 60
     OrthographicSize: 10
     NearClipPlane: 0.1
     FarClipPlane: 5000
@@ -1385,7 +1390,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 335703968}
   m_LocalRotation: {x: -0, y: -0.0000016391275, z: -0, w: 1}
-  m_LocalPosition: {x: -945.3916, y: -565.1067, z: 88.041534}
+  m_LocalPosition: {x: -2, y: 1.5, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1253508210}
@@ -1417,7 +1422,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 353920009}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -945.3916, y: -565.1067, z: 98.041534}
+  m_LocalPosition: {x: -2, y: 1.5, z: 7.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 195466976}
@@ -1591,6 +1596,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -3080,6 +3086,7 @@ Light:
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!1 &628146213
@@ -3292,6 +3299,7 @@ Light:
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!1001 &664304695
@@ -4188,9 +4196,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 763206816}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 0}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -4229,6 +4243,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1063077c509d4243a392de9793ebda7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  buffColour: {r: 0.6, g: 0.8, b: 1, a: 1}
+  debuffColour: {r: 1, g: 0.25, b: 0.25, a: 1}
+  minimumHeight: 500
+  lineHeight: 120
+  characterCountPerLine: 0
   canvas: {fileID: 763206815}
   nameText: {fileID: 1335763204}
   cooldownCount: {fileID: 965642194}
@@ -5125,8 +5144,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Arms Guy
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 599f0c1e5bf305a4b85b43c56a773cd8, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 599f0c1e5bf305a4b85b43c56a773cd8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5328,7 +5347,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 874473863}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 943.3916, y: 566.6067, z: -90.541534}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 56889374}
@@ -5616,6 +5635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -5802,6 +5822,7 @@ MonoBehaviour:
   holdProgressImage: {fileID: 1470446219}
   holdTriggerTime: 0.5
   holdGraphicDelay: 0.15
+  ForceReleaseAfterInvoke: 1
   onHoldEvent:
     m_PersistentCalls:
       m_Calls:
@@ -5881,9 +5902,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 895642247}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 895642245}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -5924,6 +5951,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -6240,6 +6268,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &901772911
 Canvas:
   m_ObjectHideFlags: 0
@@ -6324,9 +6353,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 901772911}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 901772914}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -6938,8 +6973,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Grizzled Veteran
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0e40fbb5cd157714eb8e11a2263aa5b1, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 0e40fbb5cd157714eb8e11a2263aa5b1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7490,6 +7525,7 @@ Light:
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!1001 &1122042651
@@ -7631,8 +7667,8 @@ MonoBehaviour:
 
     through the file browser below'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 889aa0fcbe5d768459f7ab1082be35f2, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 889aa0fcbe5d768459f7ab1082be35f2, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7886,7 +7922,7 @@ ParticleSystem:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1168897747}
-  serializedVersion: 6
+  serializedVersion: 7
   lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
@@ -11458,19 +11494,20 @@ ParticleSystem:
     range: {x: 0, y: 1}
   CollisionModule:
     enabled: 0
-    serializedVersion: 3
+    serializedVersion: 4
     type: 0
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
     multiplyColliderForceByCollisionAngle: 1
-    plane0: {fileID: 0}
-    plane1: {fileID: 0}
-    plane2: {fileID: 0}
-    plane3: {fileID: 0}
-    plane4: {fileID: 0}
-    plane5: {fileID: 0}
+    m_Planes:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     m_Dampen:
       serializedVersion: 2
       minMaxState: 0
@@ -11644,17 +11681,20 @@ ParticleSystem:
     interiorCollisions: 0
   TriggerModule:
     enabled: 0
-    collisionShape0: {fileID: 0}
-    collisionShape1: {fileID: 0}
-    collisionShape2: {fileID: 0}
-    collisionShape3: {fileID: 0}
-    collisionShape4: {fileID: 0}
-    collisionShape5: {fileID: 0}
+    serializedVersion: 2
     inside: 1
     outside: 0
     enter: 0
     exit: 0
+    colliderQueryMode: 0
     radiusScale: 1
+    primitives:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -12850,7 +12890,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 5000
-  field of view: 90
+  field of view: 60
   orthographic: 0
   orthographic size: 2
   m_Depth: -1
@@ -12876,7 +12916,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1189668843}
   m_LocalRotation: {x: -0, y: -0.0000016391275, z: -0, w: 1}
-  m_LocalPosition: {x: -945.3916, y: -565.1067, z: 88.041534}
+  m_LocalPosition: {x: -2, y: 1.5, z: -4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2070485921}
@@ -13291,7 +13331,7 @@ ParticleSystem:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1229583856}
-  serializedVersion: 6
+  serializedVersion: 7
   lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
@@ -16863,19 +16903,20 @@ ParticleSystem:
     range: {x: 0, y: 1}
   CollisionModule:
     enabled: 0
-    serializedVersion: 3
+    serializedVersion: 4
     type: 0
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
     multiplyColliderForceByCollisionAngle: 1
-    plane0: {fileID: 0}
-    plane1: {fileID: 0}
-    plane2: {fileID: 0}
-    plane3: {fileID: 0}
-    plane4: {fileID: 0}
-    plane5: {fileID: 0}
+    m_Planes:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     m_Dampen:
       serializedVersion: 2
       minMaxState: 0
@@ -17049,17 +17090,20 @@ ParticleSystem:
     interiorCollisions: 0
   TriggerModule:
     enabled: 0
-    collisionShape0: {fileID: 0}
-    collisionShape1: {fileID: 0}
-    collisionShape2: {fileID: 0}
-    collisionShape3: {fileID: 0}
-    collisionShape4: {fileID: 0}
-    collisionShape5: {fileID: 0}
+    serializedVersion: 2
     inside: 1
     outside: 0
     enter: 0
     exit: 0
+    colliderQueryMode: 0
     radiusScale: 1
+    primitives:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -18191,6 +18235,7 @@ Light:
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &1261923855
@@ -19619,7 +19664,7 @@ ParticleSystem:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1383646792}
-  serializedVersion: 6
+  serializedVersion: 7
   lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
@@ -23191,19 +23236,20 @@ ParticleSystem:
     range: {x: 0, y: 1}
   CollisionModule:
     enabled: 0
-    serializedVersion: 3
+    serializedVersion: 4
     type: 0
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
     multiplyColliderForceByCollisionAngle: 1
-    plane0: {fileID: 0}
-    plane1: {fileID: 0}
-    plane2: {fileID: 0}
-    plane3: {fileID: 0}
-    plane4: {fileID: 0}
-    plane5: {fileID: 0}
+    m_Planes:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     m_Dampen:
       serializedVersion: 2
       minMaxState: 0
@@ -23377,17 +23423,20 @@ ParticleSystem:
     interiorCollisions: 0
   TriggerModule:
     enabled: 0
-    collisionShape0: {fileID: 0}
-    collisionShape1: {fileID: 0}
-    collisionShape2: {fileID: 0}
-    collisionShape3: {fileID: 0}
-    collisionShape4: {fileID: 0}
-    collisionShape5: {fileID: 0}
+    serializedVersion: 2
     inside: 1
     outside: 0
     enter: 0
     exit: 0
+    colliderQueryMode: 0
     radiusScale: 1
+    primitives:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -24691,8 +24740,8 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 889aa0fcbe5d768459f7ab1082be35f2, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 889aa0fcbe5d768459f7ab1082be35f2, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -25546,6 +25595,7 @@ MonoBehaviour:
   holdProgressImage: {fileID: 1161585908}
   holdTriggerTime: 0.5
   holdGraphicDelay: 0.15
+  ForceReleaseAfterInvoke: 1
   onHoldEvent:
     m_PersistentCalls:
       m_Calls:
@@ -25625,9 +25675,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 1489076766}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 1489076764}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -25668,6 +25724,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -25929,6 +25986,7 @@ Light:
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!1 &1510511044
@@ -26233,6 +26291,7 @@ Light:
   m_UseColorTemperature: 1
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!1 &1554613333
@@ -26293,6 +26352,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &1554613336
 Canvas:
   m_ObjectHideFlags: 0
@@ -26389,6 +26449,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -27289,13 +27350,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 1622102710}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 1622102712}
-  children:
-  - {fileID: 172907935}
-  - {fileID: 1489076765}
-  - {fileID: 895642246}
-  - {fileID: 763206815}
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -27438,6 +27501,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -28278,6 +28342,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &1681612078
 Canvas:
   m_ObjectHideFlags: 0
@@ -28599,8 +28664,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Offense
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0e40fbb5cd157714eb8e11a2263aa5b1, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 0e40fbb5cd157714eb8e11a2263aa5b1, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -28725,9 +28790,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 1743294771}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 0}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -29221,6 +29292,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+  m_PresetInfoIsWorld: 0
 --- !u!223 &1814665125
 Canvas:
   m_ObjectHideFlags: 0
@@ -29452,7 +29524,7 @@ ParticleSystem:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1885733343}
-  serializedVersion: 6
+  serializedVersion: 7
   lengthInSec: 0.5
   simulationSpeed: 1
   stopAction: 0
@@ -33024,19 +33096,20 @@ ParticleSystem:
     range: {x: 0, y: 1}
   CollisionModule:
     enabled: 0
-    serializedVersion: 3
+    serializedVersion: 4
     type: 0
     collisionMode: 0
     colliderForce: 0
     multiplyColliderForceByParticleSize: 0
     multiplyColliderForceByParticleSpeed: 0
     multiplyColliderForceByCollisionAngle: 1
-    plane0: {fileID: 0}
-    plane1: {fileID: 0}
-    plane2: {fileID: 0}
-    plane3: {fileID: 0}
-    plane4: {fileID: 0}
-    plane5: {fileID: 0}
+    m_Planes:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
     m_Dampen:
       serializedVersion: 2
       minMaxState: 0
@@ -33210,17 +33283,20 @@ ParticleSystem:
     interiorCollisions: 0
   TriggerModule:
     enabled: 0
-    collisionShape0: {fileID: 0}
-    collisionShape1: {fileID: 0}
-    collisionShape2: {fileID: 0}
-    collisionShape3: {fileID: 0}
-    collisionShape4: {fileID: 0}
-    collisionShape5: {fileID: 0}
+    serializedVersion: 2
     inside: 1
     outside: 0
     enter: 0
     exit: 0
+    colliderQueryMode: 0
     radiusScale: 1
+    primitives:
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
+    - {fileID: 0}
   SubModule:
     serializedVersion: 2
     enabled: 0
@@ -34633,6 +34709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -35186,9 +35263,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 2015468891}
+  hideOnAwake: 0
+  dynamicUI: []
   caster: {fileID: 2015468889}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:
@@ -36039,7 +36122,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8092678766047446637, guid: f0a105039dfcbc34cb36000a4eaaa43e, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8092678766047446637, guid: f0a105039dfcbc34cb36000a4eaaa43e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -36138,9 +36221,13 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: ae99461f1ce33314c8624a9aed910529, type: 3}
+    - target: {fileID: 3050970403847757976, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4528041005797008950, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4528041005797008950, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
       propertyPath: m_LocalPosition.x
@@ -36198,10 +36285,18 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 4ae83c8f34b76d44db23448768e1ebee, type: 2}
+    - target: {fileID: 5890122942505468185, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6235200458186539039, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6526503355197172835, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 22100000, guid: 1d83dc70895daa743973cca26a1fd335, type: 2}
     - target: {fileID: 8435311092684703587, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
       propertyPath: rarity
       value: 0

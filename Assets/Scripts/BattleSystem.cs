@@ -216,7 +216,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         ui.StartDefending();
         enemyTargets.enemy.BeginAttack(enemyTargets.player.transform);
         enemyTargets.enemy.PlayAttackAnimation();
-        enemyTargets.player.InitiateDefense();
     }
 
     public void SwitchTargets()

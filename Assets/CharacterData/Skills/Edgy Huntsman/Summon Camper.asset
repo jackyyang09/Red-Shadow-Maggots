@@ -15,6 +15,16 @@ MonoBehaviour:
   skillName: Summon Camper
   skillDescription: []
   sprite: {fileID: 0}
-  targetMode: 0
+  targetMode: 2
   skillCooldown: 0
-  gameEffects: []
+  gameEffects:
+  - effect: {fileID: 11400000, guid: 93c0c505074daf7499074166aabe2dc7, type: 2}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 3
+    customValues: []
+  - effect: {fileID: 11400000, guid: f5503d4f5e4a4ea4bacf6cd3b9a71fe7, type: 2}
+    effectDuration: 0
+    targetOverride: 0
+    strength: 5
+    customValues: []

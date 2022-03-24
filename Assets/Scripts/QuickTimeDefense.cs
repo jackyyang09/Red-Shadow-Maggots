@@ -35,7 +35,26 @@ public class QuickTimeDefense : QuickTimeBase
             }
         }
 
-        attackLength = animationEvents[0].time;
+        for (int i = 0; i < targetPlayers.Count; i++)
+        {
+            ((PlayerCharacter)targetPlayers[i]).InitiateDefense();
+        }
+
+        canvas.Show();
+
+        PrepareNextAttack();
+    }
+
+    public void PrepareNextAttack()
+    {
+        if (attacks == 0)
+        {
+            attackLength = animationEvents[attacks].time;
+        }
+        else
+        {
+            attackLength = animationEvents[attacks].time - animationEvents[attacks - 1].time;
+        }
         StartTicking();
     }
 
@@ -54,26 +73,32 @@ public class QuickTimeDefense : QuickTimeBase
 
     public void CheckDefense()
     {
-        enabled = false;
         GetMultiplier();
-        OnQuickTimeComplete?.Invoke();
+        attacks++;
         onExecuteQuickTime?.Invoke();
-        for (int i = 0; i < targetPlayers.Count; i++)
+        OnExecuteQuickTime?.Invoke();
+        if (attacks == animationEvents.Count)
         {
-            ((PlayerCharacter)targetPlayers[i]).EndDefense();
+            enabled = false;
+            OnQuickTimeComplete?.Invoke();
+            for (int i = 0; i < targetPlayers.Count; i++)
+            {
+                ((PlayerCharacter)targetPlayers[i]).EndDefense();
+            }
         }
+        else PrepareNextAttack();
     }
 
     public override void GetMultiplier()
     {
         float timeElapsed = Time.time - startTime;
-        float timeDiff = Mathf.Abs(timeElapsed - animationEvents[0].time);
+        float timeDiff = Mathf.Abs(timeElapsed - attackLength);
 
         float leniency = targetPlayers[0].DefenseLeniency;
         for (int i = 1; i < targetPlayers.Count; i++) leniency += targetPlayers[i].DefenseLeniency;
         leniency /= targetPlayers.Count;
 
-        float window = animationEvents[0].time * leniency;
+        float window = attackLength * leniency;
 
         if (missed)
         {

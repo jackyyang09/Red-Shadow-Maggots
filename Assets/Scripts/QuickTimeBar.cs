@@ -55,6 +55,7 @@ public class QuickTimeBar : QuickTimeBase
         enabled = false;
         GetMultiplier();
         onExecuteQuickTime?.Invoke();
+        OnExecuteQuickTime?.Invoke();
         BonusFeedback();
         Invoke("Hide", hideDelay);
         fillBar.DOKill();

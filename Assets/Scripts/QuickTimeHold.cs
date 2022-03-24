@@ -94,6 +94,7 @@ public class QuickTimeHold : QuickTimeBase
         StopCoroutine(tickRoutine);
         GetMultiplier();
         onExecuteQuickTime?.Invoke();
+        OnExecuteQuickTime?.Invoke();
         Invoke("Hide", hideDelay);
         fillBar.DOKill();
         gaugeArrow.DOKill();

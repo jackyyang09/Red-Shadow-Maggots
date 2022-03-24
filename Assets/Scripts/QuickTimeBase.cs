@@ -26,16 +26,19 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     [SerializeField] protected float hideDelay = 0.5f;
 
+    public System.Action OnExecuteQuickTime;
     public System.Action OnQuickTimeComplete;
 
     protected void OnEnable()
     {
         GlobalEvents.OnEnterBattleCutscene += Hide;
+        BattleSystem.OnEndEnemyTurn += Hide;
     }
 
     protected void OnDisable()
     {
         GlobalEvents.OnEnterBattleCutscene -= Hide;
+        BattleSystem.OnEndEnemyTurn -= Hide;
     }
 
     public void Hide()
