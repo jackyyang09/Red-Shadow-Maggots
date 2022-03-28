@@ -32,13 +32,11 @@ public abstract class QuickTimeBase : MonoBehaviour
     protected void OnEnable()
     {
         GlobalEvents.OnEnterBattleCutscene += Hide;
-        BattleSystem.OnEndEnemyTurn += Hide;
     }
 
     protected void OnDisable()
     {
         GlobalEvents.OnEnterBattleCutscene -= Hide;
-        BattleSystem.OnEndEnemyTurn -= Hide;
     }
 
     public void Hide()

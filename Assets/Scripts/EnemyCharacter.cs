@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
@@ -14,8 +13,8 @@ public class EnemyCharacter : BaseCharacter
     public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
     [SerializeField] bool isBossCharacter = false;
 
-    public static Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
-    public Action<int> onCritLevelChanged;
+    public static System.Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
+    public System.Action<int> onCritLevelChanged;
 
     protected override void Start()
     {
@@ -73,7 +72,14 @@ public class EnemyCharacter : BaseCharacter
 
         if (rigAnim)
         {
-            rigAnim.Play("Attack Execute");
+            if (Reference.attackAnimations.Length > 1)
+            {
+                rigAnim.Play("Attack Level 2");
+            }
+            else
+            {
+                rigAnim.Play("Attack Execute");
+            }
         }
         else
         {

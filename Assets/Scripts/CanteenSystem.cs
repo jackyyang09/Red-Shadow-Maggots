@@ -71,7 +71,7 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
         {
             storedCharge += BattleSystem.QuickTimeCritModifier;
         }
-        else
+        else if (BaseCharacter.IncomingDamage.source)
         {
             switch (BaseCharacter.IncomingDamage.source.Reference.characterClass)
             {

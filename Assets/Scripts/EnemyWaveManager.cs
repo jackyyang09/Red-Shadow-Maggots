@@ -6,6 +6,7 @@ using UnityEngine;
 public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 {
     [SerializeField] int waveCount = 0;
+    public int WaveCount { get { return waveCount; } set { waveCount = value; } }
 
     public bool IsLastWave { get { return waveCount == waves.Length - 1; } }
 
@@ -26,19 +27,11 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 
     [SerializeField] GameObject bossPrefab = null;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        waveCount--;
-    }
-
-    public List<EnemyCharacter> SetupNextWave()
+    public List<EnemyCharacter> SetupWave()
     {
         RemoveDeadEnemies();
 
         var enemies = new List<EnemyCharacter>();
-
-        waveCount++;
 
         WaveObject newWave = waves[waveCount];
 

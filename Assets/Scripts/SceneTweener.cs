@@ -89,7 +89,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         enemyDolly.m_PathPosition = lerpValue;
     }
 
-    public void EnterBattle() => Invoke("EnterBattleAfterDelay", waveTransitionDelay);
+    public void EnterBattle() => Invoke(nameof(EnterBattleAfterDelay), waveTransitionDelay);
 
     public void EnterBattleAfterDelay()
     {
@@ -181,7 +181,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 return;
         }
 
-        switch (obj.Reference.range)
+        switch (obj.Reference.attackAnimations[0].attackRange)
         {
             case AttackRange.CloseRange:
                 cam.m_LookAt = obj.transform;
@@ -194,15 +194,12 @@ public class SceneTweener : BasicSingleton<SceneTweener>
             case AttackRange.LongRange:
                 obj.CharacterMesh.transform.LookAt(target.position);
                 break;
-            case AttackRange.AOE:
-                break;
         }
     }
 
     public void DisableAnim()
     {
         anim.enabled = false;
-        StartCoroutine(BattleSystem.Instance.ChangeBattlePhase());
     }
 
     public void ReturnToPosition()

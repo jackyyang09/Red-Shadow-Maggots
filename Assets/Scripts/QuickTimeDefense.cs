@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class QuickTimeDefense : QuickTimeBase
 {
@@ -21,23 +22,32 @@ public class QuickTimeDefense : QuickTimeBase
     public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null)
     {
         targetPlayers = targets;
-        AnimationClip anim = attacker.Reference.attackAnimation;
+        AnimationClip anim = attacker.Reference.attackAnimations[0].attackAnimation;
         var events = anim.events;
         animationEvents = new List<AnimationEvent>();
         attacks = 0;
         missed = true;
 
+        bool isAOE = false;
         for (int i = 0; i < events.Length; i++)
         {
             if (attackFunctionNames.Contains(events[i].functionName))
             {
+                if (events[i].functionName.Contains("AOE")) isAOE = true;
                 animationEvents.Add(events[i]);
             }
         }
 
-        for (int i = 0; i < targetPlayers.Count; i++)
+        if (isAOE)
         {
-            ((PlayerCharacter)targetPlayers[i]).InitiateDefense();
+            for (int i = 0; i < targetPlayers.Count; i++)
+            {
+                ((PlayerCharacter)targetPlayers[i]).InitiateDefense();
+            }
+        }
+        else
+        {
+            battleSystem.EnemyAttackTarget.InitiateDefense();
         }
 
         canvas.Show();
@@ -80,6 +90,7 @@ public class QuickTimeDefense : QuickTimeBase
         if (attacks == animationEvents.Count)
         {
             enabled = false;
+            Invoke(nameof(Hide), hideDelay);
             OnQuickTimeComplete?.Invoke();
             for (int i = 0; i < targetPlayers.Count; i++)
             {

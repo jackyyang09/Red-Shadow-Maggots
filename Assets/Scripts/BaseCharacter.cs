@@ -63,9 +63,6 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    [SerializeField]
-    float attack;
-
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
@@ -103,9 +100,6 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
     public float CritDamageModified { get { return critMultiplier + critDamageModifier; } }
-
-    [SerializeField]
-    AttackRange range;
 
     [SerializeField] Rarity rarity;
 
@@ -190,13 +184,17 @@ public abstract class BaseCharacter : MonoBehaviour
         float rarityMultiplier = 1 + 0.5f * (int)rarity;
 
         maxHealth = characterReference.maxHealth * rarityMultiplier;
-        attack = characterReference.attack * rarityMultiplier;
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;
 
-        range = characterReference.range;
-
         health = maxHealth;
+
+        for (int i = 0; i < characterReference.skills.Length; i++)
+        {
+            GameSkill newSkill = new GameSkill();
+            newSkill.InitWithSkill(characterReference.skills[i]);
+            gameSkills.Add(newSkill);
+        }
     }
 
     protected virtual void Awake()
@@ -207,15 +205,6 @@ public abstract class BaseCharacter : MonoBehaviour
     // Start is called before the first frame update
     protected virtual void Start()
     {
-        health = maxHealth;
-
-        for (int i = 0; i < characterReference.skills.Length; i++)
-        {
-            GameSkill newSkill = new GameSkill();
-            newSkill.InitWithSkill(characterReference.skills[i]);
-            gameSkills.Add(newSkill);
-        }
-
         if (characterReference.characterRig)
         {
             characterMesh = Instantiate(characterReference.characterRig, transform);
@@ -350,7 +339,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
         else
         {
-            switch (Reference.range)
+            switch (Reference.attackAnimations[0].attackRange   )
             {
                 case AttackRange.CloseRange:
                     SceneTweener.Instance.MeleeTweenTo(transform, target);
@@ -369,13 +358,12 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void FinishAttack()
     {
-        switch (Reference.range)
+        switch (Reference.attackAnimations[0].attackRange)
         {
             case AttackRange.CloseRange:
                 SceneTweener.Instance.ReturnToPosition();
                 break;
             case AttackRange.LongRange:
-            case AttackRange.AOE:
                 SceneTweener.Instance.RotateBack();
                 break;
         }

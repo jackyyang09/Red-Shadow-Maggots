@@ -20,6 +20,8 @@ public class MobileShadowCaster : MonoBehaviour
 
     [SerializeField] Vector2 shadowOpacity = new Vector2(0, 200);
 
+    bool lowQuality = false;
+
 #if UNITY_ANDROID
     private void OnEnable()
     {
@@ -31,16 +33,17 @@ public class MobileShadowCaster : MonoBehaviour
         GraphicsSettings.OnQualityLevelChanged -= UpdateShadowCasting;
     }
 
-    //private void Start()
-    //{
-    //    colorProp = Shader.PropertyToID("_Color");
-    //
-    //    material = renderer.material;
-    //}
+    private void Start()
+    {
+        //colorProp = Shader.PropertyToID("_Color");
+        //material = renderer.material;
+
+        UpdateShadowCasting(QualitySettings.GetQualityLevel());
+    }
 
     void UpdateShadowCasting(int level)
     {
-        bool lowQuality = level >= 3;
+        lowQuality = level < 3;
 
         var castMode = lowQuality ? ShadowCastingMode.Off : ShadowCastingMode.On;
 
@@ -49,12 +52,13 @@ public class MobileShadowCaster : MonoBehaviour
             defaultRenderers[i].shadowCastingMode = castMode;
         }
 
-        enabled = lowQuality;
-        renderer.enabled = !lowQuality;
+        renderer.enabled = lowQuality;
     }
 
     private void Update()
     {
+        if (!lowQuality) return;
+
         Ray ray = new Ray();
         ray.direction = Vector3.down;
         ray.origin = meshRoot.position;

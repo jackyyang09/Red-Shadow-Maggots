@@ -143,7 +143,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void UpdateSkillGraphic(PlayerCharacter obj)
     {
-        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
         {
             for (int i = 0; i < skillButtons.Length; i++)
             {

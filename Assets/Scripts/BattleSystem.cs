@@ -137,7 +137,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void InitiateNextBattle()
     {
-        var enemies = waveManager.SetupNextWave();
+        var enemies = waveManager.SetupWave();
 
         if (waveManager.IsLastWave) OnEnterFinalWave?.Invoke();
 
@@ -151,7 +151,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
 
         sceneTweener.EnterBattle();
-        ChangeBattlePhase();
+        StartCoroutine(ChangeBattlePhase());
     }
 
     // Update is called once per frame
@@ -428,6 +428,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public IEnumerator ChangeBattlePhase()
     {
+        Debug.Log(currentPhase);
         switch (currentPhase)
         {
             case BattlePhases.Entry:
@@ -459,6 +460,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 currentPhase = BattlePhases.PlayerTurn;
                 break;
         }
+        Debug.Log(currentPhase);
 
         finishedTurn = false;
 
@@ -484,6 +486,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 else
                 {
                     SceneTweener.Instance.WaveClearSequence();
+                    waveManager.WaveCount++;
                     OnWaveClear?.Invoke();
                 }
                 break;

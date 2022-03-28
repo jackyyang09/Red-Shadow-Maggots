@@ -57,7 +57,7 @@ public class QuickTimeBar : QuickTimeBase
         onExecuteQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
         BonusFeedback();
-        Invoke("Hide", hideDelay);
+        Invoke(nameof(Hide), hideDelay);
         fillBar.DOKill();
         OnQuickTimeComplete?.Invoke();
     }

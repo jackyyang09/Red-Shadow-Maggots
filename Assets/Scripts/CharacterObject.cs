@@ -1,13 +1,15 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using JSAM;
 
 public enum AttackRange
 {
     CloseRange,
-    LongRange,
-    AOE
+    LongRange
 }
 
 public enum CharacterClass
@@ -23,6 +25,32 @@ public enum QTEType
     Hold
 }
 
+[System.Serializable]
+public struct AttackStruct
+{
+    public AnimationClip attackAnimation;
+    public AttackRange attackRange;
+}
+
+#if UNITY_EDITOR
+[CustomPropertyDrawer(typeof(AttackStruct))]
+public class AttackStructDrawer : PropertyDrawer
+{
+    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+    {
+        EditorGUI.BeginProperty(position, label, property);
+        position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
+
+        var halfRect = new Rect(position);
+        halfRect.width = halfRect.width / 2 - 5;
+        EditorGUI.PropertyField(halfRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
+        halfRect.position += new Vector2(halfRect.width + 5, 0);
+        EditorGUI.PropertyField(halfRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
+        EditorGUI.EndProperty();
+    }
+}
+#endif
+
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class CharacterObject : ScriptableObject
 {
@@ -36,7 +64,6 @@ public class CharacterObject : ScriptableObject
     [Range(0, 1)] public float critChance;
     public float critDamageMultiplier = 3;
     public CharacterClass characterClass;
-    public AttackRange range;
     public QTEType attackQteType;
     public int turnsToCrit = 3;
 
@@ -50,7 +77,7 @@ public class CharacterObject : ScriptableObject
     public GameObject spriteObject = null;
     public AnimatorOverrideController animator = null;
     public GameObject characterRig = null;
-    public AnimationClip attackAnimation = null;
+    public AttackStruct[] attackAnimations;
 
     [Header("Effect Prefabs")]
     public GameObject attackEffectPrefab = null;
