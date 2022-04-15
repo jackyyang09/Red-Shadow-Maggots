@@ -211,13 +211,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         //}
     }
 
-    public void BeginEnemyAttack()
-    {
-        ui.StartDefending();
-        enemyTargets.enemy.BeginAttack(enemyTargets.player.transform);
-        enemyTargets.enemy.PlayAttackAnimation();
-    }
-
     public void SwitchTargets()
     {
         switch (currentPhase)
@@ -228,13 +221,23 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     playerTargets.enemy = enemyController.RandomEnemy;
                     playerTargets.enemy.ShowCharacterUI();
                 }
+
+                if (playerCharacters.Count > 0)
+                {
+                    for (int i = 0; i < playerCharacters.Count; i++)
+                    {
+                        playerCharacters[i].ForceDeselect();
+                    }
+                    playerTargets.player = enemyTargets.player;
+                    enemyTargets.player.ForceSelect();
+                }
                 break;
             case BattlePhases.EnemyTurn:
                 if (playerCharacters.Count > 0)
                 {
                     for (int i = 0; i < playerCharacters.Count; i++)
                     {
-                        playerCharacters[i].ForceDeselct();
+                        playerCharacters[i].ForceDeselect();
                     }
                     playerTargets.player = enemyTargets.player;
                     enemyTargets.player.ForceSelect();
@@ -428,7 +431,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public IEnumerator ChangeBattlePhase()
     {
-        Debug.Log(currentPhase);
         switch (currentPhase)
         {
             case BattlePhases.Entry:
@@ -460,7 +462,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 currentPhase = BattlePhases.PlayerTurn;
                 break;
         }
-        Debug.Log(currentPhase);
 
         finishedTurn = false;
 

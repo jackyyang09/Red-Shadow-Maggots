@@ -30,6 +30,7 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
     public Transform targetSkeleton;
     public SkinnedMeshRenderer[] skinnedMeshes;
     public bool includeInactive;
+    public bool copyMissingBones = true;
 
     bool skipAllMissingBones = false;
     bool enabled = false;
@@ -87,6 +88,10 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
                 }
                 if (!found)
                 {
+                    if (copyMissingBones)
+                    {
+
+                    }
                     if (!skipAllMissingBones)
                     {
                         if (EditorUtility.DisplayDialog("Warning!", boneName + " missing!", "Ignore All Warnings", "Continue")) skipAllMissingBones = true;

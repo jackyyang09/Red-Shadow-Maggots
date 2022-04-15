@@ -74,7 +74,7 @@ public class PlayerCharacter : BaseCharacter
         selectionCircle.enabled = true;
     }
 
-    public void ForceDeselct()
+    public void ForceDeselect()
     {
         selectionCircle.enabled = false;
     }
@@ -137,6 +137,8 @@ public class PlayerCharacter : BaseCharacter
 
     public override void BeginAttack(Transform target)
     {
+        IncomingAttack = Reference.attackAnimations[0];
+
         if (CritChanceModified < 1 || usedSuperCritThisTurn)
         {
             OnPlayerQTEAttack?.Invoke(this);

@@ -66,7 +66,7 @@ public class EnemyController : BasicSingleton<EnemyController>
 #if UNITY_EDITOR
         if (disableSkillUsage)
         {
-            battleSystem.BeginEnemyAttack();
+            BeginAttack();
             return;
         }
 #endif
@@ -77,8 +77,20 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
         else
         {
-            battleSystem.BeginEnemyAttack();
+            BeginAttack();
         }
+    }
+
+    public void BeginAttack()
+    {
+        var enemy = battleSystem.ActiveEnemy;
+        int attackIndex = Random.Range(0, enemy.Reference.attackAnimations.Length);
+        var attack = enemy.Reference.attackAnimations[attackIndex];
+        BaseCharacter.IncomingAttack = attack;
+
+        ui.StartDefending();
+        battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer.transform);
+        battleSystem.ActiveEnemy.PlayAttackAnimation(attackIndex);
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)

@@ -39,7 +39,6 @@ public class AttackStructDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
-        position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
         var halfRect = new Rect(position);
         halfRect.width = halfRect.width / 2 - 5;

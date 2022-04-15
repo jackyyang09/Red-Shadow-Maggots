@@ -164,6 +164,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter, DamageStruct> OnCharacterExecuteAttack;
     public static Action<BaseCharacter, float> OnCharacterCritChanceReduced;
 
+    public static AttackStruct IncomingAttack;
     public static DamageStruct IncomingDamage;
 
     public UnityEngine.Events.UnityEvent onDeath;
@@ -339,7 +340,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
         else
         {
-            switch (Reference.attackAnimations[0].attackRange   )
+            switch (IncomingAttack.attackRange)
             {
                 case AttackRange.CloseRange:
                     SceneTweener.Instance.MeleeTweenTo(transform, target);
@@ -358,7 +359,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void FinishAttack()
     {
-        switch (Reference.attackAnimations[0].attackRange)
+        switch (IncomingAttack.attackRange)
         {
             case AttackRange.CloseRange:
                 SceneTweener.Instance.ReturnToPosition();

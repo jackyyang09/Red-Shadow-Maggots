@@ -87,6 +87,13 @@ public class EnemyCharacter : BaseCharacter
         }
     }
 
+    public void PlayAttackAnimation(int selectedAttack)
+    {
+        base.PlayAttackAnimation();
+
+        rigAnim.Play("Attack Level " + (selectedAttack + 1).ToString());
+    }
+
     public void UpdateSelectedStatus(EnemyCharacter selectedEnemy)
     {
         if (selectedEnemy == this)

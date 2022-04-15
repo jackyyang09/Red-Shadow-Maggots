@@ -135,6 +135,14 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 attacker.LookAt(target.position);
                 break;
             case BattlePhases.EnemyTurn:
+                switch (BaseCharacter.IncomingAttack.attackRange)
+                {
+                    case AttackRange.CloseRange:
+                        attacker.LookAt(target.position);
+                        break;
+                    case AttackRange.LongRange:
+                        break;
+                }
                 break;
         }
     }
@@ -241,6 +249,10 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 activePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.1f);
                 break;
             case BattlePhases.EnemyTurn:
+                var activeEnemy = battleSystem.ActiveEnemy;
+
+                battleSystem.ActivePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.15f);
+                activeEnemy.CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.1f);
                 break;
         }
 

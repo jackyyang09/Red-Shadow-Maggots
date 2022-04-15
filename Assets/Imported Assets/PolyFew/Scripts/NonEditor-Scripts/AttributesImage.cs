@@ -1,8 +1,11 @@
-#if UNITY_EDITOR
-
-
 using UnityEngine;
+#if UNITY_2020_3_OR_NEWER
 using UnityEditor.AssetImporters;
+#else
+using UnityEditor.Experimental.AssetImporters;
+#endif
+
+#if UNITY_EDITOR
 using System.IO;
 
 namespace BrainFailProductions.PolyFew

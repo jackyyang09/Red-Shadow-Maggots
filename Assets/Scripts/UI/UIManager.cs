@@ -227,7 +227,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     public void StartDefending()
     {
-        defenseBar.InitializeBar(battleSystem.ActiveEnemy, new List<BaseCharacter>(battleSystem.PlayerCharacters.ToArray()));
+        defenseBar.InitializeDefenseBar();
     }
 
     public void ShowWinCanvas()

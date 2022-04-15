@@ -11,9 +11,11 @@ public class QuickTimeDefense : QuickTimeBase
     [SerializeField] float barSuccessValue = 0.4f;
     [SerializeField] float barMissValue = 1;
 
+    [SerializeField] float defenseBuffer = 0.1f;
+
     int attacks;
     List<AnimationEvent> animationEvents;
-    List<BaseCharacter> targetPlayers;
+    List<PlayerCharacter> targetPlayers;
 
     float startTime, attackLength;
 
@@ -21,9 +23,11 @@ public class QuickTimeDefense : QuickTimeBase
 
     public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null)
     {
-        targetPlayers = targets;
-        AnimationClip anim = attacker.Reference.attackAnimations[0].attackAnimation;
-        var events = anim.events;
+    }
+
+    public void InitializeDefenseBar()
+    {
+        var events = BaseCharacter.IncomingAttack.attackAnimation.events;
         animationEvents = new List<AnimationEvent>();
         attacks = 0;
         missed = true;
@@ -40,13 +44,15 @@ public class QuickTimeDefense : QuickTimeBase
 
         if (isAOE)
         {
+            targetPlayers = battleSystem.PlayerCharacters;
             for (int i = 0; i < targetPlayers.Count; i++)
             {
-                ((PlayerCharacter)targetPlayers[i]).InitiateDefense();
+                targetPlayers[i].InitiateDefense();
             }
         }
         else
         {
+            targetPlayers = new List<PlayerCharacter> { battleSystem.EnemyAttackTarget };
             battleSystem.EnemyAttackTarget.InitiateDefense();
         }
 
@@ -72,6 +78,8 @@ public class QuickTimeDefense : QuickTimeBase
     {
         if (Input.GetMouseButtonDown(0) || (Time.time - startTime) >= attackLength)
         {
+            if (Time.time - startTime < defenseBuffer) return;
+
             if (Input.GetMouseButtonDown(0))
             {
                 missed = false;
@@ -109,7 +117,7 @@ public class QuickTimeDefense : QuickTimeBase
         for (int i = 1; i < targetPlayers.Count; i++) leniency += targetPlayers[i].DefenseLeniency;
         leniency /= targetPlayers.Count;
 
-        float window = attackLength * leniency;
+        float window = leniency;
 
         if (missed)
         {
