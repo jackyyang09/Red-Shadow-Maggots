@@ -20,6 +20,10 @@ public struct DamageStruct
     /// QuickTime value
     /// </summary>
     public float damageNormalized;
+    /// <summary>
+    /// Amount of damage to deal relative to attack stat
+    /// </summary>
+    public float percentage;
     public float barFill;
     public float critDamageModifier;
     public DamageType damageType;
@@ -103,13 +107,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] Rarity rarity;
 
-    public bool IsDead
-    {
-        get
-        {
-            return !(health > 0);
-        }
-    }
+    public bool IsDead { get { return health <= 0; } }
 
     [Header("Object References")]
 
@@ -315,15 +313,17 @@ public abstract class BaseCharacter : MonoBehaviour
         //}
     }
 
-    public void DealDamage()
+    public void DealDamage(float percentage = 1)
     {
+        IncomingDamage.percentage = percentage;
         IncomingDamage.isAOE = false;
         BattleSystem.Instance.AttackTarget();
         OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
     }
 
-    public void DealAOEDamage()
+    public void DealAOEDamage(float percentage = 1)
     {
+        IncomingDamage.percentage = percentage;
         IncomingDamage.isAOE = true;
         BattleSystem.Instance.AttackAOE();
         OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
@@ -332,6 +332,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void BeginAttack(Transform target)
     {
         IncomingDamage = new DamageStruct();
+        IncomingDamage.percentage = 1;
         IncomingDamage.source = this;
 
         if (CritChanceModified >= 1 && !usedSuperCritThisTurn)
@@ -453,6 +454,7 @@ public abstract class BaseCharacter : MonoBehaviour
         switch (currentSkill.referenceSkill.targetMode)
         {
             case TargetMode.None:
+            case TargetMode.Self:
                 targets.Add(this);
                 break;
             case TargetMode.OneAlly:
@@ -479,15 +481,37 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
                 break;
             case TargetMode.AllAllies:
-                for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
+                switch (battleSystem.CurrentPhase)
                 {
-                    targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
+                    case BattlePhases.PlayerTurn:
+                        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
+                        {
+                            targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
+                        }
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
+                        {
+                            targets.Add(EnemyController.Instance.Enemies[i]);
+                        }
+                        break;
                 }
                 break;
             case TargetMode.AllEnemies:
-                for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
+                switch (battleSystem.CurrentPhase)
                 {
-                    targets.Add(EnemyController.Instance.Enemies[i]);
+                    case BattlePhases.PlayerTurn:
+                        for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
+                        {
+                            targets.Add(EnemyController.Instance.Enemies[i]);
+                        }
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
+                        {
+                            targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
+                        }
+                        break;
                 }
                 break;
         }
@@ -728,7 +752,10 @@ public abstract class BaseCharacter : MonoBehaviour
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-            damage.damage = damage.damageNormalized * damage.source.AttackModified * effectiveness;
+            damage.damage = damage.damageNormalized * 
+                damage.source.AttackModified * 
+                damage.percentage *
+                effectiveness;
         }
 
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;

@@ -135,14 +135,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 attacker.LookAt(target.position);
                 break;
             case BattlePhases.EnemyTurn:
-                switch (BaseCharacter.IncomingAttack.attackRange)
-                {
-                    case AttackRange.CloseRange:
-                        attacker.LookAt(target.position);
-                        break;
-                    case AttackRange.LongRange:
-                        break;
-                }
+                if (!BaseCharacter.IncomingAttack.isAOE)
+                    attacker.LookAt(target.position);
                 break;
         }
     }

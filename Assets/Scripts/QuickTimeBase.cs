@@ -29,19 +29,19 @@ public abstract class QuickTimeBase : MonoBehaviour
     public System.Action OnExecuteQuickTime;
     public System.Action OnQuickTimeComplete;
 
-    protected void OnEnable()
+    protected virtual void OnEnable()
     {
         GlobalEvents.OnEnterBattleCutscene += Hide;
     }
 
-    protected void OnDisable()
+    protected virtual void OnDisable()
     {
         GlobalEvents.OnEnterBattleCutscene -= Hide;
     }
 
     public void Hide()
     {
-        if (IsInvoking("Hide")) CancelInvoke("Hide");
+        if (IsInvoking(nameof(Hide))) CancelInvoke(nameof(Hide));
         canvas.Hide();
         activePlayer = null;
         enabled = false;

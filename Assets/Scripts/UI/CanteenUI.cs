@@ -5,7 +5,6 @@ using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
 using static Facade;
-using System;
 using JSAM;
 
 public class CanteenUI : BaseGameUI
@@ -49,8 +48,8 @@ public class CanteenUI : BaseGameUI
         BattleSystem.OnStartPlayerTurnLate += UpdateUI;
         UIManager.OnEnterSkillTargetMode += HideUI;
         UIManager.OnExitSkillTargetMode += ShowUI;
-        UIManager.OnResumePlayerControl += ShowUI;
-        UIManager.OnRemovePlayerControl += HideUI;
+        UIManager.OnShowBattleUI += ShowUI;
+        UIManager.OnHideBattleUI += HideUI;
 
         filledOrigin = filledIcon.rectTransform.anchoredPosition;
         queueUpdate = true;
@@ -67,8 +66,8 @@ public class CanteenUI : BaseGameUI
         BattleSystem.OnStartPlayerTurnLate -= UpdateUI;
         UIManager.OnEnterSkillTargetMode -= HideUI;
         UIManager.OnExitSkillTargetMode -= ShowUI;
-        UIManager.OnResumePlayerControl -= ShowUI;
-        UIManager.OnRemovePlayerControl -= HideUI;
+        UIManager.OnShowBattleUI -= ShowUI;
+        UIManager.OnHideBattleUI -= HideUI;
     }
 
     public override void ShowUI()

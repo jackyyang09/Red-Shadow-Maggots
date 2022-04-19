@@ -20,7 +20,6 @@ MonoBehaviour:
   critChance: 0
   critDamageMultiplier: 3
   characterClass: 2
-  range: 0
   attackQteType: 0
   turnsToCrit: 3
   attackLeniency: 0
@@ -32,7 +31,9 @@ MonoBehaviour:
   spriteObject: {fileID: 0}
   animator: {fileID: 0}
   characterRig: {fileID: 1824106369016530116, guid: ba9766a24f5bc004c8c8a56b4129d8f0, type: 3}
-  attackAnimation: {fileID: 7400000, guid: ec3b21aade82133478a7212cb6d018ae, type: 2}
+  attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: ec3b21aade82133478a7212cb6d018ae, type: 2}
+    attackRange: 0
   attackEffectPrefab: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
   extraEffectPrefabs: []
   voiceEntry: {fileID: 0}

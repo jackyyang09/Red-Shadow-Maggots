@@ -13,7 +13,7 @@ namespace JSAM.JSAMEditor
         {
             get
             {
-                if (packagePath.IsNullEmptyOrWhiteSpace())
+                if (packagePath.IsNullEmptyOrWhiteSpace() || !AssetDatabase.IsValidFolder(packagePath))
                 {
                     packagePath = JSAMEditorHelper.GetAudioManagerPath;
                     packagePath = packagePath.Remove(packagePath.IndexOf("/Scripts/AudioManager.cs"));

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using JSAM;
@@ -39,11 +38,18 @@ public class AnimationHelper : MonoBehaviour
 
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
+    [SerializeField] Renderer[] renderers;
     [SerializeField] Transform skeletonRoot = null;
     public Transform SkeletonRoot { get { return skeletonRoot; } }
 
-    List<Action> onFinishSkillAnimation = new List<Action>();
-    public void RegisterOnFinishSkillAnimation(Action newAction) => onFinishSkillAnimation.Add(newAction);
+    List<System.Action> onFinishSkillAnimation = new List<System.Action>();
+    public void RegisterOnFinishSkillAnimation(System.Action newAction) => onFinishSkillAnimation.Add(newAction);
+
+    static System.Action OnShowAllRenderers;
+    static System.Action<List<AnimationHelper>> OnHideRenderers;
+
+    const int DEFAULT_LAYER_ID = 17; // TF2 Ragdoll
+    const int IGNORE_LAYER_ID = 19; // Ignore Cutscene Cam
 
     int exposureID;
     private void Awake()
@@ -55,16 +61,18 @@ public class AnimationHelper : MonoBehaviour
         exposureID = Shader.PropertyToID("_Exposure");
     }
 
-    private void OnDisable()
+    private void OnEnable()
     {
-        ResetSky();
+        OnShowAllRenderers += ShowRenderers;
+        OnHideRenderers += HideAllExcept;
     }
 
-    [ContextMenu("Setup Ragdoll References")]
-    void GetRagdollComponents()
+    private void OnDisable()
     {
-        rigidBodies = GetComponentsInChildren<Rigidbody>();
-        colliders = GetComponentsInChildren<Collider>();
+        OnShowAllRenderers -= ShowRenderers;
+        OnHideRenderers -= HideAllExcept;
+
+        ResetSky();
     }
 
     [ContextMenu("Enable Ragdoll")]
@@ -119,11 +127,13 @@ public class AnimationHelper : MonoBehaviour
 
     public void EnterCutscene()
     {
+        playerControlManager.SetControlMode(PlayerControlMode.InCutscene);
         GlobalEvents.OnEnterBattleCutscene?.Invoke();
     }
 
     public void ExitCutscene()
     {
+        playerControlManager.ReturnControl();
         GlobalEvents.OnExitBattleCutscene?.Invoke();
     }
 
@@ -182,15 +192,11 @@ public class AnimationHelper : MonoBehaviour
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
-    public void DealDamage()
-    {
-        baseCharacter.DealDamage();
-    }
+    public void DealDamage() => baseCharacter.DealDamage();
+    public void DealPercentage(float percentage = 1) => baseCharacter.DealDamage(percentage);
 
-    public void DealAOEDamage()
-    {
-        baseCharacter.DealAOEDamage();
-    }
+    public void DealAOEDamage() => baseCharacter.DealAOEDamage();
+    public void DealAOEPercentage(float percentage = 1) => baseCharacter.DealAOEDamage(percentage);
 
     public void FinishAttack()
     {
@@ -291,4 +297,73 @@ public class AnimationHelper : MonoBehaviour
     {
         RenderSettings.skybox.SetFloat(exposureID, 0.95f);
     }
+
+    public void ShowAllRenderers()
+    {
+        OnShowAllRenderers?.Invoke();
+    }
+
+    public void HideAllExceptPlayerRenderers()
+    {
+        var players = battleSystem.PlayerCharacters;
+        var toHide = new List<AnimationHelper>();
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (!players[i].IsDead)
+            {
+                toHide.Add(players[i].AnimHelper);
+            }
+        }
+        OnHideRenderers?.Invoke(toHide);
+    }
+
+    public void HideAllExceptEnemyRenderers()
+    {
+        var enemies = enemyController.Enemies;
+        var toHide = new List<AnimationHelper>();
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (!enemies[i].IsDead)
+            {
+                toHide.Add(enemies[i].AnimHelper);
+            }
+        }
+        OnHideRenderers?.Invoke(toHide);
+    }
+
+    void ShowRenderers()
+    {
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            renderers[i].gameObject.layer = DEFAULT_LAYER_ID;
+        }
+    }
+
+    void HideAllExcept(List<AnimationHelper> helpers)
+    {
+        if (!helpers.Contains(this))
+        {
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                renderers[i].gameObject.layer = IGNORE_LAYER_ID;
+            }
+        }
+    }
+
+#if UNITY_EDITOR
+    [ContextMenu(nameof(GetAllRenderers))]
+    void GetAllRenderers()
+    {
+        UnityEditor.Undo.RecordObject(this, "Found all renderers");
+        renderers = GetComponentsInChildren<Renderer>();
+    }
+
+    [ContextMenu(nameof(SetupRagdollComponents))]
+    void SetupRagdollComponents()
+    {
+        UnityEditor.Undo.RecordObject(this, "Found ragdoll components");
+        rigidBodies = GetComponentsInChildren<Rigidbody>();
+        colliders = GetComponentsInChildren<Collider>();
+    }
+#endif
 }

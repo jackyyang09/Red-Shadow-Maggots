@@ -25,12 +25,21 @@ public class QuickTimeDefense : QuickTimeBase
     {
     }
 
+    void Awake()
+    {
+        BattleSystem.OnEndEnemyTurn += Hide;
+    }
+
+    void OnDestroy()
+    {
+        BattleSystem.OnEndEnemyTurn -= Hide;
+    }
+
     public void InitializeDefenseBar()
     {
         var events = BaseCharacter.IncomingAttack.attackAnimation.events;
         animationEvents = new List<AnimationEvent>();
         attacks = 0;
-        missed = true;
 
         bool isAOE = false;
         for (int i = 0; i < events.Length; i++)
@@ -58,44 +67,54 @@ public class QuickTimeDefense : QuickTimeBase
 
         canvas.Show();
 
+        enabled = true;
         PrepareNextAttack();
-    }
-
-    public void PrepareNextAttack()
-    {
-        if (attacks == 0)
-        {
-            attackLength = animationEvents[attacks].time;
-        }
-        else
-        {
-            attackLength = animationEvents[attacks].time - animationEvents[attacks - 1].time;
-        }
-        StartTicking();
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) || (Time.time - startTime) >= attackLength)
+        if (Input.GetMouseButtonDown(0))
         {
             if (Time.time - startTime < defenseBuffer) return;
 
-            if (Input.GetMouseButtonDown(0))
-            {
-                missed = false;
-            }
+            missed = false;
 
             CheckDefense();
         }
+
+        if ((Time.time - startTime) >= attackLength)
+        {
+            if (missed) CheckDefense();
+            attacks++;
+            PrepareNextAttack();
+        }
+    }
+
+    public void PrepareNextAttack()
+    {
+        missed = true;
+        if (attacks == 0)
+        {
+            attackLength = animationEvents[attacks].time;
+        }
+        else if (attacks < animationEvents.Count)
+        {
+            attackLength = animationEvents[attacks].time - animationEvents[attacks - 1].time;
+        }
+        else
+        {
+            enabled = false;
+            return;
+        }
+        StartTicking();
     }
 
     public void CheckDefense()
     {
         GetMultiplier();
-        attacks++;
         onExecuteQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
-        if (attacks == animationEvents.Count)
+        if (attacks == animationEvents.Count - 1)
         {
             enabled = false;
             Invoke(nameof(Hide), hideDelay);
@@ -105,7 +124,6 @@ public class QuickTimeDefense : QuickTimeBase
                 ((PlayerCharacter)targetPlayers[i]).EndDefense();
             }
         }
-        else PrepareNextAttack();
     }
 
     public override void GetMultiplier()
@@ -139,7 +157,6 @@ public class QuickTimeDefense : QuickTimeBase
 
     public override void StartTicking()
     {
-        enabled = true;
         startTime = Time.time;
     }
 }

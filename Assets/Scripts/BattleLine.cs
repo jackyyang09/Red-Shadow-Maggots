@@ -17,8 +17,8 @@ public class BattleLine : MonoBehaviour
     {
         EnemyController.OnChangedAttackers += UpdateLine;
         EnemyController.OnChangedAttackTargets += UpdateLine;
-        UIManager.OnRemovePlayerControl += HideLine;
-        UIManager.OnResumePlayerControl += ShowLine;
+        UIManager.OnHideBattleUI += HideLine;
+        UIManager.OnShowBattleUI += ShowLine;
         UIManager.OnAttackCommit += HideLine;
     }
 
@@ -26,8 +26,8 @@ public class BattleLine : MonoBehaviour
     {
         EnemyController.OnChangedAttackers -= UpdateLine;
         EnemyController.OnChangedAttackTargets -= UpdateLine;
-        UIManager.OnRemovePlayerControl -= HideLine;
-        UIManager.OnResumePlayerControl -= ShowLine;
+        UIManager.OnHideBattleUI -= HideLine;
+        UIManager.OnShowBattleUI -= ShowLine;
         UIManager.OnAttackCommit -= HideLine;
     }
 
@@ -50,14 +50,14 @@ public class BattleLine : MonoBehaviour
         sparks.transform.position = Vector3.Lerp(line.StartPos, line.EndPos, 0.5f);
     }
 
-    void ShowLine()
+    public void ShowLine()
     {
         if (!BattleSystem.Instance.EnemyAttacker.CanCrit) return;
         lineRenderer.enabled = true;
         sparks.Play();
     }
 
-    void HideLine()
+    public void HideLine()
     {
         lineRenderer.enabled = false;
         sparks.Stop();

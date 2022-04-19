@@ -81,6 +81,7 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
+        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
         if (ui.CharacterPanelOpen) return;
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
@@ -96,6 +97,7 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDrag()
     {
+        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
         if (!UIManager.CanSelectPlayer) return;
         if (!ui.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
         {

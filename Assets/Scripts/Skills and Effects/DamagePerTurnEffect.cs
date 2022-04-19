@@ -12,6 +12,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         DamageStruct damageStruct = new DamageStruct();
+        damageStruct.percentage = 1;
         damageStruct.damage = (float)GetEffectStrength(strength, customValues);
         damageStruct.effectivity = DamageEffectivess.Normal;
         target.TakeDamage(damageStruct);
@@ -19,12 +20,14 @@ public class DamagePerTurnEffect : BaseDamageEffect
 
     public override void TickCustom(BaseCharacter target, List<object> values)
     {
-        DamageStruct damageStruct = new DamageStruct();
         float damage = 0;
         for (int i = 0; i < values.Count; i++)
         {
             damage += (float)values[i];
         }
+
+        DamageStruct damageStruct = new DamageStruct();
+        damageStruct.percentage = 1;
         damageStruct.damage = damage;
         damageStruct.effectivity = DamageEffectivess.Normal;
         target.TakeDamage(damageStruct);

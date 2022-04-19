@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using JSAM;
 using static Facade;
 
-public class InGameSettingsUI : MonoBehaviour
+public class InGameSettingsUI : BaseGameUI
 {
     [SerializeField] OptimizedCanvas[] uiCanvases = null;
 
@@ -35,6 +35,18 @@ public class InGameSettingsUI : MonoBehaviour
         AudioManager.OnMasterVolumeChanged -= UpdateMaster;
         AudioManager.OnMusicVolumeChanged -= UpdateMusic;
         AudioManager.OnSoundVolumeChanged -= UpdateSound;
+    }
+
+    public override void ShowUI()
+    {
+        optimizedCanvas.Show();
+        playerControlManager.SetControlMode(PlayerControlMode.InSettings);
+    }
+
+    public override void HideUI()
+    {
+        optimizedCanvas.Hide();
+        playerControlManager.ReturnControl();
     }
 
     public void HideAllUIExcept(int ignoreIndex = -1)

@@ -86,7 +86,7 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
         //UIManager.OnAttackCommit += UpdateUIState;
-        UIManager.OnResumePlayerControl += OptimizedCanvas.Show;
+        UIManager.OnShowBattleUI += OptimizedCanvas.Show;
     }
 
     private void OnDisable()
@@ -111,7 +111,7 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnEnterBattleCutscene -= OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene -= OptimizedCanvas.Show;
         UIManager.OnAttackCommit -= UpdateUIState;
-        UIManager.OnResumePlayerControl -= OptimizedCanvas.Show;
+        UIManager.OnShowBattleUI -= OptimizedCanvas.Show;
     }
 
     private void Update()
@@ -215,9 +215,11 @@ public class CharacterUI : BaseGameUI
 
     public override void ShowUI()
     {
+        optimizedCanvas.Show();
     }
 
     public override void HideUI()
     {
+        optimizedCanvas.Hide();
     }
 }

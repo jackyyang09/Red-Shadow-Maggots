@@ -211,38 +211,30 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         //}
     }
 
+    /// <summary>
+    /// Auto-switch targets when current target is dead
+    /// </summary>
     public void SwitchTargets()
     {
-        switch (currentPhase)
+        if (playerTargets.enemy.IsDead)
         {
-            case BattlePhases.PlayerTurn:
-                if (enemyController.Enemies.Count > 0)
+            if (enemyController.Enemies.Count > 0)
+            {
+                playerTargets.enemy = enemyController.RandomEnemy;
+                playerTargets.enemy.ShowCharacterUI();
+            }
+        }
+        else if (playerTargets.player.IsDead)
+        {
+            if (playerCharacters.Count > 0)
+            {
+                for (int i = 0; i < playerCharacters.Count; i++)
                 {
-                    playerTargets.enemy = enemyController.RandomEnemy;
-                    playerTargets.enemy.ShowCharacterUI();
+                    playerCharacters[i].ForceDeselect();
                 }
-
-                if (playerCharacters.Count > 0)
-                {
-                    for (int i = 0; i < playerCharacters.Count; i++)
-                    {
-                        playerCharacters[i].ForceDeselect();
-                    }
-                    playerTargets.player = enemyTargets.player;
-                    enemyTargets.player.ForceSelect();
-                }
-                break;
-            case BattlePhases.EnemyTurn:
-                if (playerCharacters.Count > 0)
-                {
-                    for (int i = 0; i < playerCharacters.Count; i++)
-                    {
-                        playerCharacters[i].ForceDeselect();
-                    }
-                    playerTargets.player = enemyTargets.player;
-                    enemyTargets.player.ForceSelect();
-                }
-                break;
+                playerTargets.player = enemyTargets.player;
+                enemyTargets.player.ForceSelect();
+            }
         }
     }
 
@@ -323,7 +315,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         playerTargets.player.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
 
-        ui.RemovePlayerControl();
+        ui.HideBattleUI();
 
         SceneTweener.Instance.SkillTween(playerTargets.player.transform, skillUseTime);
 
@@ -341,7 +333,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
 
-        ui.ResumePlayerControl();
+        ui.ShowBattleUI();
     }
 
     public void ActivateEnemySkill(EnemyCharacter enemy, int index)
@@ -567,12 +559,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         OnTargettableCharactersChanged?.Invoke();
     }
 
-    public void ToggleGameSpeed()
-    {
-        CurrentGameSpeed = (int)Mathf.Repeat(CurrentGameSpeed + 1, gameSpeeds.Count);
-        Time.timeScale = gameSpeeds[CurrentGameSpeed];
-        GlobalEvents.OnModifyGameSpeed?.Invoke();
-    }
+    //public void ToggleGameSpeed()
+    //{
+    //    CurrentGameSpeed = (int)Mathf.Repeat(CurrentGameSpeed + 1, gameSpeeds.Count);
+    //    Time.timeScale = gameSpeeds[CurrentGameSpeed];
+    //}
 
     public PlayerCharacter ActivePlayer
     {

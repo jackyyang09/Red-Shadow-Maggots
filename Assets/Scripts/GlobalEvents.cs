@@ -7,8 +7,6 @@ public class GlobalEvents
     public static Action OnPlayerQuickTimeAttackSuccess;
     public static Action OnPlayerQuickTimeBlockSuccess;
 
-    public static Action OnModifyGameSpeed;
-
     public static Action OnEnterBattleCutscene;
     public static Action OnExitBattleCutscene;
 

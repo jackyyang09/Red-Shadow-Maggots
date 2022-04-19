@@ -15,7 +15,7 @@ public class UIManager : BasicSingleton<UIManager>
     [SerializeField] QuickTimeBar offenseBar = null;
     [SerializeField] QuickTimeDefense defenseBar = null;
     [SerializeField] QuickTimeHold holdBar = null;
-    [SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
+    //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
     [SerializeField] CharacterUI bossUI = null;
 
     [Header("Skill System")]
@@ -27,9 +27,6 @@ public class UIManager : BasicSingleton<UIManager>
     [Header("System Objects")]
     [SerializeField] OptimizedCanvas winCanvas = null;
     [SerializeField] OptimizedCanvas loseCanvas = null;
-    [SerializeField] OptimizedCanvas optionsCanvas = null;
-    [SerializeField] OptimizedButton optionsButton = null;
-    [SerializeField] OptimizedButton gameSpeedButton = null;
     
     public bool CharacterPanelOpen { get; private set; }
 
@@ -38,54 +35,39 @@ public class UIManager : BasicSingleton<UIManager>
     public static bool CanSelectPlayer = true;
     public static bool SelectingAllyForSkill = false;
 
+    public static Action OnShowBattleUI;
+    public static Action OnHideBattleUI;
     public static Action OnAttackCommit;
-    public static Action OnRemovePlayerControl;
-    public static Action OnResumePlayerControl;
     public static Action OnEnterSkillTargetMode;
     public static Action OnExitSkillTargetMode;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        CanSelectPlayer = true;
-        SelectingAllyForSkill = false;
-    }
-
     private void OnEnable()
     {
-        BattleSystem.OnStartPlayerTurnLate += ResumePlayerControl;
+        BattleSystem.OnStartPlayerTurnLate += ShowBattleUI;
         PlayerCharacter.OnSelectedPlayerCharacterChange += UpdateSkillGraphic;
         PlayerCharacter.OnPlayerQTEAttack += ShowQTEUI;
 
         BattleSystem.OnPlayerDefeat += ShowLoseCanvas;
         BattleSystem.OnFinalWaveClear += ShowWinCanvas;
         SceneTweener.OnBattleTransition += UpdateWaveCounter;
-        GlobalEvents.OnModifyGameSpeed += UpdateGameSpeed;
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
 
-        OnAttackCommit += RemovePlayerControl;
+        OnAttackCommit += HideBattleUI;
     }
 
     private void OnDisable()
     {
-        BattleSystem.OnStartPlayerTurnLate -= ResumePlayerControl;
+        BattleSystem.OnStartPlayerTurnLate -= ShowBattleUI;
         PlayerCharacter.OnSelectedPlayerCharacterChange -= UpdateSkillGraphic;
         PlayerCharacter.OnPlayerQTEAttack -= ShowQTEUI;
 
         BattleSystem.OnPlayerDefeat -= ShowLoseCanvas;
         BattleSystem.OnFinalWaveClear -= ShowWinCanvas;
         SceneTweener.OnBattleTransition -= UpdateWaveCounter;
-        GlobalEvents.OnModifyGameSpeed -= UpdateGameSpeed;
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
 
-        OnAttackCommit -= RemovePlayerControl;
+        OnAttackCommit -= HideBattleUI;
     }
-
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
 
     void PlayButtonSound()
     {
@@ -96,14 +78,13 @@ public class UIManager : BasicSingleton<UIManager>
     {
         if (!battleSystem.FinishedTurn && battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            ResumePlayerControl();
+            ShowBattleUI();
         }
     }
 
-    public void ResumePlayerControl()
+    public void ShowBattleUI()
     {
         if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
-        if (optionsCanvas.IsVisible) return;
         attackButton.Show();
         CanSelectPlayer = true;
 
@@ -113,10 +94,10 @@ public class UIManager : BasicSingleton<UIManager>
             UpdateSkillGraphic(battleSystem.ActivePlayer);
         }
 
-        OnResumePlayerControl?.Invoke();
+        OnShowBattleUI?.Invoke();
     }
 
-    public void RemovePlayerControl()
+    public void HideBattleUI()
     {
         attackButton.Hide();
         CanSelectPlayer = false;
@@ -126,7 +107,7 @@ public class UIManager : BasicSingleton<UIManager>
             button.button.Hide();
         }
 
-        OnRemovePlayerControl?.Invoke();
+        OnHideBattleUI?.Invoke();
     }
 
     public void OpenCharacterPanel()
@@ -158,7 +139,7 @@ public class UIManager : BasicSingleton<UIManager>
 
         skillTargetMessage.Show();
         skillBackButton.Show();
-
+        if (waveManager.CurrentWave.isBossWave) bossUI.HideUI();
         attackButton.Hide();
 
         foreach (SkillButtonUI button in skillButtons)
@@ -182,13 +163,15 @@ public class UIManager : BasicSingleton<UIManager>
     public void CancelSkillInvocation()
     {
         battleSystem.ActivePlayer.CancelSkill();
-        ResumePlayerControl();
+        playerControlManager.SetControlMode(PlayerControlMode.InSettings);
+        ShowBattleUI();
     }
 
     public void ExitSkillTargetMode()
     {
         SelectingAllyForSkill = false;
 
+        if (waveManager.CurrentWave.isBossWave) bossUI.ShowUI();
         skillBackButton.Hide();
         skillTargetMessage.Hide();
 
@@ -240,32 +223,9 @@ public class UIManager : BasicSingleton<UIManager>
         loseCanvas.SetActive(true);
     }
 
-    public void ShowSettingsMenu()
-    {
-        optionsCanvas.Show();
-        PlayButtonSound();
-        RemovePlayerControl();
-        optionsButton.Hide();
-        gameSpeedButton.Hide();
-    }
-
-    public void HideSettingsMenu()
-    {
-        optionsCanvas.Hide();
-        PlayButtonSound();
-        ResumePlayerControl();
-        optionsButton.Show();
-        gameSpeedButton.Show();
-    }
-
     private void UpdateWaveCounter()
     {
         waveCounter.text = (EnemyWaveManager.Instance.CurrentWaveCount + 1) + "/" + EnemyWaveManager.Instance.TotalWaves;
-    }
-
-    public void UpdateGameSpeed()
-    {
-        gameSpeedText.text = BattleSystem.Instance.CurrentGameSpeedTime + "x";
     }
 
     public void InitializeBossUIWithCharacter(BaseCharacter character)
@@ -273,4 +233,9 @@ public class UIManager : BasicSingleton<UIManager>
         bossUI.InitializeWithCharacter(character);
         bossUI.OptimizedCanvas.Show();
     }
-}   
+
+    //public void UpdateGameSpeed()
+    //{
+    //    gameSpeedText.text = BattleSystem.Instance.CurrentGameSpeedTime + "x";
+    //}
+}

@@ -30,6 +30,7 @@ public struct AttackStruct
 {
     public AnimationClip attackAnimation;
     public AttackRange attackRange;
+    public bool isAOE;
 }
 
 #if UNITY_EDITOR
@@ -40,11 +41,18 @@ public class AttackStructDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        var halfRect = new Rect(position);
-        halfRect.width = halfRect.width / 2 - 5;
-        EditorGUI.PropertyField(halfRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
-        halfRect.position += new Vector2(halfRect.width + 5, 0);
-        EditorGUI.PropertyField(halfRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
+        float spacing = -10;
+
+        var thirdRect = new Rect(position);
+        thirdRect.width = thirdRect.width / 3 - spacing;
+        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
+        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
+        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
+        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
+        thirdRect.width /= 2;
+        EditorGUI.LabelField(thirdRect, new GUIContent("Is AOE?"));
+        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
+        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("isAOE"), GUIContent.none);
         EditorGUI.EndProperty();
     }
 }
