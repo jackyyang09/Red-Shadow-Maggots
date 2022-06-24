@@ -1,0 +1,115 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &785580714680250212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6029676757038119154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84221cb8e6961d3419f2ddb54e23a5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  characterReference: {fileID: 0}
+  currentLevel: 1
+  health: 0
+  maxHealth: 0
+  attackModifier: 0
+  defenseModifier: 0
+  attackLeniencyModifier: 0
+  defenseLeniencyModifier: 0
+  critChance: 0.02
+  critChanceModifier: 0
+  critMultiplier: 3
+  critDamageModifier: 0
+  rarity: 0
+  CanDie: 1
+  spriteAnim: {fileID: 0}
+  effectRegion: {fileID: 8491578712322304770}
+  skillParticles1: {fileID: 1875884508201210202, guid: 4964d414b73cd3d4ebea9f08d7e3cbf6, type: 3}
+  skillParticles2: {fileID: 1348457881729523694, guid: 64d44ae222135674bac4b8cc7cd67fd8, type: 3}
+  deathParticles: {fileID: 3671300148560455889, guid: 0af2600f88424c448bfedbc02a65ff83, type: 3}
+  selectionCircle: {fileID: 5078674910149144756}
+  selectionCircleScale: {x: 0.15, y: 0.2}
+  animHelper: {fileID: 0}
+  canvasPrefab: {fileID: 6807323996565836524, guid: 262b40bff528db54a9584801f3595719, type: 3}
+  onDeath:
+    m_PersistentCalls:
+      m_Calls: []
+  chanceToUseSkill: 0.3
+  critLevel: 0
+  isBossCharacter: 0
+--- !u!1001 &2804561533146371845
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3590386712746437412, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8450576761766653943, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+      propertyPath: m_Name
+      value: Enemy Character 3D
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+--- !u!1 &6029676757038119154 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8450576761766653943, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+  m_PrefabInstance: {fileID: 2804561533146371845}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &5078674910149144756 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6958305751299975089, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+  m_PrefabInstance: {fileID: 2804561533146371845}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8491578712322304770 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5995390632164031495, guid: 1f4e5841705e844469805c2f463cdc10, type: 3}
+  m_PrefabInstance: {fileID: 2804561533146371845}
+  m_PrefabAsset: {fileID: 0}

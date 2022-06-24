@@ -27,7 +27,7 @@ namespace JSAM.JSAMEditor
 
         public AudioClipList(SerializedObject obj, SerializedProperty prop)
         {
-            list = new ReorderableList(obj, prop, true, false, false, false);
+            list = new ReorderableList(obj, prop, true, false, true, true);
             list.drawElementCallback += DrawElement;
             list.headerHeight = 1;
             list.footerHeight = 0;
@@ -43,7 +43,10 @@ namespace JSAM.JSAMEditor
             Rect prevRect = new Rect(rect);
             Rect currentRect = new Rect(prevRect);
 
-            GUIContent blontent = new GUIContent(file.name);
+            string name = "Element " + index;
+            if (file) name = file.name;
+
+            GUIContent blontent = new GUIContent(name);
 
             currentRect.xMax = rect.width * 0.6f;
             // Force a normal-colored label in a disabled scope
@@ -54,24 +57,8 @@ namespace JSAM.JSAMEditor
             EditorGUI.LabelField(currentRect, blontent);
 
             decoyRect.xMin = currentRect.xMax + 5;
-            decoyRect.xMax = rect.xMax - 30;
-            //using (new EditorGUI.DisabledScope(true))
-            //{
-                EditorGUI.PropertyField(decoyRect, element, GUIContent.none);
-            //}
-
-            JSAMEditorHelper.BeginColourChange(Color.red);
-            currentRect.xMax = rect.xMax;
-            currentRect.xMin = currentRect.xMax - 25;
-            blontent = new GUIContent("X", "Remove this Audio File from the library, can be undone with Edit -> Undo");
-            if (GUI.Button(currentRect, blontent))
-            {
-                property.DeleteArrayElementAtIndex(index);
-                property.DeleteArrayElementAtIndex(index);
-                serializedObject.ApplyModifiedProperties();
-                GUIUtility.ExitGUI();
-            }
-            JSAMEditorHelper.EndColourChange();
+            decoyRect.xMax = rect.xMax - 2.5f;
+            EditorGUI.PropertyField(decoyRect, element, GUIContent.none);
         }
 
         public void Draw() => list.DoLayoutList();

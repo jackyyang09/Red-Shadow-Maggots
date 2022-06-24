@@ -404,26 +404,26 @@ namespace JSAM
         #region PlayMusic
         /// <summary>
         /// Play Music globally without spatialization
-        /// Supports built-in track transition operations
+        /// Supports built-in music transition operations
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">Enum value for the music to be played. You can find this in the AudioLibrary</param>
-        /// <param name="isMainTrack">If true, allow track to be transitioned to another track easily</param>
-        /// <returns>The Music Channel helper playing the sound, useful for transitions, like copying the playback position to the next track</returns>
-        public static JSAMMusicChannelHelper PlayMusic<T>(T track, bool isMainTrack) where T : Enum
+        /// <param name="music">Enum value for the music to be played. You can find this in the AudioLibrary</param>
+        /// <param name="isMainMusic">If true, defines the music as the "Main Music", making future operations easier</param>
+        /// <returns>The Music Channel helper playing the sound, useful for transitions, like copying the playback position to the next music</returns>
+        public static JSAMMusicChannelHelper PlayMusic<T>(T music, bool isMainMusic) where T : Enum
         {
-            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(track)], isMainTrack);
+            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(music)], isMainMusic);
         }
 
         /// <summary>
-        /// 
+        /// <inheritdoc cref="PlayMusic{T}(T, bool)"/>
         /// </summary>
-        /// <param name="track"></param>
-        /// <param name="isMainTrack"></param>
+        /// <param name="music"></param>
+        /// <param name="isMainMusic">If true, defines the music as the "Main music", making future operations easier</param>
         /// <returns><inheritdoc cref="PlayMusic{T}(T, bool)" path="/returns"/></returns>
-        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject track, bool isMainTrack)
+        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject music, bool isMainMusic)
         {
-            return InternalInstance.PlayMusicInternal(track, isMainTrack);
+            return InternalInstance.PlayMusicInternal(music, isMainMusic);
         }
 
         /// <summary>
@@ -431,49 +431,111 @@ namespace JSAM
         /// Supports spatialization
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">Enum value for the music to be played. You can find this in the AudioLibrary</param>
+        /// <param name="music">Enum value for the music to be played. You can find this in the AudioLibrary</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="helper">Optional: The specific channel you want to play the sound from. 
-        /// <para>Good if you want an entity to only play a single track at any time</para></param>
+        /// <para>Good if you want an entity to only play a single music at any time</para></param>
         /// <returns><inheritdoc cref="PlayMusic{T}(T, bool)" path="/returns"/></returns>
-        public static JSAMMusicChannelHelper PlayMusic<T>(T track, Transform transform = null, JSAMMusicChannelHelper helper = null) where T : Enum
+        public static JSAMMusicChannelHelper PlayMusic<T>(T music, Transform transform = null, JSAMMusicChannelHelper helper = null) where T : Enum
         {
-            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(track)], transform, helper);
+            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(music)], transform, helper);
         }
 
         /// <summary>
         /// <inheritdoc cref="PlayMusic{T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">Enum value for the music to be played. You can find this in the AudioLibrary</param>
+        /// <param name="music">Enum value for the music to be played. You can find this in the AudioLibrary</param>
         /// <param name="position">The world position you want the music to play from</param>
         /// <param name="helper">Optional: The specific channel you want to play the sound from. 
-        /// <para>Good if you want an entity to only play a single track at any time</para></param>
+        /// <para>Good if you want an entity to only play a single music at any time</para></param>
         /// <returns><inheritdoc cref="PlayMusic{T}(T, bool)" path="/returns"/></returns>
-        public static JSAMMusicChannelHelper PlayMusic<T>(T track, Vector3 position, JSAMMusicChannelHelper helper = null) where T : Enum
+        public static JSAMMusicChannelHelper PlayMusic<T>(T music, Vector3 position, JSAMMusicChannelHelper helper = null) where T : Enum
         {
-            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(track)], position, helper);
+            return InternalInstance.PlayMusicInternal(Instance.Library.Music[Convert.ToInt32(music)], position, helper);
         }
 
         /// <summary>
         /// <inheritdoc cref="PlayMusic{T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
-        /// <param name="track">A reference to the Music File asset to play directly</param>
+        /// <param name="music">A reference to the Music File asset to play directly</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="helper">Optional: The specific channel you want to play the sound from. 
-        /// <para>Good if you want an entity to only play a single track at any time</para></param>
+        /// <para>Good if you want an entity to only play a single music at any time</para></param>
         /// <returns><inheritdoc cref="PlayMusic{T}(T, bool)" path="/returns"/></returns>
-        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject track, Transform transform = null, JSAMMusicChannelHelper helper = null) => InternalInstance.PlayMusicInternal(track, transform, helper);
+        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject music, Transform transform = null, JSAMMusicChannelHelper helper = null) => InternalInstance.PlayMusicInternal(music, transform, helper);
 
         /// <summary>
         /// <inheritdoc cref="PlayMusic{T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
-        /// <param name="track">A reference to the Music File asset to play directly</param>
+        /// <param name="music">A reference to the Music File asset to play directly</param>
         /// <param name="position">The world position you want the music to play from</param>
         /// <param name="helper">Optional: The specific channel you want to play the sound from. 
-        /// <para>Good if you want an entity to only play a single track at any time</para></param>
+        /// <para>Good if you want an entity to only play a single music at any time</para></param>
         /// <returns><inheritdoc cref="PlayMusic{T}(T, bool)" path="/returns"/></returns>
-        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject track, Vector3 position, JSAMMusicChannelHelper helper = null) => InternalInstance.PlayMusicInternal(track, position, helper);
+        public static JSAMMusicChannelHelper PlayMusic(JSAMMusicFileObject music, Vector3 position, JSAMMusicChannelHelper helper = null) => InternalInstance.PlayMusicInternal(music, position, helper);
+        #endregion
+
+        #region FadeMusic
+        /// <summary>
+        /// Play and fade in a new music
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="music">Enum value for the music to be played. You can find this in the AudioLibrary</param>
+        /// <param name="fadeInTime">Amount of time in seconds the fade will last</param>
+        /// <param name="isMainmusic">If true, defines the music as the "Main music", making future operations easier</param>
+        /// <returns></returns>
+        public static JSAMMusicChannelHelper FadeMusicIn<T>(T music, float fadeInTime, bool isMainmusic = false) where T : Enum
+        {
+            return InternalInstance.FadeMusicInInternal(Instance.Library.Music[Convert.ToInt32(music)], fadeInTime, isMainmusic);
+        }
+
+        /// <summary>
+        /// Play and fade in a new music
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="music">Enum value for the music to be played. You can find this in the AudioLibrary</param>
+        /// <param name="fadeInTime">Amount of time in seconds the fade will last</param>
+        /// <param name="isMainmusic">If true, defines the music as the "Main music", making future operations easier</param>
+        /// <returns></returns>
+        public static JSAMMusicChannelHelper FadeMusicIn(JSAMMusicFileObject music, float fadeInTime, bool isMainmusic = false)
+        {
+            return InternalInstance.FadeMusicInInternal(music, fadeInTime, isMainmusic);
+        }
+
+        /// <summary>
+        /// Fades out the currently designated "Main Music"
+        /// </summary>
+        /// <param name="fadeOutTime">Amount of time in seconds the fade will last</param>
+        /// <returns></returns>
+        public static JSAMMusicChannelHelper FadeMainMusicOut(float fadeOutTime)
+        {
+            return InternalInstance.FadeMainMusicOutInternal(fadeOutTime);
+        }
+
+        /// <summary>
+        /// Fades music out
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="music"></param>
+        /// <param name="fadeOutTime">Amount of time in seconds the fade will last</param>
+        /// <returns></returns>
+        public static JSAMMusicChannelHelper FadeMusicOut<T>(T music, float fadeOutTime) where T : Enum
+        {
+            return InternalInstance.FadeMusicOutInternal(Instance.Library.Music[Convert.ToInt32(music)], fadeOutTime);
+        }
+
+        /// <summary>
+        /// Fades music out provided a Music Channel Helper, 
+        /// don't use this unless you understand what you're doing
+        /// </summary>
+        /// <param name="helper">Music Channel Helper to fade out</param>
+        /// <param name="fadeOutTime">Amount of time in seconds the fade will last</param>
+        /// <returns></returns>
+        public JSAMMusicChannelHelper FadeMusicOut(JSAMMusicChannelHelper helper, float fadeOutTime)
+        {
+            return InternalInstance.FadeMusicOutInternal(helper, fadeOutTime);
+        }
         #endregion
 
         #region IsMusicPlaying
@@ -512,108 +574,108 @@ namespace JSAM
 
         #region StopMusic
         /// <summary>
-        /// Instantly stops the playback of the specified playing music track
+        /// Instantly stops the playback of the specified playing music music
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
-        /// <returns>The Music Channel helper playing the sound, useful for transitions, like copying the playback position to the next track</returns>
-        public static JSAMMusicChannelHelper StopMusic<T>(T track, Transform transform = null, bool stopInstantly = true) where T : Enum
+        /// <returns>The Music Channel helper playing the sound, useful for transitions, like copying the playback position to the next music</returns>
+        public static JSAMMusicChannelHelper StopMusic<T>(T music, Transform transform = null, bool stopInstantly = true) where T : Enum
         {
-            return InternalInstance.StopMusicInternal(Instance.Library.Music[Convert.ToInt32(track)], transform, stopInstantly);
+            return InternalInstance.StopMusicInternal(Instance.Library.Music[Convert.ToInt32(music)], transform, stopInstantly);
         }
 
         /// <summary>
         /// <inheritdoc cref="StopMusic(JSAMMusicFileObject, Transform){T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="position">The world position the music is playing from</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusic{T}(T, Transform, bool)"/></returns>
-        public static JSAMMusicChannelHelper StopMusic<T>(T track, Vector3 position, bool stopInstantly = true) where T : Enum
+        public static JSAMMusicChannelHelper StopMusic<T>(T music, Vector3 position, bool stopInstantly = true) where T : Enum
         {
-            return InternalInstance.StopMusicInternal(Instance.Library.Music[Convert.ToInt32(track)], position, stopInstantly);
+            return InternalInstance.StopMusicInternal(Instance.Library.Music[Convert.ToInt32(music)], position, stopInstantly);
         }
 
         /// <summary>
         /// <inheritdoc cref="StopMusic(JSAMMusicFileObject, Transform){T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusic{T}(T, Transform, bool)"/></returns>
-        public static JSAMMusicChannelHelper StopMusic(JSAMMusicFileObject track, Transform transform = null, bool stopInstantly = true)
+        public static JSAMMusicChannelHelper StopMusic(JSAMMusicFileObject music, Transform transform = null, bool stopInstantly = true)
         {
-            return InternalInstance.StopMusicInternal(track, transform, stopInstantly);
+            return InternalInstance.StopMusicInternal(music, transform, stopInstantly);
         }
 
         /// <summary>
         /// <inheritdoc cref="StopMusic(JSAMMusicFileObject, Transform){T}(T, Transform, JSAMMusicChannelHelper)"/>
         /// </summary>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="position">The world position the music is playing from</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusic{T}(T, Transform, bool)"/></returns>
-        public static JSAMMusicChannelHelper StopMusic(JSAMMusicFileObject track, Vector3 position, bool stopInstantly = true)
+        public static JSAMMusicChannelHelper StopMusic(JSAMMusicFileObject music, Vector3 position, bool stopInstantly = true)
         {
-            return InternalInstance.StopMusicInternal(track, position, stopInstantly);
+            return InternalInstance.StopMusicInternal(music, position, stopInstantly);
         }
 
         /// <summary>
         /// A shorthand for wrapping StopMusic in an IsMusicPlaying if-statement
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns>True if music was stopped successfully, false if music wasn't playing</returns>
-        public static bool StopMusicIfPlaying<T>(T track, Transform transform = null, bool stopInstantly = true) where T : Enum
+        public static bool StopMusicIfPlaying<T>(T music, Transform transform = null, bool stopInstantly = true) where T : Enum
         {
-            return InternalInstance.StopMusicIfPlayingInternal(Instance.Library.Music[Convert.ToInt32(track)], transform, stopInstantly);
+            return InternalInstance.StopMusicIfPlayingInternal(Instance.Library.Music[Convert.ToInt32(music)], transform, stopInstantly);
         }
 
         /// <summary>
         /// <inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="position">The world position the music is playing from</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/></returns>
-        public static bool StopMusicIfPlaying<T>(T track, Vector3 position, bool stopInstantly = true) where T : Enum =>
-            InternalInstance.StopMusicIfPlayingInternal(Instance.Library.Music[Convert.ToInt32(track)], position, stopInstantly);
+        public static bool StopMusicIfPlaying<T>(T music, Vector3 position, bool stopInstantly = true) where T : Enum =>
+            InternalInstance.StopMusicIfPlayingInternal(Instance.Library.Music[Convert.ToInt32(music)], position, stopInstantly);
 
         /// <summary>
         /// <inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="transform">Optional: The transform of the music's source</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/></returns>
-        public static bool StopMusicIfPlaying(JSAMMusicFileObject track, Transform transform = null, bool stopInstantly = true) =>
-            InternalInstance.StopMusicIfPlayingInternal(track, transform, stopInstantly);
+        public static bool StopMusicIfPlaying(JSAMMusicFileObject music, Transform transform = null, bool stopInstantly = true) =>
+            InternalInstance.StopMusicIfPlayingInternal(music, transform, stopInstantly);
 
         /// <summary>
         /// <inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/>
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="track">The enum corresponding to the music track</param>
+        /// <param name="music">The enum corresponding to the music music</param>
         /// <param name="position">The world position the music is playing from</param>
         /// <param name="stopInstantly">Optional: If false, will allow music to transition out using it's transition settings. 
         /// Otherwise, will immediately end playback</param>
         /// <returns><inheritdoc cref="StopMusicIfPlaying{T}(T, Transform, bool)"/></returns>
-        public static bool StopMusicIfPlaying(JSAMMusicFileObject track, Vector3 position, bool stopInstantly = true) =>
-            InternalInstance.StopMusicIfPlayingInternal(track, position, stopInstantly);
+        public static bool StopMusicIfPlaying(JSAMMusicFileObject music, Vector3 position, bool stopInstantly = true) =>
+            InternalInstance.StopMusicIfPlayingInternal(music, position, stopInstantly);
         #endregion
 
         #region Volume
@@ -731,11 +793,11 @@ namespace JSAM
         /// Given an enum, returns the corresponding AudioFileObject
         /// </summary>
         /// <typeparam name="T">The audio enum type corresponding to your scene. In most cases, this is just JSAM.Music</typeparam>
-        /// <param name="track"></param>
+        /// <param name="music"></param>
         /// <returns></returns>
-        public static JSAMMusicFileObject GetMusic<T>(T track) where T : Enum
+        public static JSAMMusicFileObject GetMusic<T>(T music) where T : Enum
         {
-            int a = Convert.ToInt32(track);
+            int a = Convert.ToInt32(music);
             return Instance.library.Music[a];
         }
 

@@ -6,19 +6,38 @@ using static Facade;
 public class EnemyCharacter : BaseCharacter
 {
     [SerializeField] float chanceToUseSkill = 0.3f;
+    public void SetSkillUseChance(float newChance) => chanceToUseSkill = newChance;
     public float ChanceToUseSkill { get { return chanceToUseSkill; } }
     bool usedSkillThisTurn;
 
     [SerializeField] int critLevel = 0;
+    public int CritLevel { get { return critLevel; } }
     public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
     [SerializeField] bool isBossCharacter = false;
 
     public static System.Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
     public System.Action<int> onCritLevelChanged;
 
-    protected override void Start()
+    public override void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
     {
-        base.Start();
+        base.ApplyCharacterStats(level, stateInfo);
+
+        if (stateInfo != null)
+        {
+            if (health == 0)
+            {
+                DieSilently();
+                return;
+            }
+
+            critLevel = ((BattleState.EnemyState)stateInfo).Crit;
+            onCritLevelChanged?.Invoke(critLevel);
+        }
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
 
         // Set to World-Scale of 1
         if (isBossCharacter)
@@ -28,9 +47,9 @@ public class EnemyCharacter : BaseCharacter
         }
         else
         {
-            var billboard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
-            billboard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
-            billboard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
+            billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
+            billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+            billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
         }
         
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
@@ -119,12 +138,12 @@ public class EnemyCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
             if (IsDead) return;
             OnSelectCharacter?.Invoke(this);
             if (battleSystem.ActiveEnemy == this) return;
-            BattleSystem.Instance.SetActiveEnemy(this);
+            battleSystem.SetActiveEnemy(this);
             OnSelectedEnemyCharacterChange?.Invoke(this);
         }
     }
@@ -160,7 +179,13 @@ public class EnemyCharacter : BaseCharacter
 
     public override void Die()
     {
-        Invoke("DeathEffects", 0.5f);
+        Invoke(nameof(DeathEffects), 0.5f);
+    }
+
+    public override void DieSilently()
+    {
+        base.DieSilently();
+        if (isBossCharacter) ui.DestroyBossUI();
     }
 
     public override void InvokeDeathEvents()

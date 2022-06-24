@@ -71,18 +71,18 @@ namespace JSAM.JSAMEditor
                     focused = true;
                 }
                 EditorGUILayout.Space();
-
-                List<string> tipText = new List<string>();
-                if (allowEscapeKey)
-                {
-                    tipText.Add("Tip: You can double-press ESC to quickly close this window!");
-                }
-                if (allowEnterKey)
-                {
-                    tipText.Add("Tip: You can double-press ENTER to quickly submit your text!");
-                }
-                quickReferenceGuide = JSAMEditorHelper.RenderQuickReferenceGuide(quickReferenceGuide, tipText.ToArray());
+                
             }
+            List<string> tipText = new List<string>();
+            if (allowEscapeKey)
+            {
+                tipText.Add("Tip: You can double-press ESC to quickly close this window!");
+            }
+            if (allowEnterKey)
+            {
+                tipText.Add("Tip: You can double-press ENTER to quickly submit your text!");
+            }
+            quickReferenceGuide = JSAMEditorHelper.RenderQuickReferenceGuide(quickReferenceGuide, tipText.ToArray());
 
             if (Event.current.type == EventType.KeyDown)
             {

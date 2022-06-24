@@ -7,7 +7,7 @@ public class BaseHealEffect : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        target.Heal((float)GetEffectStrength(strength, customValues));
+        target.Heal((int)GetEffectStrength(strength, customValues));
     }
 
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -43,13 +43,12 @@ public class BaseHealEffect : BaseGameEffect
         return s + DurationDescriptor(duration);
     }
 
-
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)
     {
         switch (strength)
         {
             case EffectStrength.Custom:
-                return customValues[0];
+                return (float)customValues[0];
             case EffectStrength.Weak:
                 return 800;
             case EffectStrength.Small:

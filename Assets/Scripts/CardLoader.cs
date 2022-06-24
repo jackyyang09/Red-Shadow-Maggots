@@ -148,7 +148,7 @@ public class CardLoader : MonoBehaviour
     {
         imageDropOverlay.SetActive(false);
         CardMenuUI.selectedHolder.SetCharacterAndRarity(characters[id], rarity);
-        UncrateSequence.instance.UncrateCharacter(characters[id], rarity);
+        UncrateSequence.Instance.UncrateCharacter(characters[id], rarity);
     }
 
     public void ExportCharacter(CharacterCardHolder cardHolder)

@@ -11,16 +11,12 @@ public class OptimizedCanvas : MonoBehaviour
     public Canvas Canvas { get { return canvas; } }
 
     [SerializeField] bool hideOnAwake = false;
+    [SerializeField] bool bakeLayoutOnStart = false;
 
-    public RectTransform rectTransform
-    {
-        get
-        {
-            return transform as RectTransform;
-        }
-    }
+    public RectTransform rectTransform { get { return transform as RectTransform; } }
 
     [SerializeField] GraphicRaycaster caster;
+    public GraphicRaycaster Raycaster { get { return caster; } }
 
     List<OptimizedCanvas> children = new List<OptimizedCanvas>();
     OptimizedCanvas parent = null;
@@ -40,27 +36,47 @@ public class OptimizedCanvas : MonoBehaviour
     System.Action OnCanvasShow;
     System.Action OnCanvasHide;
 
-    void InvokeOnCanvasShow()
+    void InvokeOnCanvasShowExcludingTransitions()
     {
         OnCanvasShow?.Invoke();
         onCanvasShow.Invoke();
     }
 
-    void InvokeOnCanvasHide()
+    void InvokeOnCanvasShow()
+    {
+        InvokeOnCanvasShowExcludingTransitions();
+        for (int i = 0; i < transitions.Length; i++)
+        {
+            transitions[i].InvokeOnTransitionIn();
+        }
+    }
+
+    void InvokeOnCanvasHideExcludingTransitions()
     {
         OnCanvasHide?.Invoke();
         onCanvasHide.Invoke();
     }
 
+    void InvokeOnCanvasHide()
+    {
+        InvokeOnCanvasHideExcludingTransitions();
+        for (int i = 0; i < transitions.Length; i++)
+        {
+            transitions[i].InvokeOnTransitionOut();
+        }
+    }
+
     Coroutine layoutRoutine = null;
+    Coroutine transitionInRoutine = null;
+    Coroutine transitionOutRoutine = null;
 
     public bool IsVisible
-    { 
-        get 
+    {
+        get
         {
             if (parent) return parent.IsVisible && canvas.enabled;
             else return canvas.enabled;
-        } 
+        }
     }
 
     void Awake()
@@ -90,18 +106,23 @@ public class OptimizedCanvas : MonoBehaviour
 
         if (parent)
         {
-            parent.OnCanvasShow -= OnParentVisibilityChanged;
-            parent.OnCanvasHide -= OnParentVisibilityChanged;
+            parent.OnCanvasShow -= OnParentShow;
+            parent.OnCanvasHide -= OnParentHide;
         }
     }
 
-    bool previousVisibility;
-    private void OnParentVisibilityChanged()
+    bool personallyVisible { get { return canvas.enabled; } }
+
+    void OnParentShow()
     {
-        if (previousVisibility == IsVisible) return;
-        if (IsVisible) ShowIfPreviouslyVisible();
-        else HideWithParent();
-        previousVisibility = IsVisible;
+        if (!personallyVisible) return;
+        ShowIfPersonallyVisible();
+    }
+
+    void OnParentHide()
+    {
+        if (!personallyVisible) return;
+        HideWithParent();
     }
 
     private IEnumerator Start()
@@ -122,9 +143,21 @@ public class OptimizedCanvas : MonoBehaviour
             }
         }
 
-        yield return null;
+        if (bakeLayoutOnStart)
+        {
+            Show();
 
-        previousVisibility = IsVisible;
+            bool noGroup = true;
+            CanvasGroup canvasGroup;
+            if (TryGetComponent(out canvasGroup)) noGroup = false;
+            else canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            canvasGroup.alpha = 0;
+
+            yield return null;
+
+            if (noGroup) Destroy(canvasGroup);
+            Hide();
+        }
     }
 
 #if UNITY_EDITOR
@@ -194,8 +227,8 @@ public class OptimizedCanvas : MonoBehaviour
     {
         if (parent)
         {
-            parent.OnCanvasShow -= OnParentVisibilityChanged;
-            parent.OnCanvasHide -= OnParentVisibilityChanged;
+            parent.OnCanvasShow -= OnParentShow;
+            parent.OnCanvasHide -= OnParentHide;
         }
 
         if (transform.parent)
@@ -205,8 +238,8 @@ public class OptimizedCanvas : MonoBehaviour
 
         if (parent)
         {
-            parent.OnCanvasShow += OnParentVisibilityChanged;
-            parent.OnCanvasHide += OnParentVisibilityChanged;
+            parent.OnCanvasShow += OnParentShow;
+            parent.OnCanvasHide += OnParentHide;
         }
     }
 
@@ -225,7 +258,7 @@ public class OptimizedCanvas : MonoBehaviour
 
     public void ShowDelayed(float time)
     {
-        Invoke("Show", time);
+        Invoke(nameof(Show), time);
     }
 
     public void Hide() => SetActive(false);
@@ -234,20 +267,30 @@ public class OptimizedCanvas : MonoBehaviour
     {
         if (canvas == null) return;
 
+        if (!active)
+        {
+            if (IsInvoking(nameof(Show)))
+            {
+                CancelInvoke(nameof(Show));
+            }
+        }
+
+        // Nothing changed, skip rest
+        if (canvas.enabled == active && Application.isPlaying) return;
+        if (transitionInRoutine != null || transitionOutRoutine != null) return;
+
         // Disable GraphicRaycaster first to ensure buttons don't get pressed during transition
         if (caster)
         {
             caster.enabled = active;
         }
 
-        // Nothing changed, skip rest
-        if (canvas.enabled == active && Application.isPlaying) return;
-
         if (transitions.Length > 0)
         {
             if (Application.isPlaying && gameObject.activeInHierarchy)
             {
-                StartCoroutine(DoTransition(active));
+                if (active) transitionInRoutine = StartCoroutine(DoTransitionIn());
+                else transitionOutRoutine = StartCoroutine(DoTransitionOut());
             }
             // Can't run a coroutine during editor time
             else
@@ -255,7 +298,6 @@ public class OptimizedCanvas : MonoBehaviour
                 if (active)
                 {
                     for (int i = 0; i < transitions.Length; i++) transitions[i].EditorTransitionIn();
-
                 }
                 else
                 {
@@ -283,7 +325,7 @@ public class OptimizedCanvas : MonoBehaviour
         }
     }
 
-    public void ShowIfPreviouslyVisible()
+    public void ShowIfPersonallyVisible()
     {
         if (!gameObject.activeInHierarchy) return;
 
@@ -304,33 +346,36 @@ public class OptimizedCanvas : MonoBehaviour
         InvokeOnCanvasHide();
     }
 
-    IEnumerator DoTransition(bool active)
+    IEnumerator DoTransitionIn()
     {
-        if (active)
+        canvas.enabled = true;
+        InvokeOnCanvasShowExcludingTransitions();
+        for (int i = 0; i < transitions.Length; i++)
         {
-            canvas.enabled = active;
-            InvokeOnCanvasShow();
-            for (int i = 0; i < transitions.Length; i++)
-            {
-                transitions[i].TransitionIn();
-            }
-            yield return new WaitForSeconds(transitionInTime);
+            transitions[i].TransitionIn();
         }
-        else
+        yield return new WaitForSeconds(transitionInTime);
+        transitionInRoutine = null;
+    }
+
+    IEnumerator DoTransitionOut()
+    {
+        onCanvasStartHide.Invoke();
+        for (int i = 0; i < transitions.Length; i++)
         {
-            onCanvasStartHide.Invoke();
-            for (int i = 0; i < transitions.Length; i++)
-            {
-                transitions[i].OnTransitionOut += InvokeOnCanvasHide;
-                transitions[i].TransitionOut();
-            }
-            yield return new WaitForSeconds(transitionOutTime);
-            for (int i = 0; i < transitions.Length; i++)
-            {
-                transitions[i].OnTransitionOut -= InvokeOnCanvasHide;
-            }
-            canvas.enabled = active;
+            transitions[i].TransitionOut();
         }
+        if (IsInvoking(nameof(InvokeOnCanvasHideExcludingTransitions))) CancelInvoke(nameof(InvokeOnCanvasHideExcludingTransitions));
+        Invoke(nameof(InvokeOnCanvasHideExcludingTransitions), transitionOutTime);
+        yield return new WaitForSeconds(transitionOutTime);
+        canvas.enabled = false;
+        transitionOutRoutine = null;
+    }
+
+    [ContextMenu(nameof(ForceUpdate))]
+    void ForceUpdate()
+    {
+        Canvas.ForceUpdateCanvases();
     }
 
     public void PlayAnimation()

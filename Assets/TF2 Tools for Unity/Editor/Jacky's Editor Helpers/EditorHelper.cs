@@ -111,18 +111,26 @@ namespace JackysEditorHelpers
             bool touchedFolder = false;
             bool touchedString = false;
 
+            Rect rect = EditorGUILayout.GetControlRect();
+            if (DragAndDropRegion(rect, "", ""))
+            {
+                DefaultAsset da = DragAndDrop.objectReferences[0] as DefaultAsset;
+                if (da) folderProp.stringValue = AssetDatabase.GetAssetPath(da);
+                return;
+            }
+            if (limitToAssetsFolder) rect.width *= 2f / 3f;
             EditorGUI.BeginChangeCheck();
-            folderPath = EditorGUILayout.TextField(content, folderPath);
+            folderPath = EditorGUI.TextField(rect, content, folderPath);
             touchedString = EditorGUI.EndChangeCheck();
+
+            rect.position += new Vector2(rect.width + 5, 0);
+            rect.width = rect.width / 2f - 5;
 
             if (limitToAssetsFolder)
             {
                 DefaultAsset folderAsset = AssetDatabase.LoadAssetAtPath<DefaultAsset>(folderPath);
                 EditorGUI.BeginChangeCheck();
-                if (folderAsset != null)
-                {
-                    folderAsset = (DefaultAsset)EditorGUILayout.ObjectField(GUIContent.none, folderAsset, typeof(DefaultAsset), false, new GUILayoutOption[] { GUILayout.Width(100) });
-                }
+                folderAsset = (DefaultAsset)EditorGUI.ObjectField(rect, GUIContent.none, folderAsset, typeof(DefaultAsset), false);
                 if (EditorGUI.EndChangeCheck())
                 {
                     touchedFolder = true;

@@ -22,7 +22,6 @@ public class MobileShadowCaster : MonoBehaviour
 
     bool lowQuality = false;
 
-#if UNITY_ANDROID
     private void OnEnable()
     {
         GraphicsSettings.OnQualityLevelChanged += UpdateShadowCasting;
@@ -76,5 +75,4 @@ public class MobileShadowCaster : MonoBehaviour
         }
         renderer.enabled = hit.collider;
     }
-#endif
 }

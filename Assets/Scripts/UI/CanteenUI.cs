@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using static Facade;
 using JSAM;
+using System;
 
 public class CanteenUI : BaseGameUI
 {
@@ -43,6 +44,7 @@ public class CanteenUI : BaseGameUI
     {
         CanteenSystem.OnStoredChargeChanged += QueueUpdate;
         CanteenSystem.OnAvailableChargeChanged += QueueUpdate;
+        CanteenSystem.OnSetCharge += OnSetCharge;
 
         BattleSystem.OnStartPlayerTurnLate += ShowUI;
         BattleSystem.OnStartPlayerTurnLate += UpdateUI;
@@ -61,6 +63,7 @@ public class CanteenUI : BaseGameUI
     {
         CanteenSystem.OnStoredChargeChanged -= QueueUpdate;
         CanteenSystem.OnAvailableChargeChanged -= QueueUpdate;
+        CanteenSystem.OnSetCharge -= OnSetCharge;
 
         BattleSystem.OnStartPlayerTurnLate -= ShowUI;
         BattleSystem.OnStartPlayerTurnLate -= UpdateUI;
@@ -94,6 +97,11 @@ public class CanteenUI : BaseGameUI
             //canteenMesh.position = ray.origin + ray.direction * distanceFromCamera;
             canteenMesh.LookAt(ray.origin);
         }
+    }
+
+    private void OnSetCharge()
+    {
+        UpdateCanteenCount();
     }
 
     public void UpdateCanteenCount(int canteenCount = -1)

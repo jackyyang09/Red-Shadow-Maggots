@@ -4,69 +4,82 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class ScreenEffects : MonoBehaviour
+public class ScreenEffects : BasicSingleton<ScreenEffects>
 {
-    [SerializeField] bool startInBlack = true;
+    [SerializeField] GraphicRaycaster raycaster;
+    [SerializeField] Image fadeImage = null;
 
-    [SerializeField] Image blackOut = null;
-
-    public static ScreenEffects instance;
-
-    private void Awake()
+    public void BlackOut()
     {
-        EstablishSingletonDominance();
-
-        blackOut.enabled = startInBlack;
+        fadeImage.color = Color.black;
+        fadeImage.enabled = true;
+        raycaster.enabled = true;
+        raycaster.enabled = true;
     }
 
-    //// Start is called before the first frame update
-    //void Start()
-    //{
-    //    
-    //}
-    //
-    //// Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
-
-    public void FadeFromBlack()
+    public void FadeFromBlack(float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        blackOut.enabled = true;
-        blackOut.color = Color.black;
-        blackOut.DOFade(0, 1.5f).onComplete += () => blackOut.enabled = false;
+        StartCoroutine(FadeFromBlackRoutine(fadeTime, onComplete));
     }
 
-    public void FadeToBlack(float delay = 0)
+    public IEnumerator FadeFromBlackRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        blackOut.enabled = true;
-        blackOut.color = Color.clear;
-        blackOut.DOFade(1, 1.5f).SetDelay(delay).onComplete += () => blackOut.enabled = true;
+        fadeImage.color = Color.black;
+        yield return FadeOutRoutine(fadeTime, onComplete);
     }
 
-    void EstablishSingletonDominance()
+    public void FadeToBlack(float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
+        StartCoroutine(FadeToBlackRoutine(fadeTime, onComplete));
+    }
+
+    public IEnumerator FadeToBlackRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        fadeImage.color = Color.black;
+        yield return FadeInRoutine(fadeTime, onComplete);
+    }
+
+    public void FadeFromWhite(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        StartCoroutine(FadeFromWhiteRoutine(fadeTime, onComplete));
+    }
+
+    public IEnumerator FadeFromWhiteRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        fadeImage.color = Color.white;
+        yield return FadeOutRoutine(fadeTime, onComplete);
+    }
+
+    public void FadeToWhite(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        StartCoroutine(FadeToWhiteRoutine(fadeTime, onComplete));
+    }
+
+    public IEnumerator FadeToWhiteRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        fadeImage.color = Color.white;
+        yield return FadeInRoutine(fadeTime, onComplete);
+    }
+
+    IEnumerator FadeInRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        fadeImage.enabled = true;
+        raycaster.enabled = true;
+        fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, 0);
+        fadeImage.DOFade(1, fadeTime);
+
+        yield return new WaitForSeconds(fadeTime);
+    }
+
+    IEnumerator FadeOutRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        fadeImage.enabled = true;
+        raycaster.enabled = true;
+        fadeImage.DOFade(0, fadeTime);
+
+        yield return new WaitForSeconds(fadeTime);
+
+        fadeImage.enabled = false;
+        raycaster.enabled = false;
     }
 }

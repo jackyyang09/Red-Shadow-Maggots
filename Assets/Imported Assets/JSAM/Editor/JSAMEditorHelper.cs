@@ -36,7 +36,7 @@ namespace JSAM.JSAMEditor
                     // A dirty hack, but Unity serialization is real messy
                     // https://answers.unity.com/questions/555724/serializedpropertydeletearrayelementatindex-leaves.html
                     prop.DeleteArrayElementAtIndex(i);
-                    prop.DeleteArrayElementAtIndex(i);
+                    if (prop.GetArrayElementAtIndex(i) != null) prop.DeleteArrayElementAtIndex(i);
                 }
             }
             return prop;

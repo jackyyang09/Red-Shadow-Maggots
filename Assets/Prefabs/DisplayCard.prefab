@@ -757,8 +757,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Magic Scout
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 599f0c1e5bf305a4b85b43c56a773cd8, type: 2}
-  m_sharedMaterial: {fileID: -3277826352858066982, guid: 599f0c1e5bf305a4b85b43c56a773cd8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: e32864fad446eae4ab758bd1a82e6fb7, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 42271f7c9ab920e40877af2bddcf9242, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -782,12 +782,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 1.1
+  m_fontSize: 1
   m_fontSizeBase: 1
   m_fontWeight: 400
-  m_enableAutoSizing: 1
-  m_fontSizeMin: 1
-  m_fontSizeMax: 2
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 1024
@@ -798,7 +798,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
+  m_enableWordWrapping: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -994,9 +994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterData: {fileID: 11400000, guid: 8234901cfcd621949907755c233538bd, type: 2}
   rarity: 4
-  character: {fileID: 0}
   cam: {fileID: 6085503078645960450}
-  canvas: {fileID: 3069815238069684300}
   nameText: {fileID: 7264250883178345395}
   spriteAnim: {fileID: 1444214024309312568}
   spriteHolder: {fileID: 6031768203186029479}
@@ -2472,9 +2470,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canvas: {fileID: 57548178723235773}
+  hideOnAwake: 0
+  bakeLayoutOnStart: 0
   caster: {fileID: 3931890674138386908}
-  children: []
+  transitions: []
+  animation: {fileID: 0}
   onCanvasShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onCanvasStartHide:
     m_PersistentCalls:
       m_Calls: []
   onCanvasHide:

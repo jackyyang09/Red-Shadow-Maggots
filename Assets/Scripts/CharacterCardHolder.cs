@@ -22,7 +22,6 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] TMPro.TextMeshProUGUI nameText = null;
 
     [Header("Sprite References")]
-    [SerializeField] Animator spriteAnim = null;
     [SerializeField] Transform spriteHolder = null;
     [SerializeField] SpriteRenderer sprite = null;
     [SerializeField] Image[] classIcons = null;
@@ -38,6 +37,8 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] SpriteRenderer cardBorder = null;
     [SerializeField] SpriteRenderer cardBackground = null;
     [SerializeField] MeshRenderer backgroundRenderer = null;
+
+    public System.Action<CharacterCardHolder> OnCardClicked;
 
     private void OnEnable()
     {
@@ -58,23 +59,23 @@ public class CharacterCardHolder : MonoBehaviour
         characterData = newRef;
         rarity = newRarity;
 
-        if (newRef.spriteObject != null)
+        if (spriteHolder.childCount > 0)
         {
-            if (spriteHolder.childCount > 0)
+            for (int i = spriteHolder.childCount - 1; i > -1; i--)
             {
-                for (int i = spriteHolder.childCount - 1; i > -1; i--)
-                {
-                    Destroy(spriteHolder.GetChild(i).gameObject);
-                }
+                Destroy(spriteHolder.GetChild(i).gameObject);
             }
+        }
+
+        if (newRef.spriteObject)
+        {
             Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
-            spriteAnim.runtimeAnimatorController = newRef.animator;
-            sprite.enabled = false;
         }
         else
         {
             sprite.sprite = newRef.sprite;
         }
+        sprite.enabled = !newRef.spriteObject;
 
         nameText.text = characterData.characterName;
 
@@ -112,6 +113,8 @@ public class CharacterCardHolder : MonoBehaviour
 
     private void OnMouseDown()
     {
+        OnCardClicked?.Invoke(this);
+
         if (CharacterPreviewUI.instance == null) return;
         if (!CharacterPreviewUI.instance.IsVisible && !CharacterPreviewUI.instance.IsCardLoadMode)
             PartyManager.OnSelectCharacter?.Invoke(this);

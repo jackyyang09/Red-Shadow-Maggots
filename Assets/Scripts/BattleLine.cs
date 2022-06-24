@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using VolumetricLines;
+using static Facade;
 
 public class BattleLine : MonoBehaviour
 {
@@ -52,7 +52,7 @@ public class BattleLine : MonoBehaviour
 
     public void ShowLine()
     {
-        if (!BattleSystem.Instance.EnemyAttacker.CanCrit) return;
+        if (!battleSystem.EnemyAttacker.CanCrit) return;
         lineRenderer.enabled = true;
         sparks.Play();
     }

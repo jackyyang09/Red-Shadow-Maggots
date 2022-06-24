@@ -28,15 +28,27 @@ public class CustomLayoutElement : MonoBehaviour
             aspectRatio = value;
             LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
         }
+        get { return aspectRatio; } 
     }
 
-    [SerializeField] bool matchHeightToWidth;
-    [SerializeField] bool matchWidthToHeight;
+    [SerializeField] bool aspectCorrect;
+    public bool AspectCorrect { get { return aspectCorrect; } }
+
+    [SerializeField] bool clampToParentSize;
+    public bool ClampToParentSize { get { return clampToParentSize; } }
 
     [SerializeField] Vector2 positionalOffset;
+    public Vector2 PositionalOffset { get { return positionalOffset; } }
 
     public RectTransform rectTransform { get { return transform as RectTransform; } }
-    Vector2 sizeDelta { get { return rectTransform.sizeDelta; } set { rectTransform.sizeDelta = value; } }
+
+    public void OverrideData(ResolutionSpecificElementProperties.ResolutionDataPair dataPair)
+    {
+        width = dataPair.widthOverride;
+        height = dataPair.heightOverride;
+        positionalOffset = dataPair.positionalOffset;
+        LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
+    }
 
     private void OnEnable()
     {
@@ -48,34 +60,15 @@ public class CustomLayoutElement : MonoBehaviour
         LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
     }
 
+    private void OnRectTransformDimensionsChange()
+    {
+        LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
+    }
+
 #if UNITY_EDITOR
     private void OnValidate()
     {
         LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
     }
 #endif
-
-    public void PostProcessSize(Vector2 elementSize)
-    {
-        float ar = aspectRatio.x / aspectRatio.y;
-        if (matchHeightToWidth)
-        {
-            var x = Mathf.Min(sizeDelta.x, elementSize.x);
-            sizeDelta = new Vector2(x, x / ar);
-            if (sizeDelta.y > elementSize.y)
-            {
-                sizeDelta = new Vector2(elementSize.y * ar, elementSize.y);
-            }
-        }
-        if (matchWidthToHeight)
-        {
-            var y = Mathf.Min(sizeDelta.y, elementSize.y);
-            sizeDelta = new Vector2(y * ar, y);
-        }
-    }
-
-    public void PostProcessPosition()
-    {
-        rectTransform.anchoredPosition += positionalOffset;
-    }
 }

@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4844cc75892397d49b6003873f335868, type: 3}
+  m_Name: Generic Cleric
+  m_EditorClassIdentifier: 
+  characterName: General Eric
+  sprite: {fileID: 21300000, guid: 8df56ebcea426bc4fb59aa500f13ac94, type: 3}
+  headshotSprite: {fileID: 21300000, guid: e4ee1af76b38162429a01e0a6ade8508, type: 3}
+  attackRange: {x: 801, y: 8019}
+  healthRange: {x: 1198, y: 11980}
+  critChance: 0.04
+  critDamageMultiplier: 2
+  characterClass: 2
+  attackQteType: 1
+  turnsToCrit: 3
+  attackLeniency: 0.4
+  defenseLeniency: 0.1
+  skills:
+  - {fileID: 11400000, guid: 252df3eb1bc331d4a92ee3a6fe294893, type: 2}
+  - {fileID: 11400000, guid: e9eba64598d964742a11984f4e04a622, type: 2}
+  hasAltSkillAnimation: 1
+  superCritical: {fileID: 0}
+  spriteObject: {fileID: 5533685128411344549, guid: 7173cd55f9c494148a48422d5c7b8dad, type: 3}
+  animator: {fileID: 22100000, guid: 20957108b51fced4ba7b47de9dba9c9c, type: 2}
+  characterRig: {fileID: 8365532332609962219, guid: 0c4c0458900cbe94a8f145ba0e628b41, type: 3}
+  attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: f9ddeef4d27c5704581167f247331460, type: 2}
+    attackRange: 0
+    isAOE: 0
+  attackEffectPrefab: {fileID: 0}
+  extraEffectPrefabs:
+  - {fileID: 675607901657312348, guid: 49e963bc2ab104e47b23b61848e722fa, type: 3}
+  voiceEntry: {fileID: 11400000, guid: baec7fa1f843c7347ae03aff328663d1, type: 2}
+  voiceAttack: {fileID: 11400000, guid: ab7b69717b5c41a44b874beede66285e, type: 2}
+  voiceSelected: {fileID: 11400000, guid: ddd1e97eafd231d4da65615fc362ae20, type: 2}
+  voiceFirstSkill: {fileID: 11400000, guid: 076f0b2b092722747b5950185b061e80, type: 2}
+  voiceSecondSkill: {fileID: 11400000, guid: 0449b1007dfa2dc4eaee507ebeaab222, type: 2}
+  voiceHurt: {fileID: 11400000, guid: 2965a3419a4a25148bb79cee1f84740a, type: 2}
+  voiceDeath: {fileID: 11400000, guid: 4f6bd04bd5b806c4ab5daa2e6fcf3d9f, type: 2}
+  voiceVictory: {fileID: 11400000, guid: 7d1fd07dbe206604c901b13432b88e0b, type: 2}
+  weaponSound: {fileID: 11400000, guid: 0e97a9f7c9bf97046b59cef16af5c054, type: 2}
+  extraSounds:
+  - {fileID: 11400000, guid: dea6574d72fc70245a478750c82638a6, type: 2}
+  - {fileID: 11400000, guid: 36abf51a5c1bece408a1f37300f68d53, type: 2}

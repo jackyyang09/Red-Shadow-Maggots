@@ -7,6 +7,16 @@ namespace JSAM
     [AddComponentMenu("")]
     public class JSAMMusicChannelHelper : BaseAudioChannelHelper<JSAMMusicFileObject>
     {
+        protected override float Volume
+        {
+            get
+            {
+                var vol = AudioManager.InternalInstance.ModifiedMusicVolume;
+                if (audioFile) vol *= audioFile.relativeVolume;
+                return vol;
+            }
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -48,14 +58,6 @@ namespace JSAM
                 AudioSource.loop = true;
             }
 
-            switch (file.TransitionMode)
-            {
-                case JSAMMusicFileObject.TransitionModes.CrossfadeInAndOut:
-                    StartCoroutine(FadeIn(audioFile.TransitionInTime));
-                    StartCoroutine(FadeOut(audioFile.TransitionOutTime));
-                    break;
-            }
-
             return base.Play(file);
         }
 
@@ -66,46 +68,7 @@ namespace JSAM
             {
                 AudioSource.Stop();
             }
-            else
-            {
-                switch (audioFile.TransitionMode)
-                {
-                    case JSAMMusicFileObject.TransitionModes.CrossfadeInAndOut:
-                        StartCoroutine(FadeOut(audioFile.TransitionOutTime));
-                        break;
-                }
-            }
         }
-
-        protected override void OnUpdateVolume(float volume)
-        {
-            AudioSource.volume = AudioManager.InternalInstance.ModifiedMusicVolume;
-            if (audioFile) AudioSource.volume *= audioFile.relativeVolume;
-        }
-
-#region Fade Logic
-        /// <summary>
-        /// </summary>
-        /// <param name="fadeTime">Fade-in time in seconds</param>
-        /// <returns></returns>
-        protected override IEnumerator FadeIn(float fadeTime)
-        {
-            // Check if FadeTime isn't actually just 0
-            if (fadeTime != 0) // To prevent a division by zero
-            {
-                float timer = 0;
-                while (timer < fadeTime)
-                {
-                    if (audioFile.ignoreTimeScale) timer += Time.unscaledDeltaTime;
-                    else timer += Time.deltaTime;
-
-                    float volume = audioFile.relativeVolume * AudioManager.MusicVolume;
-                    AudioSource.volume = Mathf.Lerp(0, volume, timer / fadeTime);
-                    yield return null;
-                }
-            }
-        }
-#endregion
 
 #if UNITY_EDITOR
         public void PlayDebug(JSAMMusicFileObject file, bool dontReset)

@@ -4,8 +4,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneLoader : MonoBehaviour
+public class SceneLoader : Singleton<SceneLoader>
 {
+    public AsyncOperation LoadSceneOp;
+
+    public static System.Action<string> OnSwitchScene;
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoad;
@@ -34,6 +38,20 @@ public class SceneLoader : MonoBehaviour
     public void SwitchScene(int scene)
     {
         SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+    }
+
+    public void SwitchScene(string scene)
+    {
+        StartCoroutine(SwitchSceneRoutine(scene));
+    }
+
+    IEnumerator SwitchSceneRoutine(string scene)
+    {
+#if !UNITY_EDITOR
+        LoadSceneOp = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+#endif
+        OnSwitchScene?.Invoke(scene);
+        yield return LoadSceneOp;
     }
 
     public void QuitGame()

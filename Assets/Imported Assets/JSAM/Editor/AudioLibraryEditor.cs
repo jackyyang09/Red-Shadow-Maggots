@@ -296,7 +296,6 @@ namespace JSAM.JSAMEditor
 
         List<string> newSoundNames = new List<string>();
         List<string> missingSoundNames = new List<string>();
-        List<JSAMSoundFileObject> registeredSounds = new List<JSAMSoundFileObject>();
         /// <summary>
         /// Dictionary of category names to SerializedProperties that hold the list of sounds in that category
         /// </summary>
@@ -305,17 +304,10 @@ namespace JSAM.JSAMEditor
 
         List<string> newMusicNames = new List<string>();
         List<string> missingMusicNames = new List<string>();
-        List<JSAMMusicFileObject> registeredMusic = new List<JSAMMusicFileObject>();
         Dictionary<string, SerializedProperty> categoryToMusicStructs = new Dictionary<string, SerializedProperty>();
         Dictionary<string, AudioList> reorderableMusicLists = new Dictionary<string, AudioList>();
 
-        public static int selectedLibrary = 0;
-        public static List<string> projectLibrariesNames = null;
-        public static List<AudioLibrary> projectLibraries = null;
-
         static Vector2 scrollProgress;
-
-        public static bool renamingLibrary = false;
 
         public static int dragSelectedIndex = -1;
 
@@ -412,7 +404,7 @@ namespace JSAM.JSAMEditor
             {
                 if (AudioManager.Instance.Library)
                 {
-                    Window.LoadLibraries(AudioManager.Instance.Library.name);
+                    Window.AssignAsset(AudioManager.Instance.Library);
                 }
             }
         }
@@ -428,39 +420,13 @@ namespace JSAM.JSAMEditor
             Undo.undoRedoPerformed += OnUndoRedoPerformed;
             JSAMAssetModificationProcessor.OnJSAMAssetDeleted += OnJSAMAssetDeleted;
             Window.wantsMouseEnterLeaveWindow = true;
-            LoadLibraries();
+            if (asset == null) AssignAsset();
         }
 
         private void OnDisable()
         {
             JSAMAssetModificationProcessor.OnJSAMAssetDeleted -= OnJSAMAssetDeleted;
             Undo.undoRedoPerformed -= OnUndoRedoPerformed;
-        }
-
-        void LoadLibraries(string toBeSelected = "")
-        {
-            var libraries = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioLibrary>(JSAMSettings.Settings.LibraryPath);
-
-            projectLibraries = new List<AudioLibrary>();
-            projectLibrariesNames = new List<string>();
-            for (int i = 0; i < libraries.Count; i++)
-            {
-                projectLibraries.Add(libraries[i]);
-                projectLibrariesNames.Add(libraries[i].name);
-            }
-
-            if (toBeSelected.Equals(string.Empty))
-            {
-                if (asset == null)
-                {
-                    AssignAsset();
-                }
-            }
-            else
-            {
-                selectedLibrary = projectLibrariesNames.IndexOf(toBeSelected);
-                AssignAsset(projectLibraries[selectedLibrary]);
-            }
         }
 
         void HandleAssetDeletion()
@@ -490,8 +456,15 @@ namespace JSAM.JSAMEditor
 
         void ReinitializeSerializedObject()
         {
-            serializedObject = new SerializedObject(asset);
-            DesignateSerializedProperties();
+            if (asset)
+            {
+                serializedObject = new SerializedObject(asset);
+                DesignateSerializedProperties();
+            }
+            else
+            {
+                serializedObject = null;
+            }
         }
 
         void AssignAsset(AudioLibrary newAsset = null)
@@ -509,20 +482,10 @@ namespace JSAM.JSAMEditor
                 {
                     asset = JSAMSettings.Settings.SelectedLibrary;
                 }
-                else
-                {
-                    // Write to Settings file if the project has libraries
-                    if (projectLibraries.Count > 0)
-                    {
-                        asset = projectLibraries[0];
-                        JSAMSettings.Settings.SelectedLibrary = asset;
-                    }
-                }
             }
 
             if (asset != null)
             {
-                selectedLibrary = projectLibraries.IndexOf(asset);
                 if (serializedObject == null)
                 {
                     ReinitializeSerializedObject();
@@ -599,13 +562,13 @@ namespace JSAM.JSAMEditor
 
             sounds = FindProp(nameof(asset.Sounds));
             soundCategories = FindProp(nameof(asset.soundCategories));
-            soundCategoriesToList = FindProp("soundCategoriesToList");
+            soundCategoriesToList = FindProp(nameof(soundCategoriesToList));
 
             musicNamespaceGenerated = FindProp(nameof(asset.musicNamespaceGenerated));
 
             music = FindProp(nameof(asset.Music));
             musicCategories = FindProp(nameof(asset.musicCategories));
-            musicCategoriesToList = FindProp("musicCategoriesToList");
+            musicCategoriesToList = FindProp(nameof(musicCategoriesToList));
 
             HandleAssetDeletion();
             InitializeCategories();
@@ -728,73 +691,23 @@ namespace JSAM.JSAMEditor
 
             GUIContent blontent = new GUIContent();
 
-            // Apply leftover rename operation
-            if (renamingLibrary)
-            {
-                AssetDatabase.SaveAssets();
-                renamingLibrary = false;
-            }
-
             EditorGUILayout.BeginHorizontal();
-            blontent = new GUIContent("Selected Library", "The library you're currently modifying, " +
-                "use the drop-down menu to choose a different library");
+            blontent = new GUIContent("Selected Library", "");
             EditorGUI.BeginChangeCheck();
-            selectedLibrary = EditorGUILayout.Popup(blontent, selectedLibrary, projectLibrariesNames.ToArray());
+            asset = EditorGUILayout.ObjectField(blontent, asset, typeof(AudioLibrary), false) as AudioLibrary;
             if (EditorGUI.EndChangeCheck())
             {
-                AssignAsset(projectLibraries[selectedLibrary]);
+                ReinitializeSerializedObject();
             }
 
             blontent = new GUIContent(" Create ", "Click to create a new Audio Library asset");
             if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
             {
-                var window = JSAMUtilityWindow.Init("Enter new library name", true, true);
-                window.AddField(GUIContent.none, "New Library", false);
-                JSAMUtilityWindow.onSubmitField += OnCreateLibrary;
-            }
-
-            using (new EditorGUI.DisabledScope(serializedObject == null))
-            {
-                blontent = new GUIContent(" Rename ", "Click to rename this Audio Library asset");
-                if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
+                JSAMEditorHelper.OpenSmartSaveFileDialog(out AudioLibrary asset, "New Library");
+                if (asset)
                 {
-                    var window = JSAMUtilityWindow.Init("Enter new library name", true, true);
-                    window.AddField(GUIContent.none, projectLibrariesNames[selectedLibrary], false);
-                    JSAMUtilityWindow.onSubmitField += OnRenameLibrary;
+                    asset.InitializeValues();
                 }
-
-                blontent = new GUIContent(" Duplicate ", "Click to make a copy of this Audio Library asset");
-                if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
-                {
-                    bool result = EditorUtility.DisplayDialog("Confirm Asset Duplication",
-                        "Are you sure you want to create a duplicate of this Audio Library asset? " +
-                        "This process cannot be undone.", "Yes", "No");
-                    if (result)
-                    {
-                        string ogPath = AssetDatabase.GetAssetPath(projectLibraries[selectedLibrary]);
-                        string path = ogPath;
-                        path = path.Remove(path.IndexOf(".asset")) + " - Copy.asset";
-                        AssetDatabase.CopyAsset(ogPath, path);
-                        LoadLibraries(projectLibrariesNames[selectedLibrary] + " - Copy");
-                    }
-                    GUIUtility.ExitGUI();
-                }
-
-                JSAMEditorHelper.BeginColourChange(Color.red);
-                blontent = new GUIContent(" Delete ", "Click to delete this library asset");
-                if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
-                {
-                    bool result = EditorUtility.DisplayDialog("Confirm Library Deletion", "Are you sure you want to delete this library? " +
-                        "This process cannot be undone, but can be recovered from the system trash bin.", "Yes", "No");
-                    if (result)
-                    {
-                        string path = AssetDatabase.GetAssetPath(serializedObject.targetObject);
-                        AssetDatabase.MoveAssetToTrash(path);
-                        LoadLibraries();
-                    }
-                    GUIUtility.ExitGUI();
-                }
-                JSAMEditorHelper.EndColourChange();
             }
 
             EditorGUILayout.EndHorizontal();
@@ -803,14 +716,7 @@ namespace JSAM.JSAMEditor
 
             if (serializedObject == null)
             {
-                if (projectLibraries.Count > 0)
-                {
-                    EditorGUILayout.LabelField("Select an Audio Library asset to get started!");
-                }
-                else
-                {
-                    EditorGUILayout.LabelField("Create an Audio Library asset to get started!");
-                }
+                EditorGUILayout.LabelField("Select an Audio Library asset to get started!");
             }
             else
             {
@@ -1057,7 +963,9 @@ namespace JSAM.JSAMEditor
                     "Do this every time you Add/Remove Audio File objects in your library.");
                 if (GUILayout.Button(blontent))
                 {
-                    GenerateEnumFile(JSAMSettings.Settings.GeneratedEnumsPath);
+                    var path = AssetDatabase.GetAssetPath(asset);
+                    path = path.Substring(0, path.LastIndexOf("/"));
+                    GenerateEnumFile(path);
                     GUIUtility.ExitGUI();
                 }
 
@@ -1104,47 +1012,6 @@ namespace JSAM.JSAMEditor
                 ReinitializeSerializedObject();
                 window.Repaint();
             }
-        }
-
-        void OnCreateLibrary(string[] input)
-        {
-            if (input[0].IsNullEmptyOrWhiteSpace())
-            {
-                EditorUtility.DisplayDialog("Create Library Error",
-                    "Your Audio Library name cannot be left blank", "OK");
-            }
-            else if (projectLibrariesNames.Contains(input[0]))
-            {
-                EditorUtility.DisplayDialog("Create Library Error",
-                    "An Audio Library with this name already exists! Please use a different name.", "OK");
-            }
-            var newLibrary = CreateInstance<AudioLibrary>();
-            newLibrary.name = input[0];
-            newLibrary.InitializeValues();
-            string path = Path.Combine(JSAMSettings.Settings.LibraryPath, input[0]) + ".asset";
-            if (JSAMEditorHelper.CreateAssetSafe(newLibrary, path))
-            {
-                LoadLibraries(newLibrary.name);
-            }
-        }
-
-        void OnRenameLibrary(string[] input)
-        {
-            if (input[0].IsNullEmptyOrWhiteSpace())
-            {
-                EditorUtility.DisplayDialog("Create Library Error",
-                    "Your Audio Library name cannot be left blank", "OK");
-            }
-            else if (projectLibrariesNames.Contains(input[0]))
-            {
-                EditorUtility.DisplayDialog("Create Library Error",
-                    "An Audio Library with this name already exists! Please use a different name.", "OK");
-            }
-            var targetLibrary = projectLibraries[selectedLibrary];
-            string path = AssetDatabase.GetAssetPath(targetLibrary);
-            AssetDatabase.RenameAsset(path, input[0]);
-            LoadLibraries(targetLibrary.name);
-            renamingLibrary = true;
         }
 
         void HandleMouseEnterLeave()

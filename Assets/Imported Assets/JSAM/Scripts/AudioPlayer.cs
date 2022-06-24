@@ -35,6 +35,9 @@ namespace JSAM
         /// </summary>
         bool activated;
 
+        JSAMSoundChannelHelper helper;
+        public JSAMSoundChannelHelper SoundHelper { get { return helper; } }
+
         // Start is called before the first frame update
         protected void Start()
         {
@@ -53,19 +56,9 @@ namespace JSAM
             }
         }
 
-        public JSAMSoundChannelHelper Play()
+        public void Play()
         {
-            var helper = AudioManager.PlaySound(sound, transform);
-
-            // Ready to play again later
-            activated = false;
-
-            return helper;
-        }
-
-        void PlayAtPosition()
-        {
-            var helper = AudioManager.PlaySound(sound, transform);
+            helper = AudioManager.PlaySound(sound, transform);
 
             // Ready to play again later
             activated = false;

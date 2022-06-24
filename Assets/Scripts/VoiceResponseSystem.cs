@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using JSAM;
-using System;
 
 public class VoiceResponseSystem : MonoBehaviour
 {
@@ -11,7 +10,8 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         SceneTweener.OnBattleTransition += Entry;
 
-        BattleSystem.OnEnterFinalWave += EnterFinal;
+        EnemyWaveManager.OnEnterBossWave += EnterFinal;
+
         BattleSystem.OnWaveClear += WaveClear;
         BattleSystem.OnFinalWaveClear += GameClear;
         BattleSystem.OnPlayerDefeat += PlayerLose;
@@ -36,7 +36,8 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         SceneTweener.OnBattleTransition -= Entry;
 
-        BattleSystem.OnEnterFinalWave -= EnterFinal;
+        EnemyWaveManager.OnEnterBossWave -= EnterFinal;
+
         BattleSystem.OnWaveClear -= WaveClear;
         BattleSystem.OnFinalWaveClear -= GameClear;
         BattleSystem.OnPlayerDefeat -= PlayerLose;
@@ -93,7 +94,7 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
         AudioManager.PlaySound(BattleSceneSounds.PlayerVictory);
-        //AudioManager.StopMusic();
+        AudioManager.StopMusicIfPlaying(AudioManager.MainMusic);
         var source = AudioManager.PlaySound(audio);
         source.Stop();
         source.AudioSource.PlayDelayed(2);

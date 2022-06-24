@@ -237,7 +237,7 @@ namespace JSAM.JSAMEditor
                 "files", "UsingLibrary", "category"
             };
 #endif
-            string path = JSAMSettings.Settings.PresetsPath + "\"" + input[0] + ".preset";
+            string path = System.IO.Path.Combine(JSAMSettings.Settings.PresetsPath, input[0] + ".preset");
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
         }
 
@@ -258,6 +258,9 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.Space();
 
+#if UNITY_2020_3_OR_NEWER
+            EditorGUILayout.PropertyField(files);
+#else
             #region Library Region
             if (!isPreset)
             {
@@ -312,7 +315,7 @@ namespace JSAM.JSAMEditor
                 EditorGUILayout.LabelField("File Count: " + files.arraySize);
             }
             #endregion
-
+#endif
             EditorGUILayout.Space();
 
             blontent = new GUIContent("Never Repeat", "Sometimes, AudioManager will allow the same sound from the Audio " +
@@ -348,11 +351,12 @@ namespace JSAM.JSAMEditor
             {
                 RedesignateActiveAudioClip();
             }
-            DrawPlaybackTool();
+
+            if (!isPreset) DrawPlaybackTool();
 
             DrawLoopPointTools(target as JSAMSoundFileObject);
 
-#region Fade Tools
+            #region Fade Tools
             EditorGUILayout.PropertyField(fadeInOut);
 
             using (new EditorGUI.DisabledScope(!fadeInOut.boolValue))
@@ -386,7 +390,7 @@ namespace JSAM.JSAMEditor
                     EditorCompatability.EndSpecialFoldoutGroup();
                 }
             }
-#endregion
+            #endregion
 
             if (!noFiles) DrawAudioEffectTools();
 
@@ -403,32 +407,25 @@ namespace JSAM.JSAMEditor
                 }
             }
 
-#region Quick Reference Guide
+            #region Quick Reference Guide
             string[] howToText = new string[]
             {
                 "Overview",
                 "Audio File Objects are containers that hold your sound files to be read by Audio Manager.",
-                "No matter the filename or folder location, this Audio File will be referred to as it's name above",
                 "Tips",
-                "If your one sound has many different variations available, try enabling the \"Use Library\" option " +
-                    "just below the name field. This let's AudioManager play a random different sound whenever you choose to play from this audio file object.",
                 "Relative volume only helps to reduce how loud a sound is. To increase how loud an individual sound is, you'll have to " +
                     "edit it using a sound editor.",
-                "You can always check what audio file objects you have loaded in AudioManager's library by selecting the AudioManager " +
-                    "in the inspector and clicking on the drop-down near the bottom.",
-                "If you want to better organize your audio file objects in AudioManager's library, you can assign a "+ 
-                "category to this audio file object."
             };
 
             showHowTo = JSAMEditorHelper.RenderQuickReferenceGuide(showHowTo, howToText);
-#endregion
+            #endregion
         }
 
         protected override void DrawPlaybackTool()
         {
-            blontent = new GUIContent("Audio Playback Preview", 
+            blontent = new GUIContent("Audio Playback Preview",
                 "Allows you to preview how your AudioFileObject will sound during runtime right here in the inspector. " +
-                "Some effects, like spatialization and delay, will not be available to preview");
+                "Some effects, like spatialization, will not be available to preview");
             showPlaybackTool = EditorCompatability.SpecialFoldouts(showPlaybackTool, blontent);
 
             if (showPlaybackTool)
@@ -451,7 +448,6 @@ namespace JSAM.JSAMEditor
                         if (clipPlaying)
                         {
                             AudioPlaybackToolEditor.helperSource.Stop();
-                            AudioPlaybackToolEditor.helperSource.time = 0;
                             if (playingRandom)
                             {
                                 playingRandom = false;
@@ -464,6 +460,7 @@ namespace JSAM.JSAMEditor
                                 editorFader.StartFading(playingClip, asset as JSAMSoundFileObject);
                             }
                         }
+                        AudioPlaybackToolEditor.helperSource.time = 0;
                         AudioPlaybackToolEditor.DoForceRepaint(true);
                     }
                     GUI.backgroundColor = colorbackup;
@@ -483,6 +480,14 @@ namespace JSAM.JSAMEditor
                     }
                     GUILayout.FlexibleSpace();
                     EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.Space();
+                }
+
+                if (EditorUtility.audioMasterMute)
+                {
+                    JSAMEditorHelper.RenderHelpbox("Audio is muted in the game view, which also mutes audio " +
+                        "playback here. Please un-mute it to hear your audio.");
                 }
             }
             EditorCompatability.EndSpecialFoldoutGroup();
@@ -606,7 +611,7 @@ namespace JSAM.JSAMEditor
 
             if (hide)
             {
-                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20));
+                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20).SetTextColor(GUI.skin.label.normal.textColor));
                 return false;
             }
 

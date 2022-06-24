@@ -37,43 +37,24 @@ public struct DamageStruct
 
 public abstract class BaseCharacter : MonoBehaviour
 {
-    [SerializeField]
-    protected CharacterObject characterReference;
-    public CharacterObject Reference
-    {
-        get
-        {
-            return characterReference;
-        }
-    }
+    [SerializeField] protected CharacterObject characterReference;
+    public CharacterObject Reference { get { return characterReference; } }
 
-    [SerializeField]
-    float health;
-    public float CurrentHealth
-    {
-        get
-        {
-            return health;
-        }
-    }
+    [SerializeField] [Range(1, 90)] protected int currentLevel = 1;
+    public int CurrentLevel { get { return currentLevel; } }
 
-    [SerializeField]
-    float maxHealth;
-    public float MaxHealth
-    {
-        get
-        {
-            return maxHealth;
-        }
-    }
+    [SerializeField] protected float health;
+    public float CurrentHealth { get { return health; } }
+
+    [SerializeField] protected float maxHealth;
+    public float MaxHealth { get { return maxHealth; } }
 
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
-    [SerializeField]
-    float attackModifier;
+    [SerializeField] float attackModifier;
     public float AttackModifier { get { return attackModifier; } }
-    public float AttackModified { get { return characterReference.attack + attackModifier; } }
+    public float AttackModified { get { return characterReference.GetAttack(currentLevel) + attackModifier; } }
 
     /// <summary>
     /// Additive modifier from skills
@@ -105,15 +86,14 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] float critDamageModifier = 0;
     public float CritDamageModified { get { return critMultiplier + critDamageModifier; } }
 
-    [SerializeField] Rarity rarity;
+    [SerializeField] protected Rarity rarity;
+    public float RarityMultiplier { get { return 1 + 0.5f * (int)rarity; } }
 
     public bool IsDead { get { return health <= 0; } }
 
+    public bool CanDie = true;
+
     [Header("Object References")]
-
-    [SerializeField] protected CharacterCardHolder cardHolder;
-
-    [SerializeField] protected Rigidbody rigidBody;
 
     [SerializeField] protected Animator spriteAnim;
 
@@ -139,7 +119,14 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects { get; } = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
 
-    List<GameSkill> gameSkills = new List<GameSkill>();
+    protected List<GameSkill> gameSkills = new List<GameSkill>();
+    public List<GameSkill> Skills { get { return gameSkills; } }
+    public bool CanUseSkill(int index)
+    {
+        return gameSkills[index].CanUse;
+    }
+
+    protected ViewportBillboard billBoard;
 
     protected bool usedSuperCritThisTurn;
 
@@ -147,6 +134,10 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action<AppliedEffect> onRemoveGameEffect;
 
     public Action onHeal;
+    /// <summary>
+    /// Only invoked when changing health through abnormal means
+    /// </summary>
+    public Action onSetHealth;
     public Action onTakeDamage;
 
     public Action OnCharacterCritChanceChanged;
@@ -171,22 +162,39 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         characterReference = newRef;
         rarity = newRarity;
-
-        cardHolder.SetCharacterAndRarity(newRef, newRarity);
-        ApplyCharacterStats();
     }
 
-    public void ApplyCharacterStats()
+    public virtual void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
     {
         if (characterReference == null) return;
 
-        float rarityMultiplier = 1 + 0.5f * (int)rarity;
+        currentLevel = level;
+        maxHealth = characterReference.GetMaxHealth(currentLevel, true) * RarityMultiplier;
 
-        maxHealth = characterReference.maxHealth * rarityMultiplier;
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;
 
-        health = maxHealth;
+        Initialize();
+
+        if (stateInfo != null)
+        {
+            health = stateInfo.Health;
+            if (health == 0)
+            {
+                DieSilently();
+                return;
+            }
+
+            for (int i = 0; i < stateInfo.Effects.Count; i++)
+            {
+                ApplyEffect(gameEffectLoader.DeserializeEffect(stateInfo.Effects[i], this));
+            }
+        }
+        else
+        {
+            health = maxHealth;
+        }
+        onSetHealth?.Invoke();
 
         for (int i = 0; i < characterReference.skills.Length; i++)
         {
@@ -196,13 +204,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    protected virtual void Awake()
-    {
-        ApplyCharacterStats();
-    }
-
-    // Start is called before the first frame update
-    protected virtual void Start()
+    protected virtual void Initialize()
     {
         if (characterReference.characterRig)
         {
@@ -216,6 +218,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit += HideCharacterUI;
         BattleSystem.OnStartPlayerTurn += OnStartPlayerTurn;
+        BattleSystem.OnEndEnemyTurn += CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -224,6 +227,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit -= HideCharacterUI;
         BattleSystem.OnStartPlayerTurn -= OnStartPlayerTurn;
+        BattleSystem.OnEndEnemyTurn -= CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
@@ -246,7 +250,6 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         usedSuperCritThisTurn = false;
         ShowCharacterUI();
-        CooldownSkills();
     }
 
     public void UseSuperCritical()
@@ -416,16 +419,6 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(SkillRoutine(index));
     }
 
-    public bool CanUseSkill(int index)
-    {
-        return gameSkills[index].CanUse;
-    }
-
-    public GameSkill GetSkill(int index)
-    {
-        return gameSkills[index];
-    }
-
     List<BaseCharacter> targets = new List<BaseCharacter>();
 
     GameSkill currentSkill;
@@ -484,15 +477,17 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (battleSystem.CurrentPhase)
                 {
                     case BattlePhases.PlayerTurn:
-                        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
+                        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
                         {
-                            targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
+                            if (!battleSystem.PlayerCharacters[i]) continue;
+                            targets.Add(battleSystem.PlayerCharacters[i]);
                         }
                         break;
                     case BattlePhases.EnemyTurn:
-                        for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
+                        for (int i = 0; i < enemyController.Enemies.Length; i++)
                         {
-                            targets.Add(EnemyController.Instance.Enemies[i]);
+                            if (!enemyController.Enemies[i]) continue;
+                            targets.Add(enemyController.Enemies[i]);
                         }
                         break;
                 }
@@ -501,15 +496,17 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (battleSystem.CurrentPhase)
                 {
                     case BattlePhases.PlayerTurn:
-                        for (int i = 0; i < EnemyController.Instance.Enemies.Count; i++)
+                        for (int i = 0; i < enemyController.Enemies.Length; i++)
                         {
-                            targets.Add(EnemyController.Instance.Enemies[i]);
+                            if (!enemyController.Enemies[i]) continue;
+                            targets.Add(enemyController.Enemies[i]);
                         }
                         break;
                     case BattlePhases.EnemyTurn:
-                        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
+                        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
                         {
-                            targets.Add(BattleSystem.Instance.PlayerCharacters[i]);
+                            if (!battleSystem.PlayerCharacters[i]) continue;
+                            targets.Add(battleSystem.PlayerCharacters[i]);
                         }
                         break;
                 }
@@ -563,7 +560,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (rigAnim)
         {
-            rigAnim.Play("Skill");
+            if (Reference.hasAltSkillAnimation && skillUsed == 1)
+            {
+                rigAnim.Play("Skill Alt");
+            }
+            else rigAnim.Play("Skill");
         }
         else
         {
@@ -592,8 +593,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public static void ApplyEffectToCharacter(SkillObject.EffectProperties props, BaseCharacter character, TargetMode targetMode)
     {
-        Instantiate(props.effect.particlePrefab, character.transform);
+        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, character.transform);
         props.effect.Activate(character, props.strength, props.customValues);
+
+        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, character.transform);
+
         if (props.effectDuration == 0) return;
 
         AppliedEffect newEffect = new AppliedEffect();
@@ -630,9 +634,9 @@ public abstract class BaseCharacter : MonoBehaviour
                     }
                     break;
                 case TargetMode.AllEnemies:
-                    for (int j = 0; j < EnemyController.Instance.Enemies.Count; j++)
+                    for (int j = 0; j < enemyController.Enemies.Length; j++)
                     {
-                        ApplyEffectToCharacter(effect, EnemyController.Instance.Enemies[j], TargetMode.AllEnemies);
+                        ApplyEffectToCharacter(effect, enemyController.Enemies[j], TargetMode.AllEnemies);
                     }
                     break;
                 case TargetMode.Self:
@@ -661,8 +665,18 @@ public abstract class BaseCharacter : MonoBehaviour
             AppliedEffects.Add(newEffect.referenceEffect, new List<AppliedEffect>());
         }
         AppliedEffects[newEffect.referenceEffect].Add(newEffect);
-        EffectTextSpawner.instance.SpawnEffectAt(newEffect.referenceEffect, transform);
         onApplyGameEffect?.Invoke(newEffect);
+    }
+
+    public void RemoveAllEffectsOfType(BaseGameEffect effect)
+    {
+        if (!AppliedEffects.ContainsKey(effect)) return;
+
+        for (int i = AppliedEffects[effect].Count - 1; i > -1; i--)
+        {
+            onRemoveGameEffect?.Invoke(AppliedEffects[effect][i]);
+            AppliedEffects[effect].RemoveAt(i);
+        }
     }
 
     public void CooldownSkills()
@@ -707,7 +721,8 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         health = Mathf.Clamp(health + healthGain, 0, maxHealth);
         onHeal?.Invoke();
-        EffectTextSpawner.instance.SpawnHealNumberAt(healthGain, transform);
+        onSetHealth?.Invoke();
+        EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
     }
 
     public void ApplyAttackModifier(float modifier)
@@ -791,7 +806,7 @@ public abstract class BaseCharacter : MonoBehaviour
         onTakeDamage?.Invoke();
         OnCharacterAttacked?.Invoke(this);
 
-        if (health == 0)
+        if (health == 0 && CanDie)
         {
             if (rigAnim)
             {
@@ -838,6 +853,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public abstract void InvokeDeathEvents();
     public abstract void Die();
+    public virtual void DieSilently()
+    {
+        animHelper.EnableRagdoll();
+        if (billBoard) Destroy(billBoard.gameObject);
+    }
 
     public float GetHealthPercent()
     {

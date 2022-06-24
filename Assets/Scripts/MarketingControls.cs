@@ -39,6 +39,12 @@ public class MarketingControls : MonoBehaviour
 
     [SerializeField] KeyCode endCardButton = KeyCode.RightBracket;
 
+    [SerializeField] KeyCode backspaceKey = KeyCode.Backspace;
+    [SerializeField] KeyCode typingKey = KeyCode.Space;
+
+    [SerializeField] InputField inputField;
+    string cachedString;
+
     [SerializeField] GameObject title = null;
 
     [SerializeField] GameObject characterSplashes = null;
@@ -48,7 +54,8 @@ public class MarketingControls : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        rigAnim.Play("Idle");
+        if (rigAnim) rigAnim.Play("Idle");
+        cachedString = inputField.text;
     }
 
     private void Update()
@@ -69,6 +76,14 @@ public class MarketingControls : MonoBehaviour
         {
             HideCharacterShowCase();
             HideEndCard();
+        }
+        else if (Input.GetKeyDown(backspaceKey))
+        {
+            inputField.text = "";
+        }
+        else if (Input.GetKeyDown(typingKey))
+        {
+            StartCoroutine(TypingRoutine());
         }
     }
 
@@ -96,6 +111,15 @@ public class MarketingControls : MonoBehaviour
         characterModel.SetActive(false);
         characterShowcaseObjects.SetActive(false);
         characterInfo.gameObject.SetActive(false);
+    }
+
+    IEnumerator TypingRoutine()
+    {
+        while (inputField.text.Length < cachedString.Length)
+        {
+            inputField.text = cachedString.Substring(0, Mathf.Min(cachedString.Length, inputField.text.Length + 1));
+            yield return new WaitForSeconds(0.015f);
+        }
     }
 
     IEnumerator DisplayCharacter()

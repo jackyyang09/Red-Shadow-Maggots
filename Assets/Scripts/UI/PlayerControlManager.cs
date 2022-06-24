@@ -24,14 +24,17 @@ public class PlayerControlManager : BasicSingleton<PlayerControlManager>
     {
         activeControlModes[(int)currentMode] = false;
 
+        bool foundNewMode = false;
         for (int i = (int)currentMode - 1; i > -1; i--)
         {
             if (activeControlModes[i])
             {
                 currentMode = (PlayerControlMode)i;
+                foundNewMode = true;
                 break;
             }
         }
+        if (!foundNewMode) currentMode = PlayerControlMode.FullControl;
 
         OnPlayerControlChanged[(int)currentMode]?.Invoke();
     }

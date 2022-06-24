@@ -20,6 +20,9 @@ namespace JSAM
         SerializedProperty onDisable;
         SerializedProperty onDestroy;
 
+        SerializedProperty fadeBehaviour;
+        SerializedProperty fadeTime;
+
         //static bool showAudioClipSettings = false;
 
         protected override void Setup()
@@ -34,6 +37,9 @@ namespace JSAM
             onEnable = serializedObject.FindProperty("onEnable");
             onDisable = serializedObject.FindProperty("onDisable");
             onDestroy = serializedObject.FindProperty("onDestroy");
+
+            fadeBehaviour = serializedObject.FindProperty(nameof(fadeBehaviour));
+            fadeTime = serializedObject.FindProperty(nameof(fadeTime));
         }
 
         public override void OnInspectorGUI()
@@ -54,6 +60,13 @@ namespace JSAM
             EditorGUILayout.PropertyField(onEnable);
             EditorGUILayout.PropertyField(onDisable);
             EditorGUILayout.PropertyField(onDestroy);
+
+            EditorGUILayout.LabelField("Fade Settings", EditorStyles.boldLabel);
+            EditorGUILayout.PropertyField(fadeBehaviour);
+            using (new EditorGUI.DisabledGroupScope(fadeBehaviour.enumValueIndex == 0))
+            {
+                EditorGUILayout.PropertyField(fadeTime);
+            }
 
             if (serializedObject.hasModifiedProperties)
             {

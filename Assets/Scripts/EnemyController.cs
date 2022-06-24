@@ -5,12 +5,37 @@ using static Facade;
 
 public class EnemyController : BasicSingleton<EnemyController>
 {
-    public List<EnemyCharacter> Enemies { get; private set; }
+    public EnemyCharacter[] Enemies { get; private set; }
     public EnemyCharacter RandomEnemy
     {
         get
         {
-            return Enemies[Random.Range(0, Enemies.Count)];
+            List<EnemyCharacter> e = new List<EnemyCharacter>();
+            for (int i = 0; i < Enemies.Length; i++)
+            {
+                if (Enemies[i])
+                {
+                    if (!Enemies[i].IsDead) e.Add(Enemies[i]);
+                }
+            }
+            if (e.Count == 0) return null;
+            battleStateManager.InitializeRandom();
+            return e[Random.Range(0, e.Count)];
+        }
+    }
+
+    public bool EnemiesAlive
+    {
+        get
+        {
+            for (int i = 0; i < Enemies.Length; i++)
+            {
+                if (Enemies[i])
+                {
+                    if (!Enemies[i].IsDead) return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -21,6 +46,11 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
+
+    private void Start()
+    {
+        AddHacks();
+    }
 
     private void OnEnable()
     {
@@ -39,7 +69,7 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void AssignEnemies(List<EnemyCharacter> enemyCharacters)
     {
-        Enemies = enemyCharacters;
+        Enemies = enemyCharacters.ToArray();
     }
 
     public void ChooseNewTargets()
@@ -50,8 +80,8 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void ChooseAttacker()
     {
-        if (Enemies.Count == 0) return;
-        battleSystem.SetEnemyAttacker(Enemies[Random.Range(0, Enemies.Count)]);
+        if (Enemies.Length == 0) return;
+        battleSystem.SetEnemyAttacker(RandomEnemy);
         OnChangedAttackers?.Invoke();
     }
 
@@ -70,6 +100,8 @@ public class EnemyController : BasicSingleton<EnemyController>
             return;
         }
 #endif
+        battleStateManager.InitializeRandom();
+
         if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
         {
             //if (enemy.CanUseSkill(index))
@@ -83,6 +115,8 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void BeginAttack()
     {
+        battleStateManager.InitializeRandom();
+
         var enemy = battleSystem.ActiveEnemy;
         int attackIndex = Random.Range(0, enemy.Reference.attackAnimations.Length);
         var attack = enemy.Reference.attackAnimations[attackIndex];
@@ -95,20 +129,41 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)
     {
-        Enemies.Remove(enemy);
         ChooseAttacker();
     }
 
     #region Debug Hacks
-    [CommandTerminal.RegisterCommand(Help = "Instantly hurt enemies, leaving them at 1 health")]
-    public static void CrippleEnemies(CommandTerminal.CommandArg[] args)
+    void AddHacks()
     {
-        for (int i = 0; i < Instance.Enemies.Count; i++)
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(CrippleEnemies)
         {
-            BaseCharacter.IncomingDamage.damage = Instance.Enemies[i].CurrentHealth - 1;
-            Instance.Enemies[i].TakeDamage();
+            alias = nameof(CrippleEnemies),
+            description = "Instantly hurt enemies, leaving them at 1 health"
+        });
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(ForceEnemyUseSkills)
+        {
+            alias = nameof(ForceEnemyUseSkills),
+            description = "Sets all enemy's skill use chance to 100%"
+        });
+    }
+
+    public void CrippleEnemies()
+    {
+        for (int i = 0; i < Enemies.Length; i++)
+        {
+            BaseCharacter.IncomingDamage.damage = Enemies[i].CurrentHealth - 1;
+            Enemies[i].TakeDamage();
         }
         Debug.Log("Enemies damaged!");
+    }
+
+    public void ForceEnemyUseSkills()
+    {
+        for (int i = 0; i < Enemies.Length; i++)
+        {
+            Enemies[i].SetSkillUseChance(1);
+        }
+        Debug.Log("Set enemy skill chance to 100%!");
     }
     #endregion
 }

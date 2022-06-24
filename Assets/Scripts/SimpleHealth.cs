@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using System;
 
 public class SimpleHealth : MonoBehaviour
 {
@@ -28,28 +29,47 @@ public class SimpleHealth : MonoBehaviour
     {
         baseCharacter = character;
 
-        healthBar.fillAmount = baseCharacter.GetHealthPercent();
-        healthText.text = baseCharacter.CurrentHealth.ToString();
+        baseCharacter.onTakeDamage += OnTakeDamage;
+        baseCharacter.onSetHealth += OnSetHealth;
+        baseCharacter.onHeal += OnHeal;
 
-        baseCharacter.onTakeDamage += UpdateValue;
-        baseCharacter.onHeal += UpdateValue;
+        OnSetHealth();
     }
 
     private void OnDisable()
     {
         if (baseCharacter)
         {
-            baseCharacter.onTakeDamage -= UpdateValue;
-            baseCharacter.onHeal -= UpdateValue;
+            baseCharacter.onTakeDamage -= OnTakeDamage;
+            baseCharacter.onSetHealth -= OnSetHealth;
+            baseCharacter.onHeal -= OnHeal;
         }
     }
 
-    // Update is called once per frame
-    public void UpdateValue()
+    public void OnTakeDamage()
     {
         tweenBar.fillAmount = healthBar.fillAmount;
         healthBar.fillAmount = baseCharacter.GetHealthPercent();
         tweenBar.DOFillAmount(healthBar.fillAmount, catchupTime).SetEase(Ease.OutCubic).SetDelay(updateDelay);
         healthText.text = ((int)baseCharacter.CurrentHealth).ToString();
+    }
+
+    private void OnSetHealth()
+    {
+        healthBar.fillAmount = baseCharacter.GetHealthPercent();
+        tweenBar.fillAmount = healthBar.fillAmount;
+        healthText.text = ((int)baseCharacter.CurrentHealth).ToString();
+    }
+
+    public void OnHeal()
+    {
+        var tween = healthBar.DOFillAmount(baseCharacter.GetHealthPercent(), catchupTime).OnUpdate(() =>
+        {
+            healthText.text = ((int)Mathf.Lerp(0, baseCharacter.MaxHealth, healthBar.fillAmount)).ToString();
+        }).SetEase(Ease.OutCubic).OnComplete(() =>
+        {
+            healthBar.fillAmount = baseCharacter.GetHealthPercent();
+            healthText.text = baseCharacter.CurrentHealth.ToString();
+        });
     }
 }

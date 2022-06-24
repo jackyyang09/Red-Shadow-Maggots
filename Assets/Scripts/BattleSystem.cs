@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using static Facade;
 
 public enum BattlePhases
@@ -32,13 +32,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [SerializeField] List<float> gameSpeeds = new List<float>();
 
     public int CurrentGameSpeed = 0;
-    public float CurrentGameSpeedTime
-    {
-        get
-        {
-            return gameSpeeds[CurrentGameSpeed];
-        }
-    }
+    public float CurrentGameSpeedTime { get { return gameSpeeds[CurrentGameSpeed]; } }
 
     [SerializeField] BattlePhases currentPhase;
     public BattlePhases CurrentPhase { get { return currentPhase; } }
@@ -48,20 +42,40 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     [SerializeField] List<PlayerCharacter> playerCharacters = null;
 
-    public List<PlayerCharacter> PlayerCharacters
-    {
-        get
-        {
-            return playerCharacters;
-        }
-    }
+    public List<PlayerCharacter> PlayerCharacters { get { return playerCharacters; } }
 
     public PlayerCharacter RandomPlayerCharacter
     {
         get
         {
             if (priorityPlayers.Count > 0) return priorityPlayers[0];
-            return playerCharacters[UnityEngine.Random.Range(0, PlayerCharacters.Count)];
+
+            List<PlayerCharacter> p = new List<PlayerCharacter>();
+            for (int i = 0; i < playerCharacters.Count; i++)
+            {
+                if (PlayerCharacters[i])
+                {
+                    if (!PlayerCharacters[i].IsDead) p.Add(PlayerCharacters[i]);
+                }
+            }
+            if (p.Count == 0) return null;
+            battleStateManager.InitializeRandom();
+            return p[Random.Range(0, p.Count)];
+        }
+    }
+
+    public bool PlayersAlive
+    {
+        get
+        {
+            for (int i = 0; i < playerCharacters.Count; i++)
+            {
+                if (playerCharacters[i])
+                {
+                    if (!playerCharacters[i].IsDead) return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -72,6 +86,49 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             List<BaseCharacter> list = new List<BaseCharacter>(playerCharacters);
             list.AddRange(enemyController.Enemies);
             return list;
+        }
+    }
+
+
+    public PlayerCharacter ActivePlayer
+    {
+        get
+        {
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.player;
+            }
+            return enemyTargets.player;
+        }
+    }
+
+    public EnemyCharacter ActiveEnemy
+    {
+        get
+        {
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.enemy;
+            }
+            return enemyTargets.enemy;
+        }
+    }
+
+    public PlayerCharacter EnemyAttackTarget { get { return enemyTargets.player; } }
+    public EnemyCharacter EnemyAttacker { get { return enemyTargets.enemy; } }
+
+    public BaseCharacter OpposingCharacter
+    {
+        get
+        {
+            switch (currentPhase)
+            {
+                case BattlePhases.PlayerTurn:
+                    return playerTargets.enemy;
+            }
+            return enemyTargets.player;
         }
     }
 
@@ -93,57 +150,88 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
 
-    public static Action OnStartPlayerTurn;
+    public static System.Action OnStartPlayerTurn;
     /// <summary>
     /// Invokes after OnStartPlayerTurn
     /// </summary>
-    public static Action OnStartPlayerTurnLate;
-    public static Action OnEndPlayerTurn;
+    public static System.Action OnStartPlayerTurnLate;
+    public static System.Action OnEndPlayerTurn;
 
-    public static Action OnStartEnemyTurn;
+    public static System.Action OnStartEnemyTurn;
     /// <summary>
     /// Invokes after OnStartEnemyTurn
     /// </summary>
-    public static Action OnStartEnemyTurnLate;
-    public static Action OnEndEnemyTurn;
+    public static System.Action OnStartEnemyTurnLate;
+    public static System.Action OnEndEnemyTurn;
 
-    public static Action OnTargettableCharactersChanged;
-    public static Action<BaseGameEffect> OnTickEffect;
+    public static System.Action OnTargettableCharactersChanged;
+    public static System.Action<BaseGameEffect> OnTickEffect;
 
-    public static Action OnEnterFinalWave;
-    public static Action OnWaveClear;
-    public static Action OnFinalWaveClear;
-    public static Action OnPlayerDefeat;
-
-    public void GameStart()
-    {
-        playerTargets.player = playerCharacters[0];
-        playerTargets.player.ShowCharacterUI();
-
-        InitiateNextBattle();
-    }
+    public static System.Action OnWaveClear;
+    public static System.Action OnFinalWaveClear;
+    public static System.Action OnPlayerDefeat;
 
     private void OnEnable()
     {
         GlobalEvents.OnAnyPlayerDeath += SwitchTargets;
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
+
+        SceneTweener.OnBattleEntered += EndTurn;
     }
 
     private void OnDisable()
     {
         GlobalEvents.OnAnyPlayerDeath -= SwitchTargets;
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
+
+        SceneTweener.OnBattleEntered -= EndTurn;
     }
 
-    public void InitiateNextBattle()
+    private IEnumerator Start()
     {
-        var enemies = waveManager.SetupWave();
+        screenEffects.BlackOut();
 
-        if (waveManager.IsLastWave) OnEnterFinalWave?.Invoke();
+        AddHacks();
+        QuickTimeHold.AddHacks();
 
-        enemyController.AssignEnemies(enemies);
-        playerTargets.enemy = enemies[0];
-        playerTargets.enemy.ShowCharacterUI();
+        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+
+        yield return StartCoroutine(LoadBattleState());
+
+        GameStart();
+    }
+
+    public void GameStart()
+    {
+        if (playerCharacters[0]) playerTargets.player = playerCharacters[0];
+        else if (playerCharacters[1]) playerTargets.player = playerCharacters[1];
+        else if (playerCharacters[2]) playerTargets.player = playerCharacters[2];
+        playerTargets.player.ShowCharacterUI();
+
+        StartCoroutine(InitiateNextBattle());
+    }
+
+    public IEnumerator InitiateNextBattle()
+    {
+        yield return waveManager.SetupWave();
+
+        if (battleStateManager.LoadedData.SavedSeed == 0)
+        {
+            var seed = (int)System.DateTime.Now.Ticks;
+            battleStateManager.LoadedData.SavedSeed = seed;
+            battleStateManager.SaveData();
+        }
+
+        for (int i = 0; i < enemyController.Enemies.Length; i++)
+        {
+            if (!enemyController.Enemies[i]) continue;
+            if (enemyController.Enemies[i].IsDead) continue;
+            playerTargets.enemy = enemyController.Enemies[i];
+            playerTargets.enemy.ShowCharacterUI();
+            break;
+        }
+
+        enemyController.ChooseNewTargets();
 
         for (int i = 0; i < deadMaggots.Count; i++)
         {
@@ -151,12 +239,13 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
 
         sceneTweener.EnterBattle();
-        StartCoroutine(ChangeBattlePhase());
+        currentPhase = BattlePhases.Entry;
     }
 
     // Update is called once per frame
     void Update()
     {
+#if UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Equals))
         {
             Time.timeScale = 2;
@@ -165,18 +254,19 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             Time.timeScale = 1;
         }
+#endif
     }
 
-    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity)
+    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity, int level = 1, BattleState.PlayerState stateInfo = null)
     {
         Transform spawnPos = null;
         switch (playerCharacters.Count)
         {
             case 0:
-                spawnPos = leftSpawnPos;
+                spawnPos = middleSpawnPos;
                 break;
             case 1:
-                spawnPos = middleSpawnPos;
+                spawnPos = leftSpawnPos;
                 break;
             case 2:
                 spawnPos = rightSpawnPos;
@@ -187,6 +277,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             PlayerCharacter player = Instantiate(player3Dprefab, spawnPos).GetComponent<PlayerCharacter>();
             player.SetCharacterAndRarity(character, rarity);
+            player.ApplyCharacterStats(level, stateInfo);
             playerCharacters.Add(player);
         }
         else // Legacy
@@ -218,22 +309,28 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         if (playerTargets.enemy.IsDead)
         {
-            if (enemyController.Enemies.Count > 0)
+            var newTarget = enemyController.RandomEnemy;
+            if (newTarget)
             {
-                playerTargets.enemy = enemyController.RandomEnemy;
+                playerTargets.enemy = newTarget;
                 playerTargets.enemy.ShowCharacterUI();
             }
         }
         else if (playerTargets.player.IsDead)
         {
-            if (playerCharacters.Count > 0)
+            if (PlayersAlive)
             {
+                playerTargets.player.ForceDeselect();
                 for (int i = 0; i < playerCharacters.Count; i++)
                 {
-                    playerCharacters[i].ForceDeselect();
+                    if (!playerCharacters[i].IsDead)
+                    {
+                        playerCharacters[i].ForceSelect();
+                        playerTargets.player = playerCharacters[i];
+                        break;
+                    }
                 }
-                playerTargets.player = enemyTargets.player;
-                enemyTargets.player.ForceSelect();
+                enemyTargets.player = playerTargets.player;
             }
         }
     }
@@ -267,8 +364,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             case BattlePhases.PlayerTurn:
                 var enemies = enemyController.Enemies;
-                for (int i = 0; i < enemies.Count; i++)
+                for (int i = 0; i < enemies.Length; i++)
                 {
+                    if (!enemies[i]) continue;
                     if (playerTargets.player.Reference.attackEffectPrefab != null)
                     {
                         enemies[i].SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
@@ -332,6 +430,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
+
+        SaveBattleState();
 
         ui.ShowBattleUI();
     }
@@ -431,7 +531,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             case BattlePhases.PlayerTurn:
                 yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
-                if (enemyController.Enemies.Count > 0)
+                if (enemyController.EnemiesAlive)
                 {
                     currentPhase = BattlePhases.EnemyTurn;
                 }
@@ -441,14 +541,15 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             case BattlePhases.EnemyTurn:
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
-                if (playerCharacters.Count > 0 && enemyController.Enemies.Count > 0)
+                if (PlayersAlive && enemyController.EnemiesAlive)
                 {
                     currentPhase = BattlePhases.PlayerTurn;
                 }
-                else if (playerCharacters.Count == 0) currentPhase = BattlePhases.BattleLose;
-                else if (enemyController.Enemies.Count == 0) currentPhase = BattlePhases.BattleWin;
+                else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
+                else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
                 enemyTargets.enemy.IncreaseChargeLevel();
                 OnEndEnemyTurn?.Invoke();
+                SaveBattleState();
                 break;
             case BattlePhases.BattleWin:
                 currentPhase = BattlePhases.PlayerTurn;
@@ -496,6 +597,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         Dictionary<BaseGameEffect, List<BaseCharacter>> effects = new Dictionary<BaseGameEffect, List<BaseCharacter>>();
         for (int i = 0; i < affectedCharacters.Count; i++)
         {
+            if (!affectedCharacters[i]) continue;
             var characterFX = affectedCharacters[i].AppliedEffects;
             var keys = characterFX.GetKeysCached();
             for (int j = 0; j < keys.Length; j++)
@@ -528,11 +630,110 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         yield return null;
     }
 
+    IEnumerator LoadBattleState()
+    {
+        var battleData = battleStateManager.LoadedData;
+        var playerData = playerDataManager.LoadedData;
+        for (int i = 0; i < playerData.Party.Length; i++)
+        {
+            if (playerData.Party[i] == -1)
+            {
+                playerCharacters.Add(null);
+                continue;
+            }
+
+            var mState = playerData.MaggotStates[playerData.Party[i]];
+            var guid = mState.GUID;
+            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(guid);
+            yield return opHandle;
+
+            var characterObject = opHandle.Result;
+            var pState = battleData.PlayerStates.Count > 0 ? battleData.PlayerStates[i] : null;
+            var level = mState.Exp % 100 + 1;
+
+            SpawnCharacterWithRarity(characterObject, Rarity.Common, level, pState);
+        }
+
+        canteenSystem.SetCanteenCharge(battleData.StoredCharge);
+        gameManager.TurnCount = battleData.TurnCount;
+    }
+
+    void SaveBattleState()
+    {
+        if (!playerDataManager.LoadedData.InBattle) return;
+
+        var data = battleStateManager.LoadedData;
+
+        var partyData = new List<BattleState.PlayerState>();
+        var waveData = new List<BattleState.EnemyState>();
+
+        var seed = (int)System.DateTime.Now.Ticks;
+        data.SavedSeed = seed;
+
+        for (int i = 0; i < 3; i++)
+        {
+            BattleState.PlayerState p = null;
+            var player = playerCharacters[i];
+            if (player)
+            {
+                p = new BattleState.PlayerState();
+                p.Health = player.CurrentHealth;
+                p.Effects = new List<BattleState.SerializedEffect>();
+
+                BaseGameEffect[] keys = new BaseGameEffect[player.AppliedEffects.Keys.Count];
+                player.AppliedEffects.Keys.CopyTo(keys, 0);
+                for (int j = 0; j < keys.Length; j++)
+                {
+                    for (int l = 0; l < player.AppliedEffects[keys[j]].Count; l++)
+                    {
+                        var se = gameEffectLoader.SerializeGameEffect(player.AppliedEffects[keys[j]][l]);
+                        p.Effects.Add(se);
+                    }
+                }
+
+                p.Cooldowns = new int[2];
+                for (int j = 0; j < 2; j++)
+                {
+                    p.Cooldowns[j] = player.Skills[j].cooldownTimer;
+                }
+            }
+            partyData.Add(p);
+
+            BattleState.EnemyState d = null;
+            var enemy = enemyController.Enemies[i];
+            if (enemy)
+            {
+                d = new BattleState.EnemyState();
+                d.Health = enemy.CurrentHealth;
+                d.Crit = enemy.CritLevel;
+                d.Effects = new List<BattleState.SerializedEffect>();
+
+                BaseGameEffect[] keys = new BaseGameEffect[enemy.AppliedEffects.Keys.Count];
+                enemy.AppliedEffects.Keys.CopyTo(keys, 0);
+                for (int j = 0; j < keys.Length; j++)
+                {
+                    for (int l = 0; l < enemy.AppliedEffects[keys[j]].Count; l++)
+                    {
+                        var se = gameEffectLoader.SerializeGameEffect(enemy.AppliedEffects[keys[j]][l]);
+                        d.Effects.Add(se);
+                    }
+                }
+            }
+            waveData.Add(d);
+        }
+        data.PlayerStates = partyData;
+        data.EnemyStates = waveData;
+
+        data.StoredCharge = canteenSystem.AvailableCharge;
+        data.TurnCount = gameManager.TurnCount;
+
+        battleStateManager.SaveData();
+    }
+
     public void RegisterPlayerDeath(PlayerCharacter player)
     {
         deadMaggots.Add(player);
         player.transform.parent = null;
-        playerCharacters.Remove(player);
     }
 
     public void ApplyTargetFocus(PlayerCharacter player)
@@ -565,81 +766,63 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     //    Time.timeScale = gameSpeeds[CurrentGameSpeed];
     //}
 
-    public PlayerCharacter ActivePlayer
-    {
-        get
-        {
-            switch (currentPhase)
-            {
-                case BattlePhases.PlayerTurn:
-                    return playerTargets.player;
-            }
-            return enemyTargets.player;
-        }
-    }
-
-    public EnemyCharacter ActiveEnemy
-    {
-        get
-        {
-            switch (currentPhase)
-            {
-                case BattlePhases.PlayerTurn:
-                    return playerTargets.enemy;
-            }
-            return enemyTargets.enemy;
-        }
-    }
-
-    public PlayerCharacter EnemyAttackTarget { get { return enemyTargets.player; } }
-    public EnemyCharacter EnemyAttacker { get { return enemyTargets.enemy; } }
-
-    public BaseCharacter OpposingCharacter
-    {
-        get
-        {
-            switch (currentPhase)
-            {
-                case BattlePhases.PlayerTurn:
-                    return playerTargets.enemy;
-            }
-            return enemyTargets.player;
-        }
-    }
-
     #region Debug Hacks
-    [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 100%", MaxArgCount = 0)]
-    public static void MaxPlayerCrit(CommandTerminal.CommandArg[] args)
+    void AddHacks()
     {
-        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxPlayerCrit)
         {
-            Instance.playerCharacters[i].ApplyCritChanceModifier(1);
+            alias = nameof(MaxPlayerCrit),
+            description = "Set player characters crit chance to 100 %"
+        });
+
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MinMaxPlayerCrit)
+        {
+            alias = nameof(MinMaxPlayerCrit),
+            description = "Set player characters crit chance to 50%"
+        });
+
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxEnemyCrit)
+        {
+            alias = nameof(MaxEnemyCrit),
+            description = "Set enemy characters crit chance to 100%"
+        });
+
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(CripplePlayers)
+        {
+            alias = nameof(CripplePlayers),
+            description = "Instantly hurt players, leaving them at 1 health"
+        });
+    }
+
+    public void MaxPlayerCrit()
+    {
+        for (int i = 0; i < playerCharacters.Count; i++)
+        {
+            playerCharacters[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Crit rate maxed!");
     }
 
-    [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 50%", MaxArgCount = 0)]
-    public static void MinMaxPlayerCrit(CommandTerminal.CommandArg[] args)
+    public void MinMaxPlayerCrit()
     {
-        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        for (int i = 0; i < playerCharacters.Count; i++)
         {
-            Instance.playerCharacters[i].ApplyCritChanceModifier(0.5f);
+            playerCharacters[i].ApplyCritChanceModifier(0.5f);
         }
         Debug.Log("Crit rate min-maxed!");
     }
 
-    [CommandTerminal.RegisterCommand(Help = "Set enemy characters crit chance to 100%", MaxArgCount = 0)]
-    public static void MaxEnemyCrit(CommandTerminal.CommandArg[] args)
+    public void MaxEnemyCrit()
     {
-        for (int i = 0; i < enemyController.Enemies.Count; i++)
+        for (int i = 0; i < enemyController.Enemies.Length; i++)
         {
+            if (!enemyController.Enemies[i]) continue;
             enemyController.Enemies[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Enemy crit maxed!");
     }
 
-    [CommandTerminal.RegisterCommand(Help = "Instantly hurt players, leaving them at 1 health", MaxArgCount = 0)]
-    public static void CripplePlayers(CommandTerminal.CommandArg[] args)
+    public void CripplePlayers()
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {

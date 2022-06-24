@@ -54,7 +54,7 @@ public class SkillDetailPanel : MonoBehaviour
             switch (skill.referenceSkill.gameEffects[i].effect.effectType)
             {
                 case EffectType.None:
-                    description.text = "grey";
+                    description.text += ColorUtility.ToHtmlStringRGB(Color.grey);
                     break;
                 case EffectType.Heal:
                 case EffectType.Buff:

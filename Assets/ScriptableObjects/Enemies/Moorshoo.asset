@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4844cc75892397d49b6003873f335868, type: 3}
+  m_Name: Moorshoo
+  m_EditorClassIdentifier: 
+  characterName: Mo'r Scheu
+  sprite: {fileID: 21300000, guid: 45315700f69f30e4ca1f3f2ccb162548, type: 3}
+  headshotSprite: {fileID: 0}
+  attackRange: {x: 261, y: 5239}
+  healthRange: {x: 738, y: 1476000}
+  critChance: 0
+  critDamageMultiplier: 1
+  characterClass: 0
+  attackQteType: 0
+  turnsToCrit: 5
+  attackLeniency: 0
+  defenseLeniency: 0
+  skills:
+  - {fileID: 11400000, guid: 7d54c793e9b6f9f47a5178ad495c3429, type: 2}
+  - {fileID: 11400000, guid: c16bf92d757a8bb4a8878001546e0c27, type: 2}
+  hasAltSkillAnimation: 0
+  superCritical: {fileID: 0}
+  spriteObject: {fileID: 0}
+  animator: {fileID: 0}
+  characterRig: {fileID: 3617443292749478132, guid: 05e2c82f833833a41a094a74f818700a, type: 3}
+  attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: 472fc5651a1154042abb6ffb2547d4fa, type: 2}
+    attackRange: 1
+    isAOE: 1
+  - attackAnimation: {fileID: 7400000, guid: 4e00752d17e51f74e9c9247b9ea7cd1c, type: 2}
+    attackRange: 1
+    isAOE: 0
+  attackEffectPrefab: {fileID: 0}
+  extraEffectPrefabs:
+  - {fileID: 1559379273019282010, guid: 7dc64d9c1a38f1a4482c2473b98ef9b2, type: 3}
+  voiceEntry: {fileID: 0}
+  voiceAttack: {fileID: 0}
+  voiceSelected: {fileID: 0}
+  voiceFirstSkill: {fileID: 0}
+  voiceSecondSkill: {fileID: 0}
+  voiceHurt: {fileID: 0}
+  voiceDeath: {fileID: 0}
+  voiceVictory: {fileID: 0}
+  weaponSound: {fileID: 11400000, guid: be4bbeeabeda6c946b2c80158e903dda, type: 2}
+  extraSounds:
+  - {fileID: 11400000, guid: e8b753d36b7ef3046a4dfe2906dff927, type: 2}
+  - {fileID: 11400000, guid: 2f516552404b7fb4090022815eb4ee7c, type: 2}

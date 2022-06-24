@@ -8,6 +8,16 @@ namespace JSAM
     [DefaultExecutionOrder(2)]
     public class JSAMSoundChannelHelper : BaseAudioChannelHelper<JSAMSoundFileObject>
     {
+        protected override float Volume 
+        {
+            get
+            {
+                var vol = AudioManager.InternalInstance.ModifiedSoundVolume;
+                if (audioFile) vol *= audioFile.relativeVolume;
+                return vol;
+            }
+        }
+
         float prevPlaybackTime;
 
         protected override void OnEnable()
@@ -78,36 +88,6 @@ namespace JSAM
             base.Stop(stopInstantly);
             prevPlaybackTime = -1;
         }
-
-        protected override void OnUpdateVolume(float volume)
-        {
-            AudioSource.volume = AudioManager.InternalInstance.ModifiedSoundVolume;
-            if (audioFile) AudioSource.volume *= audioFile.relativeVolume;
-        }
-
-        #region Fade Logic
-        /// <summary>
-        /// </summary>
-        /// <param name="fadeTime">Fade-in time in seconds</param>
-        /// <returns></returns>
-        protected override IEnumerator FadeIn(float fadeTime)
-        {
-            // Check if FadeTime isn't actually just 0
-            if (fadeTime != 0) // To prevent a division by zero
-            {
-                float timer = 0;
-                while (timer < fadeTime)
-                {
-                    if (audioFile.ignoreTimeScale) timer += Time.unscaledDeltaTime;
-                    else timer += Time.deltaTime;
-
-                    float volume = audioFile.relativeVolume * AudioManager.SoundVolume;
-                    AudioSource.volume = Mathf.Lerp(0, volume, timer / fadeTime);
-                    yield return null;
-                }
-            }
-        }
-        #endregion
 
 #if UNITY_EDITOR
         public void PlayDebug(JSAMSoundFileObject file, bool dontReset)

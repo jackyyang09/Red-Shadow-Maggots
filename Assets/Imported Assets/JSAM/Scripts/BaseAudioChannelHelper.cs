@@ -20,6 +20,8 @@ namespace JSAM
         protected T audioFile;
         public T AudioFile { get { return audioFile; } }
 
+        protected abstract float Volume { get; }
+
         /// <summary>
         /// This property will only be assigned to if both the AudioFileObject and the AudioManager have spatialization enabled
         /// </summary>
@@ -43,6 +45,8 @@ namespace JSAM
         protected AudioMixerGroup defaultMixerGroup;
 
         protected Transform originalParent;
+
+        Coroutine fadeInRoutine, fadeOutRoutine;
 
         public void Init(AudioMixerGroup defaultGroup)
         {
@@ -151,8 +155,8 @@ namespace JSAM
 
             if (file.fadeInOut)
             {
-                StartCoroutine(FadeIn(audioFile.fadeInDuration * AudioSource.clip.length));
-                StartCoroutine(FadeOut(audioFile.fadeOutDuration * AudioSource.clip.length));
+                BeginFadeIn(audioFile.fadeInDuration * AudioSource.clip.length);
+                BeginFadeOut(audioFile.fadeOutDuration * AudioSource.clip.length);
             }
 
             AudioSource.outputAudioMixerGroup = file.mixerGroupOverride ? file.mixerGroupOverride : defaultMixerGroup;
@@ -251,19 +255,19 @@ namespace JSAM
             switch (AudioManager.Instance.Settings.SpatializationMode)
             {
                 case AudioManagerSettings.SpatializeUpdateMode.Default:
-                    target.SetParent(originalParent);
+                    transform.SetParent(originalParent);
                     SpatializationTarget = target;
                     break;
                 case AudioManagerSettings.SpatializeUpdateMode.FixedUpdate:
-                    target.SetParent(originalParent);
+                    transform.SetParent(originalParent);
                     SpatializationTarget = target;
                     break;
                 case AudioManagerSettings.SpatializeUpdateMode.LateUpdate:
-                    target.SetParent(originalParent);
+                    transform.SetParent(originalParent);
                     SpatializationTarget = target;
                     break;
                 case AudioManagerSettings.SpatializeUpdateMode.Parented:
-                    target.SetParent(target);
+                    transform.SetParent(target);
                     break;
             }
             transform.position = target.position;
@@ -279,14 +283,42 @@ namespace JSAM
             transform.position = position;
         }
 
-        protected abstract void OnUpdateVolume(float volume);
+        protected void OnUpdateVolume(float volume)
+        {
+            AudioSource.volume = Volume;
+        }
 
         #region Fade Logic
+        public void BeginFadeIn(float fadeTime)
+        {
+            fadeInRoutine = StartCoroutine(FadeIn(fadeTime));
+        }
+
+        public void BeginFadeOut(float fadeTime)
+        {
+            fadeOutRoutine = StartCoroutine(FadeOut(fadeTime));
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="fadeTime">Fade-in time in seconds</param>
         /// <returns></returns>
-        protected abstract IEnumerator FadeIn(float fadeTime);
+        protected IEnumerator FadeIn(float fadeTime)
+        {
+            // Check if FadeTime isn't actually just 0
+            if (fadeTime != 0) // To prevent a division by zero
+            {
+                float timer = 0;
+                while (timer < fadeTime)
+                {
+                    if (audioFile.ignoreTimeScale) timer += Time.unscaledDeltaTime;
+                    else timer += Time.deltaTime;
+
+                    AudioSource.volume = Mathf.Lerp(0, Volume, timer / fadeTime);
+                    yield return null;
+                }
+            }
+        }
 
         /// <summary>
         /// </summary>

@@ -236,7 +236,7 @@ public class AnimationHierarchyEditor : EditorWindow {
 			AnimationClip animationClip =  animationClips[iCurrentClip];
 			Undo.RecordObject(animationClip, "Animation Hierarchy Root Change");
 			
-			for ( int iCurrentPath = 0; iCurrentPath < pathsKeys.Count; iCurrentPath ++)
+			for (int iCurrentPath = 0; iCurrentPath < pathsKeys.Count; iCurrentPath ++)
 			{
 				string path = pathsKeys[iCurrentPath] as string;
 				ArrayList curves = (ArrayList)paths[path];
@@ -245,9 +245,9 @@ public class AnimationHierarchyEditor : EditorWindow {
 				{
 					EditorCurveBinding binding = (EditorCurveBinding)curves[i];
 
-					if ( path.Contains(sReplacementOldRoot) )
+					if (path.Contains(sReplacementOldRoot) )
 					{
-						if ( !path.Contains(sReplacementNewRoot) )
+						//if (!path.Contains(sReplacementNewRoot))
 						{
 							string sNewPath = Regex.Replace(path, "^"+sReplacementOldRoot, sReplacementNewRoot );												
 

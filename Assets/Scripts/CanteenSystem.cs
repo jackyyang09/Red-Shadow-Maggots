@@ -11,6 +11,7 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     [SerializeField] int maxCanteens = 12;
 
     float storedCharge;
+    public float StoredCharge { get { return storedCharge; } }
     public float AvailableCharge { get { return storedCharge - grabbedCharge - borrowedCharge; } }
 
     float grabbedCharge;
@@ -21,6 +22,12 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     public static Action OnAvailableChargeChanged;
     public static Action OnStoredChargeChanged;
     public static Action OnChargeBorrowed;
+    public static Action OnSetCharge;
+
+    private void Start()
+    {
+        AddHacks();
+    }
 
     private void OnEnable()
     {
@@ -36,6 +43,12 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
 
         BattleSystem.OnEndEnemyTurn -= ResetBonusFlag;
         BattleSystem.OnEndPlayerTurn -= AddQTECritBonus;
+    }
+
+    public void SetCanteenCharge(float charge)
+    {
+        storedCharge = charge;
+        OnSetCharge?.Invoke();
     }
 
     public void GrabCritCharge()
@@ -110,8 +123,16 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     }
 
     #region Debug Hacks
-    [CommandTerminal.RegisterCommand(Help = "Set player characters crit chance to 100%", MaxArgCount = 0)]
-    public static void MaxCanteenCharge(CommandTerminal.CommandArg[] args)
+    void AddHacks()
+    {
+        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxCanteenCharge)
+        {
+            alias = nameof(MaxCanteenCharge),
+            description = "Set player characters crit chance to 100%"
+        });
+    }
+
+    public void MaxCanteenCharge()
     {
         Instance.storedCharge = Instance.chargePerCanteen * Instance.maxCanteens;
         OnStoredChargeChanged?.Invoke();

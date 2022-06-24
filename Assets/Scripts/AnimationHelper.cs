@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using JSAM;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using JSAM;
-using DG.Tweening;
 using static Facade;
 
 public class AnimationHelper : MonoBehaviour
@@ -28,7 +28,6 @@ public class AnimationHelper : MonoBehaviour
     [SerializeField] int shakeVibrato = 10;
 
     [Header("Object References")]
-
     [SerializeField] Animator anim = null;
 
     [SerializeField] Cinemachine.CinemachineVirtualCamera vCam = null;
@@ -38,7 +37,9 @@ public class AnimationHelper : MonoBehaviour
 
     [SerializeField] Rigidbody[] rigidBodies = null;
     [SerializeField] Collider[] colliders = null;
-    [SerializeField] Renderer[] renderers;
+    [UnityEngine.Serialization.FormerlySerializedAs("renderers")]
+    [SerializeField] Renderer[] nonRagdollRenderers;
+    [SerializeField] Renderer[] ragdollRenderers;
     [SerializeField] Transform skeletonRoot = null;
     public Transform SkeletonRoot { get { return skeletonRoot; } }
 
@@ -64,13 +65,13 @@ public class AnimationHelper : MonoBehaviour
     private void OnEnable()
     {
         OnShowAllRenderers += ShowRenderers;
-        OnHideRenderers += HideAllExcept;
+        OnHideRenderers += HideAll;
     }
 
     private void OnDisable()
     {
         OnShowAllRenderers -= ShowRenderers;
-        OnHideRenderers -= HideAllExcept;
+        OnHideRenderers -= HideAll;
 
         ResetSky();
     }
@@ -79,6 +80,16 @@ public class AnimationHelper : MonoBehaviour
     public void EnableRagdoll()
     {
         anim.enabled = false;
+
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = false;
+        }
+
+        for (int i = 0; i < ragdollRenderers.Length; i++)
+        {
+            ragdollRenderers[i].enabled = true;
+        }
 
         for (int i = 0; i < rigidBodies.Length; i++)
         {
@@ -97,6 +108,16 @@ public class AnimationHelper : MonoBehaviour
     {
         anim.enabled = false;
 
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = false;
+        }
+
+        for (int i = 0; i < ragdollRenderers.Length; i++)
+        {
+            ragdollRenderers[i].enabled = true;
+        }
+
         for (int i = 0; i < rigidBodies.Length; i++)
         {
             rigidBodies[i].isKinematic = false;
@@ -113,6 +134,16 @@ public class AnimationHelper : MonoBehaviour
     public void DisableRagdoll()
     {
         anim.enabled = true;
+
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = true;
+        }
+
+        for (int i = 0; i < ragdollRenderers.Length; i++)
+        {
+            ragdollRenderers[i].enabled = false;
+        }
 
         for (int i = 0; i < rigidBodies.Length; i++)
         {
@@ -152,15 +183,9 @@ public class AnimationHelper : MonoBehaviour
 
     // TODO: Try the priority system instead
     public void ShowVirtualCamera() => vCam.enabled = true;
-    public void HideVirtualCamera()
-    {
-        vCam.enabled = false;
-    }
-    
-    public void MakePlayerCamLookAtMe()
-    {
-        sceneTweener.PlayerCamera.LookAt = transform;
-    }
+    public void HideVirtualCamera() => vCam.enabled = false;
+
+    public void MakePlayerCamLookAtMe() => sceneTweener.PlayerCamera.LookAt = transform;
 
     [ContextMenu("Test Impulse")]
     public void ShakeCharacterCam()
@@ -168,27 +193,19 @@ public class AnimationHelper : MonoBehaviour
         impulse.GenerateImpulse();
     }
 
-    public void MakeTargetHoldHitFrame()
-    {
-        battleSystem.ActiveEnemy.AnimHelper.HoldHitFrame();
-    }
+    public void EnableTargetDeath() => battleSystem.ActiveEnemy.CanDie = true;
 
-    public void MakeTargetFaceAttacker()
-    {
-        battleSystem.ActiveEnemy.AnimHelper.FaceAttacker();
-    }
+    public void DisableTargetDeath() => battleSystem.ActiveEnemy.CanDie = false;
 
-    public void FaceAttacker()
-    {
-        baseCharacter.CharacterMesh.transform.LookAt(battleSystem.ActivePlayer.transform);
-    }
+    public void MakeTargetHoldHitFrame() => battleSystem.ActiveEnemy.AnimHelper.HoldHitFrame();
+
+    public void MakeTargetFaceAttacker() => battleSystem.ActiveEnemy.AnimHelper.FaceAttacker();
+
+    public void FaceAttacker() => baseCharacter.CharacterMesh.transform.LookAt(battleSystem.ActivePlayer.transform);
 
     public void HoldHitFrame() => anim.Play("Hit Reaction Frame");
 
-    public void MakeTargetShakeMesh()
-    {
-        battleSystem.ActiveEnemy.AnimHelper.ShakeMesh();
-    }
+    public void MakeTargetShakeMesh() => battleSystem.ActiveEnemy.AnimHelper.ShakeMesh();
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
@@ -198,10 +215,7 @@ public class AnimationHelper : MonoBehaviour
     public void DealAOEDamage() => baseCharacter.DealAOEDamage();
     public void DealAOEPercentage(float percentage = 1) => baseCharacter.DealAOEDamage(percentage);
 
-    public void FinishAttack()
-    {
-        baseCharacter.FinishAttack();
-    }
+    public void FinishAttack() => baseCharacter.FinishAttack();
 
     public void FinishSkill()
     {
@@ -254,6 +268,11 @@ public class AnimationHelper : MonoBehaviour
         battleSystem.ActiveEnemy.SpawnEffectPrefab(baseCharacter.Reference.extraEffectPrefabs[index]);
     }
 
+    public void SpawnEffectOnSelfAtIndex(int index)
+    {
+        Instantiate(baseCharacter.Reference.extraEffectPrefabs[index], SkeletonRoot);
+    }
+
     public void SpawnWorldEffectAtIndex(int index)
     {
         Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]);
@@ -303,12 +322,28 @@ public class AnimationHelper : MonoBehaviour
         OnShowAllRenderers?.Invoke();
     }
 
-    public void HideAllExceptPlayerRenderers()
+    public void HideAllPlayersExceptSelf()
     {
         var players = battleSystem.PlayerCharacters;
         var toHide = new List<AnimationHelper>();
         for (int i = 0; i < players.Count; i++)
         {
+            if (!players[i]) continue;
+            if (!players[i].IsDead && players[i] != baseCharacter)
+            {
+                toHide.Add(players[i].AnimHelper);
+            }
+        }
+        OnHideRenderers?.Invoke(toHide);
+    }
+
+    public void HideAllPlayerRenderers()
+    {
+        var players = battleSystem.PlayerCharacters;
+        var toHide = new List<AnimationHelper>();
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (!players[i]) continue;
             if (!players[i].IsDead)
             {
                 toHide.Add(players[i].AnimHelper);
@@ -317,12 +352,13 @@ public class AnimationHelper : MonoBehaviour
         OnHideRenderers?.Invoke(toHide);
     }
 
-    public void HideAllExceptEnemyRenderers()
+    public void HideAllEnemyRenderers()
     {
         var enemies = enemyController.Enemies;
         var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < enemies.Count; i++)
+        for (int i = 0; i < enemies.Length; i++)
         {
+            if (!enemies[i]) continue;
             if (!enemies[i].IsDead)
             {
                 toHide.Add(enemies[i].AnimHelper);
@@ -333,19 +369,19 @@ public class AnimationHelper : MonoBehaviour
 
     void ShowRenderers()
     {
-        for (int i = 0; i < renderers.Length; i++)
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
         {
-            renderers[i].gameObject.layer = DEFAULT_LAYER_ID;
+            nonRagdollRenderers[i].gameObject.layer = DEFAULT_LAYER_ID;
         }
     }
 
-    void HideAllExcept(List<AnimationHelper> helpers)
+    void HideAll(List<AnimationHelper> helpers)
     {
-        if (!helpers.Contains(this))
+        if (helpers.Contains(this))
         {
-            for (int i = 0; i < renderers.Length; i++)
+            for (int i = 0; i < nonRagdollRenderers.Length; i++)
             {
-                renderers[i].gameObject.layer = IGNORE_LAYER_ID;
+                nonRagdollRenderers[i].gameObject.layer = IGNORE_LAYER_ID;
             }
         }
     }
@@ -355,7 +391,7 @@ public class AnimationHelper : MonoBehaviour
     void GetAllRenderers()
     {
         UnityEditor.Undo.RecordObject(this, "Found all renderers");
-        renderers = GetComponentsInChildren<Renderer>();
+        nonRagdollRenderers = GetComponentsInChildren<Renderer>();
     }
 
     [ContextMenu(nameof(SetupRagdollComponents))]

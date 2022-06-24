@@ -28,40 +28,13 @@ namespace JSAM.JSAMEditor
         {
             get
             {
-                if (presetsPath.IsNullEmptyOrWhiteSpace())
-                {
-                    presetsPath = PackagePath + "/Presets";
-                }
+                ResetPresetsPathIfInvalid();
                 return presetsPath;
             }
         }
-
-        [Tooltip("C# scripts that contain JSAM-related enums will be generated here automatically.")]
-        [SerializeField] string generatedEnumsPath;
-        public string GeneratedEnumsPath
+        public void ResetPresetsPathIfInvalid()
         {
-            get
-            {
-                if (generatedEnumsPath.IsNullEmptyOrWhiteSpace())
-                {
-                    generatedEnumsPath = PackagePath + "/JSAMGenerated";
-                }
-                return generatedEnumsPath;
-            }
-        }
-
-        [Tooltip("Audio Libraries will be saved here automatically.")]
-        [SerializeField] string libraryPath;
-        public string LibraryPath
-        {
-            get
-            {
-                if (libraryPath.IsNullEmptyOrWhiteSpace())
-                {
-                    libraryPath = PackagePath + "/Libraries";
-                }
-                return libraryPath;
-            }
+            if (!AssetDatabase.IsValidFolder(presetsPath)) presetsPath = PackagePath + "/Presets";
         }
 
         [Tooltip("The font size used when rendering \"quick reference guides\" in JSAM editor windows")]
@@ -124,16 +97,24 @@ namespace JSAM.JSAMEditor
             }
         }
 
+#if UNITY_2020_3_OR_NEWER
+        [SerializeField] GUID selectedLibrary;
+#else
         [SerializeField] string selectedLibrary;
+#endif
         public AudioLibrary SelectedLibrary
         {
             get
             {
-                return AssetDatabase.LoadAssetAtPath<AudioLibrary>(selectedLibrary);
+                return AssetDatabase.LoadAssetAtPath<AudioLibrary>(AssetDatabase.GUIDToAssetPath(selectedLibrary));
             }
             set
             {
-                selectedLibrary = AssetDatabase.GetAssetPath(value);
+#if UNITY_2020_3_OR_NEWER
+                selectedLibrary = AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(value));
+#else
+                selectedLibrary = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(value));
+#endif
             }
         }
 
@@ -155,8 +136,6 @@ namespace JSAM.JSAMEditor
             packagePath = JSAMEditorHelper.GetAudioManagerPath;
             packagePath = packagePath.Remove(packagePath.IndexOf("/Scripts/AudioManager.cs"));
             presetsPath = packagePath + "/Presets";
-            libraryPath = PackagePath + "/Libraries";
-            generatedEnumsPath = packagePath + "/JSAMGenerated";
         }
     }
 
@@ -166,6 +145,8 @@ namespace JSAM.JSAMEditor
         [SettingsProvider]
         public static SettingsProvider CreateMyCustomSettingsProvider()
         {
+            JSAMSettings.Settings.ResetPresetsPathIfInvalid();
+
             // First parameter is the path in the Settings window.
             // Second parameter is the scope of this setting: it only appears in the Project Settings window.
             var provider = new SettingsProvider("Project/Audio - JSAM", SettingsScope.Project)
@@ -180,15 +161,11 @@ namespace JSAM.JSAMEditor
                     var settings = JSAMSettings.SerializedSettings;
                     SerializedProperty packagePath = settings.FindProperty(nameof(packagePath));
                     SerializedProperty presetsPath = settings.FindProperty(nameof(presetsPath));
-                    SerializedProperty libraryPath = settings.FindProperty(nameof(libraryPath));
-                    SerializedProperty enumPath = settings.FindProperty("generatedEnumsPath");
                     SerializedProperty fontSize = settings.FindProperty("quickReferenceFontSize");
                     SerializedProperty hideStartup = settings.FindProperty("hideStartupMessage");
 
                     JSAMEditorHelper.RenderSmartFolderProperty(packagePath.GUIContent(), packagePath);
                     JSAMEditorHelper.RenderSmartFolderProperty(presetsPath.GUIContent(), presetsPath);
-                    JSAMEditorHelper.RenderSmartFolderProperty(libraryPath.GUIContent(), libraryPath);
-                    JSAMEditorHelper.RenderSmartFolderProperty(enumPath.GUIContent(), enumPath);
 
                     EditorGUILayout.BeginHorizontal();
 

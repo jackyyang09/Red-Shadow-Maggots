@@ -18,6 +18,9 @@ public class UIManager : BasicSingleton<UIManager>
     //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
     [SerializeField] CharacterUI bossUI = null;
 
+    [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
+    [SerializeField] TMPro.TextMeshProUGUI turnCounter = null;
+
     [Header("Skill System")]
     [SerializeField] SkillDetailPanel skillPanel = null;
     [SerializeField] SkillButtonUI[] skillButtons = null;
@@ -29,8 +32,6 @@ public class UIManager : BasicSingleton<UIManager>
     [SerializeField] OptimizedCanvas loseCanvas = null;
     
     public bool CharacterPanelOpen { get; private set; }
-
-    [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
 
     public static bool CanSelectPlayer = true;
     public static bool SelectingAllyForSkill = false;
@@ -52,6 +53,8 @@ public class UIManager : BasicSingleton<UIManager>
         SceneTweener.OnBattleTransition += UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
 
+        GameManager.OnTurnCountChanged += UpdateTurnCounter;
+
         OnAttackCommit += HideBattleUI;
     }
 
@@ -65,6 +68,8 @@ public class UIManager : BasicSingleton<UIManager>
         BattleSystem.OnFinalWaveClear -= ShowWinCanvas;
         SceneTweener.OnBattleTransition -= UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
+
+        GameManager.OnTurnCountChanged -= UpdateTurnCounter;
 
         OnAttackCommit -= HideBattleUI;
     }
@@ -128,7 +133,7 @@ public class UIManager : BasicSingleton<UIManager>
         {
             for (int i = 0; i < skillButtons.Length; i++)
             {
-                skillButtons[i].UpdateStatus(obj.GetSkill(i));
+                skillButtons[i].UpdateStatus(obj.Skills[i]);
             }
         }
     }
@@ -139,7 +144,7 @@ public class UIManager : BasicSingleton<UIManager>
 
         skillTargetMessage.Show();
         skillBackButton.Show();
-        if (waveManager.CurrentWave.isBossWave) bossUI.HideUI();
+        if (waveManager.IsBossWave) bossUI.HideUI();
         attackButton.Hide();
 
         foreach (SkillButtonUI button in skillButtons)
@@ -147,14 +152,14 @@ public class UIManager : BasicSingleton<UIManager>
             button.button.Hide();
         }
 
-        foreach (PlayerCharacter p in BattleSystem.Instance.PlayerCharacters)
+        foreach (PlayerCharacter p in battleSystem.PlayerCharacters)
         {
-            p.ShowSelectionCircle();
+            if (p) p.ShowSelectionCircle();
         }
 
         foreach (EnemyCharacter e in EnemyController.Instance.Enemies)
         {
-            e.ForceHideSelectionPointer();
+            if (e) e.ForceHideSelectionPointer();
         }
 
         OnEnterSkillTargetMode?.Invoke();
@@ -163,7 +168,6 @@ public class UIManager : BasicSingleton<UIManager>
     public void CancelSkillInvocation()
     {
         battleSystem.ActivePlayer.CancelSkill();
-        playerControlManager.SetControlMode(PlayerControlMode.InSettings);
         ShowBattleUI();
     }
 
@@ -171,13 +175,13 @@ public class UIManager : BasicSingleton<UIManager>
     {
         SelectingAllyForSkill = false;
 
-        if (waveManager.CurrentWave.isBossWave) bossUI.ShowUI();
+        if (waveManager.IsBossWave) bossUI.ShowUI();
         skillBackButton.Hide();
         skillTargetMessage.Hide();
 
-        foreach (PlayerCharacter p in BattleSystem.Instance.PlayerCharacters)
+        foreach (PlayerCharacter p in battleSystem.PlayerCharacters)
         {
-            p.HideSelectionPointer();
+            if (p) p.HideSelectionPointer();
         }
 
         battleSystem.ActivePlayer.ShowSelectionCircle();
@@ -186,7 +190,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     public void ShowSkillDetails(int index)
     {
-        skillPanel.UpdateDetails(battleSystem.ActivePlayer.GetSkill(index));
+        skillPanel.UpdateDetails(battleSystem.ActivePlayer.Skills[index]);
     }
 
     public void AttackPress()
@@ -225,13 +229,26 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void UpdateWaveCounter()
     {
-        waveCounter.text = (EnemyWaveManager.Instance.CurrentWaveCount + 1) + "/" + EnemyWaveManager.Instance.TotalWaves;
+        waveCounter.text = (waveManager.WaveCount + 1) + "/" + waveManager.TotalWaves;
+    }
+
+    private void UpdateTurnCounter()
+    {
+        turnCounter.text = gameManager.TurnCount.ToString();
     }
 
     public void InitializeBossUIWithCharacter(BaseCharacter character)
     {
         bossUI.InitializeWithCharacter(character);
         bossUI.OptimizedCanvas.Show();
+    }
+
+    /// <summary>
+    /// Called by the Boss Character when they spawn with 0 hp
+    /// </summary>
+    public void DestroyBossUI()
+    {
+        Destroy(bossUI.gameObject);
     }
 
     //public void UpdateGameSpeed()

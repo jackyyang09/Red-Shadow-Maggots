@@ -1,6 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
+using static Facade;
 
 public enum Rarity
 {
@@ -12,9 +15,9 @@ public enum Rarity
     Count
 }
 
-public class GachaSystem : MonoBehaviour
+public class GachaSystem : BasicSingleton<GachaSystem>
 {
-    [SerializeField] System.DateTime timeTest;
+    [SerializeField] bool legacyMode;
 
     [Range(0, 1)]
     [SerializeField] float chanceOfCommon = 0;
@@ -33,36 +36,107 @@ public class GachaSystem : MonoBehaviour
 
     int dudCount = 0;
 
+    [SerializeField] List<AssetReference> maggotReferences;
+    public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
+    List<AsyncOperationHandle> LoadedMaggots = new List<AsyncOperationHandle>();
+    Dictionary<string, AssetReference> guidToAssetRef = new Dictionary<string, AssetReference>();
+    public Dictionary<string, AssetReference> GUIDFromAssetReference { get { return guidToAssetRef; } }
+
     [SerializeField] List<CharacterObject> maggots = null;
 
-    public static GachaSystem instance;
+    List<CharacterObject> offenseMaggots = new List<CharacterObject>();
+    List<CharacterObject> defenseMaggots = new List<CharacterObject>();
+    List<CharacterObject> supportMaggots = new List<CharacterObject>();
 
     private void Awake()
     {
-        EstablishSingletonDominance();
+        for (int i = 0; i < maggotReferences.Count; i++)
+        {
+            guidToAssetRef.Add(maggotReferences[i].AssetGUID, maggotReferences[i]);
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
-        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
-        BattleSystem.Instance.SpawnCharacterWithRarity(GetRandomMaggot(), GetRandomRarity());
+        if (legacyMode)
+        {
+            for (int i = 0; i < maggots.Count; i++)
+            {
+                switch (maggots[i].characterClass)
+                {
+                    case CharacterClass.Offense:
+                        offenseMaggots.Add(maggots[i]);
+                        break;
+                    case CharacterClass.Defense:
+                        defenseMaggots.Add(maggots[i]);
+                        break;
+                    case CharacterClass.Support:
+                        supportMaggots.Add(maggots[i]);
+                        break;
+                }
+            }
 
-        BattleSystem.Instance.GameStart();
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), GetRandomRarity());
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), GetRandomRarity());
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), GetRandomRarity());
+        }
     }
 
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
-
-    public CharacterObject GetRandomMaggot()
+    public CharacterObject GetRandomMaggot(List<CharacterObject> maggotList)
     {
-        var maggot = maggots[Random.Range(0, maggots.Count)];
-        maggots.Remove(maggot);
+        var maggot = maggotList[Random.Range(0, maggotList.Count)];
+        maggotList.Remove(maggot);
         return maggot;
+    }
+
+    public AsyncOperationHandle LoadMaggot(AssetReference reference)
+    {
+        if (LoadedMaggots.Contains(reference.OperationHandle)) return reference.OperationHandle;
+        
+        var op = reference.LoadAssetAsync<CharacterObject>();
+        LoadedMaggots.Add(op);
+        op.Completed += OnCharacterLoaded;
+        return op;
+    }
+
+    private void OnCharacterLoaded(AsyncOperationHandle<CharacterObject> obj)
+    {
+    }
+
+    [ContextMenu(nameof(GiveMaggot))]
+    public void GiveMaggot()
+    {
+        StartCoroutine(GiveMaggotRoutine());
+    }
+
+    IEnumerator GiveMaggotRoutine()
+    {
+        if (PlayerDataManager.Initialized)
+        {
+            var data = playerDataManager.LoadedData;
+
+            PlayerData.MaggotState newState = new PlayerData.MaggotState();
+
+            var ar = RandomMaggot;
+            var op = LoadMaggot(ar);
+
+            yield return op;
+
+            var maggotObject = op.Result as CharacterObject;
+
+            newState.GUID = ar.AssetGUID;
+            newState.Health = maggotObject.GetMaxHealth(1, false);
+
+            data.MaggotStates.Add(newState);
+
+            int index = data.MaggotStates.Count - 1;
+            if (data.Party[1] == -1) data.Party[1] = index;
+            else if (data.Party[0] == -1) data.Party[0] = index;
+            else if (data.Party[2] == -1) data.Party[2] = index;
+
+            playerDataManager.SaveData();
+        }
     }
 
     [ContextMenu("RNG Test")]
@@ -110,13 +184,6 @@ public class GachaSystem : MonoBehaviour
         return Rarity.UltraRare;
     }
 
-    [ContextMenu("Time Test")]
-    public void TestTime()
-    {
-        Debug.Log(System.DateTime.Now.Ticks);
-    }
-
-
     [ContextMenu("Normalize Weights")]
     void NormalizeValues()
     {
@@ -124,30 +191,5 @@ public class GachaSystem : MonoBehaviour
         chanceOfCommon /= weights;
         chanceOfRare /= weights;
         chanceOfSuperRare /= weights;
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
     }
 }

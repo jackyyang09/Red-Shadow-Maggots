@@ -58,6 +58,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     public static Action OnBattleTransition;
     public static Action OnSkillUntween;
+    public static Action OnBattleEntered;
 
     private void OnEnable()
     {
@@ -78,7 +79,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         playerDolly = playerCam.GetCinemachineComponent<CinemachineTrackedDolly>();
 
         enemyDolly = enemyCam.GetCinemachineComponent<CinemachineTrackedDolly>();
-
         //EnterBattle();
     }
 
@@ -89,18 +89,29 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         enemyDolly.m_PathPosition = lerpValue;
     }
 
-    public void EnterBattle() => Invoke(nameof(EnterBattleAfterDelay), waveTransitionDelay);
+    public void EnterBattleAfterDelay() => Invoke(nameof(EnterBattle), waveTransitionDelay);
 
-    public void EnterBattleAfterDelay()
+    public void EnterBattle()
     {
         anim.SetTrigger("EnterBattle");
 
         MakePlayersWalk(1);
 
-        ScreenEffects.instance.FadeFromBlack();
+        screenEffects.FadeFromBlack();
 
-        playerCam.enabled = !waveManager.CurrentWave.useSpecialCam;
-        specialCam.enabled = waveManager.CurrentWave.useSpecialCam;
+        bool useSpecialCam = playerDataManager.LoadedData.InBattle ?
+            battleStateManager.LoadedData.UseSpecialCam[battleStateManager.LoadedData.WaveCount] :
+            waveManager.CurrentWave.UseSpecialCam;
+
+        playerCam.enabled = !useSpecialCam;
+        specialCam.enabled = useSpecialCam;
+
+        OnBattleTransition?.Invoke();
+    }
+
+    public void PlayersArrived()
+    {
+        OnBattleEntered?.Invoke();
     }
 
     float lerpValue;
@@ -340,7 +351,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     {
         OnBattleTransition?.Invoke();
         anim.enabled = true;
-        ScreenEffects.instance.FadeToBlack(1.5f);
+        screenEffects.FadeToBlack(1.5f);
         anim.SetTrigger("OpenGate");
     }
 
@@ -349,6 +360,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
         {
             var player = BattleSystem.Instance.PlayerCharacters[i];
+            if (!player) continue;
             player.AnimHelper.WalkForward(1);
         }
     }

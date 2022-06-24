@@ -95,7 +95,7 @@ public class QuickTimeHold : QuickTimeBase
         GetMultiplier();
         onExecuteQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
-        Invoke("Hide", hideDelay);
+        Invoke(nameof(Hide), hideDelay);
         fillBar.DOKill();
         gaugeArrow.DOKill();
         BonusFeedback();
@@ -191,7 +191,20 @@ public class QuickTimeHold : QuickTimeBase
             //newStruct.damageType = (DamageType)Mathf.Abs((int)newStruct.damageType);
         }
 
-        BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
-        BaseCharacter.IncomingDamage.chargeLevel = barLevel;
+        if (AlwaysSucceed)
+        {
+            BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
+            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValues[barLevel];
+            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
+            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
+            BaseCharacter.IncomingDamage.chargeLevel = 2;
+            if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
+            else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
+        }
+        else
+        {
+            BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
+            BaseCharacter.IncomingDamage.chargeLevel = barLevel;
+        }
     }
 }

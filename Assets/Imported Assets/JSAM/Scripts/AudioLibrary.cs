@@ -51,6 +51,10 @@ namespace JSAM
             ctl.name = string.Empty;
             ctl.foldout = true;
             soundCategoriesToList.Add(ctl);
+
+            ctl = new CategoryToList();
+            ctl.name = string.Empty;
+            ctl.foldout = true;
             musicCategoriesToList.Add(ctl);
         }
 

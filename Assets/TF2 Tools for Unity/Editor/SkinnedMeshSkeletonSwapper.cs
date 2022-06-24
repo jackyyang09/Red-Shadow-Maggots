@@ -22,20 +22,24 @@
 // IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 public class SkinnedMeshSkeletonSwapper : ScriptableWizard
 {
     public Transform targetSkeleton;
-    public SkinnedMeshRenderer[] skinnedMeshes;
-    public bool includeInactive;
-    public bool copyMissingBones = true;
+    public List<SkinnedMeshRenderer> skinnedMeshes = new List<SkinnedMeshRenderer>();
+    [Tooltip("If false, will ignore bones whose gameObjects are disabled")]
+    public bool includeInactive = true;
+    [Tooltip("Copies all missing bones from meshes to targetSkeleton. " +
+        "On by default for compatibility, but may clutter your skeleton hierarchy")]
+    public bool addMissingBones = true;
 
     bool skipAllMissingBones = false;
     bool enabled = false;
 
-    [MenuItem("Window/TF2Ls for Unity/Skinned Mesh Skeleton Swapper", false, 1)]
+    [MenuItem("Tools/TF2Ls for Unity/Skinned Mesh Skeleton Swapper", false, 1)]
     static void CreateWizard()
     {
         DisplayWizard<SkinnedMeshSkeletonSwapper>("Skinned Mesh Skeleton Swapper", "Apply Changes");
@@ -44,6 +48,31 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
     private void OnEnable() { Undo.undoRedoPerformed += OnUndoRedo; }
     private void OnUndoRedo() => GetWindow<SkinnedMeshSkeletonSwapper>().Repaint();
     private void OnDisable() { Undo.undoRedoPerformed -= OnUndoRedo; }
+
+    private void OnValidate()
+    {
+        if (!targetSkeleton) return;
+        List<Transform> existingBones = new List<Transform>(targetSkeleton.GetComponentsInChildren<Transform>(includeInactive));
+        var toBeRemoved = new List<SkinnedMeshRenderer>();
+        foreach (var mesh in skinnedMeshes)
+        {
+            if (existingBones.Contains(mesh.rootBone))
+            {
+                toBeRemoved.Add(mesh);
+            }
+        }
+        if (toBeRemoved.Count > 0)
+        {
+            for (int i = 0; i < toBeRemoved.Count; i++)
+            {
+                EditorUtility.DisplayDialog("Warning!", "SkinnedMeshRenderer " + toBeRemoved[i].name +
+                    "'s skeleton hierarchy is a child of the targetSkeleton! Please ensure that all " +
+                    "origin skeletons are not children of the targetSkeleton.", "OK");
+                skinnedMeshes.Remove(toBeRemoved[i]);
+            }
+            return;
+        }
+    }
 
     void OnWizardCreate()
     {
@@ -54,8 +83,28 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
             return;
         }
 
-        System.Collections.Generic.List<string> allMissingBones = new System.Collections.Generic.List<string>();
-        for (int m = 0; m < skinnedMeshes.Length; m++)
+        // Find references of existing bones
+        List<Transform> existingBones = new List<Transform>(targetSkeleton.GetComponentsInChildren<Transform>(includeInactive));
+        Dictionary<string, Transform> boneDictionary = new Dictionary<string, Transform>();
+
+        foreach (var mesh in skinnedMeshes)
+        {
+            if (existingBones.Contains(mesh.rootBone))
+            {
+                EditorUtility.DisplayDialog("Error!", "MeshRenderer " + mesh.name +
+                    "'s skeleton hierarchy is a child of the targetSkeleton! Please ensure that all " +
+                    "origin skeletons are not children of the targetSkeleton.", "OK");
+                return;
+            }
+        }
+
+        foreach (var b in existingBones)
+        {
+            boneDictionary.Add(b.name, b);
+        }
+
+        List<string> allMissingBones = new List<string>();
+        for (int m = 0; m < skinnedMeshes.Count; m++)
         {
             SkinnedMeshRenderer currentMesh = skinnedMeshes[m];
 
@@ -63,10 +112,13 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
             string rootName = "";
             if (targetSkeleton != null) rootName = currentMesh.rootBone.name;
             Transform newRoot = null;
+
             // Reassign new bones
             Transform[] newBones = new Transform[currentMesh.bones.Length];
-            Transform[] existingBones = targetSkeleton.GetComponentsInChildren<Transform>(includeInactive);
-            System.Collections.Generic.List<string> missingBones = new System.Collections.Generic.List<string>();
+
+            if (boneDictionary.ContainsKey(rootName)) newRoot = boneDictionary[rootName];
+
+            List<string> missingBones = new List<string>();
             for (int i = 0; i < currentMesh.bones.Length; i++)
             {
                 if (currentMesh.bones[i] == null)
@@ -74,29 +126,38 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
                     errorString = System.Environment.NewLine + "WARN: Do not delete the old bones before the skinned mesh is processed!";
                     continue;
                 }
-                string boneName = currentMesh.bones[i].name;
-                bool found = false;
-                foreach (var newBone in existingBones)
-                {
-                    if (newBone.name == rootName) newRoot = newBone;
-                    if (newBone.name == boneName)
-                    {
-                        EditorUtility.DisplayProgressBar("Processing mesh (" + m + "/" + skinnedMeshes.Length + ")", newBone.name + " found!", (float)i / (float)currentMesh.bones.Length);
-                        newBones[i] = newBone;
-                        found = true;
-                    }
-                }
-                if (!found)
-                {
-                    if (copyMissingBones)
-                    {
 
-                    }
-                    if (!skipAllMissingBones)
+                string boneName = currentMesh.bones[i].name;
+
+                if (boneDictionary.ContainsKey(boneName))
+                {
+                    EditorUtility.DisplayProgressBar(
+                        "Processing mesh (" + m + "/" + skinnedMeshes.Count + ")", 
+                        boneName + " found!", (float)i / (float)currentMesh.bones.Length);
+                    newBones[i] = boneDictionary[boneName];
+                }
+                else
+                {
+                    if (addMissingBones) // Don't bother doing this with missing roots
                     {
-                        if (EditorUtility.DisplayDialog("Warning!", boneName + " missing!", "Ignore All Warnings", "Continue")) skipAllMissingBones = true;
+                        var b = LookForBone(currentMesh.bones[i], boneDictionary);
+                        if (!boneDictionary.ContainsKey(b.name))
+                        {
+                            boneDictionary.Add(b.name, b);
+                        }
+                        if (boneDictionary.ContainsKey(boneName))
+                            newBones[i] = boneDictionary[boneName];
+                        else // Likely the root bone
+                            newBones[i] = targetSkeleton;
                     }
-                    missingBones.Add(boneName);
+                    else
+                    {
+                        if (!skipAllMissingBones)
+                        {
+                            if (EditorUtility.DisplayDialog("Warning!", boneName + " missing!", "Ignore All Warnings", "Continue")) skipAllMissingBones = true;
+                        }
+                        missingBones.Add(boneName);
+                    }
                 }
             }
             currentMesh.bones = newBones;
@@ -115,7 +176,7 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
         string finalText = allMissingBones.Count == 0 ? "All Done!" : "Finished with " + allMissingBones.Count + " missing bones: ";
         for (int i = 0; i < allMissingBones.Count; i++) finalText += System.Environment.NewLine + allMissingBones[i];
         EditorUtility.DisplayDialog("Done!", finalText, "OK");
-        
+
         EditorUtility.ClearProgressBar();
     }
 
@@ -123,5 +184,21 @@ public class SkinnedMeshSkeletonSwapper : ScriptableWizard
     {
         enabled = (skinnedMeshes != null && targetSkeleton != null);
         errorString = enabled ? "" : "Add a target SkinnedMeshRenderer and a root bone to process.";
+    }
+
+    Transform LookForBone(Transform targetBone, Dictionary<string, Transform> bones)
+    {
+        if (targetBone.parent == null) return targetSkeleton; // This is the root
+        string parentName = targetBone.parent.name;
+        if (bones.ContainsKey(parentName))
+        {
+            var t = new GameObject(targetBone.name).transform;
+            t.parent = bones[parentName];
+            t.localPosition = targetBone.localPosition;
+            t.localRotation = targetBone.localRotation;
+            t.localScale = targetBone.localScale;
+            return t;
+        }
+        else return LookForBone(targetBone.parent, bones);
     }
 }

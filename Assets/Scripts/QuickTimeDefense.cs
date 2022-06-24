@@ -25,13 +25,15 @@ public class QuickTimeDefense : QuickTimeBase
     {
     }
 
-    void Awake()
+    protected override void Start()
     {
+        base.Start();
         BattleSystem.OnEndEnemyTurn += Hide;
     }
 
-    void OnDestroy()
+    protected override void OnDestroy()
     {
+        base.OnDestroy();
         BattleSystem.OnEndEnemyTurn -= Hide;
     }
 

@@ -5,6 +5,7 @@ using UnityEngine;
 public class UICharacterDetails : MonoBehaviour
 {
     [SerializeField] TMPro.TextMeshProUGUI nameText = null;
+    [SerializeField] TMPro.TextMeshProUGUI levelText = null;
     [SerializeField] UnityEngine.UI.Image portrait = null;
     [SerializeField] TMPro.TextMeshProUGUI health = null;
     [SerializeField] TMPro.TextMeshProUGUI attack = null;
@@ -36,12 +37,15 @@ public class UICharacterDetails : MonoBehaviour
     public void DisplayWithCharacter(BaseCharacter character)
     {
         nameText.text = character.Reference.characterName;
+
+        levelText.text = "Level " + character.CurrentLevel;
+
         health.text = character.CurrentHealth + "/" + character.MaxHealth;
 
         portrait.sprite = character.Reference.headshotSprite;
 
-        int modifiedAttack = (int)(character.Reference.attack * character.AttackModifier);
-        attack.text = (character.Reference.attack + modifiedAttack).ToString();
+        int modifiedAttack = (int)(character.AttackModifier);
+        attack.text = (character.AttackModified).ToString();
         if (character.AttackModifier > 0)
         {
             attack.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(positiveModifier) + ">(+" + modifiedAttack + ")</color>";

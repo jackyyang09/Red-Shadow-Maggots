@@ -223,6 +223,67 @@ namespace JSAM
         }
         #endregion
 
+        #region FadeMusic
+        public JSAMMusicChannelHelper FadeMusicInInternal(JSAMMusicFileObject music, float fadeInTime, bool isMain)
+        {
+            if (!Application.isPlaying) return null;
+
+            var helper = musicHelpers[GetFreeMusicChannel()];
+            helper.Play(music);
+            helper.BeginFadeIn(fadeInTime);
+
+            if (isMain) mainMusic = helper;
+
+            AudioManager.OnMusicPlayed?.Invoke(music);
+
+            return mainMusic;
+        }
+
+        public JSAMMusicChannelHelper FadeMainMusicOutInternal(float fadeOutTime)
+        {
+            if (!Application.isPlaying) return null;
+
+            var helper = mainMusic;
+            helper.BeginFadeOut(fadeOutTime);
+
+            return mainMusic;
+        }
+
+        public JSAMMusicChannelHelper FadeMusicOutInternal(JSAMMusicFileObject music, float fadeOutTime)
+        {
+            if (!Application.isPlaying) return null;
+
+            JSAMMusicChannelHelper helper;
+            if (TryGetPlayingMusic(music, out helper))
+            {
+                helper.BeginFadeOut(fadeOutTime);
+            }
+            else
+            {
+                DebugWarning("Music Not Found!", "Cannot fade out track " + music + " because track " +
+                    "is not currently playing!");
+            }
+
+            return helper;
+        }
+
+        public JSAMMusicChannelHelper FadeMusicOutInternal(JSAMMusicChannelHelper helper, float fadeOutTime)
+        {
+            if (!Application.isPlaying) return null;
+
+            if (helper)
+            {
+                helper.BeginFadeOut(fadeOutTime);
+            }
+            else
+            {
+                DebugError("Music Fade Out Failed!", "Provided Music Channel Helper was null!");
+            }
+
+            return helper;
+        }
+        #endregion
+
         #region StopMusic
         public JSAMMusicChannelHelper StopMusicInternal(JSAMMusicFileObject music, Transform t, bool stopInstantly)
         {
@@ -383,8 +444,7 @@ namespace JSAM
             }
             else
             {
-                Debug.LogError(
-                    "AudioManager Error: Ran out of Music Sources! " +
+                DebugError("Ran out of Music Sources!",
                     "Please enable Dynamic Source Allocation in the AudioManager's settings or " +
                     "increase the number of Music Channels created on startup. " +
                     "You might be playing too many sounds at once.");
@@ -535,5 +595,20 @@ namespace JSAM
             return newHelper;
         }
         #endregion
+
+        void DebugLog(string message)
+        {
+            Debug.Log("AudioManager: " + message);
+        }
+
+        void DebugWarning(string title, string reason)
+        {
+            Debug.LogWarning("AudioManager Warning!: " + title + "\n" + reason);
+        }
+
+        void DebugError(string title, string reason)
+        {
+            Debug.LogWarning("AudioManager Warning!: " + title + "\n" + reason);
+        }
     }
 }

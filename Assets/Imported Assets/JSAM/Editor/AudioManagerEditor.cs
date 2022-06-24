@@ -21,8 +21,6 @@ namespace JSAM.JSAMEditor
 
         static bool showHowTo;
 
-        int libraryIndex = 0;
-
         SerializedProperty listener;
         SerializedProperty sourcePrefab;
 
@@ -67,8 +65,6 @@ namespace JSAM.JSAMEditor
             mixer = settings.FindPropertyRelative("Mixer");
 
             Application.logMessageReceived += UnityDebugLog;
-
-            LoadLibraries();
         }
 
         private void OnDisable()
@@ -103,12 +99,7 @@ namespace JSAM.JSAMEditor
 
             EditorGUILayout.BeginHorizontal();
             blontent = new GUIContent("Library");
-            EditorGUI.BeginChangeCheck();
-            libraryIndex = EditorGUILayout.Popup(blontent, libraryIndex, AudioLibraryEditor.projectLibrariesNames.ToArray());
-            if (EditorGUI.EndChangeCheck())
-            {
-                library.objectReferenceValue = AudioLibraryEditor.projectLibraries[libraryIndex];
-            }
+            EditorGUILayout.PropertyField(library);
             blontent = new GUIContent(" Open ");
             if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
             {
@@ -286,21 +277,6 @@ namespace JSAM.JSAMEditor
         private static void OnScriptsReloaded()
         {
             EditorUtility.ClearProgressBar();
-        }
-
-        void LoadLibraries()
-        {
-            var libraries = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<AudioLibrary>(JSAMSettings.Settings.LibraryPath);
-
-            AudioLibraryEditor.projectLibraries = new List<AudioLibrary>();
-            AudioLibraryEditor.projectLibrariesNames = new List<string>();
-            for (int i = 0; i < libraries.Count; i++)
-            {
-                AudioLibraryEditor.projectLibraries.Add(libraries[i]);
-                AudioLibraryEditor.projectLibrariesNames.Add(libraries[i].name);
-            }
-
-            libraryIndex = AudioLibraryEditor.projectLibraries.IndexOf(library.objectReferenceValue as AudioLibrary);
         }
 
         [MenuItem("GameObject/Audio/JSAM/Audio Manager", false, 1)]

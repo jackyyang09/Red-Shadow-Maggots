@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 
-public class CharacterPreviewUI : MonoBehaviour
+public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
 {
     [System.Serializable]
     public struct ClassTitleAndSprite
@@ -53,23 +53,6 @@ public class CharacterPreviewUI : MonoBehaviour
     [SerializeField] TextMeshProUGUI defenseWindowText = null;
 
     public static CharacterPreviewUI instance;
-
-    private void Awake()
-    {
-        EstablishSingletonDominance();
-    }
-
-    // Start is called before the first frame update
-    //void Start()
-    //{
-    //    
-    //}
-
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
 
     private void OnEnable()
     {
@@ -123,8 +106,8 @@ public class CharacterPreviewUI : MonoBehaviour
 
         float rarityMultiplier = 1 + 0.5f * (int)rarity;
 
-        healthText.text = (character.maxHealth * rarityMultiplier).ToString();
-        attackText.text = (character.attack * rarityMultiplier).ToString();
+        healthText.text = Mathf.RoundToInt(character.GetMaxHealth(1, false) * rarityMultiplier).ToString();
+        attackText.text = Mathf.RoundToInt(character.GetAttack(1) * rarityMultiplier).ToString();
         critRateText.text = (character.critChance * 100).ToString() + "%";
         critDamageText.text = (character.critDamageMultiplier * 100).ToString() + "%";
         attackWindowText.text = character.attackLeniency.ToString();
@@ -179,30 +162,5 @@ public class CharacterPreviewUI : MonoBehaviour
         cardLoadMode = false;
         SetReadyRectActive(true);
         CardLoader.instance.HideFileDropOverlay();
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
     }
 }

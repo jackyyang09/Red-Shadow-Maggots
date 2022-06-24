@@ -27,6 +27,7 @@ public class CharacterUI : BaseGameUI
 
     [Header("Object References")]
     [SerializeField] protected TextMeshProUGUI nameText = null;
+    [SerializeField] protected TextMeshProUGUI levelLabel = null;
     [SerializeField] protected Image classIcon = null;
     [SerializeField] protected GameObject iconPrefab = null;
     [SerializeField] protected RectTransform iconContainer = null;
@@ -44,6 +45,7 @@ public class CharacterUI : BaseGameUI
 
         classIcon.sprite = index.GetClassIcon(designatedCharacter.Reference.characterClass);
         nameText.text = designatedCharacter.Reference.characterName;
+        levelLabel.text = character.CurrentLevel.ToString();
         health.InitializeWithCharacter(character);
 
         designatedCharacter.onApplyGameEffect += AddEffectIcon;

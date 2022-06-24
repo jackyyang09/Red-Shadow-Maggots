@@ -91,7 +91,7 @@ namespace JSAM.JSAMEditor
                 "useLibrary", "category"
             };
 #endif
-            string path = JSAMSettings.Settings.PresetsPath + "\"" + input[0] + ".preset";
+            string path = System.IO.Path.Combine(JSAMSettings.Settings.PresetsPath, input[0] + ".preset");
             JSAMEditorHelper.CreateAssetSafe(newPreset, path);
         }
 
@@ -123,10 +123,11 @@ namespace JSAM.JSAMEditor
             {
                 EditorGUILayout.PropertyField(files.GetArrayElementAtIndex(0), clipContent);
             }
+            EditorGUILayout.PropertyField(relativeVolume);
 
             DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
 
-            DrawPlaybackTool();
+            if (!isPreset) DrawPlaybackTool();
 
             DrawLoopPointTools(myScript);
 
@@ -145,7 +146,7 @@ namespace JSAM.JSAMEditor
                 }
             }
 
-#region Quick Reference Guide 
+            #region Quick Reference Guide 
             showHowTo = EditorCompatability.SpecialFoldouts(showHowTo, "Quick Reference Guide");
             if (showHowTo)
             {
@@ -196,7 +197,7 @@ namespace JSAM.JSAMEditor
                     "to use in other programs!");
             }
             EditorCompatability.EndSpecialFoldoutGroup();
-#endregion
+            #endregion
         }
 
         /// <summary>
@@ -353,8 +354,8 @@ namespace JSAM.JSAMEditor
 
                 if (EditorUtility.audioMasterMute)
                 {
-                    EditorGUILayout.HelpBox("Audio is muted in the game view, which also mutes audio " +
-                        "playback here. Please un-mute it to hear your audio.", MessageType.Warning);
+                    JSAMEditorHelper.RenderHelpbox("Audio is muted in the game view, which also mutes audio " +
+                         "playback here. Please un-mute it to hear your audio.");
                 }
             }
             EditorCompatability.EndSpecialFoldoutGroup();
@@ -402,13 +403,13 @@ namespace JSAM.JSAMEditor
 
             if (hide)
             {
-                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20));
+                GUI.Box(rect, content, GUI.skin.box.ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyBoldText().SetFontSize(20).SetTextColor(GUI.skin.label.normal.textColor));
                 return false;
             }
 
             AudioClip music = files.GetArrayElementAtIndex(0).objectReferenceValue as AudioClip;
             var helperSource = AudioPlaybackToolEditor.helperSource;
-            var value = helperSource.time / music.length;
+            var value = (float)helperSource.timeSamples / (float)music.samples;
 
             if (cachedTex == null || AudioPlaybackToolEditor.forceRepaint)
             {
@@ -422,7 +423,6 @@ namespace JSAM.JSAMEditor
             {
                 GUI.DrawTexture(rect, cachedTex);
             }
-
             Rect progressRect = new Rect(rect);
             progressRect.width *= value;
             progressRect.xMin = progressRect.xMax - 1;
@@ -545,7 +545,7 @@ namespace JSAM.JSAMEditor
         {
             if (Event.current.type != EventType.Repaint) return;
 
-#region Draw Loop Point Markers
+            #region Draw Loop Point Markers
             if (music.loopMode >= LoopMode.LoopWithLoopPoints)
             {
                 Rect newRect = new Rect();
@@ -593,7 +593,7 @@ namespace JSAM.JSAMEditor
                 GUI.Box(newRect, "", "SelectionRect");
                 JSAMEditorHelper.EndColourChange();
             }
-#endregion
+            #endregion
         }
 
         static GUIContent s_BackIcon = null;

@@ -7,12 +7,15 @@ using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
-    [SerializeField] Transform cardMesh = null;
+    [SerializeField] float currentExperience = 0;
+    [SerializeField] float maxExperience = 100;
 
-    const float fingerHoldTime = 0.75f;
+    const float FINGER_HOLD_TIME = 0.75f;
     float fingerHoldTimer = 0;
 
     float canteenCharge;
+
+    const float SPECIAL_ATTACK_DELAY = 0.35f;
 
     public override float CritChanceModified
     {
@@ -27,16 +30,32 @@ public class PlayerCharacter : BaseCharacter
     public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
     public static Action<PlayerCharacter> OnPlayerQTEAttack;
 
-    // Start is called before the first frame update
-    protected override void Start()
+    public override void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
     {
-        base.Start();
+        base.ApplyCharacterStats(level, stateInfo);
+
+        if (stateInfo != null)
+        {
+            var s = stateInfo as BattleState.PlayerState;
+            if (s.Cooldowns != null)
+            {
+                for (int i = 0; i < s.Cooldowns.Length; i++)
+                {
+                    gameSkills[i].cooldownTimer = s.Cooldowns[i];
+                }
+            }
+        }
+    }
+
+    protected override void Initialize()
+    {
+        base.Initialize();
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
 
-        var billboard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
-        billboard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
-        billboard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
+        billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
+        billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+        billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
     }
 
     protected override void OnEnable()
@@ -63,10 +82,6 @@ public class PlayerCharacter : BaseCharacter
     {
         bool isSelected = newSelection == this;
         selectionCircle.enabled = isSelected;
-        if (isSelected)
-        {
-            cardMesh.DOLocalJump(cardMesh.localPosition, 0.5f, 1, 0.25f).SetUpdate(UpdateType.Late);
-        }
     }
 
     public void ForceSelect()
@@ -102,7 +117,7 @@ public class PlayerCharacter : BaseCharacter
         if (!ui.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
         {
             fingerHoldTimer += Time.deltaTime;
-            if (fingerHoldTimer >= fingerHoldTime)
+            if (fingerHoldTimer >= FINGER_HOLD_TIME)
             {
                 ui.OpenCharacterPanel();
                 fingerHoldTimer = 0;
@@ -179,13 +194,17 @@ public class PlayerCharacter : BaseCharacter
                     if (IncomingDamage.qteResult != QuickTimeBase.QTEResult.Perfect)
                     {
                         rigAnim.SetInteger("Charge Level", 0);
+                        rigAnim.SetTrigger("Attack Execute");
                     }
                     else
                     {
-                        rigAnim.SetInteger("Charge Level", IncomingDamage.chargeLevel);
+                        Invoke(nameof(ExecuteDelayedAttack), SPECIAL_ATTACK_DELAY);
                     }
-                    if (IncomingDamage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-                    rigAnim.SetTrigger("Attack Execute");
+                    if (IncomingDamage.isSuperCritical)
+                    {
+                        rigAnim.SetInteger("Charge Level", 4);
+                        rigAnim.SetTrigger("Attack Execute");
+                    }
                     break;
             }
         }
@@ -193,6 +212,12 @@ public class PlayerCharacter : BaseCharacter
         {
             spriteAnim.Play("Attack Execute");
         }
+    }
+
+    public void ExecuteDelayedAttack()
+    {
+        rigAnim.SetInteger("Charge Level", IncomingDamage.chargeLevel);
+        rigAnim.SetTrigger("Attack Execute");
     }
 
     public void ApplyCanteenEffect(float critCharge)
@@ -220,7 +245,12 @@ public class PlayerCharacter : BaseCharacter
 
     public override void Die()
     {
-        Invoke("DeathEffects", 0.5f);
+        Invoke(nameof(DeathEffects), 0.5f);
+    }
+
+    public override void DieSilently()
+    {
+        base.DieSilently();
     }
 
     public override void InvokeDeathEvents()

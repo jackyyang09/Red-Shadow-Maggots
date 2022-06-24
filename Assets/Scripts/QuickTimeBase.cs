@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public abstract class QuickTimeBase : MonoBehaviour
 {
@@ -26,15 +27,17 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     [SerializeField] protected float hideDelay = 0.5f;
 
+    public static bool AlwaysSucceed = false;
+
     public System.Action OnExecuteQuickTime;
     public System.Action OnQuickTimeComplete;
 
-    protected virtual void OnEnable()
+    protected virtual void Start()
     {
         GlobalEvents.OnEnterBattleCutscene += Hide;
     }
 
-    protected virtual void OnDisable()
+    protected virtual void OnDestroy()
     {
         GlobalEvents.OnEnterBattleCutscene -= Hide;
     }
@@ -50,5 +53,24 @@ public abstract class QuickTimeBase : MonoBehaviour
     public void Enable()
     {
         enabled = true;
+    }
+
+    public static void AddHacks()
+    {
+        var command = new SickDev.CommandSystem.ActionCommand(LockSuccess)
+        {
+            alias = nameof(LockSuccess),
+            description = "Quick-time events will always succeed"
+        };
+
+        if (!devConsole.IsCommandAdded(command))
+        {
+            devConsole.AddCommand(command);
+        }
+    }
+
+    public static void LockSuccess()
+    {
+        AlwaysSucceed = true;
     }
 }

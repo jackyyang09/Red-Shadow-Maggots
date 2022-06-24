@@ -1,5 +1,8 @@
-﻿#if !UNITY_ANDROID
+﻿//#define WindowsForms
+
+#if WindowsForms
 using System.Windows.Forms;
+#endif
 using System.IO;
 
 public static class WindowsFileExplorer
@@ -7,7 +10,7 @@ public static class WindowsFileExplorer
     public static string OpenSaveImageDialog()
     {
         var filePath = string.Empty;
-
+#if WindowsForms
         using (SaveFileDialog saveFileDialog = new SaveFileDialog())
         {
             saveFileDialog.InitialDirectory = UnityEngine.Application.dataPath;
@@ -20,13 +23,14 @@ public static class WindowsFileExplorer
                 filePath = saveFileDialog.FileName;
             }
         }
-
+#endif
         return filePath;
     }
 
     public static string OpenLoadImageDialog()
     {
         var filePath = string.Empty;
+#if WindowsForms
 
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
         {
@@ -40,6 +44,7 @@ public static class WindowsFileExplorer
                 filePath = openFileDialog.FileName;
             }
         }
+#endif
 
         return filePath;
     }
@@ -52,7 +57,7 @@ public static class WindowsFileExplorer
     {
         var fileContent = string.Empty;
         var filePath = string.Empty;
-
+#if WindowsForms
         using (OpenFileDialog openFileDialog = new OpenFileDialog())
         {
             // Set the initial directory to the game's folder location
@@ -78,8 +83,7 @@ public static class WindowsFileExplorer
                 }
             }
         }
-
+#endif
         return fileContent;
     }
 }
-#endif

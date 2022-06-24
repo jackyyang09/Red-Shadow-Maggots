@@ -7,21 +7,36 @@ namespace JSAM
     [AddComponentMenu("AudioManager/Audio Player Music")]
     public class AudioPlayerMusic : BaseAudioMusicFeedback
     {
+        public enum FadeBehaviour
+        {
+            None,
+            AdditiveFadeIn,
+            CrossFadeIn,
+            FadeOutAndFadeIn
+        }
+
         [Tooltip("Behaviour to trigger when the object this is attached to is created")]
-        [SerializeField]
-        protected AudioPlaybackBehaviour onStart = AudioPlaybackBehaviour.Play;
+        [SerializeField] protected AudioPlaybackBehaviour onStart = AudioPlaybackBehaviour.Play;
 
         [Tooltip("Behaviour to trigger when the object this is attached to is enabled or when the object is created")]
-        [SerializeField]
-        protected AudioPlaybackBehaviour onEnable = AudioPlaybackBehaviour.None;
+        [SerializeField] protected AudioPlaybackBehaviour onEnable = AudioPlaybackBehaviour.None;
 
         [Tooltip("Behaviour to trigger when the object this is attached to is destroyed or set to in-active")]
-        [SerializeField]
-        protected AudioPlaybackBehaviour onDisable = AudioPlaybackBehaviour.None;
+        [SerializeField] protected AudioPlaybackBehaviour onDisable = AudioPlaybackBehaviour.None;
 
         [Tooltip("Behaviour to trigger when the object this is attached to is destroyed")]
-        [SerializeField]
-        protected AudioPlaybackBehaviour onDestroy = AudioPlaybackBehaviour.Stop;
+        [SerializeField] protected AudioPlaybackBehaviour onDestroy = AudioPlaybackBehaviour.Stop;
+
+        [Tooltip(
+            "Fade behaviour to use when music is played back.\n" +
+            "None - No fading\n" +
+            "AdditiveFadeIn - Music fades in with no regard for currently playing music\n" +
+            "CrossFadeIn - Fades out current Main Music while fading in this music\n" +
+            "FadeOutAndFadeIn - Fades out current Main Music, and only after it's done fading, fade in this music")]
+        [SerializeField] protected FadeBehaviour fadeBehaviour = FadeBehaviour.None;
+
+        [Tooltip("Total time of the fade process")]
+        [SerializeField] float fadeTime;
 
         JSAMMusicChannelHelper helper;
         public JSAMMusicChannelHelper MusicHelper { get { return helper; } }
@@ -53,18 +68,47 @@ namespace JSAM
                     if (AudioManager.MainMusicHelper.AudioSource.isPlaying)
                     {
                         float time = AudioManager.MainMusicHelper.AudioSource.time;
-                        AudioManager.PlayMusic(music, transform).AudioSource.time = time;
+                        helper = AudioManager.PlayMusic(music, transform);
+                        helper.AudioSource.time = time;
                     }
                     else
                     {
-                        AudioManager.PlayMusic(music, transform);
+                        helper = AudioManager.PlayMusic(music, transform);
                     }
                 }
             }
             else
             {
                 AudioManager.StopMusicIfPlaying(music, transform);
-                AudioManager.PlayMusic(music, transform);
+                helper = AudioManager.PlayMusic(music, transform);
+            }
+        }
+
+        void PlayBehaviour()
+        {
+            switch (fadeBehaviour)
+            {
+                case FadeBehaviour.None:
+                    Play();
+                    break;
+                case FadeBehaviour.AdditiveFadeIn:
+                    helper = AudioManager.FadeMusicIn(music, fadeTime);
+                    break;
+                case FadeBehaviour.CrossFadeIn:
+                    if (!AudioManager.MainMusicHelper.IsFree)
+                    {
+                        AudioManager.FadeMainMusicOut(fadeTime);
+                    }
+                    Invoke(nameof(Play), fadeTime);
+                    break;
+                case FadeBehaviour.FadeOutAndFadeIn:
+                    var halfTime = fadeTime / 2;
+                    if (!AudioManager.MainMusicHelper.IsFree)
+                    {
+                        AudioManager.FadeMainMusicOut(halfTime);
+                    }
+                    Invoke(nameof(Play), halfTime);
+                    break;
             }
         }
 
@@ -90,17 +134,11 @@ namespace JSAM
 
         IEnumerator PlayDelayed()
         {
-            while (!AudioManager.Instance)
-            {
-                yield return null;
-            }
-            while (!AudioManager.Instance.Initialized)
-            {
-                yield return null;
-            }
+            yield return new WaitUntil(() => AudioManager.Instance);
+            yield return new WaitUntil(() => AudioManager.Instance.Initialized);
 
             playRoutine = null;
-            Play();
+            PlayBehaviour();
         }
 
         private void OnDisable()

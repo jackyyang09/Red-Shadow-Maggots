@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using static Facade;
 
-public class UncrateSequence : MonoBehaviour
+public class UncrateSequence : BasicSingleton<UncrateSequence>
 {
     [SerializeField] OptimizedCanvas canvas = null;
 
     [SerializeField] Image characterPortrait = null;
+    [SerializeField] AspectRatioFitter aspectFitter = null;
     [SerializeField] Image dropShadow = null;
     [SerializeField] Image[] stars = null;
     [SerializeField] TMPro.TextMeshProUGUI nameText = null;
@@ -20,7 +22,6 @@ public class UncrateSequence : MonoBehaviour
     [SerializeField] Image speedLines = null;
     [SerializeField] TMPro.TextMeshProUGUI continueText = null;
 
-    [SerializeField] Image blackout = null;
     [SerializeField] float exitTime = 1;
 
     [SerializeField] float enterTime = 1;
@@ -31,12 +32,7 @@ public class UncrateSequence : MonoBehaviour
     [SerializeField] CharacterObject testCharacter = null;
     [SerializeField] Rarity testRarity = Rarity.Common;
 
-    public static UncrateSequence instance;
-
-    private void Awake()
-    {
-        EstablishSingletonDominance();
-    }
+    System.Action onExitSequence;
 
     // Start is called before the first frame update
     //void Start()
@@ -67,8 +63,9 @@ public class UncrateSequence : MonoBehaviour
         }
     }
 
-    public void UncrateCharacter(CharacterObject character, Rarity rarity)
+    public void UncrateCharacter(CharacterObject character, Rarity rarity, System.Action onContinue = null)
     {
+        onExitSequence = onContinue;
         StartCoroutine(PlayUncrateSequence(character, rarity));
     }
 
@@ -85,11 +82,13 @@ public class UncrateSequence : MonoBehaviour
         characterPortrait.sprite = character.sprite;
         characterPortrait.color = Color.black;
         dropShadow.sprite = character.sprite;
+        aspectFitter.aspectRatio = (float)character.sprite.texture.width / (float)character.sprite.texture.height;
 
-        RectTransform portrait = ((RectTransform)characterPortrait.transform.parent);
-        portrait.anchoredPosition = new Vector2(0, 0);
-        portrait.localScale = new Vector3().NewUniformVector3(5);
-        portrait.DOScale(1, enterTime).SetEase(easeType);
+        RectTransform portrait = characterPortrait.transform.parent as RectTransform;
+        float center = -(float)Screen.width / 2f + characterPortrait.rectTransform.sizeDelta.x / 2f;
+        portrait.anchoredPosition = new Vector2(center, 0);
+        characterPortrait.transform.localScale = new Vector3().NewUniformVector3(5);
+        characterPortrait.transform.DOScale(1, enterTime).SetEase(easeType);
 
         nameText.text = string.Empty;
         nameText.color = Color.clear;
@@ -119,7 +118,7 @@ public class UncrateSequence : MonoBehaviour
         var revealOffset = 300;
 
         background.DOColor(Color.white, revealTime).SetEase(revealEase);
-        portrait.DOAnchorPosX(574, revealTime).SetEase(revealEase);
+        portrait.DOAnchorPosX(0, revealTime).SetEase(revealEase);
 
         characterPortrait.DOColor(Color.white, revealTime).SetEase(revealEase);
 
@@ -168,51 +167,19 @@ public class UncrateSequence : MonoBehaviour
 
     public void ExitUncrateSequence()
     {
-        StartCoroutine("ExitSequence");
+        StartCoroutine(ExitSequence());
     }
 
     public IEnumerator ExitSequence()
     {
         float exitHalfTime = exitTime / 2;
 
-        blackout.DOFade(0, 0);
-        blackout.color = Color.black;
-        blackout.DOFade(1, exitHalfTime);
-
-        yield return new WaitForSeconds(exitHalfTime);
+        yield return screenEffects.FadeToBlackRoutine(exitHalfTime);
 
         canvas.Hide();
-        CharacterPreviewUI.instance.ExitCardLoadMode();
 
-        yield return new WaitForSeconds(exitHalfTime);
+        yield return screenEffects.FadeFromBlackRoutine(exitHalfTime);
 
-        blackout.DOFade(0, exitHalfTime);
-
-        yield return null;
-    }
-
-    void EstablishSingletonDominance()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
+        onExitSequence?.Invoke();
     }
 }
