@@ -21,7 +21,6 @@ namespace Map
         [Tooltip(
             "List of all the MapConfig scriptable objects from the Assets folder that might be used to construct maps. " +
             "Similar to Acts in Slay The Spire (define general layout, types of bosses.)")]
-        public List<MapConfig> allMapConfigs;
         public GameObject nodePrefab;
         [Tooltip("Offset of the start/end nodes of the map from the edges of the screen")]
         public float orientationOffset;
@@ -227,7 +226,6 @@ namespace Map
 
         private void SetOrientation()
         {
-            var scrollNonUi = mapParent.GetComponent<ScrollNonUI>();
             var span = mapManager.CurrentMap.DistanceBetweenFirstAndLastLayers();
             var bossNode = MapNodes.FirstOrDefault(node => node.Node.nodeType == NodeType.Boss);
             Debug.Log("Map span in set orientation: " + span + " camera aspect: " + cam.aspect);
@@ -238,20 +236,10 @@ namespace Map
             switch (orientation)
             {
                 case MapOrientation.BottomToTop:
-                    if (scrollNonUi != null)
-                    {
-                        scrollNonUi.yConstraints.max = 0;
-                        scrollNonUi.yConstraints.min = -(span + 2f * offset);
-                    }
                     //firstParent.transform.localPosition += new Vector3(0, offset, 0);
                     break;
                 case MapOrientation.TopToBottom:
                     //mapParent.transform.eulerAngles = new Vector3(0, 0, 180);
-                    if (scrollNonUi != null)
-                    {
-                        scrollNonUi.yConstraints.min = 0;
-                        scrollNonUi.yConstraints.max = span + 2f * offset;
-                    }
                     // factor in map span:
                     //firstParent.transform.localPosition += new Vector3(0, -offset, 0);
                     break;
@@ -260,21 +248,11 @@ namespace Map
                     //mapParent.transform.eulerAngles = new Vector3(0, 0, 90);
                     // factor in map span:
                     //firstParent.transform.localPosition -= new Vector3(offset, bossNode.transform.position.y, 0);
-                    if (scrollNonUi != null)
-                    {
-                        scrollNonUi.xConstraints.max = span + 2f * offset;
-                        scrollNonUi.xConstraints.min = 0;
-                    }
                     break;
                 case MapOrientation.LeftToRight:
                     offset *= cam.aspect;
                     //mapParent.transform.eulerAngles = new Vector3(0, 0, -90);
                     //firstParent.transform.localPosition += new Vector3(offset, -bossNode.transform.position.y, 0);
-                    if (scrollNonUi != null)
-                    {
-                        scrollNonUi.xConstraints.max = 0;
-                        scrollNonUi.xConstraints.min = -(span + 2f * offset);
-                    }
                     break;
             }
         }
@@ -325,20 +303,15 @@ namespace Map
             return MapNodes.FirstOrDefault(n => n.Node.point.Equals(p));
         }
 
-        private MapConfig GetConfig(string configName)
-        {
-            return allMapConfigs.FirstOrDefault(c => c.name == configName);
-        }
-
         public NodeBlueprint GetBlueprint(NodeType type)
         {
-            var config = GetConfig(mapManager.CurrentMap.configName);
+            var config = mapManager.CurrentConfig;
             return config.nodeBlueprints.FirstOrDefault(n => n.nodeType == type);
         }
 
         public NodeBlueprint GetBlueprint(string blueprintName)
         {
-            var config = GetConfig(mapManager.CurrentMap.configName);
+            var config = mapManager.CurrentConfig;
             return config.nodeBlueprints.FirstOrDefault(n => n.name == blueprintName);
         }
     }

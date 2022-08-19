@@ -156,11 +156,10 @@ public class CardLoader : MonoBehaviour
         if (IsInvoking("CaptureExportCard")) return;
         // Retrieve data to export
         CharacterCard newData = new CharacterCard();
-        (CharacterObject newCharacter, Rarity newRarity) = cardHolder.GetHeldData();
-        newData.characterID = (byte)characters.IndexOf(newCharacter);
-        newData.rarity = newRarity;
+        newData.characterID = (byte)characters.IndexOf(cardHolder.Character);
+        newData.rarity = cardHolder.Rarity;
 
-        exportCardHolder.SetCharacterAndRarity(newCharacter, newRarity);
+        exportCardHolder.SetCharacterAndRarity(cardHolder.Character, cardHolder.Rarity);
 
         // Debug: Serialize data in inspector
         testDataStorage = SaveAsBytes(newData);

@@ -179,6 +179,7 @@ public class EnemyCharacter : BaseCharacter
 
     public override void Die()
     {
+        base.Die();
         Invoke(nameof(DeathEffects), 0.5f);
     }
 
@@ -190,6 +191,7 @@ public class EnemyCharacter : BaseCharacter
 
     public override void InvokeDeathEvents()
     {
+        base.InvokeDeathEvents();
         onDeath?.Invoke();
         EnemyController.Instance.RegisterEnemyDeath(this);
         GlobalEvents.OnAnyEnemyDeath?.Invoke();

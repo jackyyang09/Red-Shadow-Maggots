@@ -129,27 +129,28 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         else
         {
             WaveObject newWave = waves[waveCount];
+            enemies.AddRange(new EnemyCharacter[3]);
 
             if (newWave.leftEnemy)
             {
-                enemies.Add(SpawnEnemy(newWave.leftEnemy, leftSpawnPos));
+                enemies[0] = SpawnEnemy(newWave.leftEnemy, leftSpawnPos);
             }
 
             if (newWave.middleEnemy)
             {
                 if (newWave.IsBossWave)
                 {
-                    enemies.Add(SpawnBoss(newWave.middleEnemy, middleSpawnPos));
+                    enemies[1] = SpawnBoss(newWave.middleEnemy, middleSpawnPos);
                 }
                 else
                 {
-                    enemies.Add(SpawnEnemy(newWave.middleEnemy, middleSpawnPos));
+                    enemies[1] = SpawnEnemy(newWave.middleEnemy, middleSpawnPos);
                 }
             }
 
             if (newWave.rightEnemy)
             {
-                enemies.Add(SpawnEnemy(newWave.rightEnemy, rightSpawnPos));
+                enemies[2] = SpawnEnemy(newWave.rightEnemy, rightSpawnPos);
             }
 
             if (newWave.IsBossWave) OnEnterBossWave?.Invoke();

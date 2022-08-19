@@ -9,7 +9,7 @@ public class PlayerData
     {
         public string GUID;
         public float Health;
-        public int Exp;
+        public float Exp;
     }
 
     /// <summary>
@@ -27,4 +27,31 @@ public class PlayerData
 public class PlayerDataManager : BaseSaveManager<PlayerData>
 {
     public override string FILE_NAME => "PlayerData";
+
+    public static System.Action<int> OnUpdateEXP;
+    public static System.Action<int> OnUpdateFloorCount;
+
+    private void OnEnable()
+    {
+        Map.MapPlayerTracker.OnEnterNode += OnAdvanceFloor;
+    }
+
+    private void OnDisable()
+    {
+        Map.MapPlayerTracker.OnEnterNode -= OnAdvanceFloor;
+    }
+
+    public void SetExp(int exp)
+    {
+        LoadedData.Exp = exp;
+        SaveData();
+        OnUpdateEXP?.Invoke(LoadedData.Exp);
+    }
+
+    private void OnAdvanceFloor(Map.NodeType obj)
+    {
+        LoadedData.NodesTravelled++;
+        SaveData();
+        OnUpdateFloorCount?.Invoke(LoadedData.NodesTravelled);
+    }
 }

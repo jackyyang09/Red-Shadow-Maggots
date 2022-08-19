@@ -68,10 +68,9 @@ public class MapSceneManager : MonoBehaviour
             case NodeType.RestSite:
                 restNode.Initialize();
                 break;
-            case NodeType.Treasure:
-                break;
             case NodeType.Store:
                 break;
+            case NodeType.Treasure:
             case NodeType.Mystery:
                 treasureNode.Initialize();
                 break;

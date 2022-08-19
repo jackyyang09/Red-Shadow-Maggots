@@ -649,7 +649,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
             var characterObject = opHandle.Result;
             var pState = battleData.PlayerStates.Count > 0 ? battleData.PlayerStates[i] : null;
-            var level = mState.Exp % 100 + 1;
+            var level = characterObject.GetLevelFromExp(mState.Exp);
 
             SpawnCharacterWithRarity(characterObject, Rarity.Common, level, pState);
         }
@@ -660,8 +660,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     void SaveBattleState()
     {
-        if (!playerDataManager.LoadedData.InBattle) return;
-
         var data = battleStateManager.LoadedData;
 
         var partyData = new List<BattleState.PlayerState>();

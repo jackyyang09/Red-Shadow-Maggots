@@ -44,12 +44,12 @@ public class GameManager : BasicSingleton<GameManager>
 
     private void OnEnable()
     {
-        BattleSystem.OnStartPlayerTurn += IncrementTurnCount;
+        BattleSystem.OnEndEnemyTurn += IncrementTurnCount;
     }
 
     private void OnDisable()
     {
-        BattleSystem.OnStartPlayerTurn -= IncrementTurnCount;
+        BattleSystem.OnEndEnemyTurn -= IncrementTurnCount;
     }
 
     // Start is called before the first frame update
@@ -77,5 +77,10 @@ public class GameManager : BasicSingleton<GameManager>
 
         screenEffects.FadeToBlack();
         sceneLoader.SwitchScene(mapScene.SceneName);
+    }
+
+    public void RestartBattle()
+    {
+        sceneLoader.ReloadScene();
     }
 }

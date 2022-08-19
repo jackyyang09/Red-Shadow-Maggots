@@ -19,14 +19,17 @@ public class UICharacterDetails : MonoBehaviour
     [SerializeField] Color positiveModifier = Color.yellow;
     [SerializeField] Color negativeModifier = Color.red;
 
+    [SerializeField] JSAM.JSAMSoundFileObject panelOpenSound;
+    [SerializeField] JSAM.JSAMSoundFileObject panelCloseSound;
+
     private void OnEnable()
     {
         canvas.onCanvasShow.AddListener(PanelOpenSound);
         canvas.onCanvasHide.AddListener(PanelCloseSound);
     }
 
-    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
-    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(panelOpenSound);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(panelCloseSound);
 
     private void OnDisable()
     {

@@ -24,11 +24,15 @@ namespace Map
         public Node Node { get; private set; }
         public NodeBlueprint Blueprint { get; private set; }
 
+        [SerializeField] float scaleTween = 0.3f;
+        [SerializeField] Ease scaleEase = Ease.Linear;
         private float initialScale;
         private const float HoverScaleFactor = 1.2f;
         private float mouseDownTime;
 
         private const float MaxClickDuration = 0.5f;
+
+        NodeStates nodeState;
 
         public void SetUp(Node node, NodeBlueprint blueprint)
         {
@@ -44,6 +48,7 @@ namespace Map
 
         public void SetState(NodeStates state)
         {
+            nodeState = state;
             visitedCircle.gameObject.SetActive(false);
             switch (state)
             {
@@ -69,14 +74,16 @@ namespace Map
 
         private void OnMouseEnter()
         {
+            if (nodeState != NodeStates.Attainable) return;
             sr.transform.DOKill();
-            sr.transform.DOScale(initialScale * HoverScaleFactor, 0.3f);
+            sr.transform.DOScale(initialScale * HoverScaleFactor, scaleTween).SetEase(scaleEase);
         }
 
         private void OnMouseExit()
         {
+            if (nodeState != NodeStates.Attainable) return;
             sr.transform.DOKill();
-            sr.transform.DOScale(initialScale, 0.3f);
+            sr.transform.DOScale(initialScale, scaleTween).SetEase(scaleEase);
         }
 
         private void OnMouseDown()

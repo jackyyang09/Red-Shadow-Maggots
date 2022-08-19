@@ -5,77 +5,77 @@ namespace Map
 {
     public class ScrollNonUI : MonoBehaviour
     {
-        public float tweenBackDuration = 0.3f;
-        public Ease tweenBackEase;
-        public bool freezeX;
-        public FloatMinMax xConstraints = new FloatMinMax();
-        public bool freezeY;
-        public FloatMinMax yConstraints = new FloatMinMax();
-        private Vector2 offset;
-        // distance from the center of this Game Object to the point where we clicked to start dragging 
-        private Vector3 pointerDisplacement;
-        private float zDisplacement;
+        [SerializeField] Vector2 xRange;
+        [SerializeField] Vector2 zRange;
+        [SerializeField] float sensitivity = 1;
+        [SerializeField] float mouseReleaseSpeed;
+        [SerializeField] float velocityDecay;
+        Vector3 velocity;
+
+        [SerializeField] new Camera camera;
+        [SerializeField] Transform vCam;
+
         private bool dragging;
-        private Camera mainCamera;
 
-        private void Awake()
-        {
-            mainCamera = Camera.main;
-            zDisplacement = -mainCamera.transform.position.z + transform.position.z;
-        }
+        Vector3 startPos;
+        Vector3 mouseDownPos;
 
-        public void OnMouseDown()
-        {
-            pointerDisplacement = -transform.position + MouseInWorldCoords();
-            transform.DOKill();
-            dragging = true;
+        Vector3 mouseVelocity 
+        { 
+            get 
+            { 
+                var mousePos = camera.ScreenToViewportPoint(Input.mousePosition);
+                return (lastMousePos - mousePos) * mouseReleaseSpeed / Time.fixedDeltaTime;
+            }
         }
+        Vector3 lastMousePos;
 
         public void OnMouseUp()
         {
             dragging = false;
-            TweenBack();
         }
 
         private void Update()
         {
+            if (Input.GetMouseButtonDown(0))
+            {
+                dragging = true;
+                mouseDownPos = camera.ScreenToViewportPoint(Input.mousePosition);
+                startPos = vCam.position;
+            }
+            else if (Input.GetMouseButtonUp(0))
+            {
+                velocity = new Vector3(mouseVelocity.x, 0, mouseVelocity.y);
+                dragging = false;
+            }
+
             if (!dragging) return;
+            var mousePos = camera.ScreenToViewportPoint(Input.mousePosition);
+            var diff = mouseDownPos - mousePos;
 
-            var mousePos = MouseInWorldCoords();
-            //Debug.Log(mousePos);
-            transform.position = new Vector3(
-                freezeX ? transform.position.x : mousePos.x - pointerDisplacement.x,
-                freezeY ? transform.position.y : mousePos.y - pointerDisplacement.y,
-                transform.position.z);
+            vCam.position = new Vector3(
+                Mathf.Clamp(startPos.x + diff.x / sensitivity, xRange.x, xRange.y),
+                vCam.position.y,
+                Mathf.Clamp(startPos.z + diff.y / sensitivity, zRange.x, zRange.y));
         }
 
-        // returns mouse position in World coordinates for our GameObject to follow. 
-        private Vector3 MouseInWorldCoords()
+        private void FixedUpdate()
         {
-            var screenMousePos = Input.mousePosition;
-            //Debug.Log(screenMousePos);
-            screenMousePos.z = zDisplacement;
-            return mainCamera.ScreenToWorldPoint(screenMousePos);
+            if (dragging) return;
+            else
+            {
+                vCam.position += velocity * Time.fixedDeltaTime;
+                vCam.position = new Vector3(
+                    Mathf.Clamp(vCam.position.x, xRange.x, xRange.y),
+                    vCam.position.y,
+                    Mathf.Clamp(vCam.position.z, zRange.x, zRange.y));
+                velocity = Vector3.MoveTowards(velocity, Vector3.zero, velocityDecay * Time.fixedDeltaTime);
+            }
         }
 
-        private void TweenBack()
+        private void LateUpdate()
         {
-            if (freezeY)
-            {
-                if (transform.localPosition.x >= xConstraints.min && transform.localPosition.x <= xConstraints.max)
-                    return;
-
-                var targetX = transform.localPosition.x < xConstraints.min ? xConstraints.min : xConstraints.max;
-                transform.DOLocalMoveX(targetX, tweenBackDuration).SetEase(tweenBackEase);
-            }
-            else if (freezeX)
-            {
-                if (transform.localPosition.y >= yConstraints.min && transform.localPosition.y <= yConstraints.max)
-                    return;
-
-                var targetY = transform.localPosition.y < yConstraints.min ? yConstraints.min : yConstraints.max;
-                transform.DOLocalMoveY(targetY, tweenBackDuration).SetEase(tweenBackEase);
-            }
+            lastMousePos = camera.ScreenToViewportPoint(Input.mousePosition);
         }
     }
 }

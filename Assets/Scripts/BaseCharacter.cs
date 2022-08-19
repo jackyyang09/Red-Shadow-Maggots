@@ -851,8 +851,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void PlayDamageShakeEffect(float normalizedDamage) => transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);
 
-    public abstract void InvokeDeathEvents();
-    public abstract void Die();
+    public virtual void InvokeDeathEvents()
+    {
+        JSAM.AudioManager.PlaySound(BattleSceneSounds.KillSound);
+    }
+
+    public virtual void Die()
+    {
+    }
+
     public virtual void DieSilently()
     {
         animHelper.EnableRagdoll();

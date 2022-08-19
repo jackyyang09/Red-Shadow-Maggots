@@ -34,6 +34,8 @@ public class PlayerCharacter : BaseCharacter
     {
         base.ApplyCharacterStats(level, stateInfo);
 
+        maxHealth = characterReference.GetMaxHealth(currentLevel, false) * RarityMultiplier;
+
         if (stateInfo != null)
         {
             var s = stateInfo as BattleState.PlayerState;
@@ -245,6 +247,7 @@ public class PlayerCharacter : BaseCharacter
 
     public override void Die()
     {
+        base.Die();
         Invoke(nameof(DeathEffects), 0.5f);
     }
 
@@ -255,7 +258,8 @@ public class PlayerCharacter : BaseCharacter
 
     public override void InvokeDeathEvents()
     {
-        BattleSystem.Instance.RegisterPlayerDeath(this);
+        base.InvokeDeathEvents();
+        battleSystem.RegisterPlayerDeath(this);
         onDeath?.Invoke();
         OnCharacterDeath?.Invoke(this);
         GlobalEvents.OnAnyPlayerDeath?.Invoke();

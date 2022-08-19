@@ -40,7 +40,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
     List<AsyncOperationHandle> LoadedMaggots = new List<AsyncOperationHandle>();
     Dictionary<string, AssetReference> guidToAssetRef = new Dictionary<string, AssetReference>();
-    public Dictionary<string, AssetReference> GUIDFromAssetReference { get { return guidToAssetRef; } }
+    public Dictionary<string, AssetReference> GUIDToAssetReference { get { return guidToAssetRef; } }
 
     [SerializeField] List<CharacterObject> maggots = null;
 
@@ -59,7 +59,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     // Start is called before the first frame update
     void Start()
     {
-        if (legacyMode)
+        if (legacyMode && !playerDataManager.LoadedData.InBattle)
         {
             for (int i = 0; i < maggots.Count; i++)
             {
@@ -77,9 +77,9 @@ public class GachaSystem : BasicSingleton<GachaSystem>
                 }
             }
 
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), GetRandomRarity());
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), GetRandomRarity());
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), GetRandomRarity());
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), RandomRarity);
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), RandomRarity);
+            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), RandomRarity);
         }
     }
 
@@ -127,6 +127,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
             newState.GUID = ar.AssetGUID;
             newState.Health = maggotObject.GetMaxHealth(1, false);
+            newState.Exp = maggotObject.GetExpRequiredForLevel(0, 1);
 
             data.MaggotStates.Add(newState);
 
@@ -145,43 +146,46 @@ public class GachaSystem : BasicSingleton<GachaSystem>
         dudCount = 0;
         for (int i = 0; i < 10; i++)
         {
-            Debug.Log(GetRandomRarity());
+            Debug.Log(RandomRarity);
         }
     }
 
-    public Rarity GetRandomRarity()
+    public Rarity RandomRarity
     {
-        // TODO: Create a pool of cookies that the player owns
-
-        float rng = Random.value;
-        // Rolled below rare
-        if (rng > chanceOfRare)
+        get
         {
-            dudCount++;
-            if (dudCount == 3)
-                return Rarity.Rare;
-            else
+            // TODO: Create a pool of cookies that the player owns
+
+            float rng = Random.value;
+            // Rolled below rare
+            if (rng > chanceOfRare)
             {
-                switch (Random.Range(0, 1))
+                dudCount++;
+                if (dudCount == 3)
+                    return Rarity.Rare;
+                else
                 {
-                    case 0:
-                        return Rarity.Common;
-                    case 1:
-                        return Rarity.Uncommon;
+                    switch (Random.Range(0, 1))
+                    {
+                        case 0:
+                            return Rarity.Common;
+                        case 1:
+                            return Rarity.Uncommon;
+                    }
                 }
             }
-        }
-        else if (rng > chanceOfSuperRare && rng <= chanceOfRare)
-        {
-            return Rarity.Rare;
-        }
-        else if (rng > chanceOfRare && rng <= chanceOfSuperRare)
-        {
-            return Rarity.SuperRare;
-        }
+            else if (rng > chanceOfSuperRare && rng <= chanceOfRare)
+            {
+                return Rarity.Rare;
+            }
+            else if (rng > chanceOfRare && rng <= chanceOfSuperRare)
+            {
+                return Rarity.SuperRare;
+            }
 
-        // If you avoided everything
-        return Rarity.UltraRare;
+            // If you avoided everything
+            return Rarity.UltraRare;
+        }
     }
 
     [ContextMenu("Normalize Weights")]

@@ -15,10 +15,11 @@ public class RSMEditorTools : Editor
     [MenuItem("RSM Tools/Wipe Save Data")]
     public static void WipeSaveData()
     {
-        if (EditorUtility.DisplayDialog("Confirm Deletion", "Delete BattleData.xml and PlayerData.xml?", "Yes", "Cancel"))
+        if (EditorUtility.DisplayDialog("Confirm Deletion", "Delete BattleData.xml, PlayerData.xml and Map.json?", "Yes", "Cancel"))
         {
             if (File.Exists(PlayerDataManager.FILE_PATH)) File.Delete(PlayerDataManager.FILE_PATH);
             if (File.Exists(BattleStateManager.FILE_PATH)) File.Delete(BattleStateManager.FILE_PATH);
+            if (File.Exists(Map.MapManager.FILE_PATH)) File.Delete(Map.MapManager.FILE_PATH);
             EditorUtility.DisplayDialog("Done!", "Deletion Completion", "Neat!");
         }
     }

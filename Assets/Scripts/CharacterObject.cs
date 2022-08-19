@@ -106,16 +106,19 @@ public class CharacterStatWizard : ScriptableWizard
 
     void OnWizardUpdate()
     {
-        float lerp = 0;
-        if (!isEnemy) lerp = (float)level / (float)CharacterObject.MAX_LEVEL_PLAYER;
+        float aLerp = (float)level / (float)CharacterObject.MAX_LEVEL_PLAYER;
+        float hLerp = 0;
+        if (!isEnemy)
+        {
+            hLerp = (float)level / (float)CharacterObject.MAX_LEVEL_PLAYER;
+        }
         else
         {
-            lerp = (float)level / (float)CharacterObject.MAX_LEVEL_ENEMY;
-            lerp = Mathf.Pow(lerp, 2);
+            hLerp = Mathf.Pow(level / (float)CharacterObject.MAX_LEVEL_ENEMY, 2);
         }
 
-        attack = (int)Mathf.Lerp(attackRange.x, attackRange.y, lerp);
-        health = (int)Mathf.Lerp(healthRange.x, healthRange.y, lerp);
+        attack = (int)Mathf.Lerp(attackRange.x, attackRange.y, aLerp);
+        health = (int)Mathf.Lerp(healthRange.x, healthRange.y, hLerp);
     }
 
     void RandomizeStats()
@@ -205,15 +208,35 @@ public class CharacterObject : ScriptableObject
     public int GetAttack(int currentLevel) => (int)Mathf.Lerp(attackRange.x, attackRange.y, (float)currentLevel / (float)MAX_LEVEL_PLAYER);
     public int GetMaxHealth(int currentLevel, bool isEnemy)
     {
-        float lerp = 0;
+        float lerp;
         if (!isEnemy) lerp = (float)currentLevel / (float)MAX_LEVEL_PLAYER;
         else
         {
-            lerp = (float)currentLevel / (float)MAX_LEVEL_ENEMY;
-            lerp = Mathf.Pow(lerp, 2);
+            lerp = Mathf.Pow(currentLevel / (float)MAX_LEVEL_ENEMY, 2);
         }
 
         return (int)Mathf.Lerp(healthRange.x, healthRange.y, lerp);
+    }
+
+    float m = 0.7f;
+    float z = 2.8f;
+    float b = 0;
+
+    public float GetExpRequiredForLevel(int currentLevel, int targetLevel)
+    {
+        if (currentLevel == 0)
+        {
+            return m * Mathf.Pow(targetLevel, z) + b;
+        }
+        else
+        {
+            return GetExpRequiredForLevel(0, targetLevel) - GetExpRequiredForLevel(0, currentLevel);
+        }
+    }
+
+    public int GetLevelFromExp(float exp)
+    {
+        return (int)Mathf.Pow((exp - b) / m, 1 / z);
     }
 
     [Range(0, 1)] public float critChance;

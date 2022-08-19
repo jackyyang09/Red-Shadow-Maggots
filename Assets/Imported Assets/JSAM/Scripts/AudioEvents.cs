@@ -21,6 +21,11 @@ namespace JSAM
             return enums.IndexOf(name);
         }
 
+        public void PlaySoundByReference(JSAMSoundFileObject sound)
+        {
+            AudioManager.PlaySound(sound, transform);
+        }
+
         /// <summary>
         /// Takes the name of the Audio enum sound to be played as a string and plays it
         /// </summary>

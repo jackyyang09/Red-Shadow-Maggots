@@ -1,8 +1,10 @@
 ﻿static class Facade
 {
-    // Map Systems
+    // Map Menu Systems
     public static TreasureNode treasureNode => TreasureNode.Instance;
     public static RestNode restNode => RestNode.Instance;
+    public static CardListUI cardListUI => CardListUI.Instance;
+    public static MaggotUpgradeUI maggotUpgradeUI => MaggotUpgradeUI.Instance;
 
     // Battle System
     public static BattleSystem battleSystem => BattleSystem.Instance;

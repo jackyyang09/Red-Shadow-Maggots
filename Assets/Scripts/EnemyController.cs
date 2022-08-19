@@ -151,6 +151,7 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         for (int i = 0; i < Enemies.Length; i++)
         {
+            if (!Enemies[i]) continue;
             BaseCharacter.IncomingDamage.damage = Enemies[i].CurrentHealth - 1;
             Enemies[i].TakeDamage();
         }
@@ -161,6 +162,7 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         for (int i = 0; i < Enemies.Length; i++)
         {
+            if (!Enemies[i]) continue;
             Enemies[i].SetSkillUseChance(1);
         }
         Debug.Log("Set enemy skill chance to 100%!");

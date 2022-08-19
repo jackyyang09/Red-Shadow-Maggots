@@ -18,7 +18,9 @@ public class TreasureNode : BasicSingleton<TreasureNode>
     [SerializeField] Rigidbody[] cardRigidbodies;
     [SerializeField] Cinemachine.CinemachineVirtualCamera vCam;
     [SerializeField] UncrateSequence uncrateSequence;
-    [SerializeField] OptimizedCanvas characterDetails;
+    [SerializeField] CharacterPreviewUI characterDetails;
+
+    Dictionary<CharacterCardHolder, string> cardHoldersToGUID;
 
     [ContextMenu("Test")]
     public void Initialize()
@@ -47,16 +49,19 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         vCam.enabled = true;
 
         var characters = new List<CharacterObject>();
+        cardHoldersToGUID = new Dictionary<CharacterCardHolder, string>();
 
         for (int i = 0; i < cardHolders.Count; i++)
         {
             cardRigidbodies[i].transform.localPosition = Vector3.zero;
 
-            var op = gachaSystem.LoadMaggot(gachaSystem.RandomMaggot);
+            var maggot = gachaSystem.RandomMaggot;
+            var op = gachaSystem.LoadMaggot(maggot);
             yield return op;
             characters.Add(op.Result as CharacterObject);
 
             cardHolders[i].SetCharacterAndRarity(characters[i], Rarity.Common);
+            cardHoldersToGUID.Add(cardHolders[i], maggot.AssetGUID);
         }
 
         for (int i = 0; i < cardHolders.Count; i++)
@@ -109,14 +114,35 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         obj.transform.position = handTransformTween[0].position;
         obj.transform.DOMove(handTransformTween[1].position, tweenTime);
         obj.transform.eulerAngles = new Vector3(0, 90, 60);
-        characterDetails.Show();
+        characterDetails.OptimizedCanvas.Show();
+        characterDetails.UpdateCanvasProperties(obj.Character, Rarity.Common);
     }
 
     [ContextMenu("Choose Maggot")]
     public void ChooseMaggot()
     {
+        var playerData = playerDataManager.LoadedData;
+        var maggotStates = playerDataManager.LoadedData.MaggotStates;
+        PlayerData.MaggotState newState = new PlayerData.MaggotState();
+        newState.GUID = cardHoldersToGUID[activeCard];
+        newState.Health = activeCard.Character.GetMaxHealth((int)newState.Exp, false);
+        newState.Exp = 1;
+
+        for (int i = 0; i < playerData.Party.Length; i++)
+        {
+            if (playerData.Party[i] == -1)
+            {
+                // This is okay since we add to maggot states immediately after
+                playerData.Party[i] = maggotStates.Count;
+                break;
+            }
+        }
+
+        maggotStates.Add(newState);
+        playerDataManager.SaveData();
+
         uncrateSequence.UncrateCharacter(activeCard.Character, Rarity.Common, ReturnToMapScreen);
-        characterDetails.Hide();
+        characterDetails.OptimizedCanvas.Hide();
     }
 
     public void ReturnToMaggotSelection()
@@ -130,7 +156,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
 
         float tweenTime = cardExamineTime / 2;
 
-        characterDetails.Hide();
+        characterDetails.OptimizedCanvas.Hide();
         obj.transform.DOMove(handTransformTween[0].position, tweenTime);
 
         yield return new WaitForSeconds(tweenTime);

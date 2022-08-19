@@ -6,7 +6,8 @@ namespace Map
 {
     public class MapManager : MonoBehaviour
     {
-        public MapConfig config;
+        [SerializeField] MapConfig config;
+        public MapConfig CurrentConfig { get { return config; } }
         public MapView view;
 
         public Map CurrentMap { get; private set; }
@@ -52,7 +53,7 @@ namespace Map
             if (CurrentMap == null) return;
 
             var json = JsonConvert.SerializeObject(CurrentMap);
-            System.IO.File.WriteAllText(System.IO.Path.Combine(Application.persistentDataPath, "Map.json"), json);
+            System.IO.File.WriteAllText(FILE_PATH, json);
         }
 
         private void OnApplicationQuit()
@@ -64,6 +65,7 @@ namespace Map
         [UnityEditor.MenuItem("RSM Tools/Generate New Map")]
         public static void GenerateMap()
         {
+            if (!Application.isPlaying) return;
             var m = FindObjectOfType<MapManager>();
             if (m) m.GenerateNewMap();
         }

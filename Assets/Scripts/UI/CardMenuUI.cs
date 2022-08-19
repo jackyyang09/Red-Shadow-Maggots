@@ -33,13 +33,12 @@ public class CardMenuUI : MonoBehaviour
 
     public void EnterCardLoadMode()
     {
-        CharacterPreviewUI.instance.EnterCardLoadMode();
+        //CharacterPreviewUI.instance.EnterCardLoadMode();
     }
 
     public void CheckInfo()
     {
-        
-        CharacterPreviewUI.instance.BeginCharacterPreview(cardHolder.Character, cardHolder.Rarity);
+        //CharacterPreviewUI.instance.BeginCharacterPreview(cardHolder.Character, cardHolder.Rarity);
         canvas.SetActive(false);
     }
 

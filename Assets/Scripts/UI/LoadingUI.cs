@@ -13,6 +13,7 @@ public class LoadingUI : MonoBehaviour
     [SerializeField] OptimizedCanvas animatedCanvas;
     [SerializeField] Image spinningIcon;
     [SerializeField] TMPro.TextMeshProUGUI text;
+    [SerializeField] JSAM.JSAMSoundFileObject startLoadSound;
 
     private void OnEnable()
     {
@@ -31,6 +32,8 @@ public class LoadingUI : MonoBehaviour
 
     IEnumerator LoadRoutine(string sceneName)
     {
+        JSAM.AudioManager.PlaySound(startLoadSound);
+
         animatedCanvas.Show();
         loadingGraphic.anchoredPosition = new Vector2(0, 1080);
         loadingGraphic.DOAnchorPosY(0, 0.5f);

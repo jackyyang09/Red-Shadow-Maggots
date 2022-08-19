@@ -21,14 +21,13 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         public Color color;
     }
 
-    [SerializeField] int selectedCharacterID = -1;
-
     [SerializeField] ClassTitleAndSprite[] classTuples = null;
     [SerializeField] RarityTitleAndColor[] rarityTuples = null;
 
     [Header("Object References")]
 
     [SerializeField] OptimizedCanvas canvas = null;
+    public OptimizedCanvas OptimizedCanvas { get { return canvas; } }
     public bool IsVisible
     {
         get { return canvas.IsVisible; }
@@ -36,11 +35,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
 
     [SerializeField] SkillDetailPanel skillPanel = null;
 
-    [SerializeField] RectTransform readyRect = null;
-
-    [SerializeField] TextMeshProUGUI nameText = null;
     [SerializeField] TextMeshProUGUI rarityText = null;
-    [SerializeField] Image classImage = null;
     [SerializeField] TextMeshProUGUI classText = null;
     [SerializeField] SkillButtonUI skillButton1 = null;
     [SerializeField] SkillButtonUI skillButton2 = null;
@@ -52,7 +47,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
     [SerializeField] TextMeshProUGUI attackWindowText = null;
     [SerializeField] TextMeshProUGUI defenseWindowText = null;
 
-    public static CharacterPreviewUI instance;
+    CharacterObject previewingCharacter;
 
     private void OnEnable()
     {
@@ -64,39 +59,18 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         
     }
 
-    public void BeginCharacterPreview(CharacterObject character, Rarity rarity)
+    public void UpdateCanvasProperties(CharacterObject character, Rarity rarity)
     {
-        if (!canvas.IsVisible)
+        previewingCharacter = character;
+
+        if (rarityText)
         {
-            SetReadyRectActive(false);
-            UpdateCanvasProperties(character, rarity);
+            rarityText.text = rarityTuples[(int)rarity].title;
+            rarityText.color = rarityTuples[(int)rarity].color;
         }
-    }
-
-    void UpdateCanvasProperties(CharacterObject character, Rarity rarity)
-    {
-        var party = PartyManager.instance.CardHolders;
-        CharacterCardHolder activeCharacter = null;
-        for (int i = 0; i < party.Length; i++)
-        {
-            if (party[i].Character == character)
-            {
-                activeCharacter = party[i];
-                selectedCharacterID = i;
-            }
-            party[i].SetPreviewCameraActive(false);
-        }
-        activeCharacter.SetPreviewCameraActive(true);
-
-        canvas.Show();
-
-        nameText.text = character.characterName;
-        rarityText.text = rarityTuples[(int)rarity].title;
-        rarityText.color = rarityTuples[(int)rarity].color;
-
+        
         int classIndex = (int)character.characterClass;
-        classImage.sprite = classTuples[classIndex].icon;
-        classText.text = classTuples[classIndex].title;
+        if (classText) classText.text = classTuples[classIndex].title;
 
         GameSkill newSkill = new GameSkill();
         newSkill.InitWithSkill(character.skills[0]);
@@ -104,10 +78,8 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         newSkill.InitWithSkill(character.skills[1]);
         skillButton2.UpdateStatus(newSkill);
 
-        float rarityMultiplier = 1 + 0.5f * (int)rarity;
-
-        healthText.text = Mathf.RoundToInt(character.GetMaxHealth(1, false) * rarityMultiplier).ToString();
-        attackText.text = Mathf.RoundToInt(character.GetAttack(1) * rarityMultiplier).ToString();
+        healthText.text = Mathf.RoundToInt(character.GetMaxHealth(1, false)).ToString();
+        attackText.text = Mathf.RoundToInt(character.GetAttack(1)).ToString();
         critRateText.text = (character.critChance * 100).ToString() + "%";
         critDamageText.text = (character.critDamageMultiplier * 100).ToString() + "%";
         attackWindowText.text = character.attackLeniency.ToString();
@@ -116,32 +88,16 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
 
     public void ShowSkillDetailsWithID(int id)
     {
-        var activeCharacter = PartyManager.instance.CardHolders[selectedCharacterID].Character;
         GameSkill newSkill = new GameSkill();
-        newSkill.InitWithSkill(activeCharacter.skills[id]);
+        newSkill.InitWithSkill(previewingCharacter.skills[id]);
         skillPanel.UpdateDetails(newSkill);
         skillPanel.ShowPanel();
-    }
-
-    public void SetReadyRectActive(bool state)
-    {
-        switch (state)
-        {
-            case true:
-                readyRect.DOAnchorPosY(0, 0.3f);
-                break;
-            case false:
-                readyRect.DOAnchorPosY(-175, 0.3f);
-                break;
-        }
     }
 
     public void HideUI()
     {
         canvas.Hide();
-        SetReadyRectActive(true);
         skillPanel.HidePanel();
-        PartyManager.instance.CardHolders[selectedCharacterID].SetPreviewCameraActive(false);
     }
 
     bool cardLoadMode = false;
@@ -153,14 +109,12 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
     public void EnterCardLoadMode()
     {
         cardLoadMode = true;
-        SetReadyRectActive(false);
         CardLoader.instance.ShowFileDropOverlay();
     }
 
     public void ExitCardLoadMode()
     {
         cardLoadMode = false;
-        SetReadyRectActive(true);
         CardLoader.instance.HideFileDropOverlay();
     }
 }

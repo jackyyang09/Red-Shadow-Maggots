@@ -5,8 +5,8 @@ using static Facade;
 
 public class Launcher : MonoBehaviour
 {
-    [SerializeField, DragAndDropString] string mapScene;
-    [SerializeField, DragAndDropString] string battleScene;
+    [SerializeField] DevLocker.Utils.SceneReference mapScene;
+    [SerializeField] DevLocker.Utils.SceneReference battleScene;
 
     public void StartGame()
     {
@@ -14,11 +14,11 @@ public class Launcher : MonoBehaviour
 
         if (playerDataManager.LoadedData.InBattle)
         {
-            sceneLoader.SwitchScene(battleScene);
+            sceneLoader.SwitchScene(battleScene.SceneName);
         }
         else
         {
-            sceneLoader.SwitchScene(mapScene);
+            sceneLoader.SwitchScene(mapScene.SceneName);
         }
     }
 }

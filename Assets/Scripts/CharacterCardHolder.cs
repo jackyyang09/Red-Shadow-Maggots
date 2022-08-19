@@ -38,6 +38,10 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] SpriteRenderer cardBackground = null;
     [SerializeField] MeshRenderer backgroundRenderer = null;
 
+    Animator spriteAnim;
+
+    public System.Action<CharacterCardHolder> OnCardHovered;
+    public System.Action<CharacterCardHolder> OnCardExited;
     public System.Action<CharacterCardHolder> OnCardClicked;
 
     private void OnEnable()
@@ -48,11 +52,6 @@ public class CharacterCardHolder : MonoBehaviour
     //private void OnDisable()
     //{
     //}
-
-    public (CharacterObject character, Rarity rarity) GetHeldData()
-    {
-        return (characterData, rarity);
-    }
 
     public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
     {
@@ -69,7 +68,10 @@ public class CharacterCardHolder : MonoBehaviour
 
         if (newRef.spriteObject)
         {
-            Instantiate(newRef.spriteObject, spriteHolder).name = newRef.spriteObject.name;
+            var spriteInstance = Instantiate(newRef.spriteObject, spriteHolder);
+            spriteInstance.name = newRef.spriteObject.name;
+            spriteAnim = spriteInstance.GetComponent<Animator>();
+            spriteAnim.SetTrigger("Pose");
         }
         else
         {
@@ -115,8 +117,23 @@ public class CharacterCardHolder : MonoBehaviour
     {
         OnCardClicked?.Invoke(this);
 
-        if (CharacterPreviewUI.instance == null) return;
-        if (!CharacterPreviewUI.instance.IsVisible && !CharacterPreviewUI.instance.IsCardLoadMode)
-            PartyManager.OnSelectCharacter?.Invoke(this);
+        //if (CharacterPreviewUI.instance == null) return;
+        //if (!CharacterPreviewUI.instance.IsVisible && !CharacterPreviewUI.instance.IsCardLoadMode)
+        //    PartyManager.OnSelectCharacter?.Invoke(this);
+    }
+
+    private void OnMouseEnter()
+    {
+        spriteAnim.SetBool("Pose", false);
+        spriteAnim.SetTrigger("Idle");
+
+        OnCardHovered?.Invoke(this);
+    }
+
+    private void OnMouseExit()
+    {
+        spriteAnim.SetBool("Pose", true);
+
+        OnCardExited?.Invoke(this);
     }
 }
