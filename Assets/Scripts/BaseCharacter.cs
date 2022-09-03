@@ -169,7 +169,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (characterReference == null) return;
 
         currentLevel = level;
-        maxHealth = characterReference.GetMaxHealth(currentLevel, true) * RarityMultiplier;
+        maxHealth = characterReference.GetMaxHealth(currentLevel, true)/* * RarityMultiplier*/;
 
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;

@@ -21,15 +21,15 @@ public class CardMenuUI : MonoBehaviour
     //    
     //}
 
-    private void OnEnable()
-    {
-        PartyManager.OnSelectCharacter += OnNewCharacterSelected;
-    }
-
-    private void OnDisable()
-    {
-        PartyManager.OnSelectCharacter -= OnNewCharacterSelected;
-    }
+    //private void OnEnable()
+    //{
+    //    PartyManager.OnSelectCharacter += OnNewCharacterSelected;
+    //}
+    //
+    //private void OnDisable()
+    //{
+    //    PartyManager.OnSelectCharacter -= OnNewCharacterSelected;
+    //}
 
     public void EnterCardLoadMode()
     {

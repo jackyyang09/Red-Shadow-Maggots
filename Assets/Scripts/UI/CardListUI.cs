@@ -7,6 +7,14 @@ using static Facade;
 
 public class CardListUI : BasicSingleton<CardListUI>
 {
+    public enum CardListMode
+    {
+        PartySetup,
+        Upgrade
+    }
+
+    [SerializeField] CardListMode mode;
+
     [SerializeField] float tiltAmount = 10;
     [SerializeField] float scaleAmount = 1.15f;
     [SerializeField] float tweenTime = 0.5f;
@@ -23,6 +31,8 @@ public class CardListUI : BasicSingleton<CardListUI>
     List<CharacterCardHolder> cardHolders;
     List<bool> cardLoaded;
 
+    public System.Action OnBackOut;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +44,18 @@ public class CardListUI : BasicSingleton<CardListUI>
         cardLoaded.Add(false);
 
         cardOrigin = firstCard.transform.localPosition;
+    }
+
+    public void InitializeAsPartySetupUI()
+    {
+        mode = CardListMode.PartySetup;
+        ShowUI();
+    }
+
+    public void InitializeAsUpgradeUI()
+    {
+        mode = CardListMode.Upgrade;
+        ShowUI();
     }
 
     public void ShowUI()
@@ -81,6 +103,12 @@ public class CardListUI : BasicSingleton<CardListUI>
         }
     }
 
+    public void BackOut()
+    {
+        OnBackOut?.Invoke();
+        HideUI();
+    }
+
     public void HideUI()
     {
         cardsParent.gameObject.SetActive(false);
@@ -121,6 +149,8 @@ public class CardListUI : BasicSingleton<CardListUI>
         yield return op;
 
         cardHolders[index].SetCharacterAndRarity(op.Result as CharacterObject, gachaSystem.RandomRarity);
+        cardHolders[index].InitializeStatsCanvas(playerDataManager.LoadedData.MaggotStates[index]);
+        cardHolders[index].StatsCanvas.Show();
         cardLoaded[index] = true;
     }
 
@@ -150,9 +180,16 @@ public class CardListUI : BasicSingleton<CardListUI>
         obj.transform.DOLocalRotate(a, tweenTime, RotateMode.Fast);
         obj.transform.DOScale(1, tweenTime);
 
-        maggotUpgradeUI.InitializeUI(obj, maggotStates[index]);
-        maggotUpgradeUI.OptimizedCanvas.Show();
-
+        switch (mode)
+        {
+            case CardListMode.PartySetup:
+                break;
+            case CardListMode.Upgrade:
+                maggotUpgradeUI.InitializeUI(obj, maggotStates[index]);
+                maggotUpgradeUI.OptimizedCanvas.Show();
+                break;
+        }
+        
         cardsParent.gameObject.SetActive(false);
 
         JSAM.AudioManager.PlaySound(MapMenuSounds.UIClick);

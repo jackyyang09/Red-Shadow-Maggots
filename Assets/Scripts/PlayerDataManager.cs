@@ -22,12 +22,19 @@ public class PlayerData
     public int Exp { get; set; }
     public int Money { get; set; }
     public bool InBattle { get; set; }
+    public Vector2 MapPosition { get; set; }
+
+    public PlayerData()
+    {
+        MapPosition = new Vector2(-3, -2.5f);
+    }
 }
 
 public class PlayerDataManager : BaseSaveManager<PlayerData>
 {
     public override string FILE_NAME => "PlayerData";
 
+    public static System.Action OnMaggotStatesChanged;
     public static System.Action<int> OnUpdateEXP;
     public static System.Action<int> OnUpdateFloorCount;
 
@@ -39,6 +46,20 @@ public class PlayerDataManager : BaseSaveManager<PlayerData>
     private void OnDisable()
     {
         Map.MapPlayerTracker.OnEnterNode -= OnAdvanceFloor;
+    }
+
+    public void AddNewMaggot(PlayerData.MaggotState newState)
+    {
+        loadedData.MaggotStates.Add(newState);
+
+        int index = loadedData.MaggotStates.Count - 1;
+        if (loadedData.Party[1] == -1) loadedData.Party[1] = index;
+        else if (loadedData.Party[0] == -1) loadedData.Party[0] = index;
+        else if (loadedData.Party[2] == -1) loadedData.Party[2] = index;
+
+        SaveData();
+
+        OnMaggotStatesChanged?.Invoke();
     }
 
     public void SetExp(int exp)

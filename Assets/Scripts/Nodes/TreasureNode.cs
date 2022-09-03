@@ -125,8 +125,9 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         var maggotStates = playerDataManager.LoadedData.MaggotStates;
         PlayerData.MaggotState newState = new PlayerData.MaggotState();
         newState.GUID = cardHoldersToGUID[activeCard];
-        newState.Health = activeCard.Character.GetMaxHealth((int)newState.Exp, false);
-        newState.Exp = 1;
+        int level = 1;
+        newState.Exp = Mathf.RoundToInt(activeCard.Character.GetExpRequiredForLevel(0, level));
+        newState.Health = activeCard.Character.GetMaxHealth(level, false);
 
         for (int i = 0; i < playerData.Party.Length; i++)
         {
@@ -138,9 +139,9 @@ public class TreasureNode : BasicSingleton<TreasureNode>
             }
         }
 
-        maggotStates.Add(newState);
+        playerDataManager.AddNewMaggot(newState);
         playerDataManager.SaveData();
-
+        
         uncrateSequence.UncrateCharacter(activeCard.Character, Rarity.Common, ReturnToMapScreen);
         characterDetails.OptimizedCanvas.Hide();
     }

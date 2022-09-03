@@ -1,5 +1,8 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using System.Collections;
+using System;
+using UnityEngine.SceneManagement;
 
 namespace Map
 {
@@ -10,6 +13,7 @@ namespace Map
         [SerializeField] float sensitivity = 1;
         [SerializeField] float mouseReleaseSpeed;
         [SerializeField] float velocityDecay;
+
         Vector3 velocity;
 
         [SerializeField] new Camera camera;
@@ -30,6 +34,39 @@ namespace Map
         }
         Vector3 lastMousePos;
 
+        private void OnEnable()
+        {
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SaveMapPosition;
+        }
+
+        private void OnDisable()
+        {
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SaveMapPosition;
+        }
+
+        private IEnumerator Start()
+        {
+            yield return new WaitUntil(() => PlayerDataManager.Initialized);
+
+            var pos = PlayerDataManager.Instance.LoadedData.MapPosition;
+            vCam.position = new Vector3(pos.x, vCam.position.y, pos.y);
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveMapPosition();
+        }
+
+        private void SaveMapPosition(Scene arg0, Scene arg1) => SaveMapPosition();
+        void SaveMapPosition()
+        {
+            if (!PlayerDataManager.Initialized) return;
+
+            var data = PlayerDataManager.Instance.LoadedData;
+            data.MapPosition = new Vector2(vCam.position.x, vCam.position.z);
+            PlayerDataManager.Instance.SaveData();
+        }
+
         public void OnMouseUp()
         {
             dragging = false;
@@ -49,19 +86,16 @@ namespace Map
                 dragging = false;
             }
 
-            if (!dragging) return;
-            var mousePos = camera.ScreenToViewportPoint(Input.mousePosition);
-            var diff = mouseDownPos - mousePos;
+            if (dragging)
+            {
+                var mousePos = camera.ScreenToViewportPoint(Input.mousePosition);
+                var diff = mouseDownPos - mousePos;
 
-            vCam.position = new Vector3(
-                Mathf.Clamp(startPos.x + diff.x / sensitivity, xRange.x, xRange.y),
-                vCam.position.y,
-                Mathf.Clamp(startPos.z + diff.y / sensitivity, zRange.x, zRange.y));
-        }
-
-        private void FixedUpdate()
-        {
-            if (dragging) return;
+                vCam.position = new Vector3(
+                    Mathf.Clamp(startPos.x + diff.x / sensitivity, xRange.x, xRange.y),
+                    vCam.position.y,
+                    Mathf.Clamp(startPos.z + diff.y / sensitivity, zRange.x, zRange.y));
+            }
             else
             {
                 vCam.position += velocity * Time.fixedDeltaTime;

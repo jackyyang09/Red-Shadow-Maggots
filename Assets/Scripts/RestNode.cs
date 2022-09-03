@@ -21,8 +21,15 @@ public class RestNode : BasicSingleton<RestNode>
 
     public void Upgrade()
     {
-        cardListUI.ShowUI();
         restCanvas.Hide();
+        cardListUI.InitializeAsUpgradeUI();
+        cardListUI.OnBackOut += OnBackOut;
+    }
+
+    public void OnBackOut()
+    {
+        restCanvas.Show();
+        cardListUI.OnBackOut -= OnBackOut;
     }
 
     public void FinishUpgrade()

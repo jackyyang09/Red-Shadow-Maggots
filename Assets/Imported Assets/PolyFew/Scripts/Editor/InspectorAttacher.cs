@@ -24,7 +24,7 @@ namespace BrainFailProductions.PolyFew
         {
             if(PolyfewMenu.IsAutoAttachEnabled())
             {
-                AttachInspector();
+                //AttachInspector();
             }        
         }
     

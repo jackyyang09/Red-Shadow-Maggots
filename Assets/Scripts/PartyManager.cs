@@ -1,71 +1,87 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Map;
+using static Facade;
 
-public class PartyManager : MonoBehaviour
+public class PartyManager : BasicSingleton<PartyManager>
 {
-    [SerializeField] CharacterCardHolder[] cardHolders = null;
-    public CharacterCardHolder[] CardHolders
+    [SerializeField] Transform cardStack;
+    List<CharacterCardHolder> cardHolders;
+
+    [SerializeField] GameObject cardPrefab;
+    [SerializeField] Vector3 cardDelta;
+
+    bool mousedOver;
+
+    private void OnEnable()
     {
-        get { return cardHolders; }
+        PlayerDataManager.OnMaggotStatesChanged += UpdateCardStack;
     }
 
-    [SerializeField] CharacterCard[] party = new CharacterCard[3];
-    public CharacterCard[] Party
+    private void OnDisable()
     {
-        get
+        PlayerDataManager.OnMaggotStatesChanged -= UpdateCardStack;
+    }
+
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+
+        InstantiateCardHolders();
+    }
+
+    void InstantiateCardHolders()
+    {
+        cardHolders = new List<CharacterCardHolder>();
+
+        var party = playerDataManager.LoadedData.Party;
+        var maggotStates = playerDataManager.LoadedData.MaggotStates;
+        for (int i = 0; i < party.Length; i++)
         {
-            return party;
+            if (party[i] > -1)
+            {
+                var co = gachaSystem.GUIDToAssetReference[maggotStates[party[i]].GUID];
+
+                StartCoroutine(gachaSystem.LoadMaggot(co, OnMaggotLoaded));
+            }
         }
     }
 
-    public static System.Action<CharacterCardHolder> OnSelectCharacter;
-
-    public static PartyManager instance;
-
-    private void Awake()
+    void OnMaggotLoaded(CharacterObject obj)
     {
-        EstablishSingletonDominance();
+        var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
+        card.SetCharacterAndRarity(obj, Rarity.Common);
+        card.GetComponent<Rigidbody>().useGravity = false;
+        card.OnCardHovered += MousedOver;
+        card.OnCardExited += MousedAway;
+        card.OnCardClicked += MouseClicked;
+        cardHolders.Add(card);
+        cardHolders.GetLast().transform.localPosition = Vector3.zero + (cardHolders.Count - 1) * cardDelta;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    void MousedOver(CharacterCardHolder c)
     {
-        for (int i = 0; i < cardHolders.Length; i++)
-        {
-            var card = SaveManager.instance.Cards[SaveManager.instance.Party[i]];
-            cardHolders[i].SetCharacterAndRarity(CardLoader.instance.CharacterIDToObject(card.characterID), card.rarity);
-        } 
+
     }
 
-    // Update is called once per frame
-    //void Update()
-    //{
-    //    
-    //}
-
-    void EstablishSingletonDominance()
+    void MousedAway(CharacterCardHolder c)
     {
-        if (instance == null)
+
+    }
+
+    private void MouseClicked(CharacterCardHolder obj)
+    {
+        cardListUI.InitializeAsPartySetupUI();
+    }
+
+    public void UpdateCardStack()
+    {
+        for (int i = cardStack.childCount - 1; i > -1 && cardStack.childCount > 0; i--)
         {
-            instance = this;
+            Destroy(cardStack.GetChild(i).gameObject);
         }
-        else if (instance != this)
-        {
-            // A unique case where the Singleton exists but not in this scene
-            if (instance.gameObject.scene.name == null)
-            {
-                instance = this;
-            }
-            else if (!instance.gameObject.activeInHierarchy)
-            {
-                instance = this;
-            }
-            else if (instance.gameObject.scene.name != gameObject.scene.name)
-            {
-                instance = this;
-            }
-            Destroy(gameObject);
-        }
+
+        InstantiateCardHolders();
     }
 }

@@ -21,6 +21,14 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] Cinemachine.CinemachineVirtualCamera cam = null;
     [SerializeField] TMPro.TextMeshProUGUI nameText = null;
 
+    [Header("Stats References")]
+    [SerializeField] OptimizedCanvas statsCanvas;
+    public OptimizedCanvas StatsCanvas { get { return statsCanvas; } }
+    [SerializeField] TMPro.TextMeshProUGUI levelLabel;
+    [SerializeField] TMPro.TextMeshProUGUI healthLabel;
+    [SerializeField] TMPro.TextMeshProUGUI maxHealthLabel;
+    [SerializeField] Image healthFill;
+
     [Header("Sprite References")]
     [SerializeField] Transform spriteHolder = null;
     [SerializeField] SpriteRenderer sprite = null;
@@ -52,6 +60,16 @@ public class CharacterCardHolder : MonoBehaviour
     //private void OnDisable()
     //{
     //}
+
+    public void InitializeStatsCanvas(PlayerData.MaggotState state)
+    {
+        var level = characterData.GetLevelFromExp(state.Exp);
+        levelLabel.text = level.ToString();
+        healthLabel.text = ((int)state.Health).ToString();
+        var maxHealth = characterData.GetMaxHealth(level, false);
+        maxHealthLabel.text = maxHealth.ToString();
+        healthFill.fillAmount = state.Health / maxHealth;
+    }
 
     public void SetCharacterAndRarity(CharacterObject newRef, Rarity newRarity)
     {
@@ -124,15 +142,15 @@ public class CharacterCardHolder : MonoBehaviour
 
     private void OnMouseEnter()
     {
-        spriteAnim.SetBool("Pose", false);
-        spriteAnim.SetTrigger("Idle");
+        if (spriteAnim) spriteAnim.SetBool("Pose", false);
+        if (spriteAnim) spriteAnim.SetTrigger("Idle");
 
         OnCardHovered?.Invoke(this);
     }
 
     private void OnMouseExit()
     {
-        spriteAnim.SetBool("Pose", true);
+        if (spriteAnim) spriteAnim.SetBool("Pose", true);
 
         OnCardExited?.Invoke(this);
     }

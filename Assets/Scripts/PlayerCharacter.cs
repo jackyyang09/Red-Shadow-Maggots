@@ -34,7 +34,7 @@ public class PlayerCharacter : BaseCharacter
     {
         base.ApplyCharacterStats(level, stateInfo);
 
-        maxHealth = characterReference.GetMaxHealth(currentLevel, false) * RarityMultiplier;
+        maxHealth = characterReference.GetMaxHealth(currentLevel, false)/* * RarityMultiplier*/;
 
         if (stateInfo != null)
         {
@@ -46,6 +46,10 @@ public class PlayerCharacter : BaseCharacter
                     gameSkills[i].cooldownTimer = s.Cooldowns[i];
                 }
             }
+        }
+        else
+        {
+            health = maxHealth;
         }
     }
 

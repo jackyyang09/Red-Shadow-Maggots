@@ -39,6 +39,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     [SerializeField] List<AssetReference> maggotReferences;
     public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
     List<AsyncOperationHandle> LoadedMaggots = new List<AsyncOperationHandle>();
+    List<AssetReference> loadingMaggots = new List<AssetReference>();
     Dictionary<string, AssetReference> guidToAssetRef = new Dictionary<string, AssetReference>();
     public Dictionary<string, AssetReference> GUIDToAssetReference { get { return guidToAssetRef; } }
 
@@ -50,6 +51,9 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
     private void Awake()
     {
+        LoadedMaggots = new List<AsyncOperationHandle>();
+        loadingMaggots = new List<AssetReference>();
+
         for (int i = 0; i < maggotReferences.Count; i++)
         {
             guidToAssetRef.Add(maggotReferences[i].AssetGUID, maggotReferences[i]);
@@ -93,15 +97,43 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     public AsyncOperationHandle LoadMaggot(AssetReference reference)
     {
         if (LoadedMaggots.Contains(reference.OperationHandle)) return reference.OperationHandle;
-        
+
+        loadingMaggots.Add(reference);
         var op = reference.LoadAssetAsync<CharacterObject>();
         LoadedMaggots.Add(op);
+        loadingMaggots.Remove(reference);
         op.Completed += OnCharacterLoaded;
         return op;
     }
 
     private void OnCharacterLoaded(AsyncOperationHandle<CharacterObject> obj)
     {
+    }
+
+    public IEnumerator LoadMaggot(AssetReference reference, System.Action<CharacterObject> callback)
+    {
+        if (!LoadedMaggots.Contains(reference.OperationHandle) && !loadingMaggots.Contains(reference))
+        {
+            loadingMaggots.Add(reference);
+
+            var op = reference.LoadAssetAsync<CharacterObject>();
+
+            yield return op;
+
+            LoadedMaggots.Add(op);
+
+            loadingMaggots.Remove(reference);
+
+            callback?.Invoke(op.Result);
+        }
+        else
+        {
+            while (!reference.IsDone)
+            {
+                yield return new WaitUntil(() => reference.IsDone);
+            }
+            callback?.Invoke(reference.OperationHandle.Result as CharacterObject);
+        }
     }
 
     [ContextMenu(nameof(GiveMaggot))]
@@ -129,14 +161,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
             newState.Health = maggotObject.GetMaxHealth(1, false);
             newState.Exp = maggotObject.GetExpRequiredForLevel(0, 1);
 
-            data.MaggotStates.Add(newState);
-
-            int index = data.MaggotStates.Count - 1;
-            if (data.Party[1] == -1) data.Party[1] = index;
-            else if (data.Party[0] == -1) data.Party[0] = index;
-            else if (data.Party[2] == -1) data.Party[2] = index;
-
-            playerDataManager.SaveData();
+            playerDataManager.AddNewMaggot(newState);
         }
     }
 

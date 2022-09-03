@@ -10,8 +10,6 @@ public class MapSceneManager : MonoBehaviour
 
     [SerializeField] BattleObject[] battleList;
 
-    [SerializeField] Transform cardStack;
-
     private void OnEnable()
     {
         MapPlayerTracker.OnEnterNode += OnEnterNode;
@@ -20,11 +18,6 @@ public class MapSceneManager : MonoBehaviour
     private void OnDisable()
     {
         MapPlayerTracker.OnEnterNode -= OnEnterNode;
-    }
-
-    private IEnumerator Start()
-    {
-        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
     }
 
     private void OnEnterNode(NodeType obj)
@@ -75,10 +68,5 @@ public class MapSceneManager : MonoBehaviour
                 treasureNode.Initialize();
                 break;
         }
-    }
-
-    public void UpdateCardStack()
-    {
-
     }
 }

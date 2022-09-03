@@ -205,6 +205,14 @@ public class CharacterObject : ScriptableObject
     [SerializeField] Vector2 attackRange = new Vector2();
     [SerializeField] Vector2 healthRange = new Vector2();
 
+    [ContextMenu(nameof(TestMaxHealth))]
+    void TestMaxHealth()
+    {
+        Debug.Log(GetMaxHealth(0, false));
+        Debug.Log(GetMaxHealth(1, false));
+        Debug.Log(GetMaxHealth(2, false));
+    }
+
     public int GetAttack(int currentLevel) => (int)Mathf.Lerp(attackRange.x, attackRange.y, (float)currentLevel / (float)MAX_LEVEL_PLAYER);
     public int GetMaxHealth(int currentLevel, bool isEnemy)
     {
