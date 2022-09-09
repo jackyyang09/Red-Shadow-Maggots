@@ -14,7 +14,7 @@ public class OpenCasketFuneral : SuperCriticalEffect
     {
         if (turnsPassed < 3)
         {
-            BattleSystem.OnStartPlayerTurn -= TickTurnsPassed;
+            BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= TickTurnsPassed;
         }
     }
 
@@ -22,7 +22,7 @@ public class OpenCasketFuneral : SuperCriticalEffect
     {
         turnsPassed = 0;
         skeletonTransform.transform.localScale = Vector3.one;
-        BattleSystem.OnStartPlayerTurn += TickTurnsPassed;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += TickTurnsPassed;
         skeletonArms.enabled = true;
     }
 
@@ -41,7 +41,7 @@ public class OpenCasketFuneral : SuperCriticalEffect
             {
                 skeletonArms.enabled = false;
             });
-            BattleSystem.OnStartPlayerTurn -= TickTurnsPassed;
+            BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= TickTurnsPassed;
         }
     }
 }

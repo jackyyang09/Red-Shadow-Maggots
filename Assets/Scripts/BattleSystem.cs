@@ -10,7 +10,13 @@ public enum BattlePhases
     PlayerTurn,
     EnemyTurn,
     BattleWin,
-    BattleLose
+    BattleLose,
+    Count
+}
+
+public static class BattlePhaseExtensions
+{
+    public static int ToInt(this BattlePhases bp) => (int)bp;
 }
 
 /// <summary>
@@ -150,26 +156,15 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
 
-    public static System.Action OnStartPlayerTurn;
-    /// <summary>
-    /// Invokes after OnStartPlayerTurn
-    /// </summary>
-    public static System.Action OnStartPlayerTurnLate;
-    public static System.Action OnEndPlayerTurn;
-
-    public static System.Action OnStartEnemyTurn;
-    /// <summary>
-    /// Invokes after OnStartEnemyTurn
-    /// </summary>
-    public static System.Action OnStartEnemyTurnLate;
-    public static System.Action OnEndEnemyTurn;
+    public static System.Action[] OnStartPhase = new System.Action[(int)BattlePhases.Count];
+    public static System.Action[] OnStartPhaseLate = new System.Action[(int)BattlePhases.Count];
+    public static System.Action[] OnEndPhase = new System.Action[(int)BattlePhases.Count];
 
     public static System.Action OnTargettableCharactersChanged;
     public static System.Action<BaseGameEffect> OnTickEffect;
 
     public static System.Action OnWaveClear;
     public static System.Action OnFinalWaveClear;
-    public static System.Action OnPlayerDefeat;
 
     private void OnEnable()
     {
@@ -190,14 +185,14 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     private IEnumerator Start()
     {
         screenEffects.BlackOut();
-
+    
         AddHacks();
         QuickTimeHold.AddHacks();
-
+    
         yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
-
+    
         yield return StartCoroutine(LoadBattleState());
-
+    
         GameStart();
     }
 
@@ -536,7 +531,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     currentPhase = BattlePhases.EnemyTurn;
                 }
                 else currentPhase = BattlePhases.BattleWin;
-                OnEndPlayerTurn?.Invoke();
+                OnEndPhase[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
@@ -548,7 +543,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
                 else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
                 enemyTargets.enemy.IncreaseChargeLevel();
-                OnEndEnemyTurn?.Invoke();
+                OnEndPhase[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 SaveBattleState();
                 break;
             case BattlePhases.BattleWin:
@@ -563,14 +558,14 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             case BattlePhases.Entry:
                 break;
             case BattlePhases.PlayerTurn:
-                OnStartPlayerTurn?.Invoke();
+                OnStartPhase[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 enemyController.ChooseNewTargets();
-                OnStartPlayerTurnLate?.Invoke();
+                OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
-                OnStartEnemyTurn?.Invoke();
+                OnStartPhase[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 enemyController.MakeYourMove();
-                OnStartEnemyTurnLate?.Invoke();
+                OnStartPhaseLate[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.BattleWin:
                 if (waveManager.IsLastWave)
@@ -585,7 +580,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 }
                 break;
             case BattlePhases.BattleLose:
-                OnPlayerDefeat?.Invoke();
+                OnStartPhase[BattlePhases.BattleLose.ToInt()]?.Invoke();
                 break;
         }
 

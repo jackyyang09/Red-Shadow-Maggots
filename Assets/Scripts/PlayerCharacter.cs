@@ -68,14 +68,14 @@ public class PlayerCharacter : BaseCharacter
     {
         base.OnEnable();
         OnSelectedPlayerCharacterChange += UpdateSelectedStatus;
-        BattleSystem.OnStartPlayerTurn += RemoveCanteenEffects;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += RemoveCanteenEffects;
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
         OnSelectedPlayerCharacterChange -= UpdateSelectedStatus;
-        BattleSystem.OnEndPlayerTurn -= RemoveCanteenEffects;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= RemoveCanteenEffects;
     }
 
     // Update is called once per frame

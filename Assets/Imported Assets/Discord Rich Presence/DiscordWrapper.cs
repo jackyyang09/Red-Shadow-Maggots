@@ -48,7 +48,7 @@ public class DiscordWrapper : MonoBehaviour
 
         DontDestroyOnLoad(transform.root.gameObject);
 
-        if (discordInstance == null) discordInstance = new Discord.Discord(APP_ID, (ulong)Discord.CreateFlags.Default);
+        if (discordInstance == null) discordInstance = new Discord.Discord(APP_ID, (ulong)Discord.CreateFlags.NoRequireDiscord);
     }
 
     // Update is called once per frame

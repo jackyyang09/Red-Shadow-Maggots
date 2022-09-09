@@ -14,7 +14,7 @@ public class VoiceResponseSystem : MonoBehaviour
 
         BattleSystem.OnWaveClear += WaveClear;
         BattleSystem.OnFinalWaveClear += GameClear;
-        BattleSystem.OnPlayerDefeat += PlayerLose;
+        BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] += PlayerLose;
         BattleSystem.OnTickEffect += OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack += Attack;
@@ -40,7 +40,7 @@ public class VoiceResponseSystem : MonoBehaviour
 
         BattleSystem.OnWaveClear -= WaveClear;
         BattleSystem.OnFinalWaveClear -= GameClear;
-        BattleSystem.OnPlayerDefeat -= PlayerLose;
+        BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] -= PlayerLose;
         BattleSystem.OnTickEffect -= OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack -= Attack;

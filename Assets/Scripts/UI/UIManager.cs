@@ -44,11 +44,11 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void OnEnable()
     {
-        BattleSystem.OnStartPlayerTurnLate += ShowBattleUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] += ShowBattleUI;
         PlayerCharacter.OnSelectedPlayerCharacterChange += UpdateSkillGraphic;
         PlayerCharacter.OnPlayerQTEAttack += ShowQTEUI;
 
-        BattleSystem.OnPlayerDefeat += ShowLoseCanvas;
+        BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] += ShowLoseCanvas;
         BattleSystem.OnFinalWaveClear += ShowWinCanvas;
         SceneTweener.OnBattleTransition += UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
@@ -60,11 +60,11 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void OnDisable()
     {
-        BattleSystem.OnStartPlayerTurnLate -= ShowBattleUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] -= ShowBattleUI;
         PlayerCharacter.OnSelectedPlayerCharacterChange -= UpdateSkillGraphic;
         PlayerCharacter.OnPlayerQTEAttack -= ShowQTEUI;
 
-        BattleSystem.OnPlayerDefeat -= ShowLoseCanvas;
+        BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] -= ShowLoseCanvas;
         BattleSystem.OnFinalWaveClear -= ShowWinCanvas;
         SceneTweener.OnBattleTransition -= UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;

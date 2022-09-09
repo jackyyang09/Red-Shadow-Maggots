@@ -217,8 +217,8 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void OnEnable()
     {
         UIManager.OnAttackCommit += HideCharacterUI;
-        BattleSystem.OnStartPlayerTurn += OnStartPlayerTurn;
-        BattleSystem.OnEndEnemyTurn += CooldownSkills;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += OnStartPlayerTurn;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -226,8 +226,8 @@ public abstract class BaseCharacter : MonoBehaviour
     protected virtual void OnDisable()
     {
         UIManager.OnAttackCommit -= HideCharacterUI;
-        BattleSystem.OnStartPlayerTurn -= OnStartPlayerTurn;
-        BattleSystem.OnEndEnemyTurn -= CooldownSkills;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= OnStartPlayerTurn;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
@@ -591,7 +591,7 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    public static void ApplyEffectToCharacter(SkillObject.EffectProperties props, BaseCharacter character, TargetMode targetMode)
+    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter character, TargetMode targetMode)
     {
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, character.transform);
         props.effect.Activate(character, props.strength, props.customValues);
@@ -618,7 +618,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         for (int i = 0; i < currentSkill.referenceSkill.gameEffects.Length; i++)
         {
-            SkillObject.EffectProperties effect = currentSkill.referenceSkill.gameEffects[i];
+            EffectProperties effect = currentSkill.referenceSkill.gameEffects[i];
             switch (effect.targetOverride)
             {
                 case TargetMode.None:

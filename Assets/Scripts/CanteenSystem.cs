@@ -33,16 +33,16 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     {
         BaseCharacter.OnCharacterCritChanceReduced += AddExpiredCrits;
 
-        BattleSystem.OnEndEnemyTurn += ResetBonusFlag;
-        BattleSystem.OnEndPlayerTurn += AddQTECritBonus;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += ResetBonusFlag;
+        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] += AddQTECritBonus;
     }
 
     private void OnDisable()
     {
         BaseCharacter.OnCharacterCritChanceReduced -= AddExpiredCrits;
 
-        BattleSystem.OnEndEnemyTurn -= ResetBonusFlag;
-        BattleSystem.OnEndPlayerTurn -= AddQTECritBonus;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= ResetBonusFlag;
+        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] -= AddQTECritBonus;
     }
 
     public void SetCanteenCharge(float charge)

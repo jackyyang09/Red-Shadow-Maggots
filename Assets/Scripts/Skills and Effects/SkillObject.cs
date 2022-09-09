@@ -12,23 +12,23 @@ public enum TargetMode
     Self
 }
 
+[System.Serializable]
+public class EffectProperties
+{
+    public BaseGameEffect effect;
+    public int effectDuration;
+    public TargetMode targetOverride;
+    public EffectStrength strength;
+    public float[] customValues = new float[] { 0 };
+    public object EffectStrength { get { return effect.GetEffectStrength(strength, customValues); } }
+}
+
 /// <summary>
 /// The basic definition of a skill recorded in a CharacterObject
 /// </summary>
 [CreateAssetMenu(fileName = "New Skill", menuName = "ScriptableObjects/Skill Object", order = 1)]
 public class SkillObject : ScriptableObject
 {
-    [System.Serializable]
-    public struct EffectProperties
-    {
-        public BaseGameEffect effect;
-        public int effectDuration;
-        public TargetMode targetOverride;
-        public EffectStrength strength;
-        public float[] customValues;
-        public object EffectStrength { get { return effect.GetEffectStrength(strength, customValues); } }
-    }
-
     public string skillName;
     public List<string> skillDescription;
     public Sprite sprite;

@@ -28,13 +28,13 @@ public class QuickTimeDefense : QuickTimeBase
     protected override void Start()
     {
         base.Start();
-        BattleSystem.OnEndEnemyTurn += Hide;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += Hide;
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        BattleSystem.OnEndEnemyTurn -= Hide;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= Hide;
     }
 
     public void InitializeDefenseBar()

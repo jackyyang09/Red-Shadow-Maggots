@@ -46,8 +46,8 @@ public class CanteenUI : BaseGameUI
         CanteenSystem.OnAvailableChargeChanged += QueueUpdate;
         CanteenSystem.OnSetCharge += OnSetCharge;
 
-        BattleSystem.OnStartPlayerTurnLate += ShowUI;
-        BattleSystem.OnStartPlayerTurnLate += UpdateUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] += ShowUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] += UpdateUI;
         UIManager.OnEnterSkillTargetMode += HideUI;
         UIManager.OnExitSkillTargetMode += ShowUI;
         UIManager.OnShowBattleUI += ShowUI;
@@ -65,8 +65,8 @@ public class CanteenUI : BaseGameUI
         CanteenSystem.OnAvailableChargeChanged -= QueueUpdate;
         CanteenSystem.OnSetCharge -= OnSetCharge;
 
-        BattleSystem.OnStartPlayerTurnLate -= ShowUI;
-        BattleSystem.OnStartPlayerTurnLate -= UpdateUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] -= ShowUI;
+        BattleSystem.OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()] -= UpdateUI;
         UIManager.OnEnterSkillTargetMode -= HideUI;
         UIManager.OnExitSkillTargetMode -= ShowUI;
         UIManager.OnShowBattleUI -= ShowUI;
