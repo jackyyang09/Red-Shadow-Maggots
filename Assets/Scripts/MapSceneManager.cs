@@ -10,6 +10,12 @@ public class MapSceneManager : MonoBehaviour
 
     [SerializeField] BattleObject[] battleList;
 
+    [SerializeField] Transform cardStack;
+    List<CharacterCardHolder> cardHolders;
+
+    [SerializeField] GameObject cardPrefab;
+    [SerializeField] Vector3 cardDelta;
+
     private void OnEnable()
     {
         MapPlayerTracker.OnEnterNode += OnEnterNode;
@@ -18,6 +24,34 @@ public class MapSceneManager : MonoBehaviour
     private void OnDisable()
     {
         MapPlayerTracker.OnEnterNode -= OnEnterNode;
+    }
+
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+
+        cardHolders = new List<CharacterCardHolder>();
+
+        var party = playerDataManager.LoadedData.Party;
+        var maggotStates = playerDataManager.LoadedData.MaggotStates;
+        for (int i = 0; i < party.Length; i++)
+        {
+            if (party[i] > -1)
+            {
+                var co = gachaSystem.GUIDToAssetReference[maggotStates[party[i]].GUID];
+
+                StartCoroutine(gachaSystem.LoadMaggot(co, OnMaggotLoaded));
+            }
+        }
+    }
+
+    void OnMaggotLoaded(CharacterObject obj)
+    {
+        var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
+        card.SetCharacterAndRarity(obj, Rarity.Common);
+        card.GetComponent<Rigidbody>().useGravity = false;
+        cardHolders.Add(card);
+        cardHolders.GetLast().transform.localPosition = Vector3.zero + (cardHolders.Count - 1) * cardDelta;
     }
 
     private void OnEnterNode(NodeType obj)
@@ -68,5 +102,10 @@ public class MapSceneManager : MonoBehaviour
                 treasureNode.Initialize();
                 break;
         }
+    }
+
+    public void UpdateCardStack()
+    {
+
     }
 }

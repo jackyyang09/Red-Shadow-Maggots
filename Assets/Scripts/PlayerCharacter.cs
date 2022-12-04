@@ -167,6 +167,11 @@ public class PlayerCharacter : BaseCharacter
             OnPlayerQTEAttack?.Invoke(this);
         }
 
+        if (Reference.attackQteType == QTEType.SimpleBar)
+        {
+            PlayAttackAnimation();
+        }
+
         base.BeginAttack(target);
     }
 

@@ -278,6 +278,8 @@ public class AnimationHelper : MonoBehaviour
         Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]);
     }
 
+    public void PlayWeaponSound() => AudioManager.PlaySound(baseCharacter.Reference.weaponSound);
+
     public void PlayMiscSoundAtIndex(int index)
     {
         AudioManager.PlaySound(baseCharacter.Reference.extraSounds[index]);

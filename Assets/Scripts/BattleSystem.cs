@@ -191,8 +191,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     
         yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
     
-        yield return StartCoroutine(LoadBattleState());
-    
+        if (!gachaSystem.LegacyMode)
+        {
+            yield return StartCoroutine(LoadBattleState());
+        }
+
         GameStart();
     }
 
@@ -655,6 +658,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     void SaveBattleState()
     {
+        if (gachaSystem.LegacyMode)
+        {
+            Debug.Log("Gacha System is in Legacy Mode, not saving");
+            return;
+        }
         var data = battleStateManager.LoadedData;
 
         var partyData = new List<BattleState.PlayerState>();

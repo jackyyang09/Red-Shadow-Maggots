@@ -25,10 +25,4 @@ public class EquipmentManager : BasicSingleton<EquipmentManager>
             runtimeEquipment.Add(newEquip);
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

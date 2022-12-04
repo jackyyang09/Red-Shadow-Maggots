@@ -17,6 +17,7 @@ MonoBehaviour:
   headshotSprite: {fileID: 21300000, guid: d8f8f04cba688c34292077eca5e030bd, type: 3}
   attackRange: {x: 1048, y: 10486}
   healthRange: {x: 951, y: 9513}
+  enemyHealthRange: {x: 1592, y: 1592700}
   critChance: 0.02
   critDamageMultiplier: 3
   characterClass: 0
@@ -34,6 +35,10 @@ MonoBehaviour:
   characterRig: {fileID: 2898884880413276694, guid: ef7b8838c42d8bd46bad03f9568ffeb7, type: 3}
   attackAnimations:
   - attackAnimation: {fileID: 7400000, guid: 833fd577323144b4f9eebfe2e3b0e41b, type: 2}
+    attackRange: 1
+    isAOE: 0
+  enemyAttackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: 4e40e0e33350ff94f9478d16d9db7860, type: 2}
     attackRange: 1
     isAOE: 0
   attackEffectPrefab: {fileID: 0}

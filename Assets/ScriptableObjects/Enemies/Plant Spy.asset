@@ -15,15 +15,16 @@ MonoBehaviour:
   characterName: Plant Spy
   sprite: {fileID: 0}
   headshotSprite: {fileID: 0}
-  attackRange: {x: 147, y: 2958}
-  healthRange: {x: 852, y: 1704100}
-  critChance: 0
+  attackRange: {x: 308, y: 3085}
+  healthRange: {x: 1691, y: 16914}
+  enemyHealthRange: {x: 1691, y: 1691400}
+  critChance: 0.04
   critDamageMultiplier: 2.5
   characterClass: 2
   attackQteType: 0
   turnsToCrit: 3
-  attackLeniency: 0
-  defenseLeniency: 0
+  attackLeniency: 0.4
+  defenseLeniency: 0.1
   skills:
   - {fileID: 11400000, guid: 574ecebbe23dc524eb47e54079bf6098, type: 2}
   - {fileID: 11400000, guid: 574ecebbe23dc524eb47e54079bf6098, type: 2}
@@ -33,6 +34,10 @@ MonoBehaviour:
   animator: {fileID: 0}
   characterRig: {fileID: 6049368367499471062, guid: 9dcb593b7fa455644a7f1791d51b9f98, type: 3}
   attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: 54ae0415821c9fc4aa2bd6f1c902b932, type: 2}
+    attackRange: 0
+    isAOE: 0
+  enemyAttackAnimations:
   - attackAnimation: {fileID: 7400000, guid: 54ae0415821c9fc4aa2bd6f1c902b932, type: 2}
     attackRange: 0
     isAOE: 0

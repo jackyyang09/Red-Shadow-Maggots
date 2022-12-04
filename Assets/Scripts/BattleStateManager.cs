@@ -53,6 +53,7 @@ public class BattleStateManager : BaseSaveManager<BattleState>
 
     public void InitializeRandom()
     {
+        if (GachaSystem.Instance.LegacyMode) return;
         if (LoadedData.SavedSeed > 0)
         {
             Random.InitState(LoadedData.SavedSeed);

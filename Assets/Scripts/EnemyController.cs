@@ -118,8 +118,8 @@ public class EnemyController : BasicSingleton<EnemyController>
         battleStateManager.InitializeRandom();
 
         var enemy = battleSystem.ActiveEnemy;
-        int attackIndex = Random.Range(0, enemy.Reference.attackAnimations.Length);
-        var attack = enemy.Reference.attackAnimations[attackIndex];
+        int attackIndex = Random.Range(0, enemy.Reference.enemyAttackAnimations.Length);
+        var attack = enemy.Reference.enemyAttackAnimations[attackIndex];
         BaseCharacter.IncomingAttack = attack;
 
         ui.StartDefending();

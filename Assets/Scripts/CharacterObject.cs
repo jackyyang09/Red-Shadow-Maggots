@@ -38,6 +38,7 @@ public class CharacterStatWizard : ScriptableWizard
 {
     public Vector2 attackRange = new Vector2(1000, 10000);
     public Vector2 healthRange = new Vector2(1000, 10000);
+    public Vector2 enemyHealthRange = new Vector2(1000, 100000);
 
     public Vector2 statPool = new Vector2(2000, 20000);
 
@@ -148,10 +149,8 @@ public class CharacterStatWizard : ScriptableWizard
         attackRange.y = (int)Mathf.LerpUnclamped(0, statPool.y, attackDeviancy);
         healthRange.y = (int)Mathf.LerpUnclamped(0, statPool.y, healthDeviancy);
 
-        if (isEnemy)
-        {
-            healthRange.y *= 100;
-        }
+        enemyHealthRange.x = healthRange.x;
+        enemyHealthRange.y = healthRange.y * 100;
     }
 
     void ApplyStatsToCharacter()
@@ -163,6 +162,7 @@ public class CharacterStatWizard : ScriptableWizard
         SerializedObject so = new SerializedObject(FocusedCharacter);
         so.FindProperty(nameof(attackRange)).vector2Value = attackRange;
         so.FindProperty(nameof(healthRange)).vector2Value = healthRange;
+        so.FindProperty(nameof(enemyHealthRange)).vector2Value = enemyHealthRange;
         so.ApplyModifiedProperties();
     }
 }
@@ -202,8 +202,12 @@ public class CharacterObject : ScriptableObject
     public const int MAX_LEVEL_PLAYER = 90;
     public const int MAX_LEVEL_ENEMY = 999;
 
+    [Header("Player Stats")]
     [SerializeField] Vector2 attackRange = new Vector2();
     [SerializeField] Vector2 healthRange = new Vector2();
+
+    [Header("Enemy Stats")]
+    [SerializeField] Vector2 enemyHealthRange = new Vector2();
 
     [ContextMenu(nameof(TestMaxHealth))]
     void TestMaxHealth()
@@ -217,13 +221,16 @@ public class CharacterObject : ScriptableObject
     public int GetMaxHealth(int currentLevel, bool isEnemy)
     {
         float lerp;
-        if (!isEnemy) lerp = (float)currentLevel / (float)MAX_LEVEL_PLAYER;
+        if (!isEnemy)
+        {
+            lerp = (float)currentLevel / (float)MAX_LEVEL_PLAYER;
+            return (int)Mathf.Lerp(healthRange.x, healthRange.y, lerp);
+        }   
         else
         {
             lerp = Mathf.Pow(currentLevel / (float)MAX_LEVEL_ENEMY, 2);
+            return (int)Mathf.Lerp(enemyHealthRange.x, enemyHealthRange.y, lerp);
         }
-
-        return (int)Mathf.Lerp(healthRange.x, healthRange.y, lerp);
     }
 
     float m = 0.7f;
@@ -267,6 +274,7 @@ public class CharacterObject : ScriptableObject
     public AnimatorOverrideController animator = null;
     public GameObject characterRig = null;
     public AttackStruct[] attackAnimations;
+    public AttackStruct[] enemyAttackAnimations;
 
     [Header("Effect Prefabs")]
     public GameObject attackEffectPrefab = null;

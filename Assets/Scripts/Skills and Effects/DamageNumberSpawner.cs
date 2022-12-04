@@ -45,7 +45,7 @@ public class DamageNumberSpawner : MonoBehaviour
 
         TMPro.TextMeshProUGUI numberText = texts[0];
 
-        numberText.text = "-" + Mathf.RoundToInt(damage.damage).ToString();
+        numberText.text = "-" + ((int)damage.damage).ToString();
 
         if (damage.isCritical)
         {

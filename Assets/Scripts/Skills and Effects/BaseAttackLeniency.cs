@@ -10,7 +10,15 @@ public class BaseAttackLeniency : BaseGameEffect
         float percentageChange = (float)GetEffectStrength(strength, customValues);
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        ((PlayerCharacter)target).attackLeniencyModifier += percentageChange;
+        PlayerCharacter t = target as PlayerCharacter;
+        if (t) // This is a player
+        {
+            t.attackLeniencyModifier += percentageChange;
+        }
+        else // Enemies don't have Attack Leniency
+        {
+            Debug.LogWarning("TODO: Enemies don't have Attack Leniency!");
+        }
     }
 
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)

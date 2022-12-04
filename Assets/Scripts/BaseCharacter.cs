@@ -143,7 +143,10 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action OnCharacterCritChanceChanged;
 
     public static Action<BaseCharacter> OnCharacterStartAttack;
-    public static Action<BaseCharacter> OnCharacterAttacked;
+    /// <summary>
+    /// BaseCharacter character, float damage
+    /// </summary>
+    public static Action<BaseCharacter, float> OnCharacterReceivedDamage;
 
     public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
 
@@ -353,11 +356,6 @@ public abstract class BaseCharacter : MonoBehaviour
                     SceneTweener.Instance.RangedTweenTo(CharacterMesh.transform, target);
                     break;
             }
-
-            if (Reference.attackQteType == QTEType.SimpleBar)
-            {
-                PlayAttackAnimation();
-            }
         }
     }
 
@@ -466,7 +464,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (battleSystem.CurrentPhase)
                 {
                     case BattlePhases.PlayerTurn:
-                        EnemyCharacter.OnSelectedEnemyCharacterChange += AddSkillTarget;
+                        targets.Add(battleSystem.ActiveEnemy);
                         break;
                     case BattlePhases.EnemyTurn:
                         targets.Add(battleSystem.EnemyAttackTarget);
@@ -772,7 +770,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 damage.percentage *
                 effectiveness;
         }
-
+        
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;
 
         float trueDamage = CalculateDefenseDamage(damage.damage);
@@ -804,7 +802,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         onTakeDamage?.Invoke();
-        OnCharacterAttacked?.Invoke(this);
+        OnCharacterReceivedDamage?.Invoke(this, trueDamage);
 
         if (health == 0 && CanDie)
         {

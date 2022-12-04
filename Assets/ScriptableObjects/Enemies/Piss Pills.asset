@@ -15,15 +15,16 @@ MonoBehaviour:
   characterName: Piss Pills
   sprite: {fileID: 21300000, guid: 9b0a26d2ca979834d90d90279451a7a3, type: 3}
   headshotSprite: {fileID: 0}
-  attackRange: {x: 107, y: 2155}
-  healthRange: {x: 892, y: 1784400}
-  critChance: 0
+  attackRange: {x: 213, y: 2135}
+  healthRange: {x: 1786, y: 17864}
+  enemyHealthRange: {x: 1786, y: 1786400}
+  critChance: 0.03
   critDamageMultiplier: 2.5
   characterClass: 1
   attackQteType: 0
   turnsToCrit: 3
-  attackLeniency: 0
-  defenseLeniency: 0
+  attackLeniency: 0.3
+  defenseLeniency: 0.15
   skills:
   - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
   - {fileID: 11400000, guid: b162aea223fe9334697e649fe34ab1b6, type: 2}
@@ -33,6 +34,10 @@ MonoBehaviour:
   animator: {fileID: 0}
   characterRig: {fileID: 3645214097359699067, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
   attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
+    attackRange: 0
+    isAOE: 0
+  enemyAttackAnimations:
   - attackAnimation: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
     attackRange: 0
     isAOE: 0

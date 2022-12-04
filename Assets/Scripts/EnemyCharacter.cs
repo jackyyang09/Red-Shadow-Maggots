@@ -11,6 +11,8 @@ public class EnemyCharacter : BaseCharacter
     bool usedSkillThisTurn;
 
     [SerializeField] int critLevel = 0;
+    // Enemies shouldn't be able to crit randomly
+    public override float CritChanceModified => 0;
     public int CritLevel { get { return critLevel; } }
     public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
     [SerializeField] bool isBossCharacter = false;
@@ -97,7 +99,7 @@ public class EnemyCharacter : BaseCharacter
             }
             else
             {
-                rigAnim.Play("Attack Execute");
+                rigAnim.Play("Enemy Attack Level 2");
             }
         }
         else
@@ -110,7 +112,7 @@ public class EnemyCharacter : BaseCharacter
     {
         base.PlayAttackAnimation();
 
-        rigAnim.Play("Attack Level " + (selectedAttack + 1).ToString());
+        rigAnim.Play("Enemy Attack Level " + (selectedAttack + 1).ToString());
     }
 
     public void UpdateSelectedStatus(EnemyCharacter selectedEnemy)

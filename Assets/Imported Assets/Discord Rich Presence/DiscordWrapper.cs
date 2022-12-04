@@ -48,7 +48,19 @@ public class DiscordWrapper : MonoBehaviour
 
         DontDestroyOnLoad(transform.root.gameObject);
 
-        if (discordInstance == null) discordInstance = new Discord.Discord(APP_ID, (ulong)Discord.CreateFlags.NoRequireDiscord);
+        try
+        { 
+            if (discordInstance == null) discordInstance = new Discord.Discord(APP_ID, (ulong)Discord.CreateFlags.NoRequireDiscord);
+        }
+        catch (Discord.ResultException e)
+        {
+            if (discordInstance == null)
+            {
+                Debug.LogWarning("Discord Wrapper: Discord Instance was null, is Discord open on the " +
+                    "local system?");
+            }
+            enabled = false;
+        }
     }
 
     // Update is called once per frame
@@ -59,6 +71,7 @@ public class DiscordWrapper : MonoBehaviour
 
     private void OnApplicationQuit()
     {
+        if (discordInstance == null) return;
         discordInstance.Dispose();
     }
 #endif
@@ -88,6 +101,8 @@ public class DiscordWrapper : MonoBehaviour
         )
     {
 #if UNITY_STANDALONE
+        if (discordInstance == null) return;
+
         var a = new Discord.Activity
         {
             State = state,

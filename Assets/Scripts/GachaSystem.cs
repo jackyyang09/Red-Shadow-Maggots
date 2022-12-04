@@ -18,6 +18,7 @@ public enum Rarity
 public class GachaSystem : BasicSingleton<GachaSystem>
 {
     [SerializeField] bool legacyMode;
+    public bool LegacyMode => legacyMode;
 
     [Range(0, 1)]
     [SerializeField] float chanceOfCommon = 0;
@@ -45,6 +46,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
     [SerializeField] List<CharacterObject> maggots = null;
 
+    [Header("Legacy")]
     List<CharacterObject> offenseMaggots = new List<CharacterObject>();
     List<CharacterObject> defenseMaggots = new List<CharacterObject>();
     List<CharacterObject> supportMaggots = new List<CharacterObject>();
@@ -63,7 +65,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     // Start is called before the first frame update
     void Start()
     {
-        if (legacyMode && !playerDataManager.LoadedData.InBattle)
+        if (legacyMode/* && !playerDataManager.LoadedData.InBattle*/)
         {
             for (int i = 0; i < maggots.Count; i++)
             {
@@ -81,9 +83,12 @@ public class GachaSystem : BasicSingleton<GachaSystem>
                 }
             }
 
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), RandomRarity);
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), RandomRarity);
-            battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), RandomRarity);
+            if (offenseMaggots.Count > 0)
+                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), RandomRarity);
+            if (defenseMaggots.Count > 0)
+                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), RandomRarity);
+            if (supportMaggots.Count > 0)
+                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), RandomRarity);
         }
     }
 
