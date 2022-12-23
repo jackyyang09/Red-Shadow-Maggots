@@ -55,21 +55,8 @@ public abstract class QuickTimeBase : MonoBehaviour
         enabled = true;
     }
 
-    public static void AddHacks()
-    {
-        var command = new SickDev.CommandSystem.ActionCommand(LockSuccess)
-        {
-            alias = nameof(LockSuccess),
-            description = "Quick-time events will always succeed"
-        };
-
-        if (!devConsole.IsCommandAdded(command))
-        {
-            devConsole.AddCommand(command);
-        }
-    }
-
-    public static void LockSuccess()
+    [IngameDebugConsole.ConsoleMethod(nameof(LockQTESuccess), "Quick-time events will always succeed")]
+    public static void LockQTESuccess()
     {
         AlwaysSucceed = true;
     }

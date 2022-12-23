@@ -28,6 +28,4 @@
     public static PlayerDataManager playerDataManager => PlayerDataManager.Instance as PlayerDataManager;
     public static BattleStateManager battleStateManager => BattleStateManager.Instance as BattleStateManager;
     public static GameEffectLoader gameEffectLoader => GameEffectLoader.Instance;
-
-    public static SickDev.DevConsole.DevConsole devConsole => SickDev.CommandSystem.DevConsoley.Instance;
 }

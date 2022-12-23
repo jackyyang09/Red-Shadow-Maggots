@@ -47,11 +47,6 @@ public class EnemyController : BasicSingleton<EnemyController>
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
 
-    private void Start()
-    {
-        AddHacks();
-    }
-
     private void OnEnable()
     {
         BattleSystem.OnTargettableCharactersChanged += ChooseAttackTarget;
@@ -133,39 +128,49 @@ public class EnemyController : BasicSingleton<EnemyController>
     }
 
     #region Debug Hacks
-    void AddHacks()
+    [IngameDebugConsole.ConsoleMethod(nameof(CrippleEnemies), "Instantly hurt enemies, leaving them at 1 health")]
+    public static void CrippleEnemies()
     {
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(CrippleEnemies)
+        for (int i = 0; i < Instance.Enemies.Length; i++)
         {
-            alias = nameof(CrippleEnemies),
-            description = "Instantly hurt enemies, leaving them at 1 health"
-        });
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(ForceEnemyUseSkills)
-        {
-            alias = nameof(ForceEnemyUseSkills),
-            description = "Sets all enemy's skill use chance to 100%"
-        });
-    }
-
-    public void CrippleEnemies()
-    {
-        for (int i = 0; i < Enemies.Length; i++)
-        {
-            if (!Enemies[i]) continue;
-            BaseCharacter.IncomingDamage.damage = Enemies[i].CurrentHealth - 1;
-            Enemies[i].TakeDamage();
+            if (!Instance.Enemies[i]) continue;
+            BaseCharacter.IncomingDamage.damage = Instance.Enemies[i].CurrentHealth - 1;
+            Instance.Enemies[i].TakeDamage();
         }
         Debug.Log("Enemies damaged!");
     }
 
-    public void ForceEnemyUseSkills()
+    [IngameDebugConsole.ConsoleMethod(nameof(MaxEnemyCrit), "Set enemy character's crit chance to 100%")]
+    public static void MaxEnemyCrit()
     {
-        for (int i = 0; i < Enemies.Length; i++)
+        for (int i = 0; i < Instance.Enemies.Length; i++)
         {
-            if (!Enemies[i]) continue;
-            Enemies[i].SetSkillUseChance(1);
+            if (!Instance.Enemies[i]) continue;
+            Instance.Enemies[i].ApplyCritChanceModifier(1);
+        }
+        Debug.Log("Enemy crit maxed!");
+    }
+
+    [IngameDebugConsole.ConsoleMethod(nameof(ForceEnemyUseSkills), "Sets enemy character's skill use chance to 100%")]
+    public static void ForceEnemyUseSkills()
+    {
+        for (int i = 0; i < Instance.Enemies.Length; i++)
+        {
+            if (!Instance.Enemies[i]) continue;
+            Instance.Enemies[i].SetSkillUseChance(1);
         }
         Debug.Log("Set enemy skill chance to 100%!");
+    }
+
+    [IngameDebugConsole.ConsoleMethod(nameof(ForceEnemyNoSkills), "Sets enemy character's skill use chance to 0%")]
+    public static void ForceEnemyNoSkills()
+    {
+        for (int i = 0; i < Instance.Enemies.Length; i++)
+        {
+            if (!Instance.Enemies[i]) continue;
+            Instance.Enemies[i].SetSkillUseChance(0);
+        }
+        Debug.Log("Enemies skill use disabled!");
     }
     #endregion
 }

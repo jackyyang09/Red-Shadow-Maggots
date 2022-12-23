@@ -24,11 +24,6 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     public static Action OnChargeBorrowed;
     public static Action OnSetCharge;
 
-    private void Start()
-    {
-        AddHacks();
-    }
-
     private void OnEnable()
     {
         BaseCharacter.OnCharacterCritChanceReduced += AddExpiredCrits;
@@ -123,21 +118,13 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     }
 
     #region Debug Hacks
-    void AddHacks()
-    {
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxCanteenCharge)
-        {
-            alias = nameof(MaxCanteenCharge),
-            description = "Set player characters crit chance to 100%"
-        });
-    }
-
-    public void MaxCanteenCharge()
+    [IngameDebugConsole.ConsoleMethod(nameof(FillCritCanteens), "Fill all the player's stored canteens")]
+    public static void FillCritCanteens()
     {
         Instance.storedCharge = Instance.chargePerCanteen * Instance.maxCanteens;
         OnStoredChargeChanged?.Invoke();
         FindObjectOfType<CanteenUI>().PostHackUpdate();
-        Debug.Log("Canteens maxed!");
+        Debug.Log("Maxed stored charge!");
     }
     #endregion
 }

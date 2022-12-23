@@ -135,14 +135,14 @@ public class AnimationHelper : MonoBehaviour
     {
         anim.enabled = true;
 
-        for (int i = 0; i < nonRagdollRenderers.Length; i++)
-        {
-            nonRagdollRenderers[i].enabled = true;
-        }
-
         for (int i = 0; i < ragdollRenderers.Length; i++)
         {
             ragdollRenderers[i].enabled = false;
+        }
+
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = true;
         }
 
         for (int i = 0; i < rigidBodies.Length; i++)

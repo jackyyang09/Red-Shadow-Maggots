@@ -35,11 +35,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public static float QuickTimeCritModifier = 0.15f;
 
-    [SerializeField] List<float> gameSpeeds = new List<float>();
-
-    public int CurrentGameSpeed = 0;
-    public float CurrentGameSpeedTime { get { return gameSpeeds[CurrentGameSpeed]; } }
-
     [SerializeField] BattlePhases currentPhase;
     public BattlePhases CurrentPhase { get { return currentPhase; } }
     bool finishedTurn;
@@ -185,9 +180,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     private IEnumerator Start()
     {
         screenEffects.BlackOut();
-    
-        AddHacks();
-        QuickTimeHold.AddHacks();
     
         yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
     
@@ -761,69 +753,29 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         OnTargettableCharactersChanged?.Invoke();
     }
 
-    //public void ToggleGameSpeed()
-    //{
-    //    CurrentGameSpeed = (int)Mathf.Repeat(CurrentGameSpeed + 1, gameSpeeds.Count);
-    //    Time.timeScale = gameSpeeds[CurrentGameSpeed];
-    //}
-
     #region Debug Hacks
-    void AddHacks()
+    [IngameDebugConsole.ConsoleMethod(nameof(MaxPlayerCrit), "Set player characters crit chance to 100%")]
+    public static void MaxPlayerCrit()
     {
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxPlayerCrit)
+        for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
-            alias = nameof(MaxPlayerCrit),
-            description = "Set player characters crit chance to 100 %"
-        });
-
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MinMaxPlayerCrit)
-        {
-            alias = nameof(MinMaxPlayerCrit),
-            description = "Set player characters crit chance to 50%"
-        });
-
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(MaxEnemyCrit)
-        {
-            alias = nameof(MaxEnemyCrit),
-            description = "Set enemy characters crit chance to 100%"
-        });
-
-        devConsole.AddCommand(new SickDev.CommandSystem.ActionCommand(CripplePlayers)
-        {
-            alias = nameof(CripplePlayers),
-            description = "Instantly hurt players, leaving them at 1 health"
-        });
-    }
-
-    public void MaxPlayerCrit()
-    {
-        for (int i = 0; i < playerCharacters.Count; i++)
-        {
-            playerCharacters[i].ApplyCritChanceModifier(1);
+            Instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
         Debug.Log("Crit rate maxed!");
     }
 
-    public void MinMaxPlayerCrit()
+    [IngameDebugConsole.ConsoleMethod(nameof(AddPlayerCrit), "Set player characters crit chance to a number from 0 to 1")]
+    public static void AddPlayerCrit(float value)
     {
-        for (int i = 0; i < playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
-            playerCharacters[i].ApplyCritChanceModifier(0.5f);
+            Instance.playerCharacters[i].ApplyCritChanceModifier(value);
         }
-        Debug.Log("Crit rate min-maxed!");
+        Debug.Log("Added " + value + "% to player crit rate to!");
     }
 
-    public void MaxEnemyCrit()
-    {
-        for (int i = 0; i < enemyController.Enemies.Length; i++)
-        {
-            if (!enemyController.Enemies[i]) continue;
-            enemyController.Enemies[i].ApplyCritChanceModifier(1);
-        }
-        Debug.Log("Enemy crit maxed!");
-    }
-
-    public void CripplePlayers()
+    [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]
+    public static void CripplePlayers()
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
@@ -831,6 +783,12 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             Instance.playerCharacters[i].TakeDamage();
         }
         Debug.Log("Players damaged!");
+    }
+
+    [IngameDebugConsole.ConsoleMethod(nameof(SetTimeScale), "Changes the standard game speed")]
+    public void SetTimeScale(float value)
+    {
+        Time.timeScale = value;
     }
     #endregion
 }
