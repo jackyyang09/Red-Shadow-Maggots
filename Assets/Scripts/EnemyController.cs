@@ -146,7 +146,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         for (int i = 0; i < Instance.Enemies.Length; i++)
         {
             if (!Instance.Enemies[i]) continue;
-            Instance.Enemies[i].ApplyCritChanceModifier(1);
+            Instance.Enemies[i].IncreaseChargeLevel(10);
         }
         Debug.Log("Enemy crit maxed!");
     }

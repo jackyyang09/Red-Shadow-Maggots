@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.20389943, g: 0.3529697, b: 0.47603285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -29041,11 +29041,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectTickTime: 1.5
-  gameSpeeds:
-  - 1
-  - 1.5
-  - 2
-  CurrentGameSpeed: 0
   currentPhase: 0
   playerCharacters: []
   playerPrefab: {fileID: 9160884392521976346, guid: b2c4227b6cdd62d44bc9641d4063075c, type: 3}
@@ -55469,6 +55464,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 74844440857269426, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -89.98021
+      objectReference: {fileID: 0}
     - target: {fileID: 884295043604059586, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -90
@@ -55563,15 +55562,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3788316677819458726, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 64.24392
+      value: 89.98021
       objectReference: {fileID: 0}
     - target: {fileID: 3788316677819458726, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: -0.0000008758037
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3788316677819458726, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0.00000087580185
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4776600600835191122, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_Enabled
@@ -55579,7 +55578,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5667565187369020640, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 86.75574
       objectReference: {fileID: 0}
     - target: {fileID: 5667565187369020640, guid: 302007018149ffc4db9a9d6d74a4be5a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y

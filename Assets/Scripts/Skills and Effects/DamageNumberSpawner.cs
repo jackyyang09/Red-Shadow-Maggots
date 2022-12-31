@@ -11,9 +11,9 @@ public enum DamageType
     Heal
 }
 
-public class DamageNumberSpawner : MonoBehaviour
+public class DamageNumberSpawner : BasicSingleton<DamageNumberSpawner>
 {
-    [SerializeField] Camera cam = null;
+    [SerializeField] Camera cam;
 
     [SerializeField] float numberLifetime = 1.5f;
     [SerializeField] float numberFadeDelay = 1;
@@ -21,19 +21,7 @@ public class DamageNumberSpawner : MonoBehaviour
 
     [SerializeField] float verticalMovement = 0.5f;
 
-    [SerializeField] GameObject[] damageNumberPrefabs = null;
-
-    public static DamageNumberSpawner instance;
-
-    private void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-            Destroy(gameObject);
-    }
+    [SerializeField] GameObject[] damageNumberPrefabs;
 
     public void SpawnDamageNumberAt(Transform trans, DamageStruct damage)
     {

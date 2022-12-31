@@ -77,11 +77,11 @@ public class EnemyCharacter : BaseCharacter
     //    
     //}
 
-    public void IncreaseChargeLevel()
+    public void IncreaseChargeLevel(int i = 1)
     {
         if (!usedSkillThisTurn || (usedSkillThisTurn && critLevel != Reference.turnsToCrit - 1))
         {
-            critLevel = (int)Mathf.Repeat(critLevel + 1, Reference.turnsToCrit + 1);
+            critLevel = (int)Mathf.Repeat(critLevel + i, Reference.turnsToCrit + 1);
             onCritLevelChanged?.Invoke(critLevel);
         }
         usedSkillThisTurn = false;

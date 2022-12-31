@@ -16,6 +16,10 @@ public struct DamageStruct
     /// Final damage passed to the character for damage calculation
     /// </summary>
     public float damage;
+    /// <summery>
+    /// If true, target evaded damage by means of a game effect
+    /// </summary>
+    public bool evaded;
     /// <summary>
     /// QuickTime value
     /// </summary>
@@ -89,6 +93,7 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected Rarity rarity;
     public float RarityMultiplier { get { return 1 + 0.5f * (int)rarity; } }
 
+    public bool IsDodging;
     public bool IsDead { get { return health <= 0; } }
 
     public bool CanDie = true;
@@ -761,6 +766,13 @@ public abstract class BaseCharacter : MonoBehaviour
         CharacterClass attackerClass = CharacterClass.Offense;
         if (damage.source != null)
         {
+            if (IsDodging)
+            {
+                damage.evaded = true;
+                EffectTextSpawner.Instance.SpawnMissAt(transform.parent);
+                return;
+            }
+
             attackerClass = damage.source.Reference.characterClass;
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
@@ -777,7 +789,7 @@ public abstract class BaseCharacter : MonoBehaviour
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
         damage.damage = trueDamage;
 
-        DamageNumberSpawner.instance.SpawnDamageNumberAt(transform.parent, damage);
+        DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)
         {
             if (IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)

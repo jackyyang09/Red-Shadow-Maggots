@@ -7,6 +7,8 @@ public class EffectTextSpawner : MonoBehaviour
 {
     [SerializeField] float numberLifetime = 3;
     [SerializeField] float textVerticalMovement = 50;
+    [SerializeField] float textFadeTime;
+    [SerializeField] float textFadeDelay;
 
     [SerializeField] Camera cam = null;
 
@@ -17,6 +19,8 @@ public class EffectTextSpawner : MonoBehaviour
     [SerializeField] TMPro.TMP_FontAsset buffTextColour = null;
     [SerializeField] TMPro.TMP_FontAsset debuffTextColour = null;
 
+    [SerializeField] GameObject missPrefab;
+    
     public static EffectTextSpawner Instance;
 
     private void Awake()
@@ -45,6 +49,24 @@ public class EffectTextSpawner : MonoBehaviour
     public GameObject SpawnCriticalHitAt(Transform trans)
     {
         return Instantiate(critTextPrefab, trans);
+    }
+
+    [ContextMenu(nameof(Test))]
+    public void Test()
+    {
+        SpawnMissAt(transform);
+    }
+
+    public void SpawnMissAt(Transform t)
+    {
+        var billboard = Instantiate(missPrefab, transform.GetChild(0)).GetComponent<ViewportBillboard>();
+        billboard.EnableWithSettings(cam, t);
+        Debug.Log(t.name);
+
+        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
+        
+        var billboardText = billboard.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        billboardText.DOFade(0, textFadeTime).SetDelay(textFadeDelay);
     }
 
     public void SpawnEffectAt(BaseGameEffect effect, Transform trans)
