@@ -7,14 +7,29 @@ public class EnemyCharacter : BaseCharacter
 {
     [SerializeField] float chanceToUseSkill = 0.3f;
     public void SetSkillUseChance(float newChance) => chanceToUseSkill = newChance;
-    public float ChanceToUseSkill { get { return chanceToUseSkill; } }
+
+    public float ChanceToUseSkill
+    {
+        get { return chanceToUseSkill; }
+    }
+
     bool usedSkillThisTurn;
 
     [SerializeField] int critLevel = 0;
+
     // Enemies shouldn't be able to crit randomly
     public override float CritChanceModified => 0;
-    public int CritLevel { get { return critLevel; } }
-    public bool CanCrit { get { return critLevel == Reference.turnsToCrit; } }
+
+    public int CritLevel
+    {
+        get { return critLevel; }
+    }
+
+    public bool CanCrit
+    {
+        get { return critLevel == Reference.turnsToCrit; }
+    }
+
     [SerializeField] bool isBossCharacter = false;
 
     public static System.Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
@@ -49,11 +64,12 @@ public class EnemyCharacter : BaseCharacter
         }
         else
         {
-            billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
+            billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform)
+                .GetComponent<ViewportBillboard>();
             billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
             billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
         }
-        
+
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
     }
 
@@ -84,6 +100,7 @@ public class EnemyCharacter : BaseCharacter
             critLevel = (int)Mathf.Repeat(critLevel + i, Reference.turnsToCrit + 1);
             onCritLevelChanged?.Invoke(critLevel);
         }
+
         usedSkillThisTurn = false;
     }
 
@@ -150,10 +167,10 @@ public class EnemyCharacter : BaseCharacter
         }
     }
 
-    public override void UseSkill(int index)
+    public override void UseSkill(GameSkill skill)
     {
         usedSkillThisTurn = true;
-        base.UseSkill(index);
+        base.UseSkill(skill);
     }
 
     public override void ExecuteAttack()

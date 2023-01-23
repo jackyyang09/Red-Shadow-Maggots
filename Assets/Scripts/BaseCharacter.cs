@@ -12,22 +12,27 @@ public struct DamageStruct
     /// The attacking character, if any
     /// </summary>
     public BaseCharacter source;
+
     /// <summary>
     /// Final damage passed to the character for damage calculation
     /// </summary>
     public float damage;
+
     /// <summery>
     /// If true, target evaded damage by means of a game effect
     /// </summary>
     public bool evaded;
+
     /// <summary>
     /// QuickTime value
     /// </summary>
     public float damageNormalized;
+
     /// <summary>
     /// Amount of damage to deal relative to attack stat
     /// </summary>
     public float percentage;
+
     public float barFill;
     public float critDamageModifier;
     public DamageType damageType;
@@ -42,23 +47,47 @@ public struct DamageStruct
 public abstract class BaseCharacter : MonoBehaviour
 {
     [SerializeField] protected CharacterObject characterReference;
-    public CharacterObject Reference { get { return characterReference; } }
+
+    public CharacterObject Reference
+    {
+        get { return characterReference; }
+    }
 
     [SerializeField] [Range(1, 90)] protected int currentLevel = 1;
-    public int CurrentLevel { get { return currentLevel; } }
+
+    public int CurrentLevel
+    {
+        get { return currentLevel; }
+    }
 
     [SerializeField] protected float health;
-    public float CurrentHealth { get { return health; } }
+
+    public float CurrentHealth
+    {
+        get { return health; }
+    }
 
     [SerializeField] protected float maxHealth;
-    public float MaxHealth { get { return maxHealth; } }
+
+    public float MaxHealth
+    {
+        get { return maxHealth; }
+    }
 
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     [SerializeField] float attackModifier;
-    public float AttackModifier { get { return attackModifier; } }
-    public float AttackModified { get { return characterReference.GetAttack(currentLevel) + attackModifier; } }
+
+    public float AttackModifier
+    {
+        get { return attackModifier; }
+    }
+
+    public float AttackModified
+    {
+        get { return characterReference.GetAttack(currentLevel) + attackModifier; }
+    }
 
     /// <summary>
     /// Additive modifier from skills
@@ -66,47 +95,77 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] float defenseModifier;
 
     public float attackLeniencyModifier;
+
     public float AttackLeniency
     {
         get { return characterReference.attackLeniency + attackLeniencyModifier; }
     }
 
     public float defenseLeniencyModifier;
+
     public float DefenseLeniency
     {
         get { return characterReference.defenseLeniency + defenseLeniencyModifier; }
     }
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
+
     /// <summary>
     /// The sum of the character's base crit chance and any modifiers before QTEs
     /// </summary>
-    public virtual float CritChanceModified { get { return critChance + critChanceModifier; } }
+    public virtual float CritChanceModified
+    {
+        get { return critChance + critChanceModifier; }
+    }
 
     [SerializeField] float critChanceModifier = 0;
-    public float CritChanceModifier { get { return critChanceModifier; } }
+
+    public float CritChanceModifier
+    {
+        get { return critChanceModifier; }
+    }
 
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
-    public float CritDamageModified { get { return critMultiplier + critDamageModifier; } }
+
+    public float CritDamageModified
+    {
+        get { return critMultiplier + critDamageModifier; }
+    }
 
     [SerializeField] protected Rarity rarity;
-    public float RarityMultiplier { get { return 1 + 0.5f * (int)rarity; } }
+
+    public float RarityMultiplier
+    {
+        get { return 1 + 0.5f * (int)rarity; }
+    }
 
     public bool IsDodging;
-    public bool IsDead { get { return health <= 0; } }
+
+    public bool IsDead
+    {
+        get { return health <= 0; }
+    }
 
     public bool CanDie = true;
 
-    [Header("Object References")]
-
-    [SerializeField] protected Animator spriteAnim;
+    [Header("Object References")] [SerializeField]
+    protected Animator spriteAnim;
 
     [SerializeField] Transform effectRegion = null;
-    public Transform EffectRegion { get { return effectRegion; } }
+
+    public Transform EffectRegion
+    {
+        get { return effectRegion; }
+    }
 
     protected GameObject characterMesh;
-    public GameObject CharacterMesh { get { return characterMesh; } }
+
+    public GameObject CharacterMesh
+    {
+        get { return characterMesh; }
+    }
+
     protected Animator rigAnim;
 
     [SerializeField] protected GameObject skillParticles1;
@@ -118,17 +177,33 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected Vector2 selectionCircleScale = new Vector2(0.7f, 1f);
 
     [SerializeField] AnimationHelper animHelper = null;
-    public AnimationHelper AnimHelper { get { return animHelper; } }
+
+    public AnimationHelper AnimHelper
+    {
+        get { return animHelper; }
+    }
 
     [SerializeField] protected GameObject canvasPrefab = null;
 
-    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects { get; } = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
+    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects { get; } =
+        new Dictionary<BaseGameEffect, List<AppliedEffect>>();
 
     protected List<GameSkill> gameSkills = new List<GameSkill>();
-    public List<GameSkill> Skills { get { return gameSkills; } }
+
+    public List<GameSkill> Skills
+    {
+        get { return gameSkills; }
+    }
+
     public bool CanUseSkill(int index)
     {
         return gameSkills[index].CanUse;
+    }
+
+    public bool CanUseSkill(GameSkill skill)
+    {
+        var resultSkill = gameSkills.Find(x => x == skill);
+        return resultSkill != null && resultSkill.CanUse;
     }
 
     protected ViewportBillboard billBoard;
@@ -139,15 +214,18 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action<AppliedEffect> onRemoveGameEffect;
 
     public Action onHeal;
+
     /// <summary>
     /// Only invoked when changing health through abnormal means
     /// </summary>
     public Action onSetHealth;
+
     public Action<float> onTakeDamage;
 
     public Action OnCharacterCritChanceChanged;
 
     public static Action<BaseCharacter> OnCharacterStartAttack;
+
     /// <summary>
     /// BaseCharacter character, float damage
     /// </summary>
@@ -177,7 +255,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (characterReference == null) return;
 
         currentLevel = level;
-        maxHealth = characterReference.GetMaxHealth(currentLevel, true)/* * RarityMultiplier*/;
+        maxHealth = characterReference.GetMaxHealth(currentLevel, true) /* * RarityMultiplier*/;
 
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;
@@ -202,6 +280,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             health = maxHealth;
         }
+
         onSetHealth?.Invoke();
 
         for (int i = 0; i < characterReference.skills.Length; i++)
@@ -266,6 +345,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             rigAnim.Play("Super Critical");
         }
+
         GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
         var superCrit = characterReference.superCritical;
@@ -278,6 +358,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 break;
             }
         }
+
         IncomingDamage.isCritical = true;
         IncomingDamage.isSuperCritical = true;
         IncomingDamage.critDamageModifier = CritDamageModified;
@@ -375,10 +456,12 @@ public abstract class BaseCharacter : MonoBehaviour
                 SceneTweener.Instance.RotateBack();
                 break;
         }
+
         if (IncomingDamage.isCritical)
         {
             animHelper.DisableCrits();
         }
+
         battleSystem.FinishTurn();
     }
 
@@ -401,6 +484,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 finalCritChance += BattleSystem.QuickTimeCritModifier;
             }
         }
+
         OnCharacterCritChanceChanged?.Invoke();
         IncomingDamage.isCritical = UnityEngine.Random.value < finalCritChance;
         if (IncomingDamage.isCritical)
@@ -408,6 +492,7 @@ public abstract class BaseCharacter : MonoBehaviour
             IncomingDamage.isSuperCritical = finalCritChance >= 1.0f;
             animHelper.EnableCrits();
         }
+
         IncomingDamage.critDamageModifier = CritDamageModified;
     }
 
@@ -416,11 +501,15 @@ public abstract class BaseCharacter : MonoBehaviour
         return Mathf.Clamp(damage - (damage * defenseModifier), 1, int.MaxValue);
     }
 
-    public virtual void UseSkill(int index)
+    public virtual void UseSkill(GameSkill skill)
     {
+        //stupid solution. TODO: rework this without index. Just use the skill itself
+        var index = gameSkills.IndexOf(skill);
+
         currentSkill = gameSkills[index];
         StartCoroutine(SkillRoutine(index));
     }
+    
 
     List<BaseCharacter> targets = new List<BaseCharacter>();
 
@@ -464,6 +553,7 @@ public abstract class BaseCharacter : MonoBehaviour
                         targets.Add(enemyController.RandomEnemy);
                         break;
                 }
+
                 break;
             case TargetMode.OneEnemy:
                 switch (battleSystem.CurrentPhase)
@@ -475,6 +565,7 @@ public abstract class BaseCharacter : MonoBehaviour
                         targets.Add(battleSystem.EnemyAttackTarget);
                         break;
                 }
+
                 break;
             case TargetMode.AllAllies:
                 switch (battleSystem.CurrentPhase)
@@ -485,6 +576,7 @@ public abstract class BaseCharacter : MonoBehaviour
                             if (!battleSystem.PlayerCharacters[i]) continue;
                             targets.Add(battleSystem.PlayerCharacters[i]);
                         }
+
                         break;
                     case BattlePhases.EnemyTurn:
                         for (int i = 0; i < enemyController.Enemies.Length; i++)
@@ -492,8 +584,10 @@ public abstract class BaseCharacter : MonoBehaviour
                             if (!enemyController.Enemies[i]) continue;
                             targets.Add(enemyController.Enemies[i]);
                         }
+
                         break;
                 }
+
                 break;
             case TargetMode.AllEnemies:
                 switch (battleSystem.CurrentPhase)
@@ -504,6 +598,7 @@ public abstract class BaseCharacter : MonoBehaviour
                             if (!enemyController.Enemies[i]) continue;
                             targets.Add(enemyController.Enemies[i]);
                         }
+
                         break;
                     case BattlePhases.EnemyTurn:
                         for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
@@ -511,8 +606,10 @@ public abstract class BaseCharacter : MonoBehaviour
                             if (!battleSystem.PlayerCharacters[i]) continue;
                             targets.Add(battleSystem.PlayerCharacters[i]);
                         }
+
                         break;
                 }
+
                 break;
         }
 
@@ -529,9 +626,11 @@ public abstract class BaseCharacter : MonoBehaviour
                         EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
                         break;
                 }
+
                 ui.ExitSkillTargetMode();
                 break;
             }
+
             yield return null;
         }
 
@@ -550,6 +649,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
             SkillExecuteRoutine(skillUsed);
         }
+
         onSkillFoundTargets.Clear();
     }
 
@@ -610,7 +710,9 @@ public abstract class BaseCharacter : MonoBehaviour
         newEffect.remainingTurns = props.effectDuration;
         newEffect.strength = props.strength;
         newEffect.customValues = props.customValues;
-        newEffect.description = props.effect.GetEffectDescription(TargetMode.Self, props.strength, props.customValues, props.effectDuration);
+        newEffect.description =
+            props.effect.GetEffectDescription(TargetMode.Self, props.strength, props.customValues,
+                props.effectDuration);
         newEffect.description = newEffect.description.Remove(newEffect.description.IndexOf("("));
         character.ApplyEffect(newEffect);
     }
@@ -629,18 +731,21 @@ public abstract class BaseCharacter : MonoBehaviour
                     {
                         ApplyEffectToCharacter(effect, targets[j], currentSkill.referenceSkill.targetMode);
                     }
+
                     break;
                 case TargetMode.AllAllies:
                     for (int j = 0; j < BattleSystem.Instance.PlayerCharacters.Count; j++)
                     {
                         ApplyEffectToCharacter(effect, BattleSystem.Instance.PlayerCharacters[j], TargetMode.AllAllies);
                     }
+
                     break;
                 case TargetMode.AllEnemies:
                     for (int j = 0; j < enemyController.Enemies.Length; j++)
                     {
                         ApplyEffectToCharacter(effect, enemyController.Enemies[j], TargetMode.AllEnemies);
                     }
+
                     break;
                 case TargetMode.Self:
                     ApplyEffectToCharacter(effect, this, TargetMode.Self);
@@ -656,6 +761,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             onFinishApplyingSkillEffects[i]?.Invoke();
         }
+
         onFinishApplyingSkillEffects.Clear();
     }
 
@@ -667,6 +773,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             AppliedEffects.Add(newEffect.referenceEffect, new List<AppliedEffect>());
         }
+
         AppliedEffects[newEffect.referenceEffect].Add(newEffect);
         onApplyGameEffect?.Invoke(newEffect);
     }
@@ -702,7 +809,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 AppliedEffects[effect].RemoveAt(0);
             }
         }
-        else if (AppliedEffects[effect].Count > 1) 
+        else if (AppliedEffects[effect].Count > 1)
         {
             var newList = effect.TickMultiple(this, AppliedEffects[effect]);
             var diff = AppliedEffects[effect].Except(newList).ToList();
@@ -711,6 +818,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 onRemoveGameEffect?.Invoke(diff.ElementAt(i));
             }
+
             AppliedEffects[effect] = newList;
         }
 
@@ -777,12 +885,12 @@ public abstract class BaseCharacter : MonoBehaviour
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-            damage.damage = damage.damageNormalized * 
-                damage.source.AttackModified * 
-                damage.percentage *
-                effectiveness;
+            damage.damage = damage.damageNormalized *
+                            damage.source.AttackModified *
+                            damage.percentage *
+                            effectiveness;
         }
-        
+
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;
 
         float trueDamage = CalculateDefenseDamage(damage.damage);
@@ -829,6 +937,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 {
                     animHelper.EnableRagdollExplosion();
                 }
+
                 Die();
             }
             else
@@ -852,14 +961,17 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             newEffect.transform.SetParent(animHelper.SkeletonRoot);
         }
+
         if (destroyAutomatically)
         {
             Destroy(newEffect, 5);
         }
+
         return newEffect;
     }
 
-    public void PlayDamageShakeEffect(float normalizedDamage) => transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);
+    public void PlayDamageShakeEffect(float normalizedDamage) =>
+        transform.DOShakePosition(0.75f, Mathf.Lerp(0.025f, 0.25f, normalizedDamage), 30, 90, false, true);
 
     public virtual void InvokeDeathEvents()
     {

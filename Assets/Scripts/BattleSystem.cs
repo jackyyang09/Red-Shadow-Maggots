@@ -36,14 +36,28 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static float QuickTimeCritModifier = 0.15f;
 
     [SerializeField] BattlePhases currentPhase;
-    public BattlePhases CurrentPhase { get { return currentPhase; } }
+    [SerializeField] private SkillManagerUI _skillManagerUI;
+
+    public BattlePhases CurrentPhase
+    {
+        get { return currentPhase; }
+    }
+
     bool finishedTurn;
-    public bool FinishedTurn { get { return finishedTurn; } }
+
+    public bool FinishedTurn
+    {
+        get { return finishedTurn; }
+    }
+
     public void FinishTurn() => finishedTurn = true;
 
     [SerializeField] List<PlayerCharacter> playerCharacters = null;
 
-    public List<PlayerCharacter> PlayerCharacters { get { return playerCharacters; } }
+    public List<PlayerCharacter> PlayerCharacters
+    {
+        get { return playerCharacters; }
+    }
 
     public PlayerCharacter RandomPlayerCharacter
     {
@@ -59,6 +73,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     if (!PlayerCharacters[i].IsDead) p.Add(PlayerCharacters[i]);
                 }
             }
+
             if (p.Count == 0) return null;
             battleStateManager.InitializeRandom();
             return p[Random.Range(0, p.Count)];
@@ -76,12 +91,13 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     if (!playerCharacters[i].IsDead) return true;
                 }
             }
+
             return false;
         }
     }
 
     public List<BaseCharacter> AllCharacters
-    { 
+    {
         get
         {
             List<BaseCharacter> list = new List<BaseCharacter>(playerCharacters);
@@ -100,6 +116,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 case BattlePhases.PlayerTurn:
                     return playerTargets.player;
             }
+
             return enemyTargets.player;
         }
     }
@@ -113,12 +130,20 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 case BattlePhases.PlayerTurn:
                     return playerTargets.enemy;
             }
+
             return enemyTargets.enemy;
         }
     }
 
-    public PlayerCharacter EnemyAttackTarget { get { return enemyTargets.player; } }
-    public EnemyCharacter EnemyAttacker { get { return enemyTargets.enemy; } }
+    public PlayerCharacter EnemyAttackTarget
+    {
+        get { return enemyTargets.player; }
+    }
+
+    public EnemyCharacter EnemyAttacker
+    {
+        get { return enemyTargets.enemy; }
+    }
 
     public BaseCharacter OpposingCharacter
     {
@@ -129,6 +154,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 case BattlePhases.PlayerTurn:
                     return playerTargets.enemy;
             }
+
             return enemyTargets.player;
         }
     }
@@ -148,7 +174,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
-    
+
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
 
     public static System.Action[] OnStartPhase = new System.Action[(int)BattlePhases.Count];
@@ -167,6 +193,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
 
         SceneTweener.OnBattleEntered += EndTurn;
+        SkillManagerUI.OnSkillActivated += ActivateSkill;
     }
 
     private void OnDisable()
@@ -175,14 +202,15 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
 
         SceneTweener.OnBattleEntered -= EndTurn;
+        SkillManagerUI.OnSkillActivated -= ActivateSkill;
     }
 
     private IEnumerator Start()
     {
         screenEffects.BlackOut();
-    
+
         yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
-    
+
         if (!gachaSystem.LegacyMode)
         {
             yield return StartCoroutine(LoadBattleState());
@@ -247,7 +275,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 #endif
     }
 
-    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity, int level = 1, BattleState.PlayerState stateInfo = null)
+    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity, int level = 1,
+        BattleState.PlayerState stateInfo = null)
     {
         Transform spawnPos = null;
         switch (playerCharacters.Count)
@@ -320,6 +349,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                         break;
                     }
                 }
+
                 enemyTargets.player = playerTargets.player;
             }
         }
@@ -335,6 +365,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     var targetEnemy = playerTargets.enemy;
                     targetEnemy.SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                 }
+
                 playerTargets.enemy.TakeDamage();
                 break;
             case BattlePhases.EnemyTurn:
@@ -343,6 +374,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     var targetPlayer = enemyTargets.player;
                     targetPlayer.SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
                 }
+
                 enemyTargets.player.TakeDamage();
                 break;
         }
@@ -361,8 +393,10 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     {
                         enemies[i].SpawnEffectPrefab(playerTargets.player.Reference.attackEffectPrefab);
                     }
+
                     enemies[i].TakeDamage();
                 }
+
                 break;
             case BattlePhases.EnemyTurn:
                 for (int i = 0; i < playerCharacters.Count; i++)
@@ -371,21 +405,23 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     {
                         playerCharacters[i].SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
                     }
+
                     playerCharacters[i].TakeDamage();
                 }
+
                 break;
         }
     }
 
-    public void ActivateSkill(int index)
+    public void ActivateSkill(GameSkill skill)
     {
-        if (playerTargets.player.CanUseSkill(index))
+        if (playerTargets.player.CanUseSkill(skill))
         {
-            StartCoroutine(SkillUseSequence(index));
+            StartCoroutine(SkillUseSequence(skill));
         }
     }
 
-    IEnumerator SkillUseSequence(int index)
+    IEnumerator SkillUseSequence(GameSkill skill)
     {
         bool finished = false;
         float skillUseTime = 1.5f;
@@ -394,7 +430,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         playerTargets.player.RegisterOnSkillFoundTargets(() => finished = true);
 
         // Activate Skill
-        playerTargets.player.UseSkill(index);
+        playerTargets.player.UseSkill(skill);
 
         // Wait for player to activate skills
         while (!finished) yield return null;
@@ -426,18 +462,18 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         ui.ShowBattleUI();
     }
 
-    public void ActivateEnemySkill(EnemyCharacter enemy, int index)
+    public void ActivateEnemySkill(EnemyCharacter enemy, GameSkill skill)
     {
-        StartCoroutine(EnemySkillSequence(enemy, index));
+        StartCoroutine(EnemySkillSequence(enemy, skill));
     }
 
-    IEnumerator EnemySkillSequence(EnemyCharacter enemy, int index)
+    IEnumerator EnemySkillSequence(EnemyCharacter enemy, GameSkill skill)
     {
         bool finished = false;
         float skillUseTime = 1.5f;
 
         // Activate Skill
-        enemy.UseSkill(index);
+        enemy.UseSkill(skill);
 
         enemy.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
 
@@ -526,6 +562,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     currentPhase = BattlePhases.EnemyTurn;
                 }
                 else currentPhase = BattlePhases.BattleWin;
+
                 OnEndPhase[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
@@ -537,6 +574,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 }
                 else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
                 else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
+
                 enemyTargets.enemy.IncreaseChargeLevel();
                 OnEndPhase[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 SaveBattleState();
@@ -573,6 +611,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     waveManager.WaveCount++;
                     OnWaveClear?.Invoke();
                 }
+
                 break;
             case BattlePhases.BattleLose:
                 OnStartPhase[BattlePhases.BattleLose.ToInt()]?.Invoke();
@@ -596,6 +635,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 {
                     effects.Add(keys[j], new List<BaseCharacter>());
                 }
+
                 effects[keys[j]].Add(affectedCharacters[i]);
             }
         }
@@ -655,6 +695,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             Debug.Log("Gacha System is in Legacy Mode, not saving");
             return;
         }
+
         var data = battleStateManager.LoadedData;
 
         var partyData = new List<BattleState.PlayerState>();
@@ -690,6 +731,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     p.Cooldowns[j] = player.Skills[j].cooldownTimer;
                 }
             }
+
             partyData.Add(p);
 
             BattleState.EnemyState d = null;
@@ -712,8 +754,10 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     }
                 }
             }
+
             waveData.Add(d);
         }
+
         data.PlayerStates = partyData;
         data.EnemyStates = waveData;
 
@@ -754,6 +798,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     }
 
     #region Debug Hacks
+
     [IngameDebugConsole.ConsoleMethod(nameof(MaxPlayerCrit), "Set player characters crit chance to 100%")]
     public static void MaxPlayerCrit()
     {
@@ -761,16 +806,19 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             Instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
+
         Debug.Log("Crit rate maxed!");
     }
 
-    [IngameDebugConsole.ConsoleMethod(nameof(AddPlayerCrit), "Set player characters crit chance to a number from 0 to 1")]
+    [IngameDebugConsole.ConsoleMethod(nameof(AddPlayerCrit),
+        "Set player characters crit chance to a number from 0 to 1")]
     public static void AddPlayerCrit(float value)
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
             Instance.playerCharacters[i].ApplyCritChanceModifier(value);
         }
+
         Debug.Log("Added " + value + "% to player crit rate to!");
     }
 
@@ -782,6 +830,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             BaseCharacter.IncomingDamage.damage = Instance.playerCharacters[i].CurrentHealth - 1;
             Instance.playerCharacters[i].TakeDamage();
         }
+
         Debug.Log("Players damaged!");
     }
 
@@ -790,5 +839,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         Time.timeScale = value;
     }
+
     #endregion
 }

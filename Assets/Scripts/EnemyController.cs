@@ -6,6 +6,7 @@ using static Facade;
 public class EnemyController : BasicSingleton<EnemyController>
 {
     public EnemyCharacter[] Enemies { get; private set; }
+
     public EnemyCharacter RandomEnemy
     {
         get
@@ -18,6 +19,7 @@ public class EnemyController : BasicSingleton<EnemyController>
                     if (!Enemies[i].IsDead) e.Add(Enemies[i]);
                 }
             }
+
             if (e.Count == 0) return null;
             battleStateManager.InitializeRandom();
             return e[Random.Range(0, e.Count)];
@@ -35,13 +37,14 @@ public class EnemyController : BasicSingleton<EnemyController>
                     if (!Enemies[i].IsDead) return true;
                 }
             }
+
             return false;
         }
     }
 
 #if UNITY_EDITOR
-    [Header("Debug Options")]
-    [SerializeField] bool disableSkillUsage;
+    [Header("Debug Options")] [SerializeField]
+    bool disableSkillUsage;
 #endif
 
     public static System.Action OnChangedAttackers;
@@ -99,8 +102,9 @@ public class EnemyController : BasicSingleton<EnemyController>
 
         if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
         {
-            //if (enemy.CanUseSkill(index))
-            battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, Random.Range(0, 2));
+            GameSkill randomSkill =
+                battleSystem.ActiveEnemy.Skills[Random.Range(0, battleSystem.ActiveEnemy.Skills.Count)];
+            battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, randomSkill);
         }
         else
         {
@@ -128,6 +132,7 @@ public class EnemyController : BasicSingleton<EnemyController>
     }
 
     #region Debug Hacks
+
     [IngameDebugConsole.ConsoleMethod(nameof(CrippleEnemies), "Instantly hurt enemies, leaving them at 1 health")]
     public static void CrippleEnemies()
     {
@@ -137,6 +142,7 @@ public class EnemyController : BasicSingleton<EnemyController>
             BaseCharacter.IncomingDamage.damage = Instance.Enemies[i].CurrentHealth - 1;
             Instance.Enemies[i].TakeDamage();
         }
+
         Debug.Log("Enemies damaged!");
     }
 
@@ -148,6 +154,7 @@ public class EnemyController : BasicSingleton<EnemyController>
             if (!Instance.Enemies[i]) continue;
             Instance.Enemies[i].IncreaseChargeLevel(10);
         }
+
         Debug.Log("Enemy crit maxed!");
     }
 
@@ -159,6 +166,7 @@ public class EnemyController : BasicSingleton<EnemyController>
             if (!Instance.Enemies[i]) continue;
             Instance.Enemies[i].SetSkillUseChance(1);
         }
+
         Debug.Log("Set enemy skill chance to 100%!");
     }
 
@@ -170,7 +178,9 @@ public class EnemyController : BasicSingleton<EnemyController>
             if (!Instance.Enemies[i]) continue;
             Instance.Enemies[i].SetSkillUseChance(0);
         }
+
         Debug.Log("Enemies skill use disabled!");
     }
+
     #endregion
 }

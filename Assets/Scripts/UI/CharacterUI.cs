@@ -48,6 +48,7 @@ public class CharacterUI : BaseGameUI
     {
         designatedCharacter = character;
 
+
         classIcon.sprite = index.GetClassIcon(designatedCharacter.Reference.characterClass);
         nameText.text = designatedCharacter.Reference.characterName;
         levelLabel.text = character.CurrentLevel.ToString();
@@ -93,7 +94,6 @@ public class CharacterUI : BaseGameUI
     {
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
-        //UIManager.OnAttackCommit += UpdateUIState;
         UIManager.OnShowBattleUI += OptimizedCanvas.Show;
     }
 

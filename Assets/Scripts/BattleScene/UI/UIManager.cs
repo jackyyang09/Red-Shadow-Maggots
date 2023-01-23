@@ -1,36 +1,46 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Facade;
 
 public class UIManager : BasicSingleton<UIManager>
 {
     [SerializeField] Canvas viewPortBillboardCanvas = null;
-    public Canvas ViewportBillboardCanvas { get { return viewPortBillboardCanvas; } }
 
-    [Header("Battle System")]
-    [SerializeField] OptimizedButton attackButton = null;
+    public Canvas ViewportBillboardCanvas
+    {
+        get { return viewPortBillboardCanvas; }
+    }
+
+    [Header("Battle System")] [SerializeField]
+    OptimizedButton attackButton = null;
+
     [SerializeField] UICharacterDetails characterDetailsPanel = null;
     [SerializeField] QuickTimeBar offenseBar = null;
     [SerializeField] QuickTimeDefense defenseBar = null;
+
     [SerializeField] QuickTimeHold holdBar = null;
+
     //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
     [SerializeField] CharacterUI bossUI = null;
 
     [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
     [SerializeField] TMPro.TextMeshProUGUI turnCounter = null;
 
-    [Header("Skill System")]
-    [SerializeField] SkillDetailPanel skillPanel = null;
-    [SerializeField] SkillButtonUI[] skillButtons = null;
+    [Header("Skill System")] [SerializeField]
+    SkillDetailPanel skillPanel = null;
+
+    //[SerializeField] SkillButtonUI[] skillButtons = null;
     [SerializeField] OptimizedCanvas skillTargetMessage = null;
     [SerializeField] OptimizedButton skillBackButton = null;
 
-    [Header("System Objects")]
-    [SerializeField] OptimizedCanvas winCanvas = null;
+    [SerializeField] private SkillManagerUI _skillManagerUI;
+
+    [Header("System Objects")] [SerializeField]
+    OptimizedCanvas winCanvas = null;
+
     [SerializeField] OptimizedCanvas loseCanvas = null;
-    
+
     public bool CharacterPanelOpen { get; private set; }
 
     public static bool CanSelectPlayer = true;
@@ -56,6 +66,10 @@ public class UIManager : BasicSingleton<UIManager>
         GameManager.OnTurnCountChanged += UpdateTurnCounter;
 
         OnAttackCommit += HideBattleUI;
+
+        _skillManagerUI.Initialize(5);
+        _skillManagerUI.ShowDetails += ShowSkillDetails;
+        _skillManagerUI.HideDetails += HideSkillDetails;
     }
 
     private void OnDisable()
@@ -72,6 +86,9 @@ public class UIManager : BasicSingleton<UIManager>
         GameManager.OnTurnCountChanged -= UpdateTurnCounter;
 
         OnAttackCommit -= HideBattleUI;
+
+        _skillManagerUI.ShowDetails -= ShowSkillDetails;
+        _skillManagerUI.HideDetails -= HideSkillDetails;
     }
 
     void PlayButtonSound()
@@ -93,11 +110,8 @@ public class UIManager : BasicSingleton<UIManager>
         attackButton.Show();
         CanSelectPlayer = true;
 
-        foreach (SkillButtonUI button in skillButtons)
-        {
-            button.button.Show();
-            UpdateSkillGraphic(battleSystem.ActivePlayer);
-        }
+
+        UpdateSkillGraphic(battleSystem.ActivePlayer);
 
         OnShowBattleUI?.Invoke();
     }
@@ -107,10 +121,7 @@ public class UIManager : BasicSingleton<UIManager>
         attackButton.Hide();
         CanSelectPlayer = false;
 
-        foreach (SkillButtonUI button in skillButtons)
-        {
-            button.button.Hide();
-        }
+        _skillManagerUI.HideAllButtons();
 
         OnHideBattleUI?.Invoke();
     }
@@ -131,10 +142,7 @@ public class UIManager : BasicSingleton<UIManager>
     {
         if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            for (int i = 0; i < skillButtons.Length; i++)
-            {
-                skillButtons[i].UpdateStatus(obj.Skills[i]);
-            }
+            _skillManagerUI.SetSkills(obj.Skills);
         }
     }
 
@@ -147,10 +155,7 @@ public class UIManager : BasicSingleton<UIManager>
         if (waveManager.IsBossWave) bossUI.HideUI();
         attackButton.Hide();
 
-        foreach (SkillButtonUI button in skillButtons)
-        {
-            button.button.Hide();
-        }
+        _skillManagerUI.HideAllButtons();
 
         foreach (PlayerCharacter p in battleSystem.PlayerCharacters)
         {
@@ -188,9 +193,18 @@ public class UIManager : BasicSingleton<UIManager>
         battleSystem.ActiveEnemy.ShowSelectionCircle();
     }
 
-    public void ShowSkillDetails(int index)
+    private void ShowSkillDetails(GameSkill skill)
     {
-        skillPanel.UpdateDetails(battleSystem.ActivePlayer.Skills[index]);
+        var selectedSkill = battleSystem.ActivePlayer.Skills.FirstOrDefault(x => x == skill);
+        if (selectedSkill == null) return;
+
+        skillPanel.UpdateDetails(selectedSkill);
+        skillPanel.ShowPanel();
+    }
+
+    private void HideSkillDetails(GameSkill skill)
+    {
+        skillPanel.HidePanel();
     }
 
     public void AttackPress()
