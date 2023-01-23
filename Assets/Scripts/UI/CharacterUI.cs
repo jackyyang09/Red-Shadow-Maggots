@@ -13,20 +13,25 @@ public class CharacterUI : BaseGameUI
     [SerializeField] protected List<AppliedEffect> effects = new List<AppliedEffect>();
     List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
 
-    [Header("Crit Charge Bars")]
-    [SerializeField] GridLayoutGroup layoutGroup = null;
+    [Header("Crit Charge Bars")] [SerializeField]
+    GridLayoutGroup layoutGroup = null;
+
     [SerializeField] List<Image> chargeBars = new List<Image>();
     [SerializeField] Color chargeEmptyColor;
     [SerializeField] Color fullColor;
+    [SerializeField] private Color enemyChargeFillColor;
 
-    [Header("Crit Charge Fill")]
-    [SerializeField] float tweenTime = 0.35f;
+    [Header("Crit Charge Fill")] [SerializeField]
+    float tweenTime = 0.35f;
+
     [SerializeField] float barFlashSpeed = 0.5f;
     [SerializeField] TextMeshProUGUI chargeText = null;
     [SerializeField] Image chargeFill = null;
+    [SerializeField] private Color chargeFillColor;
 
-    [Header("Object References")]
-    [SerializeField] protected TextMeshProUGUI nameText = null;
+    [Header("Object References")] [SerializeField]
+    protected TextMeshProUGUI nameText = null;
+
     [SerializeField] protected TextMeshProUGUI levelLabel = null;
     [SerializeField] protected Image classIcon = null;
     [SerializeField] protected GameObject iconPrefab = null;
@@ -69,6 +74,7 @@ public class CharacterUI : BaseGameUI
         {
             playerCritCanvas.SetActive(!enemy);
         }
+
         if (enemyCritCanvas)
         {
             enemyCritCanvas.SetActive(enemy);
@@ -121,7 +127,8 @@ public class CharacterUI : BaseGameUI
         if (!player) return;
         if (chargeFill.fillAmount == 1)
         {
-            chargeFill.color = new Color(1, 1, 1, Mathf.PingPong(Time.time * barFlashSpeed, 1));
+            chargeFill.color = new Color(chargeFillColor.r, chargeFillColor.g, chargeFillColor.b,
+                Mathf.PingPong(Time.time * barFlashSpeed, 1));
         }
     }
 
@@ -143,7 +150,7 @@ public class CharacterUI : BaseGameUI
         {
             for (int i = 0; i < chargeLevel; i++)
             {
-                chargeBars[i].color = Color.white;
+                chargeBars[i].color = enemyChargeFillColor;
             }
 
             for (int i = chargeLevel; i < chargeBars.Count; i++)
@@ -163,7 +170,7 @@ public class CharacterUI : BaseGameUI
     private void UpdatePlayerCritCharge()
     {
         chargeFill.DOKill();
-        if (chargeFill.fillAmount < 1) chargeFill.color = Color.white;
+        if (chargeFill.fillAmount < 1) chargeFill.color = chargeFillColor;
         chargeFill.DOFillAmount(designatedCharacter.CritChanceModified, tweenTime).OnUpdate(() =>
         {
             chargeText.text = Mathf.RoundToInt(chargeFill.fillAmount * 100).ToString() + "%";

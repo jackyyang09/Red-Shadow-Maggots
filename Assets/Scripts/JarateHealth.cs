@@ -41,7 +41,7 @@ public class JarateHealth : MonoBehaviour
     }
 
     [ContextMenu(nameof(TweenLiquid))]
-    private void TweenLiquid()
+    private void TweenLiquid(float damage)
     {
         float lerpValue = character.GetHealthPercent();
         liquidTransform.DOLocalMoveY(Mathf.Lerp(liquidRange.x, liquidRange.y, lerpValue), liquidTweenTime).SetDelay(liquidTweenDelay);

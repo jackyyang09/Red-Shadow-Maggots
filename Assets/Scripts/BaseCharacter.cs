@@ -143,7 +143,7 @@ public abstract class BaseCharacter : MonoBehaviour
     /// Only invoked when changing health through abnormal means
     /// </summary>
     public Action onSetHealth;
-    public Action onTakeDamage;
+    public Action<float> onTakeDamage;
 
     public Action OnCharacterCritChanceChanged;
 
@@ -813,7 +813,7 @@ public abstract class BaseCharacter : MonoBehaviour
             }
         }
 
-        onTakeDamage?.Invoke();
+        onTakeDamage?.Invoke(trueDamage);
         OnCharacterReceivedDamage?.Invoke(this, trueDamage);
 
         if (health == 0 && CanDie)
