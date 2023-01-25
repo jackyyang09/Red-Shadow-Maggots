@@ -546,6 +546,7 @@ GameObject:
   - component: {fileID: 2718886670231448624}
   - component: {fileID: 2718886670231448630}
   - component: {fileID: 1568474547370131439}
+  - component: {fileID: 5618380293278081031}
   m_Layer: 5
   m_Name: Options Canvas
   m_TagString: Untagged
@@ -612,6 +613,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 1
   caster: {fileID: 2718886670231448630}
+  canvasGroup: {fileID: 5618380293278081031}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -707,6 +709,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!225 &5618380293278081031
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2718886670231448631}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2718886670409963272
 GameObject:
   m_ObjectHideFlags: 0
@@ -3454,6 +3468,7 @@ GameObject:
   - component: {fileID: 3156210338980474653}
   - component: {fileID: 3156210338980474626}
   - component: {fileID: 3156210338980474652}
+  - component: {fileID: 1026966828530712859}
   m_Layer: 5
   m_Name: Graphics Options
   m_TagString: Untagged
@@ -3546,6 +3561,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 0
   caster: {fileID: 3156210338980474652}
+  canvasGroup: {fileID: 1026966828530712859}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -3574,6 +3590,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &1026966828530712859
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3156210338980474625}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3156210339140753048
 GameObject:
   m_ObjectHideFlags: 0
@@ -5442,6 +5470,7 @@ GameObject:
   - component: {fileID: 3156210339737873518}
   - component: {fileID: 3156210339737873519}
   - component: {fileID: 3156210339737873513}
+  - component: {fileID: 1081430267455205712}
   m_Layer: 5
   m_Name: Volume Sliders
   m_TagString: Untagged
@@ -5504,7 +5533,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3156210339737873490}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 0}
@@ -5534,6 +5563,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 0
   caster: {fileID: 3156210339737873513}
+  canvasGroup: {fileID: 1081430267455205712}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -5562,6 +5592,18 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!225 &1081430267455205712
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3156210339737873490}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3156210339786815288
 GameObject:
   m_ObjectHideFlags: 0
