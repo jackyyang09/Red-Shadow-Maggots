@@ -10,24 +10,26 @@ using System;
 
 public class CanteenUI : BaseGameUI
 {
-    [Header("Animation Properties")]
-    [SerializeField] float uiTweenTime = 0.35f;
+    [Header("Animation Properties")] [SerializeField]
+    float uiTweenTime = 0.35f;
+
     [SerializeField] float distanceFromCamera = 0;
     [SerializeField] float canteenShakeTime = 0.25f;
     [SerializeField] int canteenShakeVibrato = 10;
     [SerializeField] float canteenScaleTime = 0.075f;
-    [SerializeField] Vector2 canteenShakeScale = new Vector2(150, 175);
+    [SerializeField] Vector2 canteenShakeScale = new Vector2(1.5f, 1.5f);
     [SerializeField] float canteenMaxSpeed = 10;
     [SerializeField] float canteenSmoothTime = 0.5f;
 
     [SerializeField] float filledAnimTime = 0.15f;
-    [SerializeField] Vector2 filledDestination;
+    [SerializeField] RectTransform filledDestination;
     [SerializeField] float filledScaleTime = 0.1f;
     [SerializeField] Ease filledEase = Ease.InOutExpo;
     Vector2 filledOrigin;
 
-    [Header("Object References")]
-    [SerializeField] Canvas viewportBillboardCanvas = null;
+    [Header("Object References")] [SerializeField]
+    Canvas viewportBillboardCanvas = null;
+
     [SerializeField] TextMeshProUGUI canteenChargeText = null;
     [SerializeField] TextMeshProUGUI canteenCountText = null;
     [SerializeField] RectTransform canteen = null;
@@ -35,7 +37,11 @@ public class CanteenUI : BaseGameUI
     [SerializeField] Image filledIcon = null;
     [SerializeField] GameObject[] canteenIcons = null;
     [SerializeField] Renderer canteenRenderer = null;
-    Transform canteenMesh { get { return canteenRenderer.transform.parent; } }
+
+    Transform canteenMesh
+    {
+        get { return canteenRenderer.transform.parent; }
+    }
 
     bool queueUpdate = false;
     void QueueUpdate() => queueUpdate = true;
@@ -76,7 +82,7 @@ public class CanteenUI : BaseGameUI
     public override void ShowUI()
     {
         optimizedCanvas.Show();
-        viewportBillboardCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+        //viewportBillboardCanvas.renderMode = RenderMode.ScreenSpaceCamera;
     }
 
     public override void HideUI()
@@ -86,16 +92,21 @@ public class CanteenUI : BaseGameUI
     }
 
     Vector3 canteenVelocity;
+
     private void Update()
     {
         if (canteenRenderer.enabled)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector3 mousePosition = Input.mousePosition;
+            mousePosition.z = distanceFromCamera;
+            canteenMesh.position = Camera.main.ScreenToWorldPoint(mousePosition);
+
+            /*Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Vector3 target = ray.origin + ray.direction * distanceFromCamera;
-            canteenMesh.position = Vector3.SmoothDamp(canteenMesh.position, target, 
+            canteenMesh.position = Vector3.SmoothDamp(canteenMesh.position, target,
                 ref canteenVelocity, canteenSmoothTime);
-            //canteenMesh.position = ray.origin + ray.direction * distanceFromCamera;
-            canteenMesh.LookAt(ray.origin);
+            //canteenMesh.position = ray.origin + ray.direction * distanceFromCamera;*/
+            canteenMesh.LookAt(Camera.main.transform.position);
         }
     }
 
@@ -130,12 +141,14 @@ public class CanteenUI : BaseGameUI
         {
             StopCoroutine(canteenRoutine);
         }
+
         canteenRoutine = StartCoroutine(CanteenRoutine());
     }
 
     float previousFill = 0;
     float previousCharge = 0;
     Coroutine canteenRoutine;
+
     IEnumerator CanteenRoutine()
     {
         if (!queueUpdate) yield return null;
@@ -157,10 +170,12 @@ public class CanteenUI : BaseGameUI
                 float time = Mathf.InverseLerp(0, chargeDiff, delta) * uiTweenTime;
                 if (diff == chargeDiff) time = uiTweenTime;
 
-                canteenFill.DOFillAmount(Mathf.InverseLerp(0, canteenSystem.ChargePerCanteen, fillProgress + delta), time)
+                canteenFill.DOFillAmount(Mathf.InverseLerp(0, canteenSystem.ChargePerCanteen, fillProgress + delta),
+                        time)
                     .OnUpdate(() =>
                     {
-                        canteenChargeText.text = (canteenFill.fillAmount * canteenSystem.ChargePerCanteen * 100).ToString("0.##") + "%";
+                        canteenChargeText.text =
+                            (canteenFill.fillAmount * canteenSystem.ChargePerCanteen * 100).ToString("0.##") + "%";
                     });
 
                 fillProgress = Mathf.Repeat(fillProgress + delta, canteenSystem.ChargePerCanteen);
@@ -169,21 +184,26 @@ public class CanteenUI : BaseGameUI
 
                 if (canteenFill.fillAmount == 1)
                 {
+                    filledIcon.color = Color.white;
                     filledIcon.enabled = true;
                     filledIcon.rectTransform.anchoredPosition = filledOrigin;
+                    canteenFill.fillAmount = 0;
 
-                    //filledIcon.rectTransform.DOSizeDelta(Vector3.one * 200, filledScaleTime);
-                    filledIcon.rectTransform.DOAnchorPos(filledDestination, filledAnimTime).SetEase(filledEase);
+
+                    //TODO: rewrite this. Icon must be moved not to center but to the correct place of new icon in layout
+                    Vector2 newPosition = filledDestination.transform.position;
+                    newPosition.x += (filledDestination.rect.width - filledIcon.rectTransform.rect.width);
+                    newPosition.y += (filledDestination.rect.height - filledIcon.rectTransform.rect.height);
+
+
+                    filledIcon.rectTransform.DOMove(newPosition, filledAnimTime)
+                        .SetEase(filledEase);
 
                     yield return new WaitForSeconds(filledAnimTime);
 
-                    //filledIcon.rectTransform.DOSizeDelta(Vector3.one * 125, filledScaleTime);
+                    filledIcon.DOFade(0, 0.2f).OnComplete(() => { filledIcon.enabled = false; });
 
-                    //yield return new WaitForSeconds(filledScaleTime);
 
-                    filledIcon.enabled = false;
-
-                    canteenFill.fillAmount = 0;
                     canteenChargeText.text = "0%";
                 }
 
@@ -192,11 +212,15 @@ public class CanteenUI : BaseGameUI
             }
 
             canteen.DOPunchRotation(new Vector3(0, 0, 10), canteenShakeTime, canteenShakeVibrato);
-            canteen.DOSizeDelta(Vector2.one * canteenShakeScale.y, canteenScaleTime);
 
+            canteen.DOScale(Vector3.one * 1.5f, canteenScaleTime);
             yield return new WaitForSeconds(canteenShakeTime);
+            canteen.DOScale(Vector3.one, canteenScaleTime);
 
-            canteen.DOSizeDelta(Vector2.one * canteenShakeScale.x, canteenScaleTime);
+            //Remove scaling for now
+            //canteen.DOSizeDelta(Vector2.one * canteenShakeScale.y, canteenScaleTime);
+            //yield return new WaitForSeconds(canteenShakeTime);
+            //canteen.DOSizeDelta(Vector2.one * canteenShakeScale.x, canteenScaleTime);
         }
 
         previousFill = fill;
@@ -230,6 +254,7 @@ public class CanteenUI : BaseGameUI
             canteenSystem.ReleaseCritCharge();
             AudioManager.PlaySound(BattleSceneSounds.CanteenDrop);
         }
+
         canteenRenderer.enabled = false;
         UpdateCanteenCount();
     }
