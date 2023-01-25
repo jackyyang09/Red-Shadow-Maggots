@@ -88,6 +88,7 @@ public class SkillManagerUI : MonoBehaviour
 
     /// <summary>
     /// Sets the specified skills to the skill buttons and updates their status.
+    /// Automatically hides the skill buttons that are not used.
     /// </summary>
     /// <param name="skills">The skills to be set to the skill buttons.</param>
     public void SetSkills(List<GameSkill> skills)

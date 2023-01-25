@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SkillDetailPanel : MonoBehaviour
 {
@@ -32,7 +33,12 @@ public class SkillDetailPanel : MonoBehaviour
     void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
     void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
 
-    public void ShowPanel() => canvas.Show();
+    public void ShowPanel()
+    {
+        //Rebuild layout before showing
+        StartCoroutine(RebuildAndShow());
+    }
+
     public void HidePanel() => canvas.Hide();
 
     private void OnDisable()
@@ -47,7 +53,6 @@ public class SkillDetailPanel : MonoBehaviour
         cooldownCount.text = skill.referenceSkill.skillCooldown.ToString() + " Turn Cooldown";
         description.text = "";
         var descriptions = skill.referenceSkill.GetSkillDescriptions();
-        int lineCount = descriptions.Length;
         for (int i = 0; i < descriptions.Length; i++)
         {
             description.text += "<color=#";
@@ -65,11 +70,19 @@ public class SkillDetailPanel : MonoBehaviour
                     description.text += debuffColourText;
                     break;
             }
-            description.text += ">" + descriptions[i] + "</color>\n";
-            if (descriptions[i].Length >= characterCountPerLine) lineCount++;
-        }
 
-        var rect = this.GetRectTransform();
-        rect.sizeDelta = new Vector2(rect.sizeDelta.x, Mathf.Max(minimumHeight + lineHeight * Mathf.Max(0, lineCount - 4), minimumHeight));
+            description.text += ">" + descriptions[i] + "</color>\n";
+        }
+    }
+
+    // Rebuild the layout of the panel using LayoutRebuilder
+    private IEnumerator RebuildAndShow()
+    {
+        yield return new WaitForEndOfFrame();
+        var rect = GetComponent<RectTransform>();
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+
+        canvas.Show();
     }
 }
