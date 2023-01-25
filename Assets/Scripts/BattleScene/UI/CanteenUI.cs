@@ -190,11 +190,7 @@ public class CanteenUI : BaseGameUI
                     canteenFill.fillAmount = 0;
 
 
-                    //TODO: rewrite this. Icon must be moved not to center but to the correct place of new icon in layout
                     Vector2 newPosition = filledDestination.transform.position;
-                    newPosition.x += (filledDestination.rect.width - filledIcon.rectTransform.rect.width);
-                    newPosition.y += (filledDestination.rect.height - filledIcon.rectTransform.rect.height);
-
 
                     filledIcon.rectTransform.DOMove(newPosition, filledAnimTime)
                         .SetEase(filledEase);
