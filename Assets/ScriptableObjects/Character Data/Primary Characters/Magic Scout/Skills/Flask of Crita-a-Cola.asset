@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Name: Flask of Crita-a-Cola
+  m_EditorClassIdentifier: 
+  skillName: Flask of Crita-a-Cola
+  skillDescription:
+  - +20% Attack to an Ally (3 Turns)
+  - +10% Attack Window to an Ally (3 Turns)
+  - +50% Crit Damage to an Ally (1 Turn)
+  sprite: {fileID: 21300000, guid: f0d46fcd65f23c0459f5624e2761be42, type: 3}
+  targetMode: 1
+  skillCooldown: 5
+  gameEffects:
+  - effect: {fileID: 0}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 3
+    customValues: []
+  - effect: {fileID: 11400000, guid: c89b508f30462ea4d8b2cf209be40559, type: 2}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 2
+    customValues: []
+  - effect: {fileID: 0}
+    effectDuration: 1
+    targetOverride: 0
+    strength: 5
+    customValues: []

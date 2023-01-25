@@ -48,7 +48,11 @@ public class BaseHealEffect : BaseGameEffect
         switch (strength)
         {
             case EffectStrength.Custom:
-                return (float)customValues[0];
+                if (customValues.Length == 0)
+                {
+                    return 0;
+                }
+                else return (float)customValues[0];
             case EffectStrength.Weak:
                 return 800;
             case EffectStrength.Small:

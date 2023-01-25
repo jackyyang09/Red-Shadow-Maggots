@@ -888,6 +888,7 @@ GameObject:
   - component: {fileID: 823785784762364569}
   - component: {fileID: 4726861826120899818}
   - component: {fileID: 1499040219160450033}
+  - component: {fileID: 5950824895251653970}
   m_Layer: 5
   m_Name: Stat Canvas
   m_TagString: Untagged
@@ -923,7 +924,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8367321456716707854}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 0}
@@ -992,6 +993,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 0
   caster: {fileID: 823785784762364569}
+  canvasGroup: {fileID: 5950824895251653970}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -1017,6 +1019,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardHolder: {fileID: 8435311092684703587}
   canvas: {fileID: 4726861826120899818}
+--- !u!225 &5950824895251653970
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8367321456716707854}
+  m_Enabled: 1
+  m_Alpha: 0
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8602564873635607559
 GameObject:
   m_ObjectHideFlags: 0

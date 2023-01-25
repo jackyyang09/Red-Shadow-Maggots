@@ -173,6 +173,7 @@ GameObject:
   - component: {fileID: 6001966049817774834}
   - component: {fileID: 6001966049817774829}
   - component: {fileID: 6001966049817774828}
+  - component: {fileID: 3308767099231010754}
   m_Layer: 5
   m_Name: SkillButton
   m_TagString: Untagged
@@ -302,7 +303,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6001966049817774840}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 2
   m_Camera: {fileID: 0}
@@ -332,6 +333,7 @@ MonoBehaviour:
   hideOnAwake: 1
   bakeLayoutOnStart: 0
   caster: {fileID: 6001966049817774839}
+  canvasGroup: {fileID: 3308767099231010754}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -461,6 +463,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   button: {fileID: 6001966049817774842}
   buttonSound: {fileID: 11400000, guid: 9f336690fd6068649af7b37577727af4, type: 2}
+--- !u!225 &3308767099231010754
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6001966049817774840}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6001966049949411981
 GameObject:
   m_ObjectHideFlags: 0

@@ -549,6 +549,7 @@ GameObject:
   - component: {fileID: 1148018416631128197}
   - component: {fileID: 1148018416631128195}
   - component: {fileID: 1148018416631128194}
+  - component: {fileID: 936547544609242143}
   m_Layer: 20
   m_Name: AnimatedElements
   m_TagString: Untagged
@@ -614,6 +615,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 0
   caster: {fileID: 0}
+  canvasGroup: {fileID: 936547544609242143}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -625,6 +627,18 @@ MonoBehaviour:
   onCanvasHide:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &936547544609242143
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1148018416631128196}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1148018416745927741
 GameObject:
   m_ObjectHideFlags: 0

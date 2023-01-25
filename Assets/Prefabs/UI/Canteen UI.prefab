@@ -1125,6 +1125,7 @@ GameObject:
   - component: {fileID: 8058268060431091214}
   - component: {fileID: 8058268060431091212}
   - component: {fileID: 8058268060431091215}
+  - component: {fileID: -5312717293891993980}
   m_Layer: 5
   m_Name: Canteen UI
   m_TagString: Untagged
@@ -1254,6 +1255,7 @@ MonoBehaviour:
   hideOnAwake: 0
   bakeLayoutOnStart: 0
   caster: {fileID: 8058268060431091214}
+  canvasGroup: {fileID: -5312717293891993980}
   transitions: []
   animation: {fileID: 0}
   onCanvasShow:
@@ -1265,6 +1267,18 @@ MonoBehaviour:
   onCanvasHide:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &-5312717293891993980
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8058268060431091217}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8058268060601948595
 GameObject:
   m_ObjectHideFlags: 0
