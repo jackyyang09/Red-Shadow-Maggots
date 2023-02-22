@@ -5,16 +5,39 @@ using UnityEditor;
 using JackysEditorHelpers;
 using System.IO;
 
-namespace TFTools
+namespace TF2Ls
 {
     public class TF2LsSettings : ScriptableObject
     {
+        [SerializeField] string packagePath;
+        public string PackagePath
+        {
+            get
+            {
+                if (!AssetDatabase.IsValidFolder(packagePath))
+                {
+                    CacheProjectPath();
+                }
+                return packagePath;
+            }
+        }
+
+        [ContextMenu(nameof(CacheProjectPath))]
+        public void CacheProjectPath()
+        {
+            var guids = AssetDatabase.FindAssets("t:" + nameof(TF2LsSettings).ToLower());
+            var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            packagePath = path.Remove(path.IndexOf("/Editor/TF2LsSettings.asset"));
+        }
+
+        public static string ResourcesPath => "Assets/Resources/TF2Ls Generated";
+
         [Tooltip("Font size of helper text")]
         [SerializeField] int helpTextSize = 10;
         public GUIStyle HelpTextStyle { get { return new GUIStyle(EditorStyles.helpBox).SetFontSize(helpTextSize); } }
 
         [SerializeField] string tfPath;
-        public string TFInstallPath { get { return tfPath; } }
+        public string TFInstallPath => tfPath;
         public bool TFInstallExists 
         { 
             get 

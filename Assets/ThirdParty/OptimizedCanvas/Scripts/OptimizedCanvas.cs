@@ -78,6 +78,7 @@ public class OptimizedCanvas : MonoBehaviour
     {
         get
         {
+            if (!gameObject.activeInHierarchy) return false;
             if (parent) return parent.IsVisible && canvasGroup.alpha > 0;
             else return canvasGroup.alpha > 0;
         }
@@ -146,6 +147,8 @@ public class OptimizedCanvas : MonoBehaviour
                 transitionOutTime = transitions[i].GetTransitionOutTime();
             }
         }
+
+        if (Raycaster) Raycaster.enabled = IsVisible;
     }
 
 #if UNITY_EDITOR
@@ -156,6 +159,7 @@ public class OptimizedCanvas : MonoBehaviour
         if (caster != GetComponent<GraphicRaycaster>()) caster = GetComponent<GraphicRaycaster>();
         if (canvasGroup != GetComponent<CanvasGroup>()) canvasGroup = GetComponent<CanvasGroup>();
         if (animation != GetComponent<OptimizedAnimationBase>()) animation = GetComponent<OptimizedAnimationBase>();
+        if (Raycaster) Raycaster.enabled = IsVisible;
     }
 
     public void RegisterUndo()

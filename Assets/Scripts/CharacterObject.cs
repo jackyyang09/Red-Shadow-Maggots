@@ -194,7 +194,7 @@ public class AttackStructDrawer : PropertyDrawer
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class CharacterObject : ScriptableObject
 {
-    public string characterName = null;
+    [ReadObjectName] public string characterName = null;
     public Sprite sprite = null;
     public Sprite headshotSprite = null;
 

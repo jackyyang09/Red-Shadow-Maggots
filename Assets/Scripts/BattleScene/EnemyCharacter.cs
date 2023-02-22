@@ -104,6 +104,17 @@ public class EnemyCharacter : BaseCharacter
         usedSkillThisTurn = false;
     }
 
+    public void DecreaseChargeLevel(int i = 1)
+    {
+        if (!usedSkillThisTurn || (usedSkillThisTurn && critLevel != Reference.turnsToCrit - 1))
+        {
+            critLevel = (int)Mathf.Clamp(critLevel - 1, 0, Reference.turnsToCrit + 1);
+            onCritLevelChanged?.Invoke(critLevel);
+        }
+
+        usedSkillThisTurn = false;
+    }
+
     public override void PlayAttackAnimation()
     {
         base.PlayAttackAnimation();

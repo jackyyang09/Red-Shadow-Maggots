@@ -498,7 +498,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual float CalculateDefenseDamage(float damage)
     {
-        return Mathf.Clamp(damage - (damage * defenseModifier), 1, int.MaxValue);
+        return Mathf.Clamp(damage * (1 - defenseModifier), 1, int.MaxValue);
     }
 
     public virtual void UseSkill(GameSkill skill)

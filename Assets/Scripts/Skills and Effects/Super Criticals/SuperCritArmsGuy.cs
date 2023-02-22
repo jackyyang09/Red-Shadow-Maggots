@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class SuperCritArmsGuy : SuperCriticalEffect
 {
+    public override void DealSuperCritDamage()
+    {
+        base.DealSuperCritDamage();
+    }
+
     public override void BeginSuperCritEffect()
     {
         BaseCharacter.IncomingDamage.qteResult = QuickTimeBase.QTEResult.Perfect;

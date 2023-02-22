@@ -7,6 +7,9 @@ namespace JackysEditorHelpers
 {
     public class EditorHelper : Editor
     {
+        public static Color ButtonPressedColor => GUI.color.Add(new Color(0.2f, 0.2f, 0.2f, 0));
+        public static Color ButtonColor => GUI.color.Subtract(new Color(0.2f, 0.2f, 0.2f, 0));
+
         public static string OpenSmartSaveFileDialog<T>(out T asset, string defaultName = "New Object", string startingPath = "Assets") where T : ScriptableObject
         {
             string savePath = EditorUtility.SaveFilePanel("Designate Save Path", startingPath, defaultName, "asset");
@@ -99,12 +102,21 @@ namespace JackysEditorHelpers
         public static void RenderSmartFolderProperty(GUIContent content, SerializedProperty folderProp, bool limitToAssetFolder = true, string panelTitle = "Specify a New Folder")
         {
             EditorGUILayout.BeginHorizontal();
-            SmartFolderField(content, folderProp, limitToAssetFolder);
+            SmartAssetField(content, folderProp, limitToAssetFolder);
             SmartBrowseButton(folderProp, limitToAssetFolder, panelTitle);
             EditorGUILayout.EndHorizontal();
         }
 
-        public static void SmartFolderField(GUIContent content, SerializedProperty folderProp, bool limitToAssetsFolder = true)
+        public static void RenderSmartFileProperty(GUIContent content, SerializedProperty folderProp, string extension, bool limitToAssetFolder = true, string panelTitle = "Specify a New Folder")
+        {
+            EditorGUILayout.BeginHorizontal();
+            SmartAssetField(content, folderProp, limitToAssetFolder);
+            if (!limitToAssetFolder) 
+                SmartBrowseButton(folderProp, extension, limitToAssetFolder, panelTitle);
+            EditorGUILayout.EndHorizontal();
+        }
+
+        public static void SmartAssetField(GUIContent content, SerializedProperty folderProp, bool limitToAssetsFolder = true)
         {
             string folderPath = folderProp.stringValue;
             //if (folderPath == string.Empty) folderPath = Application.dataPath;
@@ -341,6 +353,65 @@ namespace JackysEditorHelpers
             }
 
             EditorGUILayout.IntPopup(property, displayOptions, optionValues);
+        }
+
+        /// <summary>
+        /// Equivalent to the FileUtil version, but works with backslashes
+        /// </summary>
+        /// <returns></returns>
+        public static string GetProjectRelativePath(string path)
+        {
+            return FileUtil.GetProjectRelativePath(path.Replace('\\', '/'));
+        }
+
+        static Color guiColor;
+        public static void BeginColourChange(Color color)
+        {
+            guiColor = GUI.color;
+            GUI.color = color;
+        }
+
+        public static void EndColourChange() => GUI.color = guiColor;
+
+        static Color guiBackgroundColor;
+        public static void BeginBackgroundColourChange(Color color)
+        {
+            guiBackgroundColor = GUI.backgroundColor;
+            GUI.backgroundColor = color;
+        }
+
+        public static void EndBackgroundColourChange() => GUI.backgroundColor = guiBackgroundColor;
+    }
+
+    public static class Extensions
+    {
+        public static T[] GetKeysCached<T, U>(this Dictionary<T, U> d)
+        {
+            T[] keys = new T[d.Keys.Count];
+            d.Keys.CopyTo(keys, 0);
+            return keys;
+        }
+
+        public static Color Add(this Color thisColor, Color otherColor)
+        {
+            return new Color
+            {
+                r = Mathf.Clamp01(thisColor.r + otherColor.r),
+                g = Mathf.Clamp01(thisColor.g + otherColor.g),
+                b = Mathf.Clamp01(thisColor.b + otherColor.g),
+                a = Mathf.Clamp01(thisColor.a + otherColor.a)
+            };
+        }
+
+        public static Color Subtract(this Color thisColor, Color otherColor)
+        {
+            return new Color
+            {
+                r = Mathf.Clamp01(thisColor.r - otherColor.r),
+                g = Mathf.Clamp01(thisColor.g - otherColor.g),
+                b = Mathf.Clamp01(thisColor.b - otherColor.g),
+                a = Mathf.Clamp01(thisColor.a - otherColor.a)
+            };
         }
     }
 

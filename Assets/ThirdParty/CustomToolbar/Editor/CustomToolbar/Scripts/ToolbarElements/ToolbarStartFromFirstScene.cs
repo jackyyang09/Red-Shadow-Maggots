@@ -37,8 +37,9 @@ internal class ToolbarStartFromFirstScene : BaseToolbarElement {
 
 	private static void LogPlayModeState(PlayModeStateChange state) {
 		if (state == PlayModeStateChange.EnteredEditMode && EditorPrefs.HasKey("LastActiveSceneToolbar")) {
-			EditorSceneManager.OpenScene(
-				SceneUtility.GetScenePathByBuildIndex(EditorPrefs.GetInt("LastActiveSceneToolbar")));
+			var scenePath = SceneUtility.GetScenePathByBuildIndex(EditorPrefs.GetInt("LastActiveSceneToolbar"));
+			if (string.IsNullOrWhiteSpace(scenePath)) return;
+			EditorSceneManager.OpenScene(scenePath);
 			EditorPrefs.DeleteKey("LastActiveSceneToolbar");
 		}
 	}

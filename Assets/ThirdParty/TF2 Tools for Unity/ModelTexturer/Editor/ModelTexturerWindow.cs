@@ -6,7 +6,7 @@ using UnityEditor;
 using JackysEditorHelpers;
 using Ibasa.Valve.Vmt;
 
-namespace TFTools
+namespace TF2Ls
 {
     [CustomEditor(typeof(ModelTexturerData))]
     public class ModelTexturerEditor : Editor
@@ -142,7 +142,7 @@ namespace TFTools
         {
             if (SerializedObject != null) DesignateSerializedProperties();
             Undo.undoRedoPerformed += OnUndoRedo;
-            TFToolsAssPP.OnFinishImport = null;
+            TFToolsAssPP.OnTexturesImported = null;
         }
 
         private void OnUndoRedo() => GetWindow<ModelTexturerWindow>().Repaint();
@@ -150,7 +150,7 @@ namespace TFTools
         private void OnDisable()
         {
             Undo.undoRedoPerformed -= OnUndoRedo;
-            TFToolsAssPP.OnFinishImport = null;
+            TFToolsAssPP.OnTexturesImported = null;
         }
 
         #region SerializedProperties & Variables
@@ -345,9 +345,8 @@ namespace TFTools
         {
             string vmtFolder = Path.Combine(new string[] { "root", "materials" });
 
-            List<Renderer> renderers = new List<Renderer>();
-            if (localObject) renderers.AddRange(localObject.GetComponentsInChildren<Renderer>());
-            if (localRenderer) renderers.Add(localRenderer);
+            if (localObject) allRenderers.AddRange(localObject.GetComponentsInChildren<Renderer>());
+            if (localRenderer) allRenderers.Add(localRenderer);
 
             List<string> materialPaths = new List<string>();
             vmtsToImport = new List<string>();
@@ -363,6 +362,15 @@ namespace TFTools
                     processMaterialPath = (sharedMat) =>
                     {
                         string name = sharedMat.name + ".vmt";
+                        Team teamEnum = (Team)team.enumValueIndex;
+                        if (sharedMat.name.Contains("_red"))
+                        {
+                            if (teamEnum == Team.BLU)
+                            {
+                                name = name.Replace("_red", "_blue");
+                            }
+                        }
+
                         if (!vmtsToImport.Contains(name))
                         {
                             vmtsToImport.Add(name);
@@ -394,7 +402,7 @@ namespace TFTools
                             string defaultPath = Path.Combine(vmtFolder, "weapons", "c_items");
                             defaultPath = Path.Combine(defaultPath, name);
                             materialPaths.Add(defaultPath);
-                            if (teamEnum == Team.BLU) materialPaths.Add(Path.Combine(vmtFolder, Path.Combine(defaultPath, bluName))); ;
+                            if (teamEnum == Team.BLU) materialPaths.Add(Path.Combine(vmtFolder, Path.Combine(defaultPath, bluName)));
 
                             string workshopPath = Path.Combine(vmtFolder, "workshop", "weapons", "c_models");
                             workshopPath = Path.Combine(workshopPath, sharedMat.name);
@@ -451,7 +459,7 @@ namespace TFTools
                     break;
             }
 
-            foreach (var r in renderers)
+            foreach (var r in allRenderers)
             {
                 foreach (var sharedMat in r.sharedMaterials)
                 {
@@ -674,7 +682,7 @@ namespace TFTools
         }
 
         List<Material> existingMaterials;
-        List<Renderer> allRenderers;
+        List<Renderer> allRenderers = new List<Renderer>();
         List<string> materialsToGenerate;
         bool skipExistingMaterials;
 
@@ -735,9 +743,6 @@ namespace TFTools
                     texturesToIgnore, "Continue", "Cancel")) return;
             }
 
-            allRenderers = new List<Renderer>();
-            if (localObject != null) allRenderers.AddRange(localObject.GetComponentsInChildren<Renderer>());
-            if (localRenderer != null) allRenderers.Add(localRenderer);
             materialsToGenerate = new List<string>();
             existingMaterials = EditorHelper.ImportAssetsAtPath<Material>(generatedMaterialSavePath.stringValue);
             skipExistingMaterials = false;
@@ -746,6 +751,12 @@ namespace TFTools
                 for (int j = 0; j < allRenderers[i].sharedMaterials.Length; j++)
                 {
                     var matName = allRenderers[i].sharedMaterials[j].name;
+
+                    if ((ModelTexturerData.ModelType)modelType.enumValueIndex != ModelTexturerData.ModelType.Map)
+                    {
+                        if ((Team)team.enumValueIndex == Team.BLU) matName = matName.Replace("_red", "_blue");
+                    }
+
                     if (!materialsToGenerate.Contains(matName)) materialsToGenerate.Add(matName);
                 }
             }
@@ -802,9 +813,9 @@ namespace TFTools
 
             if (vtfs.Count > 0)
             {
-                TFToolsAssPP.OnFinishImport += (Texture2D[] tex) =>
+                TFToolsAssPP.OnTexturesImported += (Texture2D[] tex) =>
                 {
-                    TFToolsAssPP.OnFinishImport = null;
+                    TFToolsAssPP.OnTexturesImported = null;
                     textures.AddRange(tex);
                     ApplyTexturesToModel(textures);
                 };
@@ -818,6 +829,9 @@ namespace TFTools
         {
             // Dictionary of texture names to themselves
             Dictionary<string, Texture> textures = new Dictionary<string, Texture>();
+
+            newTextures = EditorHelper.ImportAssetsAtPath<Texture2D>(textureOutputFolderPath.stringValue);
+
             for (int i = 0; i < newTextures.Count; i++)
             {
                 textures.Add(newTextures[i].name, newTextures[i]);
@@ -877,9 +891,10 @@ namespace TFTools
                     // Find the VMT name that best matches the material name
                     for (int j = 0; j < valveKeys.Length; j++)
                     {
-                        if (matName.Contains(valveKeys[j]))
+                        string n = valveKeys[j];
+                        if (matName.Contains(n))
                         {
-                            if (matchingName.Length < valveKeys[j].Length) matchingName = valveKeys[j];
+                            if (matchingName.Length < n.Length) matchingName = n;
                         }
                     }
 
@@ -901,6 +916,7 @@ namespace TFTools
                     if (mat == null) continue;
 
                     string matName = mat.name;
+
                     if ((ModelTexturerData.ModelType)modelType.enumValueIndex != ModelTexturerData.ModelType.Map)
                     {
                         if ((Team)team.enumValueIndex == Team.BLU) matName = matName.Replace("_red", "_blue");
@@ -931,7 +947,6 @@ namespace TFTools
                         failedMaterials.Add(matName);
                         continue;
                     }
-
                     string vmtName = materialToVMT[matName];
 
                     Material newMat = null;
@@ -1101,23 +1116,6 @@ namespace TFTools
         void RenderSettings()
         {
             EditorGUILayout.PropertyField(showHelpText);
-        }
-    }
-
-    // haha
-    class TFToolsAssPP : AssetPostprocessor
-    {
-        public static System.Action<Texture2D[]> OnFinishImport;
-
-        static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths)
-        {
-            List<Texture2D> loadedTextures = new List<Texture2D>();
-            for (int i = 0; i < importedAssets.Length; i++)
-            {
-                var t = AssetDatabase.LoadAssetAtPath<Texture2D>(importedAssets[i]);
-                if (t) loadedTextures.Add(t);
-            }
-            OnFinishImport?.Invoke(loadedTextures.ToArray());
         }
     }
 }

@@ -9,7 +9,15 @@ public abstract class SuperCriticalEffect : MonoBehaviour
     [SerializeField] protected AnimationHelper animHelper = null;
     protected BaseCharacter baseCharacter { get { return animHelper.BaseCharacter; } }
 
-    public abstract void BeginSuperCritEffect();
+    public virtual void DealSuperCritDamage()
+    {
+
+    }
+
+    public virtual void BeginSuperCritEffect()
+    {
+
+    }
 
     public virtual void FinishSuperCritEffect()
     {

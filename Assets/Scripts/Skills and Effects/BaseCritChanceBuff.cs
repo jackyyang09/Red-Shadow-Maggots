@@ -7,10 +7,18 @@ public class BaseCritChanceBuff : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
-        if (effectType == EffectType.Debuff) percentageChange *= -1;
+        EnemyCharacter enemy = target as EnemyCharacter;
+        if (enemy)
+        {
+            enemy.DecreaseChargeLevel();
+        }
+        else
+        {
+            float percentageChange = (float)GetEffectStrength(strength, customValues);
+            if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyCritChanceModifier(percentageChange);
+            target.ApplyCritChanceModifier(percentageChange);
+        }
     }
 
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)

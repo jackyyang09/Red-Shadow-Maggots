@@ -10,22 +10,32 @@ public class OptimizedCanvasEditor : Editor
     OptimizedCanvas myScript;
 
     SerializedProperty caster;
-    SerializedProperty canvasGroup;
+
+    SerializedProperty onCanvasShow;
+    SerializedProperty onCanvasStartHide;
+    SerializedProperty onCanvasHide;
+
+    List<string> excludedProperties = new List<string>(new string[] { "m_Script" });
+
+    static string SHOWKEY = nameof(OptimizedCanvas) + nameof(SHOWKEY);
+    bool ShowUnityEvents
+    {
+        get => EditorPrefs.GetBool(SHOWKEY, true);
+        set => EditorPrefs.SetBool(SHOWKEY, value);
+    }
 
     private void OnEnable()
     {
         myScript = (OptimizedCanvas)target;
 
-        caster = serializedObject.FindProperty("caster");
-        canvasGroup = serializedObject.FindProperty(nameof(canvasGroup));
-
-        if (!myScript.CanvasGroup)
-        {
-            CanvasGroup cg = myScript.gameObject.GetComponent<CanvasGroup>();
-            if (!cg) cg = myScript.gameObject.AddComponent<CanvasGroup>();
-            canvasGroup.objectReferenceValue = cg;
-            serializedObject.ApplyModifiedProperties();
-        }
+        caster = serializedObject.FindProperty(nameof(caster));
+        excludedProperties.Add(nameof(caster));
+        onCanvasShow = serializedObject.FindProperty(nameof(onCanvasShow));
+        excludedProperties.Add(nameof(onCanvasShow));
+        onCanvasStartHide = serializedObject.FindProperty(nameof(onCanvasStartHide));
+        excludedProperties.Add(nameof(onCanvasStartHide));
+        onCanvasHide = serializedObject.FindProperty(nameof(onCanvasHide));
+        excludedProperties.Add(nameof(onCanvasHide));
     }
 
     public override void OnInspectorGUI()
@@ -98,7 +108,16 @@ public class OptimizedCanvasEditor : Editor
 
         EditorGUILayout.EndHorizontal();
 
-        DrawPropertiesExcluding(serializedObject, new string[] { "m_Script", "caster" });
+        DrawPropertiesExcluding(serializedObject, excludedProperties.ToArray());
+
+        ShowUnityEvents = EditorGUILayout.BeginFoldoutHeaderGroup(ShowUnityEvents, "Show Unity Events");
+        if (ShowUnityEvents)
+        {
+            EditorGUILayout.PropertyField(onCanvasShow);
+            EditorGUILayout.PropertyField(onCanvasStartHide);
+            EditorGUILayout.PropertyField(onCanvasHide);
+        }
+        EditorGUILayout.EndFoldoutHeaderGroup();
 
         if (serializedObject.hasModifiedProperties)
         {
