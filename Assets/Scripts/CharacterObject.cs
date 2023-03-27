@@ -174,17 +174,18 @@ public class AttackStructDrawer : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        float spacing = -10;
-
         var thirdRect = new Rect(position);
-        thirdRect.width = thirdRect.width / 3 - spacing;
+        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0);
+        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.4f);
         EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
-        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
+        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.425f);
+        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.725f);
         EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
-        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
-        thirdRect.width /= 2;
+        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.75f);
+        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
         EditorGUI.LabelField(thirdRect, new GUIContent("Is AOE?"));
-        thirdRect.position += new Vector2(thirdRect.width + spacing, 0);
+        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
+        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 1f);
         EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("isAOE"), GUIContent.none);
         EditorGUI.EndProperty();
     }
@@ -263,37 +264,38 @@ public class CharacterObject : ScriptableObject
     [Range(0, 1)] public float attackLeniency;
     [Range(0, 1)] public float defenseLeniency;
 
-    public SkillObject[] skills = null;
+    public SkillObject[] skills;
 
     public bool hasAltSkillAnimation = false;
 
-    public SkillObject superCritical = null;
+    public SkillObject superCritical;
 
     [Header("Animation Properties")]
-    public GameObject spriteObject = null;
-    public AnimatorOverrideController animator = null;
-    public GameObject characterRig = null;
+    public GameObject spriteObject;
+    public AnimatorOverrideController animator;
+    public GameObject characterRig;
     public AttackStruct[] attackAnimations;
     public AttackStruct[] enemyAttackAnimations;
 
     [Header("Effect Prefabs")]
-    public GameObject attackEffectPrefab = null;
-    public GameObject[] extraEffectPrefabs = null;
+    public GameObject attackEffectPrefab;
+    public GameObject[] projectileEffectPrefabs;
+    public GameObject[] extraEffectPrefabs;
 
     [Header("Audio File Voice Objects")]
-    public JSAMSoundFileObject voiceEntry = null;
-    public JSAMSoundFileObject voiceAttack = null;
-    public JSAMSoundFileObject voiceSelected = null;
-    public JSAMSoundFileObject voiceFirstSkill = null;
-    public JSAMSoundFileObject voiceSecondSkill = null;
-    public JSAMSoundFileObject voiceHurt = null;
-    public JSAMSoundFileObject voiceDeath = null;
-    public JSAMSoundFileObject voiceVictory = null;
+    public JSAMSoundFileObject voiceEntry;
+    public JSAMSoundFileObject voiceAttack;
+    public JSAMSoundFileObject voiceSelected;
+    public JSAMSoundFileObject voiceFirstSkill;
+    public JSAMSoundFileObject voiceSecondSkill;
+    public JSAMSoundFileObject voiceHurt;
+    public JSAMSoundFileObject voiceDeath;
+    public JSAMSoundFileObject voiceVictory;
 
     [Header("Audio File Sound Objects")]
-    public JSAMSoundFileObject weaponSound = null;
+    public JSAMSoundFileObject weaponSound;
 
-    public JSAMSoundFileObject[] extraSounds = null;
+    public JSAMSoundFileObject[] extraSounds;
 
 #if UNITY_EDITOR
     [ContextMenu(nameof(OpenStatWizard))]

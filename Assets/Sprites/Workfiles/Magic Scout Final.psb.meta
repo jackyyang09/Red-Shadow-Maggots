@@ -25,6 +25,7 @@ ScriptedImporter:
     streamingMipmaps: 1
     streamingMipmapsPriority: 0
     vTOnly: 0
+    ignoreMasterTextureLimit: 0
     nPOTScale: 1
     sRGBTexture: 1
     spriteMode: 2
@@ -43,6 +44,8 @@ ScriptedImporter:
     textureType: 8
     textureShape: 1
     singleChannelComponent: 0
+    flipbookRows: 0
+    flipbookColumns: 0
     ignorePngGamma: 0
     filterMode: 1
     aniso: 1
@@ -77,7 +80,6 @@ ScriptedImporter:
       width: 0
       height: 0
     spriteID: 
-    internalID: 0
     spriteBone: []
     spriteOutline: []
     vertices: []
@@ -101,13 +103,16 @@ ScriptedImporter:
       width: 343
       height: 312
     spriteID: 8e756455876b98a4c993e89cffdd538f
-    internalID: 0
     spriteBone:
     - name: Body
+      guid: 
       position: {x: 309.52893, y: -581.18335, z: 0}
       rotation: {x: 0, y: 0, z: 0.76831096, w: 0.6400768}
       length: 691.3692
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 274.04297, y: 0.45898438}
@@ -552,13 +557,16 @@ ScriptedImporter:
       width: 40
       height: 38
     spriteID: 422909c4499b2e941825f5d466015ce1
-    internalID: 0
     spriteBone:
     - name: Eyelid_L
+      guid: 
       position: {x: 12.502441, y: 19.54773, z: 0}
       rotation: {x: 0, y: 0, z: 0.7046732, w: 0.70953214}
       length: 10.559818
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 29.764038, y: 0.31200027}
@@ -885,13 +893,16 @@ ScriptedImporter:
       width: 53
       height: 44
     spriteID: 33e2c6b1fdf12794da86a7f50255e8d7
-    internalID: 0
     spriteBone:
     - name: Eyelid_R
+      guid: 
       position: {x: 22.420044, y: 20.682373, z: 0}
       rotation: {x: 0, y: 0, z: 0.71267885, w: 0.70149046}
       length: 10.697506
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 34.485962, y: 0.0720005}
@@ -1228,18 +1239,25 @@ ScriptedImporter:
       width: 68
       height: 25
     spriteID: bda4b67f75fca3a4297d6b11a3293beb
-    internalID: 0
     spriteBone:
     - name: Eyebrow_R_1
+      guid: 
       position: {x: 50.70491, y: 0.00004738789, z: 0}
       rotation: {x: 0, y: 0, z: 0.6317855, w: 0.77514327}
       length: 16.459782
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_R
+      guid: 
       position: {x: 9.100403, y: 19.560791, z: 0}
       rotation: {x: 0, y: 0, z: -0.14188999, w: 0.9898824}
       length: 50.704796
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 65.74402, y: 1.125}
@@ -1846,18 +1864,25 @@ ScriptedImporter:
       width: 74
       height: 27
     spriteID: 13cb6b5bafe412a4587455ac50f6a5d7
-    internalID: 0
     spriteBone:
     - name: Eyebrow_L
+      guid: 
       position: {x: 8.800598, y: 6.668579, z: 0}
       rotation: {x: 0, y: 0, z: 0.050401647, w: 0.9987291}
       length: 50.104855
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_L_1
+      guid: 
       position: {x: 50.104847, y: 0.00009840622, z: 0}
       rotation: {x: 0, y: 0, z: 0.33563343, w: 0.94199276}
       length: 13.847926
       parentId: 0
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 7.5629883, y: 0.36901855}
@@ -2546,13 +2571,16 @@ ScriptedImporter:
       width: 15
       height: 18
     spriteID: 9a3bb7257429ff1468e205415857fff9
-    internalID: 0
     spriteBone:
     - name: Iris_L
+      guid: 
       position: {x: 7.1307373, y: 5.8326416, z: 0}
       rotation: {x: 0, y: 0, z: 0.6488487, w: 0.76091754}
       length: 7.0283346
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 10.405029, y: 0.45202637}
@@ -2746,13 +2774,16 @@ ScriptedImporter:
       width: 13
       height: 17
     spriteID: df30b750074dd5b46b9e51f164f5717a
-    internalID: 0
     spriteBone:
     - name: Iris_R
+      guid: 
       position: {x: 7.458313, y: 6.671753, z: 0}
       rotation: {x: 0, y: 0, z: 0.69008636, w: 0.72372717}
       length: 5.8364387
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 11.278015, y: 0.27905273}
@@ -2955,13 +2986,16 @@ ScriptedImporter:
       width: 374
       height: 532
     spriteID: f82fddc2e00be9d43bffecf93befdc3b
-    internalID: 0
     spriteBone:
     - name: Head
+      guid: 
       position: {x: 144.62329, y: 141.53076, z: 0}
       rotation: {x: 0, y: 0, z: 0.7020042, w: 0.7121728}
       length: 188.91383
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 224.35901, y: 0.48303223}
@@ -3584,13 +3618,16 @@ ScriptedImporter:
       width: 239
       height: 307
     spriteID: d942491efaad9344b8fa0513bbe81b7e
-    internalID: 0
     spriteBone:
     - name: Neck
+      guid: 
       position: {x: 87.1012, y: 63.227417, z: 0}
       rotation: {x: 0, y: 0, z: 0.6051651, w: 0.7961}
       length: 179.24847
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 130.14099, y: 0.64801025}
@@ -4089,18 +4126,25 @@ ScriptedImporter:
       width: 500
       height: 732
     spriteID: 5ca96d70a742c2a4899604a0a862a7d3
-    internalID: 0
     spriteBone:
     - name: UpperArm_R_1
+      guid: 
       position: {x: -86.445984, y: 10.963989, z: 0}
       rotation: {x: 0, y: 0, z: 0.5317751, w: 0.8468857}
       length: 570.67346
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Hand_R
+      guid: 
       position: {x: 570.67346, y: -0.00013239295, z: 0}
       rotation: {x: 0, y: 0, z: -0.196989, w: 0.9804057}
       length: 162.22284
       parentId: 0
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 3.4559937, y: 1.7879944}
@@ -4997,13 +5041,16 @@ ScriptedImporter:
       width: 320
       height: 375
     spriteID: 9718715b966967e49bee015229b9e9fb
-    internalID: 0
     spriteBone:
     - name: UpperArm_R
+      guid: 
       position: {x: 305.73193, y: 159.58093, z: 0}
       rotation: {x: 0, y: 0, z: 0.98324573, w: 0.18228552}
       length: 420.09555
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 268.99, y: 1.09198}
@@ -5646,28 +5693,43 @@ ScriptedImporter:
       width: 964
       height: 1329
     spriteID: 129c8a5da79bb274b970560105774712
-    internalID: 0
     spriteBone:
     - name: CoatTail_L
+      guid: 
       position: {x: -103.29075, y: -187.51172, z: 0}
       rotation: {x: 0, y: 0, z: 0.9999988, w: 0.0015727213}
       length: 296.37885
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Body
+      guid: 
       position: {x: 413.64847, y: 11.782324, z: 0}
       rotation: {x: 0, y: 0, z: 0.082510166, w: 0.99659026}
       length: 691.36926
       parentId: 3
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: CoatTail_R
+      guid: 
       position: {x: -68.161705, y: 244.46312, z: 0}
       rotation: {x: 0, y: 0, z: 0.9791907, w: 0.20294215}
       length: 264.14056
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Root
+      guid: 
       position: {x: 664.0898, y: 8.41694, z: 0}
       rotation: {x: 0, y: 0, z: 0.71287835, w: 0.70128775}
       length: 102.942024
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 964, y: 0.47998047}
@@ -6355,13 +6417,16 @@ ScriptedImporter:
       width: 271
       height: 576
     spriteID: 91a004565e451d24688865048cf66e9b
-    internalID: 0
     spriteBone:
     - name: Hand_L
+      guid: 
       position: {x: 229.1012, y: 36.965088, z: 0}
       rotation: {x: 0, y: 0, z: 0.74356717, w: 0.6686613}
       length: 116.33585
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 248.034, y: 0.49804688}
@@ -7035,13 +7100,16 @@ ScriptedImporter:
       width: 485
       height: 274
     spriteID: 2b4c3ce48fe498f4dac5114c65b8d47c
-    internalID: 0
     spriteBone:
     - name: ForeArm_L
+      guid: 
       position: {x: 28.365234, y: 194.11212, z: 0}
       rotation: {x: 0, y: 0, z: -0.10222258, w: 0.9947615}
       length: 423.58853
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 310.42004, y: 3.2769928}
@@ -7515,13 +7583,16 @@ ScriptedImporter:
       width: 380
       height: 575
     spriteID: bcdb153847fa63c40ac510d4a1ba1f84
-    internalID: 0
     spriteBone:
     - name: UpperArm_L
+      guid: 
       position: {x: 104.98779, y: 492.5443, z: 0}
       rotation: {x: 0, y: 0, z: -0.62065345, w: 0.7840851}
       length: 380.59784
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 286.135, y: 0.73999023}
@@ -8004,13 +8075,16 @@ ScriptedImporter:
       width: 658
       height: 479
     spriteID: 0052ee049787e7b48bd1d00ad95f8991
-    internalID: 0
     spriteBone:
     - name: Root
+      guid: 
       position: {x: 356.08978, y: 8.416992, z: 0}
       rotation: {x: 0, y: 0, z: 0.71287835, w: 0.70128775}
       length: 102.942024
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     spriteOutline: []
     vertices:
     - position: {x: 657.386, y: 5.902954}
@@ -8444,302 +8518,188 @@ ScriptedImporter:
     tessellationDetail: 0
     parentGroupIndex: -1
     uvTransform: {x: -383, y: 1341}
-  platformSettings: []
-  mosaicLayers: 1
-  documentPivot: {x: 0, y: 0}
-  documentAlignment: 7
-  importHiddenLayers: 0
-  importedTextureWidth: 2048
-  importedTextureHeight: 2048
-  documentSize: {x: 1464, y: 2048}
-  paperDollMode: 0
-  keepDupilcateSpriteName: 0
-  spriteCategoryList:
-    categories: []
-  textureActualWidth: 2048
-  textureActualHeight: 2048
-  spritePackingTag: 
-  resliceFromLayer: 0
-  characterMode: 1
-  mosaicPSDLayers: []
-  rigPSDLayers:
-  - name: Workfiles Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: -1
-    spriteID: 00000000000000000000000000000000
-    layerID: 0
-    mosaicPosition: {x: 0, y: 0}
-  - name: UpperBody Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 0
-    spriteID: 00000000000000000000000000000000
-    layerID: 1688165623
-    mosaicPosition: {x: 0, y: 0}
-  - name: Collar
-    spriteName: Collar
-    isGroup: 0
-    parentIndex: 1
-    spriteID: 8e756455876b98a4c993e89cffdd538f
-    layerID: 1475401103
-    mosaicPosition: {x: 1484, y: 669}
-  - name: Neck Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 1
-    spriteID: 00000000000000000000000000000000
-    layerID: 330219606
-    mosaicPosition: {x: 0, y: 0}
-  - name: Head Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 3
-    spriteID: 00000000000000000000000000000000
-    layerID: -1359532755
-    mosaicPosition: {x: 0, y: 0}
-  - name: Eyelid_L Copy
-    spriteName: Eyelid_L Copy
-    isGroup: 0
-    parentIndex: 4
-    spriteID: 422909c4499b2e941825f5d466015ce1
-    layerID: 1699580476
-    mosaicPosition: {x: 1977, y: 56}
-  - name: Eyelid_R Copy
-    spriteName: Eyelid_R Copy
-    isGroup: 0
-    parentIndex: 4
-    spriteID: 33e2c6b1fdf12794da86a7f50255e8d7
-    layerID: 869898414
-    mosaicPosition: {x: 1977, y: 4}
-  - name: Eyebrows Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 4
-    spriteID: 00000000000000000000000000000000
-    layerID: -521610421
-    mosaicPosition: {x: 0, y: 0}
-  - name: Eyebrow_L Copy
-    spriteName: Eyebrow_L Copy
-    isGroup: 0
-    parentIndex: 7
-    spriteID: bda4b67f75fca3a4297d6b11a3293beb
-    layerID: -1769691913
-    mosaicPosition: {x: 752, y: 1925}
-  - name: Eyebrow_R Copy
-    spriteName: Eyebrow_R Copy
-    isGroup: 0
-    parentIndex: 7
-    spriteID: 13cb6b5bafe412a4587455ac50f6a5d7
-    layerID: -1769689767
-    mosaicPosition: {x: 670, y: 1925}
-  - name: Iris_R Copy
-    spriteName: Iris_R Copy
-    isGroup: 0
-    parentIndex: 4
-    spriteID: 9a3bb7257429ff1468e205415857fff9
-    layerID: -660806427
-    mosaicPosition: {x: 828, y: 1925}
-  - name: Iris_L Copy
-    spriteName: Iris_L Copy
-    isGroup: 0
-    parentIndex: 4
-    spriteID: df30b750074dd5b46b9e51f164f5717a
-    layerID: -1424712941
-    mosaicPosition: {x: 851, y: 1925}
-  - name: Head
-    spriteName: Head
-    isGroup: 0
-    parentIndex: 4
-    spriteID: f82fddc2e00be9d43bffecf93befdc3b
-    layerID: -158744160
-    mosaicPosition: {x: 976, y: 1327}
-  - name: Neck
-    spriteName: Neck
-    isGroup: 0
-    parentIndex: 3
-    spriteID: d942491efaad9344b8fa0513bbe81b7e
-    layerID: -2081058657
-    mosaicPosition: {x: 1484, y: 989}
-  - name: Arm_r Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 1
-    spriteID: 00000000000000000000000000000000
-    layerID: -1917193538
-    mosaicPosition: {x: 0, y: 0}
-  - name: ForeArm_R
-    spriteName: ForeArm_R
-    isGroup: 0
-    parentIndex: 14
-    spriteID: 5ca96d70a742c2a4899604a0a862a7d3
-    layerID: 1608083353
-    mosaicPosition: {x: 976, y: 4}
-  - name: UpperArm_R
-    spriteName: UpperArm_R
-    isGroup: 0
-    parentIndex: 14
-    spriteID: 9718715b966967e49bee015229b9e9fb
-    layerID: -866144155
-    mosaicPosition: {x: 1484, y: 286}
-  - name: Body
-    spriteName: Body
-    isGroup: 0
-    parentIndex: 1
-    spriteID: 129c8a5da79bb274b970560105774712
-    layerID: -911352830
-    mosaicPosition: {x: 4, y: 4}
-  - name: UpperArm_L Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 1
-    spriteID: 00000000000000000000000000000000
-    layerID: 852979544
-    mosaicPosition: {x: 0, y: 0}
-  - name: UpperArm_L Copy 2
-    spriteName: 
-    isGroup: 1
-    parentIndex: 18
-    spriteID: 00000000000000000000000000000000
-    layerID: -491524630
-    mosaicPosition: {x: 0, y: 0}
-  - name: ForeArm_L Copy
-    spriteName: 
-    isGroup: 1
-    parentIndex: 19
-    spriteID: 00000000000000000000000000000000
-    layerID: -1594887578
-    mosaicPosition: {x: 0, y: 0}
-  - name: Hand_L Copy
-    spriteName: Hand_L Copy
-    isGroup: 0
-    parentIndex: 20
-    spriteID: 91a004565e451d24688865048cf66e9b
-    layerID: -450176923
-    mosaicPosition: {x: 670, y: 1341}
-  - name: ForeArm_L
-    spriteName: ForeArm_L
-    isGroup: 0
-    parentIndex: 20
-    spriteID: 2b4c3ce48fe498f4dac5114c65b8d47c
-    layerID: 1608083355
-    mosaicPosition: {x: 1484, y: 4}
-  - name: UpperArm_L
-    spriteName: UpperArm_L
-    isGroup: 0
-    parentIndex: 19
-    spriteID: bcdb153847fa63c40ac510d4a1ba1f84
-    layerID: -2028943569
-    mosaicPosition: {x: 976, y: 744}
-  - name: Legs
-    spriteName: Legs
-    isGroup: 0
-    parentIndex: 0
-    spriteID: 0052ee049787e7b48bd1d00ad95f8991
-    layerID: 1857678349
-    mosaicPosition: {x: 4, y: 1341}
   characterData:
     bones:
     - name: Root
+      guid: 
       position: {x: 743.0898, y: 8.41694, z: 0}
       rotation: {x: 0, y: 0, z: 0.71287835, w: 0.70128775}
       length: 102.94201
       parentId: -1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Body
+      guid: 
       position: {x: 413.6484, y: 11.78229, z: 0}
       rotation: {x: 0, y: 0, z: 0.08251015, w: 0.99659026}
       length: 691.3692
       parentId: 0
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: CoatTail_R
+      guid: 
       position: {x: -68.161705, y: 244.46312, z: 0}
       rotation: {x: 0, y: -0, z: 0.97919077, w: 0.20294212}
       length: 264.14053
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: CoatTail_L
+      guid: 
       position: {x: -103.29071, y: -187.51172, z: 0}
       rotation: {x: 0, y: -0, z: 0.9999988, w: 0.0015726838}
       length: 296.37888
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: UpperArm_R
+      guid: 
       position: {x: 691.11035, y: 298.8952, z: 0}
       rotation: {x: 0, y: 0, z: 0.4893008, w: 0.87211514}
       length: 420.0957
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: UpperArm_R_1
+      guid: 
       position: {x: 421.0974, y: -2.6086757, z: 0}
       rotation: {x: 0, y: -0, z: -0.73576176, w: 0.67724055}
       length: 570.6734
       parentId: 4
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Neck
+      guid: 
       position: {x: 677.0213, y: -2.8921862, z: 0}
       rotation: {x: 0, y: 0, z: -0.2243002, w: 0.9745201}
       length: 179.24847
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Head
+      guid: 
       position: {x: 190.88828, y: 8.873671, z: 0}
       rotation: {x: 0, y: 0, z: 0.12788343, w: 0.9917892}
       length: 188.91382
       parentId: 6
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: UpperArm_L
+      guid: 
       position: {x: 559.483, y: -301.4606, z: 0}
       rotation: {x: 0, y: -0, z: -0.99968696, w: 0.025019852}
       length: 380.59787
       parentId: 1
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: ForeArm_L
+      guid: 
       position: {x: 380.59793, y: 0.00017131225, z: 0}
       rotation: {x: 0, y: 0, z: 0.537251, w: 0.8434225}
       length: 423.58847
       parentId: 8
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Hand_L
+      guid: 
       position: {x: 423.5885, y: -0.00015038784, z: 0}
       rotation: {x: 0, y: 0, z: 0.8080243, w: 0.58914924}
       length: 116.33584
       parentId: 9
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyelid_R
+      guid: 
       position: {x: 73.57252, y: -28.741747, z: 0}
       rotation: {x: 0, y: 0, z: 0.015101238, w: 0.999886}
       length: 10.697505
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyelid_L
+      guid: 
       position: {x: 64.89251, y: -129.95949, z: 0}
       rotation: {x: 0, y: 0, z: 0.0037545306, w: 0.99999297}
       length: 10.559819
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_R
+      guid: 
       position: {x: 124.340416, y: -20.691221, z: 0}
       rotation: {x: 0, y: -0, z: -0.7959518, w: 0.60536003}
       length: 50.704796
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_R_1
+      guid: 
       position: {x: 50.70481, y: -0.000025124707, z: 0}
       rotation: {x: 0, y: 0, z: 0.63178545, w: 0.7751433}
       length: 16.459782
       parentId: 13
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_L
+      guid: 
       position: {x: 97.884796, y: -120.782196, z: 0}
       rotation: {x: 0, y: 0, z: -0.66521734, w: 0.74664986}
       length: 50.104843
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Eyebrow_L_1
+      guid: 
       position: {x: 50.10486, y: 0.00011674992, z: 0}
       rotation: {x: 0, y: 0, z: 0.3356334, w: 0.9419927}
       length: 13.847923
       parentId: 15
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Iris_R
+      guid: 
       position: {x: 61.14572, y: -138.97011, z: 0}
       rotation: {x: 0, y: 0, z: -0.016598769, w: 0.9998623}
       length: 5.8364396
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Iris_L
+      guid: 
       position: {x: 68.92045, y: -42.520763, z: 0}
       rotation: {x: 0, y: 0, z: -0.07207489, w: 0.9973992}
       length: 7.028334
       parentId: 7
+      color:
+        serializedVersion: 2
+        rgba: 0
     - name: Hand_R
+      guid: 
       position: {x: 570.6734, y: 0.000009345727, z: 0}
       rotation: {x: 0, y: 0, z: -0.196989, w: 0.9804057}
       length: 162.22282
       parentId: 5
+      color:
+        serializedVersion: 2
+        rgba: 0
     parts:
     - spritePosition:
         x: 415
@@ -8887,8 +8847,286 @@ ScriptedImporter:
       order: 0
     dimension: {x: 0, y: 0}
     characterGroups: []
+    boneReadOnly: 0
+  sharedRigSpriteImportData: []
+  sharedRigCharacterData:
+    bones: []
+    parts: []
+    dimension: {x: 0, y: 0}
+    characterGroups: []
+    boneReadOnly: 0
+  platformSettings: []
+  mosaicLayers: 1
+  characterMode: 1
+  documentPivot: {x: 0, y: 0}
+  documentAlignment: 7
+  importHiddenLayers: 0
+  layerMappingOption: 2
+  generatePhysicsShape: 0
+  paperDollMode: 0
+  keepDupilcateSpriteName: 0
+  skeletonAssetReferenceID: 
+  spriteCategoryList:
+    categories: []
+  spritePackingTag: 
+  resliceFromLayer: 0
+  mosaicPSDLayers: []
+  rigPSDLayers:
+  - name: Workfiles Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: -1
+    spriteID: 5745f577ef128e64aa9ef999e4f4768d
+    layerID: 0
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: UpperBody Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 0
+    spriteID: 62232f638c2dd77419b44351c7f73ecf
+    layerID: 1688165623
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: Collar
+    spriteName: Collar
+    isGroup: 0
+    parentIndex: 1
+    spriteID: 8e756455876b98a4c993e89cffdd538f
+    layerID: 1475401103
+    mosaicPosition: {x: 1484, y: 669}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Neck Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 1
+    spriteID: 7664caccfcc372e40a66f86840923f32
+    layerID: 330219606
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: Head Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 3
+    spriteID: 68b447c46f464c54f9592dd6cdc4e194
+    layerID: -1359532755
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: Eyelid_L Copy
+    spriteName: Eyelid_L Copy
+    isGroup: 0
+    parentIndex: 4
+    spriteID: 422909c4499b2e941825f5d466015ce1
+    layerID: 1699580476
+    mosaicPosition: {x: 1977, y: 56}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Eyelid_R Copy
+    spriteName: Eyelid_R Copy
+    isGroup: 0
+    parentIndex: 4
+    spriteID: 33e2c6b1fdf12794da86a7f50255e8d7
+    layerID: 869898414
+    mosaicPosition: {x: 1977, y: 4}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Eyebrows Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 4
+    spriteID: 56ccedb61474be94a81142a2ea06d01c
+    layerID: -521610421
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: Eyebrow_L Copy
+    spriteName: Eyebrow_L Copy
+    isGroup: 0
+    parentIndex: 7
+    spriteID: bda4b67f75fca3a4297d6b11a3293beb
+    layerID: -1769691913
+    mosaicPosition: {x: 752, y: 1925}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Eyebrow_R Copy
+    spriteName: Eyebrow_R Copy
+    isGroup: 0
+    parentIndex: 7
+    spriteID: 13cb6b5bafe412a4587455ac50f6a5d7
+    layerID: -1769689767
+    mosaicPosition: {x: 670, y: 1925}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Iris_R Copy
+    spriteName: Iris_R Copy
+    isGroup: 0
+    parentIndex: 4
+    spriteID: 9a3bb7257429ff1468e205415857fff9
+    layerID: -660806427
+    mosaicPosition: {x: 828, y: 1925}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Iris_L Copy
+    spriteName: Iris_L Copy
+    isGroup: 0
+    parentIndex: 4
+    spriteID: df30b750074dd5b46b9e51f164f5717a
+    layerID: -1424712941
+    mosaicPosition: {x: 851, y: 1925}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Head
+    spriteName: Head
+    isGroup: 0
+    parentIndex: 4
+    spriteID: f82fddc2e00be9d43bffecf93befdc3b
+    layerID: -158744160
+    mosaicPosition: {x: 976, y: 1327}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Neck
+    spriteName: Neck
+    isGroup: 0
+    parentIndex: 3
+    spriteID: d942491efaad9344b8fa0513bbe81b7e
+    layerID: -2081058657
+    mosaicPosition: {x: 1484, y: 989}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Arm_r Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 1
+    spriteID: fa0a1557af900024ebded08a2c7c3111
+    layerID: -1917193538
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: ForeArm_R
+    spriteName: ForeArm_R
+    isGroup: 0
+    parentIndex: 14
+    spriteID: 5ca96d70a742c2a4899604a0a862a7d3
+    layerID: 1608083353
+    mosaicPosition: {x: 976, y: 4}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: UpperArm_R
+    spriteName: UpperArm_R
+    isGroup: 0
+    parentIndex: 14
+    spriteID: 9718715b966967e49bee015229b9e9fb
+    layerID: -866144155
+    mosaicPosition: {x: 1484, y: 286}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Body
+    spriteName: Body
+    isGroup: 0
+    parentIndex: 1
+    spriteID: 129c8a5da79bb274b970560105774712
+    layerID: -911352830
+    mosaicPosition: {x: 4, y: 4}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: UpperArm_L Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 1
+    spriteID: 471744f2dd2474c4893def8264df3bad
+    layerID: 852979544
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: UpperArm_L Copy 2
+    spriteName: 
+    isGroup: 1
+    parentIndex: 18
+    spriteID: 56f0c057bdb686942812c518a2fcf532
+    layerID: -491524630
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: ForeArm_L Copy
+    spriteName: 
+    isGroup: 1
+    parentIndex: 19
+    spriteID: abeca4fc4ccb3d745990b41e740ab5c4
+    layerID: -1594887578
+    mosaicPosition: {x: 0, y: 0}
+    flatten: 0
+    isImported: 0
+    isVisible: 1
+  - name: Hand_L Copy
+    spriteName: Hand_L Copy
+    isGroup: 0
+    parentIndex: 20
+    spriteID: 91a004565e451d24688865048cf66e9b
+    layerID: -450176923
+    mosaicPosition: {x: 670, y: 1341}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: ForeArm_L
+    spriteName: ForeArm_L
+    isGroup: 0
+    parentIndex: 20
+    spriteID: 2b4c3ce48fe498f4dac5114c65b8d47c
+    layerID: 1608083355
+    mosaicPosition: {x: 1484, y: 4}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: UpperArm_L
+    spriteName: UpperArm_L
+    isGroup: 0
+    parentIndex: 19
+    spriteID: bcdb153847fa63c40ac510d4a1ba1f84
+    layerID: -2028943569
+    mosaicPosition: {x: 976, y: 744}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  - name: Legs
+    spriteName: Legs
+    isGroup: 0
+    parentIndex: 0
+    spriteID: 0052ee049787e7b48bd1d00ad95f8991
+    layerID: 1857678349
+    mosaicPosition: {x: 4, y: 1341}
+    flatten: 0
+    isImported: 1
+    isVisible: 1
+  sharedRigPSDLayers: []
+  pSDLayerImportSetting: []
   generateGOHierarchy: 1
   textureAssetName: Magic Scout Final Texture
   prefabAssetName: Magic Scout Final Prefab
   spriteLibAssetName: Magic Scout Final Sprite Lib
+  skeletonAssetName: 
   secondarySpriteTextures: []

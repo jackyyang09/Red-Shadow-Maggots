@@ -4,46 +4,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
-using System;
-#if UNITY_EDITOR
-using UnityEditor;
-
-[CustomEditor(typeof(AnimationHelper))]
-public class AnimationHelperEditor : Editor
-{
-    Cinemachine.CinemachineVirtualCamera vCam;
-
-    private void OnEnable()
-    {
-        EditorApplication.update += Update;
-
-        vCam = serializedObject.FindProperty(nameof(vCam)).objectReferenceValue as Cinemachine.CinemachineVirtualCamera;
-    }
-
-    private void OnDisable()
-    {
-        EditorApplication.update -= Update;
-    }
-
-    private void Update()
-    {
-        if (AnimationMode.InAnimationMode())
-        {
-            vCam.enabled = true;
-        }
-        else
-        {
-            vCam.enabled = false;
-        }
-    }
-}
-
-#endif
 
 public class AnimationHelper : MonoBehaviour
 {
     BaseCharacter baseCharacter;
     public BaseCharacter BaseCharacter { get { return baseCharacter; } }
+
+    [Header("Effect Properties")]
+    [SerializeField] Transform[] projectileOrigins;
 
     [Header("Knockback Properties")]
 
@@ -291,6 +259,23 @@ public class AnimationHelper : MonoBehaviour
         sceneTweener.LerpCamera.transform.position = vCam.transform.position;
         sceneTweener.RotateBackInstantly();
         Invoke(nameof(DisableLerpCam), 0.01f);
+    }
+
+    List<Projectile> spawnedProjectile = new List<Projectile>();
+    public void SpawnProjectileEffectAtIndex(int index)
+    {
+        var effect = Instantiate(baseCharacter.Reference.projectileEffectPrefabs[index]).GetComponent<Projectile>();
+        effect.InitializeWithTarget(battleSystem.OpposingCharacter, projectileOrigins[index]);
+        spawnedProjectile.Add(effect);
+    }
+
+    public void LaunchProjectile()
+    {
+        foreach (var item in spawnedProjectile)
+        {
+            item.Launch();
+        }
+        spawnedProjectile.Clear();
     }
 
     public void SpawnMiscEffectAtIndex(int index)

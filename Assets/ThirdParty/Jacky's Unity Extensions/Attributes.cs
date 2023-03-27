@@ -16,6 +16,7 @@ public class ReadObjectNameDrawer : PropertyDrawer
         else
         {
             Rect halfRect = new Rect(position);
+            EditorGUI.PrefixLabel(halfRect, label);
             halfRect.width *= 0.66f;
             EditorGUI.PropertyField(halfRect, property);
             halfRect.position += new Vector2(halfRect.width + 0.01f * position.width, 0);

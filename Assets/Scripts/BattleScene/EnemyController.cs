@@ -100,6 +100,18 @@ public class EnemyController : BasicSingleton<EnemyController>
 #endif
         battleStateManager.InitializeRandom();
 
+#if UNITY_EDITOR
+        // Enemies should not have 0 skills for real, at least I think they shouldn't...
+        if (battleSystem.ActiveEnemy.Skills.Count == 0)
+        {
+            BeginAttack();
+            Debug.LogWarning(nameof(EnemyController) + 
+                ": " + battleSystem.ActiveEnemy.Reference.characterName + 
+                " tried to use a skill, but no skills found!");
+            return;
+        }
+#endif
+
         if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
         {
             GameSkill randomSkill =
