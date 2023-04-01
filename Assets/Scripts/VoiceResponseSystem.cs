@@ -18,7 +18,7 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnTickEffect += OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack += Attack;
-        BaseCharacter.OnCharacterReceivedDamage += PlayerAttacked;
+        BaseCharacter.OnCharacterAttackBlocked += AttackBlocked;
         BaseCharacter.OnCharacterExecuteAttack += WeaponHit;
         BaseCharacter.OnCharacterActivateSkill += UsedSkill;
         BaseCharacter.OnCharacterDeath += CharacterDeath;
@@ -44,7 +44,7 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnTickEffect -= OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack -= Attack;
-        BaseCharacter.OnCharacterReceivedDamage -= PlayerAttacked;
+        BaseCharacter.OnCharacterAttackBlocked -= AttackBlocked;
         BaseCharacter.OnCharacterExecuteAttack -= WeaponHit;
         BaseCharacter.OnCharacterActivateSkill -= UsedSkill;
         BaseCharacter.OnCharacterDeath -= CharacterDeath;
@@ -106,8 +106,9 @@ public class VoiceResponseSystem : MonoBehaviour
         AudioManager.PlaySound(audio);
     }
 
-    public void PlayerAttacked(BaseCharacter character, float damage)
+    public void AttackBlocked(BaseCharacter character, bool blocked)
     {
+        if (blocked) return;
         var audio = character.Reference.voiceHurt;
         AudioManager.PlaySound(audio);
     }

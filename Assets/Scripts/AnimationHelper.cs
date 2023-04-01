@@ -409,19 +409,10 @@ public class AnimationHelper : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    [ContextMenu(nameof(GetAllRenderers))]
-    void GetAllRenderers()
-    {
-        UnityEditor.Undo.RecordObject(this, "Found all renderers");
-        nonRagdollRenderers = GetComponentsInChildren<Renderer>();
-    }
-
     [ContextMenu(nameof(SetupRagdollComponents))]
     void SetupRagdollComponents()
     {
-        UnityEditor.Undo.RecordObject(this, "Found ragdoll components");
-        rigidBodies = GetComponentsInChildren<Rigidbody>();
-        colliders = GetComponentsInChildren<Collider>();
+        
     }
 #endif
 }

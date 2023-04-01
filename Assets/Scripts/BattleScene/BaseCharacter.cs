@@ -227,6 +227,11 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter> OnCharacterStartAttack;
 
     /// <summary>
+    /// BaseCharacter character, bool success
+    /// </summary>
+    public static Action<BaseCharacter, bool> OnCharacterAttackBlocked;
+
+    /// <summary>
     /// BaseCharacter character, float damage
     /// </summary>
     public static Action<BaseCharacter, float> OnCharacterReceivedDamage;
@@ -900,20 +905,28 @@ public abstract class BaseCharacter : MonoBehaviour
         DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform.parent, damage);
         if (rigAnim)
         {
+            bool blocked = true;
+
             if (IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
             {
                 if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
-                    rigAnim.Play("Hit Reaction");
-                else
-                    rigAnim.Play("Block Reaction");
+                    blocked = false;
             }
             else
             {
-                if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
-                    rigAnim.Play("Block Reaction");
-                else
-                    rigAnim.Play("Hit Reaction");
+                if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn)
+                    blocked = false;
             }
+
+            if (blocked)
+            {
+                rigAnim.Play("Block Reaction");
+            }
+            else
+            {
+                rigAnim.Play("Hit Reaction");
+            }
+            OnCharacterAttackBlocked?.Invoke(this, blocked);
 
             if (damage.source != null && !damage.isAOE)
             {
