@@ -125,6 +125,8 @@ public abstract class BaseCharacter : MonoBehaviour
         get { return critChanceModifier; }
     }
 
+    public abstract bool CanCrit { get; }
+
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
 
@@ -344,7 +346,7 @@ public abstract class BaseCharacter : MonoBehaviour
         ShowCharacterUI();
     }
 
-    public void UseSuperCritical()
+    public virtual void UseSuperCritical()
     {
         if (rigAnim)
         {
@@ -353,17 +355,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
         GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
-        var superCrit = characterReference.superCritical;
-        // Check if the Super Critical deals damage
-        for (int i = 0; i < superCrit.gameEffects.Length; i++)
-        {
-            if (superCrit.gameEffects[i].effect.GetType() == typeof(BaseAttackEffect))
-            {
-                IncomingDamage.damageNormalized = (float)superCrit.gameEffects[i].EffectStrength;
-                break;
-            }
-        }
 
+        IncomingDamage.damageNormalized = 1;
         IncomingDamage.isCritical = true;
         IncomingDamage.isSuperCritical = true;
         IncomingDamage.critDamageModifier = CritDamageModified;
@@ -432,7 +425,7 @@ public abstract class BaseCharacter : MonoBehaviour
         IncomingDamage.percentage = 1;
         IncomingDamage.source = this;
 
-        if (CritChanceModified >= 1 && !usedSuperCritThisTurn)
+        if (CanCrit && !usedSuperCritThisTurn)
         {
             UseSuperCritical();
         }
@@ -455,10 +448,10 @@ public abstract class BaseCharacter : MonoBehaviour
         switch (IncomingAttack.attackRange)
         {
             case AttackRange.CloseRange:
-                SceneTweener.Instance.ReturnToPosition();
+                sceneTweener.ReturnToPosition();
                 break;
             case AttackRange.LongRange:
-                SceneTweener.Instance.RotateBack();
+                sceneTweener.RotateBack();
                 break;
         }
 
@@ -515,7 +508,6 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(SkillRoutine(index));
     }
     
-
     List<BaseCharacter> targets = new List<BaseCharacter>();
 
     GameSkill currentSkill;
@@ -558,7 +550,6 @@ public abstract class BaseCharacter : MonoBehaviour
                         targets.Add(enemyController.RandomEnemy);
                         break;
                 }
-
                 break;
             case TargetMode.OneEnemy:
                 switch (battleSystem.CurrentPhase)
@@ -570,7 +561,6 @@ public abstract class BaseCharacter : MonoBehaviour
                         targets.Add(battleSystem.EnemyAttackTarget);
                         break;
                 }
-
                 break;
             case TargetMode.AllAllies:
                 switch (battleSystem.CurrentPhase)
@@ -699,7 +689,7 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter character, TargetMode targetMode)
+    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter character)
     {
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, character.transform);
         props.effect.Activate(character, props.strength, props.customValues);
@@ -734,26 +724,46 @@ public abstract class BaseCharacter : MonoBehaviour
                 case TargetMode.None:
                     for (int j = 0; j < targets.Count; j++)
                     {
-                        ApplyEffectToCharacter(effect, targets[j], currentSkill.referenceSkill.targetMode);
+                        ApplyEffectToCharacter(effect, targets[j]);
                     }
 
                     break;
                 case TargetMode.AllAllies:
-                    for (int j = 0; j < BattleSystem.Instance.PlayerCharacters.Count; j++)
+                    switch (battleSystem.CurrentPhase)
                     {
-                        ApplyEffectToCharacter(effect, BattleSystem.Instance.PlayerCharacters[j], TargetMode.AllAllies);
+                        case BattlePhases.PlayerTurn:
+                            for (int j = 0; j < battleSystem.PlayerCharacters.Count; j++)
+                            {
+                                ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
+                            }
+                            break;
+                        case BattlePhases.EnemyTurn:
+                            for (int j = 0; j < enemyController.Enemies.Length; j++)
+                            {
+                                ApplyEffectToCharacter(effect, enemyController.Enemies[j]);
+                            }
+                            break;
                     }
-
                     break;
                 case TargetMode.AllEnemies:
-                    for (int j = 0; j < enemyController.Enemies.Length; j++)
+                    switch (battleSystem.CurrentPhase)
                     {
-                        ApplyEffectToCharacter(effect, enemyController.Enemies[j], TargetMode.AllEnemies);
+                        case BattlePhases.PlayerTurn:
+                            for (int j = 0; j < enemyController.Enemies.Length; j++)
+                            {
+                                ApplyEffectToCharacter(effect, enemyController.Enemies[j]);
+                            }
+                            break;
+                        case BattlePhases.EnemyTurn:
+                            for (int j = 0; j < battleSystem.PlayerCharacters.Count; j++)
+                            {
+                                ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
+                            }
+                            break;
                     }
-
                     break;
                 case TargetMode.Self:
-                    ApplyEffectToCharacter(effect, this, TargetMode.Self);
+                    ApplyEffectToCharacter(effect, this);
                     break;
             }
 

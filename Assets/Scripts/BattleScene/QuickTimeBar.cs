@@ -3,26 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using static Facade;
 
 public class QuickTimeBar : QuickTimeBase
 {
-    [SerializeField] protected Image backgroundBar = null;
+    [SerializeField] Image backgroundBar;
+    [SerializeField] Image progressBar;
+    [SerializeField] Image fillBar;
+    [SerializeField] Image targetBar;
 
-    [SerializeField] protected Image fillBar = null;
+    [SerializeField] float maxLeniency = 1.5f;
 
-    [SerializeField] protected Image targetBar = null;
-
-    [SerializeField]
-    protected float maxValue = 0;
-
-    [SerializeField]
-    protected float failZoneSize = 75;
-
-    [SerializeField]
-    protected float barSize = 625;
-
-    [HideInInspector]
-    [SerializeField] float BAR_WIDTH = 0;
+    [SerializeField] float failZoneSize = 0.1f;
 
     [SerializeField] Gradient barGradient = null;
 
@@ -35,12 +27,6 @@ public class QuickTimeBar : QuickTimeBase
     [SerializeField] float barSuccessValue = 1;
 
     [SerializeField] float barMissValue = 0;
-
-    private void OnValidate()
-    {
-        targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZoneSize), targetBar.rectTransform.anchoredPosition.y);
-        BAR_WIDTH = failZoneSize + barSize;
-    }
 
     private void Update()
     {
@@ -75,8 +61,6 @@ public class QuickTimeBar : QuickTimeBase
     {
         fillBar.DOFillAmount(1, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
 
-        float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
-        //fillBar.DOGradientColor(barGradient, Mathf.Lerp(0, barFillTime, targetMin)).SetUpdate(true).SetDelay(barFillDelay);
         fillBar.DOGradientColor(barGradient, barFillTime).SetUpdate(true).SetDelay(barFillDelay).SetEase(Ease.Linear);
         Invoke(nameof(Enable), barFillDelay);
     }
@@ -87,7 +71,7 @@ public class QuickTimeBar : QuickTimeBase
         fillBar.color = Color.white;
 
         float leniency = 0;
-        switch (BattleSystem.Instance.CurrentPhase)
+        switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 activePlayer = attacker as PlayerCharacter;
@@ -98,43 +82,49 @@ public class QuickTimeBar : QuickTimeBase
                 break;
         }
 
-        targetBar.rectTransform.sizeDelta = new Vector2(Mathf.Lerp(0, maxValue, leniency), targetBar.rectTransform.sizeDelta.y);
+        var failZone = progressBar.rectTransform.sizeDelta.x * failZoneSize;
+        targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZone), targetBar.rectTransform.anchoredPosition.y);
+        var maxSize = progressBar.rectTransform.sizeDelta.x - failZone;
+        var lerp = Mathf.InverseLerp(0, maxLeniency, leniency);
+        targetBar.rectTransform.sizeDelta = new Vector2(Mathf.Lerp(0, maxSize, lerp), targetBar.rectTransform.sizeDelta.y);
         canvas.Show();
         StartTicking();
     }
 
     public override void GetMultiplier()
     {
-        float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_WIDTH;
-        float targetMax = barSize / BAR_WIDTH;
+        float targetMin = 1 - targetBar.rectTransform.sizeDelta.x / progressBar.rectTransform.sizeDelta.x + failZoneSize;
+        float targetMax = 1 - failZoneSize;
 
+        var dmg = BaseCharacter.IncomingDamage;
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValue;
-            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
+            dmg.damageNormalized = barSuccessValue;
+            dmg.damageType = DamageType.Heavy;
+            dmg.qteResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            BaseCharacter.IncomingDamage.damageType = DamageType.Medium;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
+            dmg.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.damageType = DamageType.Medium;
+            dmg.qteResult = QTEResult.Early;
         }
         else
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
-            BaseCharacter.IncomingDamage.damageType = DamageType.Light;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
+            dmg.damageNormalized = barMissValue;
+            dmg.damageType = DamageType.Light;
+            dmg.qteResult = QTEResult.Late;
         }
 
-        if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
+        if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
         {
-            BaseCharacter.IncomingDamage.damageType -= DamageType.Heavy;
-            BaseCharacter.IncomingDamage.damageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.damageType);
+            dmg.damageType -= DamageType.Heavy;
+            dmg.damageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.damageType);
         }
 
-        BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
+        dmg.barFill = fillBar.fillAmount;
+        BaseCharacter.IncomingDamage = dmg;
     }
 }

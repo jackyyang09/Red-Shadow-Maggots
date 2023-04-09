@@ -26,6 +26,8 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
+    public override bool CanCrit => CritChanceModified >= 1;
+
     public static Action<PlayerCharacter> OnSelectPlayer;
     public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
     public static Action<PlayerCharacter> OnPlayerQTEAttack;
@@ -162,7 +164,7 @@ public class PlayerCharacter : BaseCharacter
     {
         IncomingAttack = Reference.attackAnimations[0];
 
-        if (CritChanceModified < 1 || usedSuperCritThisTurn)
+        if (!CanCrit || usedSuperCritThisTurn)
         {
             OnPlayerQTEAttack?.Invoke(this);
         }

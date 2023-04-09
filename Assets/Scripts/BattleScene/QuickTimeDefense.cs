@@ -69,7 +69,7 @@ public class QuickTimeDefense : QuickTimeBase
 
         canvas.Show();
 
-        enabled = true;
+        Enable();
         PrepareNextAttack();
     }
 

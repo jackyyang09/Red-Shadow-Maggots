@@ -98,9 +98,16 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)
     {
-        if (!battleSystem.FinishedTurn && battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+        switch (battleSystem.CurrentPhase)
         {
-            ShowBattleUI();
+            case BattlePhases.PlayerTurn:
+                if (!battleSystem.FinishedTurn)
+                {
+                    ShowBattleUI();
+                }
+                break;
+            case BattlePhases.EnemyTurn:
+                break;
         }
     }
 
@@ -109,7 +116,6 @@ public class UIManager : BasicSingleton<UIManager>
         if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
         attackButton.Show();
         CanSelectPlayer = true;
-
 
         UpdateSkillGraphic(battleSystem.ActivePlayer);
 

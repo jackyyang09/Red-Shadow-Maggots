@@ -47,17 +47,22 @@ public class EnemyController : BasicSingleton<EnemyController>
     bool disableSkillUsage;
 #endif
 
+    bool useSkill;
+    public bool WillUseSkill => useSkill;
+
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
 
     private void OnEnable()
     {
         BattleSystem.OnTargettableCharactersChanged += ChooseAttackTarget;
+        GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
 
     private void OnDisable()
     {
         BattleSystem.OnTargettableCharactersChanged -= ChooseAttackTarget;
+        GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
 
     //void Update()
@@ -74,6 +79,12 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         ChooseAttacker();
         ChooseAttackTarget();
+    }
+
+    public void CalculateSkillUsage()
+    {
+        battleStateManager.InitializeRandom();
+        useSkill = Random.value <= battleSystem.ActiveEnemy.ChanceToUseSkill;
     }
 
     public void ChooseAttacker()
@@ -112,7 +123,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
 #endif
 
-        if (Random.value < battleSystem.ActiveEnemy.ChanceToUseSkill)
+        if (useSkill)
         {
             GameSkill randomSkill =
                 battleSystem.ActiveEnemy.Skills[Random.Range(0, battleSystem.ActiveEnemy.Skills.Count)];
@@ -126,21 +137,33 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void BeginAttack()
     {
-        battleStateManager.InitializeRandom();
-
-        var enemy = battleSystem.ActiveEnemy;
-        int attackIndex = Random.Range(0, enemy.Reference.enemyAttackAnimations.Length);
-        var attack = enemy.Reference.enemyAttackAnimations[attackIndex];
-        BaseCharacter.IncomingAttack = attack;
-
-        ui.StartDefending();
         battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer.transform);
-        battleSystem.ActiveEnemy.PlayAttackAnimation(attackIndex);
+        if (battleSystem.ActiveEnemy.CanCrit)
+        {
+            if (battleSystem.ActiveEnemy.Reference.isSuperCriticalAnAttack)
+            {
+                ui.StartDefending();
+            }
+        }
+        else
+        {
+            ui.StartDefending();
+        }
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)
     {
         ChooseAttacker();
+    }
+
+    private void OnCharacterFinishSuperCritical(BaseCharacter obj)
+    {
+        var enemy = obj as EnemyCharacter;
+        if (enemy)
+        {
+            enemy.ResetChargeLevel();
+            enemyController.MakeYourMove();
+        }
     }
 
     #region Debug Hacks
@@ -158,13 +181,21 @@ public class EnemyController : BasicSingleton<EnemyController>
         Debug.Log("Enemies damaged!");
     }
 
+    [IngameDebugConsole.ConsoleMethod(nameof(TestEnemySupers), "Macro that executes MaxEnemyCrit and ForceEnemyNoSkills")]
+    public static void TestEnemySupers()
+    {
+        MaxEnemyCrit();
+        ForceEnemyNoSkills();
+    }
+
     [IngameDebugConsole.ConsoleMethod(nameof(MaxEnemyCrit), "Set enemy character's crit chance to 100%")]
     public static void MaxEnemyCrit()
     {
         for (int i = 0; i < Instance.Enemies.Length; i++)
         {
             if (!Instance.Enemies[i]) continue;
-            Instance.Enemies[i].IncreaseChargeLevel(10);
+            var diff = Instance.Enemies[i].Reference.turnsToCrit - Instance.Enemies[i].CritLevel;
+            Instance.Enemies[i].IncreaseChargeLevel(diff);
         }
 
         Debug.Log("Enemy crit maxed!");
@@ -189,6 +220,10 @@ public class EnemyController : BasicSingleton<EnemyController>
         {
             if (!Instance.Enemies[i]) continue;
             Instance.Enemies[i].SetSkillUseChance(0);
+            Instance.useSkill = false;
+#if UNITY_EDITOR
+            Instance.disableSkillUsage = true;
+#endif
         }
 
         Debug.Log("Enemies skill use disabled!");

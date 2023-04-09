@@ -34,12 +34,12 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     protected virtual void Start()
     {
-        GlobalEvents.OnEnterBattleCutscene += Hide;
+        //GlobalEvents.OnEnterBattleCutscene += Hide;
     }
 
     protected virtual void OnDestroy()
     {
-        GlobalEvents.OnEnterBattleCutscene -= Hide;
+        //GlobalEvents.OnEnterBattleCutscene -= Hide;
     }
 
     public void Hide()

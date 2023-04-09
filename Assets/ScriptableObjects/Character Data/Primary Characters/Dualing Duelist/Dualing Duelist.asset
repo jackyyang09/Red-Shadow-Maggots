@@ -23,13 +23,15 @@ MonoBehaviour:
   characterClass: 0
   attackQteType: 0
   turnsToCrit: 3
-  attackLeniency: 0.6
+  attackLeniency: 0.3
   defenseLeniency: 0.1
   skills:
   - {fileID: 11400000, guid: 6b92c9878da2f40428f77016d0f585c9, type: 2}
   - {fileID: 11400000, guid: 6e28c550784c96941bfe0d6af315afc5, type: 2}
   hasAltSkillAnimation: 0
   superCritical: {fileID: 11400000, guid: a7ee1b5a0c11b684689d7cb98e9dfd46, type: 2}
+  superCriticalAnim: {fileID: 0}
+  isSuperCriticalAnAttack: 0
   spriteObject: {fileID: 1827394492377017993, guid: 38e59c10199357b4fb2e7df7a1ee0943, type: 3}
   animator: {fileID: 22100000, guid: 3a2e8815eecd08d4dac9bfb08c0dc849, type: 2}
   characterRig: {fileID: 2898884880413276694, guid: ef7b8838c42d8bd46bad03f9568ffeb7, type: 3}
@@ -42,6 +44,7 @@ MonoBehaviour:
     attackRange: 1
     isAOE: 0
   attackEffectPrefab: {fileID: 0}
+  projectileEffectPrefabs: []
   extraEffectPrefabs: []
   voiceEntry: {fileID: 11400000, guid: 27c9b10eeca192e4ea67235a6a8176ea, type: 2}
   voiceAttack: {fileID: 11400000, guid: 2fbdee4eec0f1f34aaccaeb07b816350, type: 2}

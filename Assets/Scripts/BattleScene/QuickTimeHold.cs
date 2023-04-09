@@ -6,25 +6,11 @@ using DG.Tweening;
 
 public class QuickTimeHold : QuickTimeBase
 {
-    [SerializeField] protected Image backgroundBar = null;
+    [SerializeField] float maxLeniency = 1.5f;
 
-    [SerializeField] protected Image fillBar = null;
+    [SerializeField] protected float failZoneSize = 0.1f;
 
-    [SerializeField] protected Image targetBar = null;
-
-    [SerializeField]
-    protected float maxValue = 0;
-
-    [SerializeField]
-    protected float failZoneSize = 75;
-
-    [SerializeField]
-    protected float barSize = 625;
-
-    [HideInInspector]
-    [SerializeField] float BAR_HEIGHT = 0;
-
-    [SerializeField] Gradient[] barGradient = null;
+    [SerializeField] Gradient[] barGradient;
 
     [SerializeField] float[] barFillTimes = new float[] { 0.75f, 0.5f, 0.33f };
 
@@ -39,21 +25,19 @@ public class QuickTimeHold : QuickTimeBase
 
     [SerializeField] float barLevelUpDelay = 0.1f;
 
-    [SerializeField] Vector2[] gaugeRotations = null;
-    [SerializeField] RectTransform gaugeArrow = null;
+    [SerializeField] Vector2[] gaugeRotations;
+    [SerializeField] RectTransform gaugeArrow;
 
     [SerializeField] int successSpinCount = 2;
     [SerializeField] float successSpinTime = 1.5f;
 
-    [SerializeField] JSAM.JSAMSoundFileObject chargeSound = null;
+    [SerializeField] protected Image backgroundBar;
+    [SerializeField] protected Image progressBar;
+    [SerializeField] protected Image fillBar;
+    [SerializeField] protected Image targetBar;
+    [SerializeField] JSAM.JSAMSoundFileObject chargeSound;
 
-    Coroutine tickRoutine = null;
-
-    private void OnValidate()
-    {
-        targetBar.rectTransform.anchoredPosition = new Vector2(targetBar.rectTransform.anchoredPosition.x, - Mathf.Abs(failZoneSize));
-        BAR_HEIGHT = failZoneSize + barSize;
-    }
+    Coroutine tickRoutine;
 
     // Update is called once per frame
     void Update()
@@ -123,11 +107,15 @@ public class QuickTimeHold : QuickTimeBase
                 break;
         }
 
-        targetBar.rectTransform.sizeDelta = new Vector2(targetBar.rectTransform.sizeDelta.x, Mathf.Lerp(0, maxValue, leniency));
+        var failZone = progressBar.rectTransform.sizeDelta.y * failZoneSize;
+        targetBar.rectTransform.anchoredPosition = new Vector2(targetBar.rectTransform.anchoredPosition.x, -Mathf.Abs(failZone));
+        var maxSize = progressBar.rectTransform.sizeDelta.y - failZone;
+        var lerp = Mathf.InverseLerp(0, maxLeniency, leniency);
+        targetBar.rectTransform.sizeDelta = new Vector2(targetBar.rectTransform.sizeDelta.x, Mathf.Lerp(0, maxSize, lerp));
         canvas.Show();
 
         // Just long enough to get the users' next valid touch
-        Invoke("Enable", 0.05f);
+        Invoke(nameof(Enable), 0.05f);
     }
 
     public override void StartTicking()
@@ -144,7 +132,6 @@ public class QuickTimeHold : QuickTimeBase
             fillBar.fillAmount = 0;
 
             fillBar.DOFillAmount(1, barFillTimes[barLevel]).SetUpdate(true).SetEase(Ease.Linear);
-            float targetMin = 1 - (targetBar.rectTransform.sizeDelta.y + failZoneSize) / BAR_HEIGHT;
             fillBar.DOGradientColor(barGradient[barLevel], barFillTimes[barLevel]).SetUpdate(true).SetEase(Ease.Linear);
 
             gaugeArrow.DOLocalRotate(new Vector3(0, 0, gaugeRotations[barLevel].y), barFillTimes[barLevel]).SetUpdate(true).SetEase(Ease.Linear);
@@ -161,28 +148,30 @@ public class QuickTimeHold : QuickTimeBase
 
     public override void GetMultiplier()
     {
-        float targetMin = 1 - (targetBar.rectTransform.sizeDelta.x + failZoneSize) / BAR_HEIGHT;
-        float targetMax = barSize / BAR_HEIGHT;
+        float targetMin = 1 - targetBar.rectTransform.sizeDelta.y / progressBar.rectTransform.sizeDelta.y - failZoneSize;
+        float targetMax = 1 - failZoneSize;
+
+        var dmg = BaseCharacter.IncomingDamage;
 
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValues[barLevel];
-            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
+            dmg.damageNormalized = barSuccessValues[barLevel];
+            dmg.damageType = DamageType.Heavy;
+            dmg.qteResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            BaseCharacter.IncomingDamage.damageType = DamageType.Medium;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
+            dmg.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.damageType = DamageType.Medium;
+            dmg.qteResult = QTEResult.Early;
         }
         else
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
-            BaseCharacter.IncomingDamage.damageType = DamageType.Light;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
+            dmg.damageNormalized = barMissValue;
+            dmg.damageType = DamageType.Light;
+            dmg.qteResult = QTEResult.Late;
         }
 
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
@@ -193,18 +182,19 @@ public class QuickTimeHold : QuickTimeBase
 
         if (AlwaysSucceed)
         {
-            BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
-            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValues[barLevel];
-            BaseCharacter.IncomingDamage.damageType = DamageType.Heavy;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
-            BaseCharacter.IncomingDamage.chargeLevel = 2;
+            dmg.barFill = fillBar.fillAmount;
+            dmg.damageNormalized = barSuccessValues[barLevel];
+            dmg.damageType = DamageType.Heavy;
+            dmg.qteResult = QTEResult.Perfect;
+            dmg.chargeLevel = 2;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else
         {
-            BaseCharacter.IncomingDamage.barFill = fillBar.fillAmount;
-            BaseCharacter.IncomingDamage.chargeLevel = barLevel;
+            dmg.barFill = fillBar.fillAmount;
+            dmg.chargeLevel = barLevel;
         }
+        BaseCharacter.IncomingDamage = dmg;
     }
 }

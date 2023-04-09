@@ -40,22 +40,54 @@ public abstract class SuperCriticalEffect : MonoBehaviour
                 targets.Add(baseCharacter);
                 break;
             case TargetMode.OneAlly:
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.Add(enemyController.RandomEnemy);
+                        break;
+                }
                 //target = baseCharacter;
                 break;
             case TargetMode.OneEnemy:
-                targets.Add(battleSystem.ActiveEnemy);
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        targets.Add(battleSystem.ActiveEnemy);
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.Add(battleSystem.ActivePlayer);
+                        break;
+                }
                 break;
             case TargetMode.AllAllies:
-                targets.AddRange(battleSystem.PlayerCharacters);
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        targets.AddRange(battleSystem.PlayerCharacters);
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.AddRange(enemyController.Enemies);
+                        break;
+                }
                 break;
             case TargetMode.AllEnemies:
-                targets.AddRange(enemyController.Enemies);
+                switch (battleSystem.CurrentPhase)
+                {
+                    case BattlePhases.PlayerTurn:
+                        targets.AddRange(enemyController.Enemies);
+                        break;
+                    case BattlePhases.EnemyTurn:
+                        targets.AddRange(battleSystem.PlayerCharacters);
+                        break;
+                }
                 break;
         }
 
         for (int i = 0; i < targets.Count; i++)
         {
-            BaseCharacter.ApplyEffectToCharacter(effect, targets[i], targetMode);
+            BaseCharacter.ApplyEffectToCharacter(effect, targets[i]);
         }
 
         GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[effectsApplied].effect);

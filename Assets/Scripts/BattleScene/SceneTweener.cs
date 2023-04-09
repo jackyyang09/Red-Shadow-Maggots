@@ -184,7 +184,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 offset = characterDestinationOffset;
                 break;
             case BattlePhases.EnemyTurn:
-                enemyCam.enabled = true;
+                enemyCam.enabled = false;
                 path = enemyPath;
                 cam = enemyCam;
                 target = battleSystem.ActivePlayer.transform;
@@ -200,7 +200,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 cam.m_LookAt = obj.transform;
                 savedPosition = obj.transform.position;
                 Vector3 position = target.position + offset;
-                obj.transform.position = position;
+                //obj.transform.position = position;
                 path.transform.position = position;
                 lerpValue = 2;
                 break;
@@ -263,7 +263,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
         playerCam.m_LookAt = worldCenter;
 
-        BattleSystem.Instance.EndTurn();
+        battleSystem.EndTurn();
     }
 
     IEnumerator ReturnToPositionDelayed()
@@ -283,7 +283,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         bool maintainGaze = true;
         Vector3 ogPos = Vector3.zero;
         Vector3 ogRot = Vector3.zero;
-        switch (BattleSystem.Instance.CurrentPhase)
+        switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 var activePlayer = battleSystem.ActivePlayer;
@@ -344,7 +344,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 break;
         }
 
-        BattleSystem.Instance.EndTurn();
+        battleSystem.EndTurn();
     }
 
     public void WaveClearSequence()

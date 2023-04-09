@@ -25,7 +25,7 @@ public class EnemyCharacter : BaseCharacter
         get { return critLevel; }
     }
 
-    public bool CanCrit
+    public override bool CanCrit
     {
         get { return critLevel == Reference.turnsToCrit; }
     }
@@ -97,7 +97,7 @@ public class EnemyCharacter : BaseCharacter
     {
         if (!usedSkillThisTurn || (usedSkillThisTurn && critLevel != Reference.turnsToCrit - 1))
         {
-            critLevel = (int)Mathf.Repeat(critLevel + i, Reference.turnsToCrit + 1);
+            critLevel = (int)Mathf.Clamp(critLevel + i, 0, Reference.turnsToCrit);
             onCritLevelChanged?.Invoke(critLevel);
         }
 
@@ -108,11 +108,43 @@ public class EnemyCharacter : BaseCharacter
     {
         if (!usedSkillThisTurn || (usedSkillThisTurn && critLevel != Reference.turnsToCrit - 1))
         {
-            critLevel = (int)Mathf.Clamp(critLevel - 1, 0, Reference.turnsToCrit + 1);
+            critLevel = (int)Mathf.Clamp(critLevel - i, 0, Reference.turnsToCrit);
             onCritLevelChanged?.Invoke(critLevel);
         }
 
         usedSkillThisTurn = false;
+    }
+
+    public void ResetChargeLevel()
+    {
+        critLevel = 0;
+        onCritLevelChanged?.Invoke(critLevel);
+        usedSkillThisTurn = false;
+    }
+
+    public override void BeginAttack(Transform target)
+    {
+        if (!CanCrit)
+        {
+            battleStateManager.InitializeRandom();
+
+            int attackIndex = Random.Range(0, Reference.enemyAttackAnimations.Length);
+            var attack = Reference.enemyAttackAnimations[attackIndex];
+            IncomingAttack = attack;
+            PlayAttackAnimation(attackIndex);
+        }
+
+        base.BeginAttack(target);
+    }
+
+    public override void UseSuperCritical()
+    {
+        base.UseSuperCritical();
+
+        var a = new AttackStruct();
+        a.attackAnimation = Reference.superCriticalAnim;
+        a.attackRange = AttackRange.LongRange;
+        IncomingAttack = a;
     }
 
     public override void PlayAttackAnimation()
@@ -199,7 +231,7 @@ public class EnemyCharacter : BaseCharacter
         if (rigAnim)
         {
             rigAnim.SetTrigger("Attack Execute");
-            rigAnim.SetInteger("Charge Level", 0);
+            rigAnim.SetInteger("Charge Level", 4);
         }
         else
         {

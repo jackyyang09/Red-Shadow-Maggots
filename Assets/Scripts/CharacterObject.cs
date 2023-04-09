@@ -262,6 +262,9 @@ public class CharacterObject : ScriptableObject
     public int turnsToCrit = 3;
 
     [Range(0, 1)] public float attackLeniency;
+    /// <summary>
+    /// Time window in seconds in which the player can "perfect block" an attack
+    /// </summary>
     [Range(0, 1)] public float defenseLeniency;
 
     public SkillObject[] skills;
@@ -269,6 +272,8 @@ public class CharacterObject : ScriptableObject
     public bool hasAltSkillAnimation = false;
 
     public SkillObject superCritical;
+    public AnimationClip superCriticalAnim;
+    public bool isSuperCriticalAnAttack;
 
     [Header("Animation Properties")]
     public GameObject spriteObject;

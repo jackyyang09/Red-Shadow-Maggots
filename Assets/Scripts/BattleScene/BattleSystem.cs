@@ -250,6 +250,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
 
         enemyController.ChooseNewTargets();
+        enemyController.CalculateSkillUsage();
 
         for (int i = 0; i < deadMaggots.Count; i++)
         {
