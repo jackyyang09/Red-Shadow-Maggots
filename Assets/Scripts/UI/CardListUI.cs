@@ -19,31 +19,16 @@ public class CardListUI : BasicSingleton<CardListUI>
     [SerializeField] float scaleAmount = 1.15f;
     [SerializeField] float tweenTime = 0.5f;
 
-    [Header("Layout Properties")]
-    [SerializeField] int cardsPerRow;
-    [SerializeField] Vector2 spacing;
-    Vector3 cardOrigin;
-
     [SerializeField] OptimizedCanvas optimizedCanvas;
-    [SerializeField] GameObject firstCard;
-    [SerializeField] Transform cardsParent;
 
-    List<CharacterCardHolder> cardHolders;
-    List<bool> cardLoaded;
+    [SerializeField] List<CardCanvasProjection> cardProjections = new List<CardCanvasProjection>();
+    bool[] cardLoaded;
 
     public System.Action OnBackOut;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        cardHolders = new List<CharacterCardHolder>();
-        cardLoaded = new List<bool>();
-
-        firstCard.transform.SetParent(cardsParent);
-        cardHolders.Add(firstCard.GetComponent<CharacterCardHolder>());
-        cardLoaded.Add(false);
-
-        cardOrigin = firstCard.transform.localPosition;
+        cardLoaded = new bool[cardProjections.Count];
     }
 
     public void InitializeAsPartySetupUI()
@@ -58,49 +43,35 @@ public class CardListUI : BasicSingleton<CardListUI>
         ShowUI();
     }
 
+    [ContextMenu(nameof(ShowUI))]
     public void ShowUI()
     {
-        cardsParent.gameObject.SetActive(true);
         optimizedCanvas.Show();
 
         var data = playerDataManager.LoadedData;
 
+        {
+            int i = 0;
+            for (; i < data.MaggotStates.Count; i++)
+            {
+                cardProjections[i].Show();
+            }
+
+            for (; i < cardProjections.Count; i++)
+            {
+                cardProjections[i].Hide();
+            }
+        }
+
         for (int i = 0; i < data.MaggotStates.Count; i++)
         {
-            CharacterCardHolder h = null;
-            Vector3 pos = new Vector3(cardOrigin.x, cardOrigin.y, cardOrigin.z);
-            pos.x += i % cardsPerRow * spacing.x;
-            pos.y += i / cardsPerRow * spacing.y;
-            if (cardHolders.Count > i)
-            {
-                h = cardHolders[i];
-            }
-            else
-            {
-                h = Instantiate(firstCard, cardsParent).GetComponent<CharacterCardHolder>();
-                cardHolders.Add(h);
-                cardLoaded.Add(false);
-            }
-            h.transform.SetParent(cardsParent);
-            h.transform.localPosition = pos;
-        }
-
-        if (data.MaggotStates.Count < cardHolders.Count)
-        {
-
-        }
-
-        for (int i = 0; i < cardHolders.Count; i++)
-        {
-            cardHolders[i].OnCardHovered += OnCardHovered;
-            cardHolders[i].OnCardExited += OnCardExited;
-            cardHolders[i].OnCardClicked += OnCardClicked;
-
             if (!cardLoaded[i])
             {
                 StartCoroutine(LoadCardHolder(i, data.MaggotStates[i].GUID));
             }
         }
+
+        Subscribe();
     }
 
     public void BackOut()
@@ -109,31 +80,30 @@ public class CardListUI : BasicSingleton<CardListUI>
         HideUI();
     }
 
+    [ContextMenu(nameof(HideUI))]
     public void HideUI()
     {
-        cardsParent.gameObject.SetActive(false);
         optimizedCanvas.Hide();
-
         Unsubscribe();
     }
 
     public void Subscribe()
     {
-        for (int i = 0; i < cardHolders.Count; i++)
+        for (int i = 0; i < cardProjections.Count; i++)
         {
-            cardHolders[i].OnCardHovered += OnCardHovered;
-            cardHolders[i].OnCardExited += OnCardExited;
-            cardHolders[i].OnCardClicked += OnCardClicked;
+            cardProjections[i].OnCardHovered += OnCardHovered;
+            cardProjections[i].OnCardExited += OnCardExited;
+            cardProjections[i].OnCardClicked += OnCardClicked;
         }
     }
 
     public void Unsubscribe()
     {
-        for (int i = 0; i < cardHolders.Count; i++)
+        for (int i = 0; i < cardProjections.Count; i++)
         {
-            cardHolders[i].OnCardHovered -= OnCardHovered;
-            cardHolders[i].OnCardExited -= OnCardExited;
-            cardHolders[i].OnCardClicked -= OnCardClicked;
+            cardProjections[i].OnCardHovered -= OnCardHovered;
+            cardProjections[i].OnCardExited -= OnCardExited;
+            cardProjections[i].OnCardClicked -= OnCardClicked;
         }
     }
 
@@ -148,31 +118,31 @@ public class CardListUI : BasicSingleton<CardListUI>
 
         yield return op;
 
-        cardHolders[index].SetCharacterAndRarity(op.Result as CharacterObject, gachaSystem.RandomRarity);
-        cardHolders[index].InitializeStatsCanvas(playerDataManager.LoadedData.MaggotStates[index]);
-        cardHolders[index].StatsCanvas.Show();
+        cardProjections[index].CardHolder.SetCharacterAndRarity(op.Result as CharacterObject, gachaSystem.RandomRarity);
+        //cardHolders[index].InitializeStatsCanvas(playerDataManager.LoadedData.MaggotStates[index]);
+        //cardHolders[index].StatsCanvas.Show();
         cardLoaded[index] = true;
     }
 
-    private void OnCardHovered(CharacterCardHolder obj)
+    private void OnCardHovered(CardCanvasProjection obj)
     {
         var a = obj.transform.localEulerAngles;
-        a.x = tiltAmount;
+        a.z = tiltAmount;
         obj.transform.DOLocalRotate(a, tweenTime, RotateMode.Fast);
         obj.transform.DOScale(scaleAmount, tweenTime);
     }
 
-    private void OnCardExited(CharacterCardHolder obj)
+    private void OnCardExited(CardCanvasProjection obj)
     {
         var a = obj.transform.localEulerAngles;
-        a.x = 0;
+        a.z = 0;
         obj.transform.DOLocalRotate(a, tweenTime, RotateMode.Fast);
         obj.transform.DOScale(1, tweenTime);
     }
 
-    private void OnCardClicked(CharacterCardHolder obj)
+    private void OnCardClicked(CardCanvasProjection obj)
     {
-        int index = cardHolders.IndexOf(obj);
+        int index = cardProjections.IndexOf(obj);
         var maggotStates = playerDataManager.LoadedData.MaggotStates;
 
         var a = obj.transform.localEulerAngles;
@@ -185,13 +155,11 @@ public class CardListUI : BasicSingleton<CardListUI>
             case CardListMode.PartySetup:
                 break;
             case CardListMode.Upgrade:
-                maggotUpgradeUI.InitializeUI(obj, maggotStates[index]);
+                //maggotUpgradeUI.InitializeUI(obj, maggotStates[index]);
                 maggotUpgradeUI.OptimizedCanvas.Show();
                 break;
         }
         
-        cardsParent.gameObject.SetActive(false);
-
         JSAM.AudioManager.PlaySound(MapMenuSounds.UIClick);
     }
 }

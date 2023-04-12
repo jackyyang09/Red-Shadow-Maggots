@@ -32,7 +32,7 @@ public class GameManager : BasicSingleton<GameManager>
         get { return turnCount; }
         set
         {
-            turnCount++;
+            turnCount = value;
             OnTurnCountChanged?.Invoke();
         }
     }
@@ -44,12 +44,12 @@ public class GameManager : BasicSingleton<GameManager>
 
     private void OnEnable()
     {
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += IncrementTurnCount;
+        BattleSystem.OnEndTurn += IncrementTurnCount;
     }
 
     private void OnDisable()
     {
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= IncrementTurnCount;
+        BattleSystem.OnEndTurn -= IncrementTurnCount;
     }
 
     // Start is called before the first frame update

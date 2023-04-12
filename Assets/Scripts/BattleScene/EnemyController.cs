@@ -127,7 +127,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         {
             GameSkill randomSkill =
                 battleSystem.ActiveEnemy.Skills[Random.Range(0, battleSystem.ActiveEnemy.Skills.Count)];
-            battleSystem.ActivateEnemySkill(battleSystem.ActiveEnemy, randomSkill);
+            ActivateEnemySkill(battleSystem.ActiveEnemy, randomSkill);
         }
         else
         {
@@ -149,6 +149,40 @@ public class EnemyController : BasicSingleton<EnemyController>
         {
             ui.StartDefending();
         }
+    }
+
+    public void ActivateEnemySkill(EnemyCharacter enemy, GameSkill skill)
+    {
+        StartCoroutine(EnemySkillSequence(enemy, skill));
+    }
+
+    IEnumerator EnemySkillSequence(EnemyCharacter enemy, GameSkill skill)
+    {
+        bool finished = false;
+        float skillUseTime = 1.5f;
+
+        // Activate Skill
+        enemy.UseSkill(skill);
+
+        enemy.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
+
+        SceneTweener.Instance.SkillTween(enemy.transform, skillUseTime);
+
+        //yield return new WaitForSeconds(skillUseTime);
+        while (!finished) yield return null;
+
+        SceneTweener.Instance.SkillUntween();
+
+        finished = false;
+
+        enemy.RegisterOnFinishApplyingSkillEffects(() => finished = true);
+
+        enemy.ResolveSkill();
+
+        // Wait for skill effects to finish animating
+        while (!finished) yield return null;
+
+        battleSystem.EndTurn();
     }
 
     public void RegisterEnemyDeath(EnemyCharacter enemy)

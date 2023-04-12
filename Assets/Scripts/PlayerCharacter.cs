@@ -104,18 +104,12 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
-        if (ui.CharacterPanelOpen) return;
-        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
-        {
-            OnSelectCharacter?.Invoke(this);
-            OnSelectPlayer?.Invoke(this);
-            if (battleSystem.ActivePlayer == this) return;
-            if (UIManager.SelectingAllyForSkill) return;
-            if (IsDead) return;
-            BattleSystem.Instance.SetActivePlayer(this);
-            OnSelectedPlayerCharacterChange?.Invoke(this);
-        }
+        //if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
+        //if (ui.CharacterPanelOpen) return;
+        //if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        //{
+        //    battleSystem.TrySetActivePlayer(this);
+        //}
     }
 
     private void OnMouseDrag()
@@ -127,7 +121,7 @@ public class PlayerCharacter : BaseCharacter
             fingerHoldTimer += Time.deltaTime;
             if (fingerHoldTimer >= FINGER_HOLD_TIME)
             {
-                ui.OpenCharacterPanel();
+                ui.OpenCharacterPanel(this);
                 fingerHoldTimer = 0;
             }
         }

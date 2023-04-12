@@ -44,6 +44,9 @@ public class UIManager : BasicSingleton<UIManager>
     public bool CharacterPanelOpen { get; private set; }
 
     public static bool CanSelectPlayer = true;
+    /// <summary>
+    /// Can't we use a UI ray-cast blocker for this?
+    /// </summary>
     public static bool SelectingAllyForSkill = false;
 
     public static Action OnShowBattleUI;
@@ -132,10 +135,11 @@ public class UIManager : BasicSingleton<UIManager>
         OnHideBattleUI?.Invoke();
     }
 
-    public void OpenCharacterPanel()
+    public void OpenCharacterPanel(PlayerCharacter character)
     {
         CharacterPanelOpen = true;
-        characterDetailsPanel.DisplayWithCharacter(battleSystem.ActivePlayer);
+        characterDetailsPanel.DisplayWithCharacter(character);
+        PlayButtonSound();
     }
 
     public void CloseCharacterPanel()

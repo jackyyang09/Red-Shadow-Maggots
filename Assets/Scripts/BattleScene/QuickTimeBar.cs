@@ -93,7 +93,7 @@ public class QuickTimeBar : QuickTimeBase
 
     public override void GetMultiplier()
     {
-        float targetMin = 1 - targetBar.rectTransform.sizeDelta.x / progressBar.rectTransform.sizeDelta.x + failZoneSize;
+        float targetMin = 1 - targetBar.rectTransform.sizeDelta.x / progressBar.rectTransform.sizeDelta.x - failZoneSize;
         float targetMax = 1 - failZoneSize;
 
         var dmg = BaseCharacter.IncomingDamage;

@@ -52,7 +52,6 @@ public class PartyManager : BasicSingleton<PartyManager>
     {
         var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
         card.SetCharacterAndRarity(obj, Rarity.Common);
-        card.GetComponent<Rigidbody>().useGravity = false;
         card.OnCardHovered += MousedOver;
         card.OnCardExited += MousedAway;
         card.OnCardClicked += MouseClicked;

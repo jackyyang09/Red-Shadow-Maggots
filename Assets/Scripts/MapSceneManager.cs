@@ -49,7 +49,6 @@ public class MapSceneManager : MonoBehaviour
     {
         var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
         card.SetCharacterAndRarity(obj, Rarity.Common);
-        card.GetComponent<Rigidbody>().useGravity = false;
         cardHolders.Add(card);
         cardHolders.GetLast().transform.localPosition = Vector3.zero + (cardHolders.Count - 1) * cardDelta;
     }

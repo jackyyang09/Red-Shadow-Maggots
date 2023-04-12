@@ -172,6 +172,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     [SerializeField] Transform rightSpawnPos = null;
 
+    List<BaseCharacter> moveOrder = new List<BaseCharacter>();
+    int moveCount = 0;
+
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
 
@@ -180,6 +183,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static System.Action[] OnStartPhase = new System.Action[(int)BattlePhases.Count];
     public static System.Action[] OnStartPhaseLate = new System.Action[(int)BattlePhases.Count];
     public static System.Action[] OnEndPhase = new System.Action[(int)BattlePhases.Count];
+    public static System.Action OnEndTurn;
 
     public static System.Action OnTargettableCharactersChanged;
     public static System.Action<BaseGameEffect> OnTickEffect;
@@ -259,6 +263,14 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         sceneTweener.EnterBattle();
         currentPhase = BattlePhases.Entry;
+
+        moveOrder.AddRange(playerCharacters);
+        moveOrder.AddRange(enemyController.Enemies);
+        // Remove empty slots
+        for (int i = moveOrder.Count - 1; i >= 0; i--)
+        {
+            if (!moveOrder[i]) moveOrder.RemoveAt(i);
+        }
     }
 
     // Update is called once per frame
@@ -463,38 +475,12 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         ui.ShowBattleUI();
     }
 
-    public void ActivateEnemySkill(EnemyCharacter enemy, GameSkill skill)
+    public void TrySetActivePlayer(PlayerCharacter player)
     {
-        StartCoroutine(EnemySkillSequence(enemy, skill));
-    }
-
-    IEnumerator EnemySkillSequence(EnemyCharacter enemy, GameSkill skill)
-    {
-        bool finished = false;
-        float skillUseTime = 1.5f;
-
-        // Activate Skill
-        enemy.UseSkill(skill);
-
-        enemy.AnimHelper.RegisterOnFinishSkillAnimation(() => finished = true);
-
-        SceneTweener.Instance.SkillTween(enemy.transform, skillUseTime);
-
-        //yield return new WaitForSeconds(skillUseTime);
-        while (!finished) yield return null;
-
-        SceneTweener.Instance.SkillUntween();
-
-        finished = false;
-
-        enemy.RegisterOnFinishApplyingSkillEffects(() => finished = true);
-
-        enemy.ResolveSkill();
-
-        // Wait for skill effects to finish animating
-        while (!finished) yield return null;
-
-        EndTurn();
+        if (battleSystem.ActivePlayer == player) return;
+        if (UIManager.SelectingAllyForSkill) return;
+        if (player.IsDead) return;
+        SetActivePlayer(player);
     }
 
     public void SetActivePlayer(PlayerCharacter player)
@@ -502,7 +488,10 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
+                BaseCharacter.OnSelectCharacter?.Invoke(player);
+                PlayerCharacter.OnSelectPlayer?.Invoke(player);
                 playerTargets.player = player;
+                PlayerCharacter.OnSelectedPlayerCharacterChange?.Invoke(player);
                 break;
             case BattlePhases.EnemyTurn:
                 enemyTargets.player = player;
@@ -531,59 +520,54 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         StartCoroutine(ChangeBattlePhase());
     }
 
-    //bool enemyAttacked = false;
-    //IEnumerator EnemyTurn()
-    //{
-    //    enemyAttacked = false;
-    //    QuickTimeBase.onExecuteQuickTime += (x) => enemyAttacked = true;
-    //    
-    //    while (!enemyAttacked)
-    //    {
-    //        yield return null;
-    //    }
-    //    QuickTimeBase.onExecuteQuickTime -= (x) => enemyAttacked = true;
-    //    
-    //    yield return new WaitForSeconds(3);
-    //    
-    //    EndTurn();
-    //}
-
     public IEnumerator ChangeBattlePhase()
     {
         switch (currentPhase)
         {
             case BattlePhases.Entry:
-                currentPhase = BattlePhases.PlayerTurn;
                 break;
             case BattlePhases.PlayerTurn:
                 yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
-                if (enemyController.EnemiesAlive)
-                {
-                    currentPhase = BattlePhases.EnemyTurn;
-                }
-                else currentPhase = BattlePhases.BattleWin;
-
-                OnEndPhase[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
-                if (PlayersAlive && enemyController.EnemiesAlive)
-                {
-                    currentPhase = BattlePhases.PlayerTurn;
-                }
-                else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
-                else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
-
                 enemyTargets.enemy.IncreaseChargeLevel();
-                OnEndPhase[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 SaveBattleState();
                 break;
-            case BattlePhases.BattleWin:
-                currentPhase = BattlePhases.PlayerTurn;
-                break;
         }
+
+        OnEndPhase[currentPhase.ToInt()]?.Invoke();
+
+        var activeCharacter = moveOrder[moveCount];
+        var isPlayer = activeCharacter as PlayerCharacter;
+        var lastPhase = currentPhase;
+        if (isPlayer)
+        {
+            if (lastPhase == BattlePhases.EnemyTurn)
+            {
+                OnEndTurn?.Invoke();
+            }
+
+            currentPhase = BattlePhases.PlayerTurn;
+
+            if (!enemyController.EnemiesAlive)
+            {
+                currentPhase = BattlePhases.BattleWin;
+            }
+            SetActivePlayer(activeCharacter as PlayerCharacter);
+        }
+        else
+        {
+            if (PlayersAlive)
+            {
+                currentPhase = BattlePhases.EnemyTurn;
+            }
+            else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
+            else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
+        }
+        moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
 
         finishedTurn = false;
 
@@ -687,6 +671,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         canteenSystem.SetCanteenCharge(battleData.StoredCharge);
         gameManager.TurnCount = battleData.TurnCount;
+        moveCount = battleData.MoveCount;
     }
 
     void SaveBattleState()
@@ -764,6 +749,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         data.StoredCharge = canteenSystem.AvailableCharge;
         data.TurnCount = gameManager.TurnCount;
+        data.MoveCount = moveCount;
 
         battleStateManager.SaveData();
     }

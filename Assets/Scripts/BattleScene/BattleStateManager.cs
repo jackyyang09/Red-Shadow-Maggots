@@ -42,6 +42,7 @@ public class BattleState
     public int SavedSeed;
     public int WaveCount = 0;
     public int TurnCount;
+    public int MoveCount;
     public bool[] IsBossWave;
     public bool[] UseSpecialCam;
     public bool BattleWon;
