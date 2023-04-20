@@ -131,6 +131,38 @@ PrefabInstance:
       propertyPath: rigidBodies.Array.data[0]
       value: 
       objectReference: {fileID: 4994075870175201549}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 6701428415047486475}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 3781408174963423272}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 5971511410411936661}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 6701428415047486475}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 3781408174963423272}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 5971511410411936661}
     - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: meshRoot
       value: 
@@ -153,14 +185,14 @@ PrefabInstance:
       objectReference: {fileID: 5971511410411936661}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
---- !u!4 &8990396954678549857 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}
-  m_PrefabInstance: {fileID: 2552595011594640444}
-  m_PrefabAsset: {fileID: 0}
 --- !u!212 &6701428415047486475 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 9109904639365812279, guid: e96445fd04248e447b138931f4914599, type: 3}
+  m_PrefabInstance: {fileID: 2552595011594640444}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &8990396954678549857 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}
   m_PrefabInstance: {fileID: 2552595011594640444}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2574888086862390444
@@ -326,6 +358,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+--- !u!4 &1479014275886264962 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 3193593093622742975}
+  m_PrefabAsset: {fileID: 0}
 --- !u!54 &4994075870175201549 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7574894546004391602, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
@@ -334,11 +371,6 @@ Rigidbody:
 --- !u!136 &5511786919149317989 stripped
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 6929956805943234778, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
-  m_PrefabInstance: {fileID: 3193593093622742975}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &1479014275886264962 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 3193593093622742975}
   m_PrefabAsset: {fileID: 0}
 --- !u!137 &5971511410411936661 stripped

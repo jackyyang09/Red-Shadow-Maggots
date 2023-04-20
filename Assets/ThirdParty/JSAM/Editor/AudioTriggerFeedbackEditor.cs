@@ -3,25 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioTriggerFeedback))]
     [CanEditMultipleObjects]
-    public class AudioTriggerFeedbackEditor : BaseAudioEditor
+    public class AudioTriggerFeedbackEditor : BaseSoundEditor
     {
         AudioTriggerFeedback myScript;
 
-        SerializedProperty sound;
-        SerializedProperty soundFile;
         SerializedProperty triggersWith;
         SerializedProperty triggerEvent;
 
         protected override void Setup()
         {
+            base.Setup();
+
             myScript = (AudioTriggerFeedback)target;
 
-            sound = serializedObject.FindProperty("sound");
-            soundFile = serializedObject.FindProperty("soundFile");
             triggersWith = serializedObject.FindProperty("triggersWith");
             triggerEvent = serializedObject.FindProperty("triggerEvent");
         }
@@ -32,7 +30,7 @@ namespace JSAM
 
             serializedObject.Update();
 
-            DrawSoundDropdown(sound);
+            DrawAudioProperty();
             
             EditorGUILayout.PropertyField(triggersWith);
             EditorGUILayout.PropertyField(triggerEvent);

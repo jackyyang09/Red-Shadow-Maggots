@@ -336,7 +336,10 @@ public class AnimationHelper : MonoBehaviour
 
     void ResetSky()
     {
-        RenderSettings.skybox.SetFloat(exposureID, 0.95f);
+        if (RenderSettings.skybox)
+        {
+            RenderSettings.skybox.SetFloat(exposureID, 0.95f);
+        }
     }
 
     public void ShowAllRenderers()
@@ -405,6 +408,22 @@ public class AnimationHelper : MonoBehaviour
             {
                 nonRagdollRenderers[i].gameObject.layer = IGNORE_LAYER_ID;
             }
+        }
+    }
+
+    public void EnableRenderers()
+    {
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = true;
+        }
+    }
+
+    public void DisableRenderers()
+    {
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].enabled = false;
         }
     }
 

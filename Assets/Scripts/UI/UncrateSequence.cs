@@ -174,11 +174,11 @@ public class UncrateSequence : BasicSingleton<UncrateSequence>
     {
         float exitHalfTime = exitTime / 2;
 
-        yield return screenEffects.FadeToBlackRoutine(exitHalfTime);
+        yield return screenEffects.FadeToBlackRoutine(ScreenEffects.EffectType.Partial, exitHalfTime);
 
         canvas.Hide();
 
-        yield return screenEffects.FadeFromBlackRoutine(exitHalfTime);
+        yield return screenEffects.FadeFromBlackRoutine(ScreenEffects.EffectType.Partial, exitHalfTime);
 
         onExitSequence?.Invoke();
     }

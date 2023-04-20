@@ -97,7 +97,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
         MakePlayersWalk(1);
 
-        screenEffects.FadeFromBlack();
+        screenEffects.FadeFromBlack(ScreenEffects.EffectType.Fullscreen);
 
         bool useSpecialCam = playerDataManager.LoadedData.InBattle ?
             battleStateManager.LoadedData.UseSpecialCam[battleStateManager.LoadedData.WaveCount] :
@@ -351,7 +351,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     {
         OnBattleTransition?.Invoke();
         anim.enabled = true;
-        screenEffects.FadeToBlack(1.5f);
+        screenEffects.FadeToBlack(ScreenEffects.EffectType.Fullscreen, 1.5f);
         anim.SetTrigger("OpenGate");
     }
 

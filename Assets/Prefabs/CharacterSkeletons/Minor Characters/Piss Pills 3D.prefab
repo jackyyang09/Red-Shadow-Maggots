@@ -57,6 +57,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+--- !u!4 &884295043604059586 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 98434137, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 884295043550374299}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3788316677819458726 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 884295043550374299}
+  m_PrefabAsset: {fileID: 0}
 --- !u!54 &7303373895427940137 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 7574894546004391602, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
@@ -65,16 +75,6 @@ Rigidbody:
 --- !u!136 &7811919441364089153 stripped
 CapsuleCollider:
   m_CorrespondingSourceObject: {fileID: 6929956805943234778, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
-  m_PrefabInstance: {fileID: 884295043550374299}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &3788316677819458726 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
-  m_PrefabInstance: {fileID: 884295043550374299}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &884295043604059586 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 98434137, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 884295043550374299}
   m_PrefabAsset: {fileID: 0}
 --- !u!137 &8271810328106945969 stripped
@@ -271,6 +271,38 @@ PrefabInstance:
       propertyPath: rigidBodies.Array.data[0]
       value: 
       objectReference: {fileID: 7303373895427940137}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 1392290882672076452}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 8201851214775098967}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 8271810328106945969}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 1392290882672076452}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 8201851214775098967}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 8271810328106945969}
     - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: meshRoot
       value: 
@@ -297,13 +329,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
---- !u!4 &3645214098014877646 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}
-  m_PrefabInstance: {fileID: 7871882230836639379}
-  m_PrefabAsset: {fileID: 0}
 --- !u!212 &1392290882672076452 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 9109904639365812279, guid: e96445fd04248e447b138931f4914599, type: 3}
+  m_PrefabInstance: {fileID: 7871882230836639379}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3645214098014877646 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}
   m_PrefabInstance: {fileID: 7871882230836639379}
   m_PrefabAsset: {fileID: 0}

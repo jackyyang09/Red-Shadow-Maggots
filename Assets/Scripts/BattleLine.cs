@@ -52,7 +52,7 @@ public class BattleLine : MonoBehaviour
 
     public void ShowLine()
     {
-        if (!battleSystem.EnemyAttacker.CanCrit || enemyController.WillUseSkill) return;
+        /*if (!battleSystem.EnemyAttacker.CanCrit || enemyController.WillUseSkill)*/ return;
         lineRenderer.enabled = true;
         sparks.Play();
     }

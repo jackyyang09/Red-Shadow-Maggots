@@ -3,24 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioParticles))]
     [CanEditMultipleObjects]
-    public class AudioParticlesEditor : BaseAudioEditor
+    public class AudioParticlesEditor : BaseSoundEditor
     {
         AudioParticles myScript;
 
-        SerializedProperty sound;
-        SerializedProperty soundFile;
         SerializedProperty playSoundOn;
 
         protected override void Setup()
         {
+            base.Setup();
+
             myScript = (AudioParticles)target;
 
-            sound = serializedObject.FindProperty("sound");
-            soundFile = serializedObject.FindProperty("soundFile");
             playSoundOn = serializedObject.FindProperty("playSoundOn");
         }
 
@@ -30,7 +28,7 @@ namespace JSAM
 
             serializedObject.Update();
 
-            DrawSoundDropdown(sound);
+            DrawAudioProperty();
 
             EditorGUILayout.PropertyField(playSoundOn);
 

@@ -6,80 +6,123 @@ using DG.Tweening;
 
 public class ScreenEffects : BasicSingleton<ScreenEffects>
 {
-    [SerializeField] GraphicRaycaster raycaster;
-    [SerializeField] Image fadeImage = null;
-
-    public void BlackOut()
-    {
-        fadeImage.color = Color.black;
-        fadeImage.enabled = true;
-        raycaster.enabled = true;
-        raycaster.enabled = true;
+    public enum EffectType
+    { 
+        Fullscreen,
+        Partial
     }
 
-    public void FadeFromBlack(float fadeTime = 1.5f, System.Action onComplete = null)
+    [System.Serializable]
+    public class EffectGroup
     {
-        StartCoroutine(FadeFromBlackRoutine(fadeTime, onComplete));
+        public CanvasGroup CanvasGroup;
+        public Image Image;
+        public GraphicRaycaster Raycaster;
     }
 
-    public IEnumerator FadeFromBlackRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    [Header("Fullscreen Effects")]
+    [SerializeField] EffectGroup fullScreenGroup;
+
+    [Header("Partial Effects")]
+    [SerializeField] EffectGroup partialGroup;
+
+    [SerializeField] float rotateSpeed;
+    [SerializeField] Image loadingIcon;
+
+    Dictionary<EffectType, EffectGroup> effectDictionary = new Dictionary<EffectType, EffectGroup>();
+
+    private void Start()
     {
-        fadeImage.color = Color.black;
-        yield return FadeOutRoutine(fadeTime, onComplete);
+        effectDictionary.Add(EffectType.Fullscreen, fullScreenGroup);
+        effectDictionary.Add(EffectType.Partial, partialGroup);
     }
 
-    public void FadeToBlack(float fadeTime = 1.5f, System.Action onComplete = null)
+    public void BlackOut(EffectType type)
     {
-        StartCoroutine(FadeToBlackRoutine(fadeTime, onComplete));
+        effectDictionary[type].Image.color = Color.black;
+        effectDictionary[type].CanvasGroup.alpha = 1;
+        effectDictionary[type].Raycaster.enabled = true;
     }
 
-    public IEnumerator FadeToBlackRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    public void ShowLoadingIcon(float fadeTime = 1.5f)
     {
-        fadeImage.color = Color.black;
-        yield return FadeInRoutine(fadeTime, onComplete);
+        loadingIcon.transform.DOKill();
+        loadingIcon.transform.DOLocalRotate(new Vector3(0, 0, -rotateSpeed), 1, RotateMode.LocalAxisAdd).SetLoops(-1).SetEase(Ease.Linear);
+        loadingIcon.DOKill();
+        loadingIcon.DOFade(1, fadeTime);
     }
 
-    public void FadeFromWhite(float fadeTime = 1.5f, System.Action onComplete = null)
+    public void HideLoadingIcon(float fadeTime = 1.5f)
     {
-        StartCoroutine(FadeFromWhiteRoutine(fadeTime, onComplete));
+        loadingIcon.DOFade(0, fadeTime).OnComplete(() => loadingIcon.transform.DOKill());
     }
 
-    public IEnumerator FadeFromWhiteRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    public void FadeFromBlack(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        fadeImage.color = Color.white;
-        yield return FadeOutRoutine(fadeTime, onComplete);
+        StartCoroutine(FadeFromBlackRoutine(type, fadeTime, onComplete));
     }
 
-    public void FadeToWhite(float fadeTime = 1.5f, System.Action onComplete = null)
+    public IEnumerator FadeFromBlackRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        StartCoroutine(FadeToWhiteRoutine(fadeTime, onComplete));
+        effectDictionary[type].Image.color = Color.black;
+        effectDictionary[type].Raycaster.enabled = true;
+        yield return FadeOutRoutine(type, fadeTime, onComplete);
     }
 
-    public IEnumerator FadeToWhiteRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    public void FadeToBlack(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        fadeImage.color = Color.white;
-        yield return FadeInRoutine(fadeTime, onComplete);
+        StartCoroutine(FadeToBlackRoutine(type, fadeTime, onComplete));
     }
 
-    IEnumerator FadeInRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    public IEnumerator FadeToBlackRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        fadeImage.enabled = true;
-        raycaster.enabled = true;
-        fadeImage.color = new Color(fadeImage.color.r, fadeImage.color.g, fadeImage.color.b, 0);
-        fadeImage.DOFade(1, fadeTime);
+        effectDictionary[type].Image.color = Color.black;
+        effectDictionary[type].Raycaster.enabled = true;
+        yield return FadeInRoutine(type, fadeTime, onComplete);
+    }
+
+    public void FadeFromWhite(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        StartCoroutine(FadeFromWhiteRoutine(type, fadeTime, onComplete));
+    }
+
+    public IEnumerator FadeFromWhiteRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        effectDictionary[type].Image.color = Color.white;
+        effectDictionary[type].Raycaster.enabled = true;
+        yield return FadeOutRoutine(type, fadeTime, onComplete);
+    }
+
+    public void FadeToWhite(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        StartCoroutine(FadeToWhiteRoutine(type, fadeTime, onComplete));
+    }
+
+    public IEnumerator FadeToWhiteRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        effectDictionary[type].Image.color = Color.white;
+        effectDictionary[type].Raycaster.enabled = true;
+        yield return FadeInRoutine(type, fadeTime, onComplete);
+    }
+
+    IEnumerator FadeInRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
+    {
+        effectDictionary[type].CanvasGroup.alpha = 0;
+        effectDictionary[type].CanvasGroup.DOFade(1, fadeTime);
 
         yield return new WaitForSeconds(fadeTime);
+
+        effectDictionary[type].Raycaster.enabled = true;
+        onComplete?.Invoke();
     }
 
-    IEnumerator FadeOutRoutine(float fadeTime = 1.5f, System.Action onComplete = null)
+    IEnumerator FadeOutRoutine(EffectType type, float fadeTime = 1.5f, System.Action onComplete = null)
     {
-        fadeImage.enabled = true;
-        raycaster.enabled = true;
-        fadeImage.DOFade(0, fadeTime);
+        effectDictionary[type].CanvasGroup.DOFade(0, fadeTime);
 
         yield return new WaitForSeconds(fadeTime);
 
-        fadeImage.enabled = false;
-        raycaster.enabled = false;
+        effectDictionary[type].Raycaster.enabled = false;
+        onComplete?.Invoke();
     }
 }

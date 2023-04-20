@@ -4,8 +4,11 @@ using UnityEngine;
 using Map;
 using static Facade;
 
-public class MapSceneManager : MonoBehaviour
+public class MapSceneManager : BasicSingleton<MapSceneManager>
 {
+    [SerializeField] Cinemachine.CinemachineBrain cinemachineBrain;
+    public Cinemachine.CinemachineBrain CinemachineBrain => cinemachineBrain;
+
     [SerializeField] DevLocker.Utils.SceneReference battleScene;
 
     [SerializeField] BattleObject[] battleList;

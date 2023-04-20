@@ -68,8 +68,8 @@ public class RestNode : BasicSingleton<RestNode>
 
         float halfTime = fadeTime / 2;
 
-        yield return screenEffects.FadeToWhiteRoutine(halfTime);
-        yield return screenEffects.FadeFromWhiteRoutine(halfTime);
+        yield return screenEffects.FadeToWhiteRoutine(ScreenEffects.EffectType.Partial, halfTime);
+        yield return screenEffects.FadeFromWhiteRoutine(ScreenEffects.EffectType.Partial, halfTime);
 
         vCam.enabled = false;
     }

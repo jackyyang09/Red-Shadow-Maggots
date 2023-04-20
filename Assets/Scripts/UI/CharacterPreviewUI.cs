@@ -21,31 +21,31 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         public Color color;
     }
 
-    [SerializeField] ClassTitleAndSprite[] classTuples = null;
-    [SerializeField] RarityTitleAndColor[] rarityTuples = null;
+    [SerializeField] ClassTitleAndSprite[] classTuples;
+    [SerializeField] RarityTitleAndColor[] rarityTuples;
 
     [Header("Object References")]
 
-    [SerializeField] OptimizedCanvas canvas = null;
+    [SerializeField] OptimizedCanvas canvas;
     public OptimizedCanvas OptimizedCanvas { get { return canvas; } }
     public bool IsVisible
     {
         get { return canvas.IsVisible; }
     }
 
-    [SerializeField] SkillDetailPanel skillPanel = null;
+    [SerializeField] SkillDetailPanel skillPanel;
 
-    [SerializeField] TextMeshProUGUI rarityText = null;
-    [SerializeField] TextMeshProUGUI classText = null;
-    [SerializeField] SkillButtonUI skillButton1 = null;
-    [SerializeField] SkillButtonUI skillButton2 = null;
+    [SerializeField] TextMeshProUGUI rarityText;
+    [SerializeField] TextMeshProUGUI classText;
+    [SerializeField] SkillButtonUI skillButton1;
+    [SerializeField] SkillButtonUI skillButton2;
 
-    [SerializeField] TextMeshProUGUI healthText = null;
-    [SerializeField] TextMeshProUGUI attackText = null;
-    [SerializeField] TextMeshProUGUI critRateText = null;
-    [SerializeField] TextMeshProUGUI critDamageText = null;
-    [SerializeField] TextMeshProUGUI attackWindowText = null;
-    [SerializeField] TextMeshProUGUI defenseWindowText = null;
+    [SerializeField] TextMeshProUGUI healthText;
+    [SerializeField] TextMeshProUGUI attackText;
+    [SerializeField] TextMeshProUGUI critRateText;
+    [SerializeField] TextMeshProUGUI critDamageText;
+    [SerializeField] TextMeshProUGUI attackWindowText;
+    [SerializeField] TextMeshProUGUI defenseWindowText;
 
     CharacterObject previewingCharacter;
 
@@ -94,6 +94,11 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         skillPanel.ShowPanel();
     }
 
+    public void ShowcaseCharacter()
+    {
+        ShowcaseSystem.Instance.ShowcaseCharacter(previewingCharacter);
+    }
+
     public void HideUI()
     {
         canvas.Hide();
@@ -101,10 +106,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
     }
 
     bool cardLoadMode = false;
-    public bool IsCardLoadMode
-    {
-        get { return cardLoadMode; }
-    }
+    public bool IsCardLoadMode => cardLoadMode;
 
     public void EnterCardLoadMode()
     {

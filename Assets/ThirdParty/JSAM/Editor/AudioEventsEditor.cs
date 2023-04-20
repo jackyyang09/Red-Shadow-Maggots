@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioEvents))]
     public class AudioEventsEditor : Editor

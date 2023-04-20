@@ -21,13 +21,22 @@ namespace JSAM
 
         Transform Listener => AudioManager.AudioListener.transform;
 
-        JSAMMusicChannelHelper helper;
+        MusicChannelHelper helper;
 
         private void Start()
         {
             if (keepPlayingWhenAway)
             {
-                helper = AudioManager.PlayMusic(music, null, helper);
+                helper = AudioManager.PlayMusic(audio, null, helper);
+                helper.Reserved = true;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (helper)
+            {
+                helper.Stop(true);
             }
         }
 
@@ -41,18 +50,22 @@ namespace JSAM
                 float dist = Vector3.Distance(Listener.position, z.Position);
                 if (dist <= z.MaxDistance)
                 {
-                    if (!helper) helper = AudioManager.PlayMusic(music, null, helper);
+                    if (!helper)
+                    {
+                        helper = AudioManager.PlayMusic(audio, null, helper);
+                        helper.Reserved = true;
+                    }
 
                     if (dist <= z.MinDistance)
                     {
                         // Set to the max volume
-                        helper.AudioSource.volume = AudioManager.MusicVolume * music.relativeVolume;
+                        helper.AudioSource.volume = AudioManager.MusicVolume * audio.relativeVolume;
                         return; // Can't be beat
                     }
                     else
                     {
                         float distanceFactor = Mathf.InverseLerp(z.MaxDistance, z.MinDistance, dist);
-                        float newVol = AudioManager.MusicVolume * music.relativeVolume * distanceFactor;
+                        float newVol = AudioManager.MusicVolume * audio.relativeVolume * distanceFactor;
                         if (newVol > loudest) loudest = newVol;
                     }
                 }

@@ -11,12 +11,11 @@ namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioMusicZone))]
     [CanEditMultipleObjects]
-    public class AudioMusicZoneEditor : BaseAudioMusicEditor
+    public class AudioMusicZoneEditor : BaseMusicEditor
     {
         AudioMusicZone myScript;
 
         SerializedProperty keepPlayingWhenAway;
-        SerializedProperty musicProperty;
         SerializedProperty musicZones;
 
         protected virtual string HIDE_TRANSFORMHANDLE => "JSAM_AMZ_HIDETRANSFORMHANDLE";
@@ -35,9 +34,10 @@ namespace JSAM.JSAMEditor
 
         protected override void Setup()
         {
+            base.Setup();
+
             myScript = (AudioMusicZone)target;
 
-            musicProperty = serializedObject.FindProperty("music");
             keepPlayingWhenAway = serializedObject.FindProperty(nameof(keepPlayingWhenAway));
             musicZones = serializedObject.FindProperty("MusicZones");
 
@@ -55,7 +55,7 @@ namespace JSAM.JSAMEditor
 
             serializedObject.Update();
 
-            DrawMusicDropdown(musicProperty);
+            DrawAudioProperty();
 
             EditorGUILayout.PropertyField(keepPlayingWhenAway);
 
@@ -226,7 +226,7 @@ namespace JSAM.JSAMEditor
                     e.FindPropertyRelative("Position").vector3Value = Vector3.zero;
                     e.FindPropertyRelative("MaxDistance").floatValue = 15;
                     e.FindPropertyRelative("MinDistance").floatValue = 10;
-                    
+
                     positionsFoldout = true;
                     foldouts.Add(true);
                 }

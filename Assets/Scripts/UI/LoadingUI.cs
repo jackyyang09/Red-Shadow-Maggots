@@ -13,7 +13,8 @@ public class LoadingUI : MonoBehaviour
     [SerializeField] OptimizedCanvas animatedCanvas;
     [SerializeField] Image spinningIcon;
     [SerializeField] TMPro.TextMeshProUGUI text;
-    [SerializeField] JSAM.JSAMSoundFileObject startLoadSound;
+    [SerializeField] JSAM.SoundFileObject startLoadSound;
+    [SerializeField] JSAM.SoundFileObject endLoadSound;
 
     private void OnEnable()
     {
@@ -46,11 +47,9 @@ public class LoadingUI : MonoBehaviour
 #endif
 
         var op = sceneLoader.LoadSceneOp;
-        while (op.progress < 1)
-        {
-            yield return null;
-        }
+        yield return new WaitUntil(() => op.isDone);
         
+        JSAM.AudioManager.PlaySound(endLoadSound);
         loadingGraphic.DOAnchorPosY(1080, 0.5f);
 
         yield return new WaitForSeconds(0.5f);

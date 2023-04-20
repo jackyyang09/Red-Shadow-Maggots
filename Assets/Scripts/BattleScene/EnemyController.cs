@@ -47,8 +47,8 @@ public class EnemyController : BasicSingleton<EnemyController>
     bool disableSkillUsage;
 #endif
 
-    bool useSkill;
-    public bool WillUseSkill => useSkill;
+    Dictionary<EnemyCharacter, bool> useSkill = new Dictionary<EnemyCharacter, bool>();
+    public bool WillUseSkill => false; // Battle Line may be deprecated
 
     public static System.Action OnChangedAttackers;
     public static System.Action OnChangedAttackTargets;
@@ -75,16 +75,17 @@ public class EnemyController : BasicSingleton<EnemyController>
         Enemies = enemyCharacters.ToArray();
     }
 
-    public void ChooseNewTargets()
-    {
-        ChooseAttacker();
-        ChooseAttackTarget();
-    }
-
     public void CalculateSkillUsage()
     {
         battleStateManager.InitializeRandom();
-        useSkill = Random.value <= battleSystem.ActiveEnemy.ChanceToUseSkill;
+        useSkill.Clear();
+        for (int i = 0; i < Enemies.Length; i++)
+        {
+            if (Enemies[i])
+            {
+                useSkill.Add(Enemies[i], Random.value <= Enemies[i].ChanceToUseSkill);
+            }
+        }
     }
 
     public void ChooseAttacker()
@@ -123,7 +124,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
 #endif
 
-        if (useSkill)
+        if (useSkill[battleSystem.ActiveEnemy] && !battleSystem.ActiveEnemy.UsedSkillThisTurn)
         {
             GameSkill randomSkill =
                 battleSystem.ActiveEnemy.Skills[Random.Range(0, battleSystem.ActiveEnemy.Skills.Count)];
@@ -250,15 +251,17 @@ public class EnemyController : BasicSingleton<EnemyController>
     [IngameDebugConsole.ConsoleMethod(nameof(ForceEnemyNoSkills), "Sets enemy character's skill use chance to 0%")]
     public static void ForceEnemyNoSkills()
     {
-        for (int i = 0; i < Instance.Enemies.Length; i++)
+        Instance.useSkill.Clear();
+        foreach (var item in Instance.Enemies)
         {
-            if (!Instance.Enemies[i]) continue;
-            Instance.Enemies[i].SetSkillUseChance(0);
-            Instance.useSkill = false;
-#if UNITY_EDITOR
-            Instance.disableSkillUsage = true;
-#endif
+            if (!item) continue;
+            item.SetSkillUseChance(0);
+            Instance.useSkill[item] = false;
         }
+
+#if UNITY_EDITOR
+        Instance.disableSkillUsage = true;
+#endif
 
         Debug.Log("Enemies skill use disabled!");
     }

@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     [CustomEditor(typeof(AudioCollisionFeedback))]
     [CanEditMultipleObjects]
-    public class AudioCollisionFeedbackEditor : BaseAudioEditor
+    public class AudioCollisionFeedbackEditor : BaseSoundEditor
     {
         AudioCollisionFeedback myScript;
 
-        SerializedProperty sound;
         SerializedProperty collidesWithProperty;
         SerializedProperty triggerEventProperty;
 
         protected override void Setup()
         {
+            base.Setup();
+
             myScript = (AudioCollisionFeedback)target;
 
-            sound = serializedObject.FindProperty("sound");
             collidesWithProperty = serializedObject.FindProperty("collidesWith");
             triggerEventProperty = serializedObject.FindProperty("triggerEvent");
         }
@@ -30,7 +30,7 @@ namespace JSAM
 
             serializedObject.Update();
 
-            DrawSoundDropdown(sound);
+            DrawAudioProperty();
 
             EditorGUILayout.PropertyField(collidesWithProperty);
             EditorGUILayout.PropertyField(triggerEventProperty);

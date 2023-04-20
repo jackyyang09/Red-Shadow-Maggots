@@ -2,25 +2,25 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UICharacterDetails : MonoBehaviour
+public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 {
-    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
-    [SerializeField] TMPro.TextMeshProUGUI levelText = null;
-    [SerializeField] UnityEngine.UI.Image portrait = null;
-    [SerializeField] TMPro.TextMeshProUGUI health = null;
-    [SerializeField] TMPro.TextMeshProUGUI attack = null;
-    [SerializeField] TMPro.TextMeshProUGUI critChance = null;
-    [SerializeField] GameObject descriptionPrefab = null;
-    [SerializeField] List<UIStatusDescription> statusDescriptions = null;
-    [SerializeField] RectTransform contentRect = null;
-
-    [SerializeField] OptimizedCanvas canvas = null;
-
     [SerializeField] Color positiveModifier = Color.yellow;
     [SerializeField] Color negativeModifier = Color.red;
 
-    [SerializeField] JSAM.JSAMSoundFileObject panelOpenSound;
-    [SerializeField] JSAM.JSAMSoundFileObject panelCloseSound;
+    [SerializeField] TMPro.TextMeshProUGUI nameText;
+    [SerializeField] TMPro.TextMeshProUGUI levelText;
+    [SerializeField] UnityEngine.UI.Image portrait;
+    [SerializeField] TMPro.TextMeshProUGUI health;
+    [SerializeField] TMPro.TextMeshProUGUI attack;
+    [SerializeField] TMPro.TextMeshProUGUI critChance;
+    [SerializeField] GameObject descriptionPrefab;
+    [SerializeField] List<UIStatusDescription> statusDescriptions;
+    [SerializeField] RectTransform contentRect;
+
+    [SerializeField] OptimizedCanvas canvas;
+
+    [SerializeField] JSAM.SoundFileObject panelOpenSound;
+    [SerializeField] JSAM.SoundFileObject panelCloseSound;
 
     private void OnEnable()
     {

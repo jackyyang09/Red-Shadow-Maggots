@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditor.Presets;
-using System;
 
 namespace JSAM.JSAMEditor
 {
@@ -13,55 +12,34 @@ namespace JSAM.JSAMEditor
         Sound
     }
 
-    public class JSAMAudioFileWizard : ScriptableObject
-    {
-        public List<AudioClip> files = new List<AudioClip>();
-        public AudioFileType fileType = AudioFileType.Sound;
-        public string outputFolder = "Assets";
-
-        static string helperAssetName = "JSAMAudioFileWizard.asset";
-
-        public static string HelperSavePath
-        {
-            get
-            {
-                string path = JSAMSettings.Settings.PackagePath;
-                path += "/Editor/Preferences";
-                return path;
-            }
-        }
-
-        public static JSAMAudioFileWizard Settings
-        {
-            get
-            {
-                var settings = AssetDatabase.LoadAssetAtPath<JSAMAudioFileWizard>(HelperSavePath + "/" + helperAssetName);
-                if (settings == null)
-                {
-                    if (!AssetDatabase.IsValidFolder(HelperSavePath))
-                    {
-                        JSAMEditorHelper.GenerateFolderStructureAt(HelperSavePath, true);
-                    }
-                    settings = ScriptableObject.CreateInstance<JSAMAudioFileWizard>();
-                    JSAMEditorHelper.CreateAssetSafe(settings, HelperSavePath + "/" + helperAssetName);
-                    AssetDatabase.SaveAssets();
-                }
-                return settings;
-            }
-        }
-    }
-
-    public class JSAMAudioFileWizardEditor : JSAMSerializedEditorWindow<JSAMAudioFileWizard, JSAMAudioFileWizardEditor>
+    public class JSAMAudioFileWizardEditor : JSAMBaseEditorWindow<JSAMAudioFileWizardEditor>
     {
         Vector2 scroll;
+
+        Preset selectedPreset = null;
 
         List<Preset> soundPresets = new List<Preset>();
         List<Preset> musicPresets = new List<Preset>();
         List<string> soundPresetNames;
         List<string> musicPresetNames;
 
-        int selectedSoundPreset = 0;
-        int selectedMusicPreset = 0;
+        static string SELECTED_SOUND_PRESET_KEY = nameof(JSAMAudioFileWizardEditor) + nameof(selectedSoundPresetIndex);
+        int selectedSoundPresetIndex
+        {
+            get => EditorPrefs.GetInt(SELECTED_SOUND_PRESET_KEY, 0);
+            set => EditorPrefs.SetInt(SELECTED_SOUND_PRESET_KEY, value);
+        }
+        static string SELECTED_MUSIC_PRESET_KEY = nameof(JSAMAudioFileWizardEditor) + nameof(selectedMusicPresetIndex);
+        int selectedMusicPresetIndex
+        {
+            get => EditorPrefs.GetInt(SELECTED_MUSIC_PRESET_KEY, 0);
+            set => EditorPrefs.SetInt(SELECTED_MUSIC_PRESET_KEY, value);
+        }
+
+        public static List<AudioClip> files = new List<AudioClip>();
+        public static string outputFolder;
+
+        public static AudioFileType fileType;
 
         Dictionary<Preset, PropertyModification> presetToProp = new Dictionary<Preset, PropertyModification>();
 
@@ -72,37 +50,11 @@ namespace JSAM.JSAMEditor
             // Get existing open window or if none, make a new one:
             Window.Show();
             window.SetWindowTitle();
-            window.DesignateSerializedProperties();   
         }
 
-        new protected void OnEnable()
+        protected void OnEnable()
         {
-            base.OnEnable();
-            DesignateSerializedProperties();
-            Undo.undoRedoPerformed += OnUndoRedoPerformed;
-            JSAMAssetModificationProcessor.OnJSAMAssetDeleted += OnJSAMAssetDeleted;
             LoadPresets();
-        }
-
-        private void OnDisable()
-        {
-            JSAMAssetModificationProcessor.OnJSAMAssetDeleted -= OnJSAMAssetDeleted;
-            Undo.undoRedoPerformed -= OnUndoRedoPerformed;
-        }
-
-        private void OnJSAMAssetDeleted(string filePath)
-        {
-            AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(filePath);
-            if (asset.files.Contains(clip)) markedForDeletion = true;
-        }
-
-        bool markedForDeletion;
-        void HandleAssetDeletion()
-        {
-            files.RemoveNullElementsFromArray();
-            markedForDeletion = false;
-
-            if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
         }
 
         protected override void SetWindowTitle()
@@ -110,28 +62,8 @@ namespace JSAM.JSAMEditor
             window.titleContent = new GUIContent("Audio File Wizard");
         }
 
-        SerializedProperty files;
-        SerializedProperty fileType;
-        SerializedProperty outputFolder;
-
-        protected override void DesignateSerializedProperties()
-        {
-            asset = JSAMAudioFileWizard.Settings;
-            serializedObject = new SerializedObject(asset);
-
-            files = FindProp(nameof(asset.files));
-            fileType = FindProp(nameof(asset.fileType));
-            outputFolder = FindProp(nameof(asset.outputFolder));
-
-            HandleAssetDeletion();
-        }
-
         private void OnGUI()
         {
-            serializedObject.UpdateIfRequiredOrScript();
-
-            if (markedForDeletion) HandleAssetDeletion();
-
             if (Event.current.type == EventType.MouseEnterWindow)
             {
                 window.Repaint();
@@ -142,12 +74,12 @@ namespace JSAM.JSAMEditor
             Rect overlay = EditorGUILayout.BeginVertical(GUI.skin.box, new GUILayoutOption[] { GUILayout.MinHeight(70), GUILayout.MaxHeight(200) });
             scroll = EditorGUILayout.BeginScrollView(scroll);
 
-            if (files.arraySize >= 0)
+            if (files.Count >= 0)
             {
-                for (int i = 0; i < files.arraySize; i++)
+                for (int i = 0; i < files.Count; i++)
                 {
                     Rect rect = EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-                    var element = files.GetArrayElementAtIndex(i).objectReferenceValue;
+                    var element = files[i];
                     blontent = new GUIContent(element.name);
 
                     EditorGUILayout.LabelField(i.ToString(), new GUILayoutOption[] { GUILayout.MaxWidth(25) });
@@ -156,16 +88,14 @@ namespace JSAM.JSAMEditor
 
                     using (new EditorGUI.DisabledScope(true))
                     {
-                        EditorGUILayout.PropertyField(files.GetArrayElementAtIndex(i), GUIContent.none);
+                        files[i] = EditorGUILayout.ObjectField(GUIContent.none, files[i], typeof(AudioClip),false) as AudioClip;
                     }
 
                     JSAMEditorHelper.BeginColourChange(Color.red);
                     blontent = new GUIContent("X", "Remove this AudioClip from the list");
                     if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.MaxWidth(25) }))
                     {
-                        files.DeleteArrayElementAtIndex(i);
-                        files.DeleteArrayElementAtIndex(i);
-                        serializedObject.ApplyModifiedProperties();
+                        files.Remove(files[i]);
                         GUIUtility.ExitGUI();
                     }
                     JSAMEditorHelper.EndColourChange();
@@ -181,28 +111,42 @@ namespace JSAM.JSAMEditor
             blontent = new GUIContent("Clear Files", "Remove all files from the above list. This process can be undone with Edit -> Undo");
             if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
             {
-                files.ClearArray();
+                files.Clear();
             }
 
             blontent = new GUIContent("Audio File Type", "The type of Audio File you want to generate from these Audio Clips");
-            EditorGUILayout.PropertyField(fileType, blontent);
-
-            Preset selectedPreset = null;
+            EditorGUI.BeginChangeCheck();
+            fileType = (AudioFileType)EditorGUILayout.EnumPopup(blontent, fileType);
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (fileType == AudioFileType.Music)
+                {
+                    if (musicPresets.Count > 0) selectedPreset = musicPresets[selectedMusicPresetIndex];
+                }
+                else
+                {
+                    if (soundPresets.Count > 0) selectedPreset = soundPresets[selectedSoundPresetIndex];
+                }
+            }
 
             EditorGUILayout.BeginHorizontal();
             blontent = new GUIContent("Preset to Apply", "Audio File objects created through the Audio File Wizard will be created using this preset as a template.");
             // Music
-            if (fileType.enumValueIndex == 0)
+            if (fileType == AudioFileType.Music)
             {
                 if (musicPresets.Count == 0)
                 {
                     using (new EditorGUI.DisabledScope(true))
-                        selectedMusicPreset = EditorGUILayout.Popup(blontent, selectedMusicPreset, new string[] { "<None>" });
+                        selectedMusicPresetIndex = EditorGUILayout.Popup(blontent, selectedMusicPresetIndex, new string[] { "<None>" });
                 }
                 else
                 {
-                    selectedMusicPreset = EditorGUILayout.Popup(blontent, selectedMusicPreset, musicPresetNames.ToArray());
-                    selectedPreset = musicPresets[selectedMusicPreset];
+                    EditorGUI.BeginChangeCheck();
+                    selectedMusicPresetIndex = EditorGUILayout.Popup(blontent, selectedMusicPresetIndex, musicPresetNames.ToArray());
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        selectedPreset = musicPresets[selectedMusicPresetIndex];
+                    }
                 }
             }
             // Sound
@@ -211,12 +155,16 @@ namespace JSAM.JSAMEditor
                 if (soundPresets.Count == 0)
                 {
                     using (new EditorGUI.DisabledScope(true))
-                        selectedSoundPreset = EditorGUILayout.Popup(blontent, selectedSoundPreset, new string[] { "<None>" });
+                        selectedSoundPresetIndex = EditorGUILayout.Popup(blontent, selectedSoundPresetIndex, new string[] { "<None>" });
                 }
                 else
                 {
-                    selectedSoundPreset = EditorGUILayout.Popup(blontent, selectedSoundPreset, soundPresetNames.ToArray());
-                    selectedPreset = soundPresets[selectedSoundPreset];
+                    EditorGUI.BeginChangeCheck();
+                    selectedSoundPresetIndex = EditorGUILayout.Popup(blontent, selectedSoundPresetIndex, soundPresetNames.ToArray());
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        selectedPreset = soundPresets[selectedSoundPresetIndex];
+                    }
                 }
             }
 
@@ -231,6 +179,7 @@ namespace JSAM.JSAMEditor
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.BeginHorizontal();
+
             if (selectedPreset != null)
             {
                 blontent = new GUIContent(presetToProp[selectedPreset].value);
@@ -244,7 +193,7 @@ namespace JSAM.JSAMEditor
             EditorGUILayout.LabelField(new GUIContent("Preset Description"), blontent, skin, new GUILayoutOption[] { GUILayout.ExpandWidth(true) });
             EditorGUILayout.EndHorizontal();
 
-            JSAMEditorHelper.RenderSmartFolderProperty(new GUIContent("Output Folder"), outputFolder);
+            outputFolder = JSAMEditorHelper.RenderSmartFolderProperty(new GUIContent("Output Folder"), outputFolder);
 
             blontent = new GUIContent("Generate Audio File Objects", 
                 "Create audio file objects with the provided Audio Clips according to the selected preset. " +
@@ -252,36 +201,23 @@ namespace JSAM.JSAMEditor
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space();
 
-            bool cantGenerate = files.arraySize == 0 || selectedPreset == null;
+            bool cantGenerate = files.Count == 0 || selectedPreset == null;
             using (new EditorGUI.DisabledScope(cantGenerate))
             {
                 if (GUILayout.Button(blontent, new GUILayoutOption[] { GUILayout.ExpandWidth(false) }))
                 {
-                    if (fileType.enumValueIndex == 0)
+                    if (fileType == AudioFileType.Music)
                     {
-                        GenerateAudioFileObjects<JSAMMusicFileObject>(selectedPreset);
+                        GenerateAudioFileObjects<MusicFileObject>(selectedPreset);
                     }
                     else
                     {
-                        GenerateAudioFileObjects<JSAMSoundFileObject>(selectedPreset);
+                        GenerateAudioFileObjects<SoundFileObject>(selectedPreset);
                     }
                 }
             }
             EditorGUILayout.Space();
             EditorGUILayout.EndHorizontal();
-
-            if (serializedObject.hasModifiedProperties)
-            {
-                serializedObject.ApplyModifiedProperties();
-            }
-        }
-
-        private void OnUndoRedoPerformed()
-        {
-            if (serializedObject != null)
-            {
-                Window.Repaint();
-            }
         }
 
         void LoadPresets()
@@ -292,12 +228,12 @@ namespace JSAM.JSAMEditor
             musicPresets = new List<Preset>();
             musicPresetNames = new List<string>();
 
-            var presets = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<Preset>(JSAMSettings.Settings.PresetsPath);
+            var presets = JSAMEditorHelper.ImportAssetsOrFoldersAtPath<Preset>(JSAMPaths.Instance.PresetsPath);
 
             for (int i = 0; i < presets.Count; i++)
             {
-                var testMusic = CreateInstance<JSAMMusicFileObject>();
-                var testSound = CreateInstance<JSAMSoundFileObject>();
+                var testMusic = CreateInstance<MusicFileObject>();
+                var testSound = CreateInstance<SoundFileObject>();
 
                 if (presets[i].CanBeAppliedTo(testMusic))
                 {
@@ -312,26 +248,34 @@ namespace JSAM.JSAMEditor
 
                 presetToProp[presets[i]] = presets[i].FindProp("presetDescription");
             }
+
+            if (fileType == AudioFileType.Music)
+            {
+                if (musicPresets.Count > 0) selectedPreset = musicPresets[selectedMusicPresetIndex];
+            }   
+            else
+            {
+                if (soundPresets.Count > 0) selectedPreset = soundPresets[selectedSoundPresetIndex];
+            }
         }
 
         void GenerateAudioFileObjects<T>(Preset preset) where T : BaseAudioFileObject
         {
-            string folder = outputFolder.stringValue;
             EditorUtility.DisplayProgressBar("Generating Audio File Objects", "Starting...", 0);
             int i = 0;
-            for (; i < asset.files.Count; i++)
+            for (; i < files.Count; i++)
             {
-                if (EditorUtility.DisplayCancelableProgressBar("Generating Audio File Objects (" + i + "/" + asset.files.Count + ")", 
-                    asset.files[i].name, (float)i / (float)asset.files.Count)) break;
+                if (EditorUtility.DisplayCancelableProgressBar("Generating Audio File Objects (" + i + "/" + files.Count + ")", 
+                    files[i].name, (float)i / (float)files.Count)) break;
 
                 var newObject = CreateInstance<T>();
                 preset.ApplyTo(newObject);
                 SerializedObject newSO = new SerializedObject(newObject);
-                var files = newSO.FindProperty("files");
-                files.ClearArray();
-                files.AddAndReturnNewArrayElement().objectReferenceValue = asset.files[i];
+                var f = newSO.FindProperty("files");
+                f.ClearArray();
+                f.AddAndReturnNewArrayElement().objectReferenceValue = files[i];
                 newSO.ApplyModifiedProperties();
-                string finalPath = folder + "/" + asset.files[i].name + ".asset";
+                string finalPath = outputFolder + "/" + files[i].name + ".asset";
                 if (!JSAMEditorHelper.CreateAssetSafe(newObject, finalPath))
                 {
                     EditorUtility.DisplayDialog("Generation Interrupted", "Failed to create folders/assets!", "OK");
@@ -342,13 +286,13 @@ namespace JSAM.JSAMEditor
             EditorUtility.FocusProjectWindow();
             EditorUtility.DisplayDialog(
                 "Generation Finished",
-                "Successfully generated " + i + "/" + asset.files.Count + " files!", "OK");
-            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(folder));
+                "Successfully generated " + i + "/" + files.Count + " files!", "OK");
+            EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(outputFolder));
         }
 
         void HandleDragAndDrop(Rect dragRect)
         {
-            string label = files.arraySize == 0 ? "Drag AudioClips here" : "";
+            string label = files.Count == 0 ? "Drag AudioClips here" : "";
 
             if (JSAMEditorHelper.DragAndDropRegion(dragRect, label, "Release to Add AudioClips"))
             {
@@ -361,13 +305,13 @@ namespace JSAM.JSAMEditor
 
                     for (int j = 0; j < clips.Count; j++)
                     {
-                        if (asset.files.Contains(clips[j]))
+                        if (files.Contains(clips[j]))
                         {
                             duplicates.Add(clips[j]);
                             continue;
                         }
 
-                        files.AddAndReturnNewArrayElement().objectReferenceValue = clips[j];
+                        files.Add(clips[j]);
                     }
                 }
 
@@ -381,12 +325,6 @@ namespace JSAM.JSAMEditor
                     EditorUtility.DisplayDialog("Duplicate Audio Clips!",
                         "The following Audio File Objects are already present in the wizard and have been skipped./n" + multiLine,
                         "OK");
-                }
-
-                if (serializedObject.hasModifiedProperties)
-                {
-                    serializedObject.ApplyModifiedProperties();
-                    Window.Repaint();
                 }
             }
         }

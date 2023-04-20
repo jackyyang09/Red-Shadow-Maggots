@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using DG.Tweening;
 
 public class QuickTimeHold : QuickTimeBase
 {
@@ -35,7 +35,7 @@ public class QuickTimeHold : QuickTimeBase
     [SerializeField] protected Image progressBar;
     [SerializeField] protected Image fillBar;
     [SerializeField] protected Image targetBar;
-    [SerializeField] JSAM.JSAMSoundFileObject chargeSound;
+    [SerializeField] JSAM.SoundFileObject chargeSound;
 
     Coroutine tickRoutine;
 

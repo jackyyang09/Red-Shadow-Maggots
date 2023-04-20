@@ -211,7 +211,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     private IEnumerator Start()
     {
-        screenEffects.BlackOut();
+        screenEffects.BlackOut(ScreenEffects.EffectType.Fullscreen);
 
         yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
 
@@ -253,7 +253,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             break;
         }
 
-        enemyController.ChooseNewTargets();
+        enemyController.ChooseAttackTarget();
         enemyController.CalculateSkillUsage();
 
         for (int i = 0; i < deadMaggots.Count; i++)
@@ -305,7 +305,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 break;
         }
 
-        if (character.characterRig)
+        if (character.characterRig != null)
         {
             PlayerCharacter player = Instantiate(player3Dprefab, spawnPos).GetComponent<PlayerCharacter>();
             player.SetCharacterAndRarity(character, rarity);
@@ -563,6 +563,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (PlayersAlive)
             {
                 currentPhase = BattlePhases.EnemyTurn;
+                SetActiveEnemy(activeCharacter as EnemyCharacter);
             }
             else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
             else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
@@ -577,7 +578,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 break;
             case BattlePhases.PlayerTurn:
                 OnStartPhase[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
-                enemyController.ChooseNewTargets();
+                enemyController.ChooseAttackTarget();
                 OnStartPhaseLate[BattlePhases.PlayerTurn.ToInt()]?.Invoke();
                 break;
             case BattlePhases.EnemyTurn:
@@ -596,7 +597,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                     waveManager.WaveCount++;
                     OnWaveClear?.Invoke();
                 }
-
                 break;
             case BattlePhases.BattleLose:
                 OnStartPhase[BattlePhases.BattleLose.ToInt()]?.Invoke();

@@ -8,7 +8,7 @@ using JSAM;
 public class ButtonSoundUI : MonoBehaviour
 {
     [SerializeField] Button button;
-    [SerializeField] JSAMSoundFileObject buttonSound;
+    [SerializeField] SoundFileObject buttonSound;
 
     private void OnValidate()
     {

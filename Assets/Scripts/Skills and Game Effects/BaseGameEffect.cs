@@ -41,8 +41,8 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public GameObject particlePrefab;
 
-    public JSAM.JSAMSoundFileObject activationSound;
-    public JSAM.JSAMSoundFileObject tickSound;
+    public JSAM.SoundFileObject activationSound;
+    public JSAM.SoundFileObject tickSound;
 
     /// <summary>
     /// Invoked immediately

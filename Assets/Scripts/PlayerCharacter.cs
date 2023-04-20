@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using static Facade;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 public class PlayerCharacter : BaseCharacter
 {
@@ -55,9 +56,9 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
-    protected override void Initialize()
+    protected override void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)
     {
-        base.Initialize();
+        base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
 

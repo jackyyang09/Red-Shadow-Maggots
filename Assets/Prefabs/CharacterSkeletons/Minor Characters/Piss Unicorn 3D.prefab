@@ -69,14 +69,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
---- !u!54 &8914316307637101015 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 7574894546004391602, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
-  m_PrefabInstance: {fileID: 1344725842282731365}
-  m_PrefabAsset: {fileID: 0}
---- !u!136 &8252085424953018303 stripped
-CapsuleCollider:
-  m_CorrespondingSourceObject: {fileID: 6929956805943234778, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+--- !u!4 &1344725842194934588 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 98434137, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 1344725842282731365}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &3061890694603102808 stripped
@@ -84,14 +79,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4095857123440233789, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 1344725842282731365}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1344725842194934588 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 98434137, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
-  m_PrefabInstance: {fileID: 1344725842282731365}
-  m_PrefabAsset: {fileID: 0}
 --- !u!137 &7793363730850476879 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 9119501185379574826, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 1344725842282731365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &8252085424953018303 stripped
+CapsuleCollider:
+  m_CorrespondingSourceObject: {fileID: 6929956805943234778, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
+  m_PrefabInstance: {fileID: 1344725842282731365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!54 &8914316307637101015 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 7574894546004391602, guid: 1ceaf68af7343804fa0c3e4d8d21feb8, type: 3}
   m_PrefabInstance: {fileID: 1344725842282731365}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5312185297188402982
@@ -201,6 +201,38 @@ PrefabInstance:
       propertyPath: rigidBodies.Array.data[0]
       value: 
       objectReference: {fileID: 8914316307637101015}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 4022926546688976657}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 9015591554576555949}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: ragdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 7793363730850476879}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[0]
+      value: 
+      objectReference: {fileID: 4022926546688976657}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[1]
+      value: 
+      objectReference: {fileID: 9015591554576555949}
+    - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
+      propertyPath: nonRagdollRenderers.Array.data[2]
+      value: 
+      objectReference: {fileID: 7793363730850476879}
     - target: {fileID: 8204277303593799595, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: meshRoot
       value: 

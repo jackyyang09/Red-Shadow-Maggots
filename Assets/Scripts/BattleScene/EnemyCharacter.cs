@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
 
 public class EnemyCharacter : BaseCharacter
@@ -14,6 +15,7 @@ public class EnemyCharacter : BaseCharacter
     }
 
     bool usedSkillThisTurn;
+    public bool UsedSkillThisTurn => usedSkillThisTurn;
 
     [SerializeField] int critLevel = 0;
 
@@ -52,9 +54,11 @@ public class EnemyCharacter : BaseCharacter
         }
     }
 
-    protected override void Initialize()
+    protected override void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)
     {
-        base.Initialize();
+        base.OnCharacterLoaded(obj);
+
+        characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
 
         // Set to World-Scale of 1
         if (isBossCharacter)
@@ -69,8 +73,6 @@ public class EnemyCharacter : BaseCharacter
             billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
             billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
         }
-
-        characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
     }
 
     protected override void OnEnable()

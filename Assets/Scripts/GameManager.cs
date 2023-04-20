@@ -75,7 +75,7 @@ public class GameManager : BasicSingleton<GameManager>
         playerData.BattlesFought++;
         playerDataManager.SaveData();
 
-        screenEffects.FadeToBlack();
+        screenEffects.FadeToBlack(ScreenEffects.EffectType.Fullscreen);
         sceneLoader.SwitchScene(mapScene.SceneName);
     }
 

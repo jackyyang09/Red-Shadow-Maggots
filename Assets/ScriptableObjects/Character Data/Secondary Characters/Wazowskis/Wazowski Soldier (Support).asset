@@ -30,9 +30,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 58b25de1c0d84d043bb99c973ab60f82, type: 2}
   hasAltSkillAnimation: 0
   superCritical: {fileID: 11400000, guid: 457f4d15c91327642a1a8debc41c709d, type: 2}
+  superCriticalAnim: {fileID: 0}
+  isSuperCriticalAnAttack: 0
   spriteObject: {fileID: 0}
   animator: {fileID: 0}
-  characterRig: {fileID: 1824106369016530116, guid: ba9766a24f5bc004c8c8a56b4129d8f0, type: 3}
+  characterRig:
+    m_AssetGUID: ba9766a24f5bc004c8c8a56b4129d8f0
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   attackAnimations:
   - attackAnimation: {fileID: 7400000, guid: ec3b21aade82133478a7212cb6d018ae, type: 2}
     attackRange: 0
@@ -42,7 +48,18 @@ MonoBehaviour:
     attackRange: 0
     isAOE: 0
   attackEffectPrefab: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+  projectileEffectPrefabs: []
   extraEffectPrefabs: []
+  environmentAsset:
+    m_AssetGUID: 0ecbea84bce26544e986f16022a8d8c4
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  skyboxAsset:
+    m_AssetGUID: 1a22edd06f948fc44ba17ccd4e792450
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   voiceEntry: {fileID: 0}
   voiceAttack: {fileID: 0}
   voiceSelected: {fileID: 0}

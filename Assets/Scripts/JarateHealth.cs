@@ -32,12 +32,18 @@ public class JarateHealth : MonoBehaviour
     private void OnEnable()
     {
         character = GetComponentInParent<BaseCharacter>();
-        character.onTakeDamage += TweenLiquid;
+        if (character)
+        {
+            character.onTakeDamage += TweenLiquid;
+        }
     }
 
     private void OnDisable()
     {
-        character.onTakeDamage -= TweenLiquid;
+        if (character)
+        {
+            character.onTakeDamage -= TweenLiquid;
+        }
     }
 
     [ContextMenu(nameof(TweenLiquid))]

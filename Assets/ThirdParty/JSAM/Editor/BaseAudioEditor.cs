@@ -1,14 +1,22 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
-    public abstract class BaseAudioEditor : Editor
+    public abstract class BaseAudioEditor<T> : Editor where T : BaseAudioFileObject
     {
         protected List<string> options = new List<string>();
+        protected List<List<string>> moreOptions = new List<List<string>>();
         protected static bool showHowTo;
+
+        protected SerializedProperty audio;
+        protected SerializedProperty advancedMode;
+
+        protected abstract GUIContent audioDesc { get; }
+        protected abstract List<T> audioLibrary { get; }
+        protected abstract List<AudioLibrary.CategoryToList> ctl { get; }
 
         protected void OnEnable()
         {
@@ -18,25 +26,31 @@ namespace JSAM
                 return;
             }
 
-            PopulateSoundList();
-
             Setup();
+
+            PopulateAudioList();
         }
 
         protected virtual void Setup()
         {
+            audio = serializedObject.FindProperty(nameof(audio));
+            advancedMode = serializedObject.FindProperty(nameof(advancedMode));
         }
 
-        protected void PopulateSoundList()
+        protected void PopulateAudioList()
         {
-            if (AudioManager.Instance)
+            if (!AudioManager.Instance) return;
+            if (AudioManager.Instance.Library == null) return;
+
+            for (int i = 0; i < audioLibrary.Count; i++)
             {
-                if (AudioManager.Instance.Library == null) return;
-                var sounds = AudioManager.Instance.Library.Sounds;
-                for (int i = 0; i < sounds.Count; i++)
-                {
-                    options.Add(sounds[i].SafeName);
-                }
+                options.Add(audioLibrary[i].SafeName);
+            }
+
+            if (audio.objectReferenceValue == null)
+            {
+                audio.objectReferenceValue = audioLibrary[0];
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
@@ -46,44 +60,86 @@ namespace JSAM
         /// <summary>
         /// Is here to prevent the strange errors the appear the moment you finish compiling
         /// </summary>
-        protected void TryPopulateSoundList()
+        protected void TryPopulateAudioList()
         {
             if (attempts < MAX_ATTEMPTS)
             {
                 attempts++;
             }
-            PopulateSoundList();
+            PopulateAudioList();
         }
 
-        /// <summary>
-        /// </summary>
-        /// <param name="soundProperty">This is passed by reference, thanks Unity!</param>
-        protected void DrawSoundDropdown(SerializedProperty soundProperty)
+        protected virtual void DrawAudioProperty()
         {
             if (!AudioManager.Instance)
             {
                 EditorGUILayout.HelpBox("Could not find Audio Manager in the scene! This component needs AudioManager " +
                     "in order to function!", MessageType.Error);
             }
+            else if (AudioManager.Instance.Library == null)
+            {
+                EditorGUILayout.HelpBox("Your Audio Manager is missing an Audio Library! Unless advanced mode is true, " + 
+                    "this components relies on an Audio Library to function!", MessageType.Warning);
+            }
 
-            EditorGUILayout.LabelField("Choose a Sound to Play", EditorStyles.boldLabel);
+            if (advancedMode.boolValue)
+            {
+                EditorGUILayout.PropertyField(audio, audioDesc);
+            }
+            else
+            {
+                DrawAudioDropdown();
+            }
 
-            GUIContent soundDesc = new GUIContent("Sound", "Sound that will be played");
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(advancedMode);
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (advancedMode.boolValue) return;
+                if (!AudioManager.Instance) return;
+                if (AudioManager.Instance.Library) return;
+                if (!audioLibrary.Contains(audio.objectReferenceValue as T)) return;
 
-            JSAMSoundFileObject audioObject = (JSAMSoundFileObject)soundProperty.objectReferenceValue;
+                if (audio.objectReferenceValue == null)
+                {
+                    audio.objectReferenceValue = audioLibrary[0];
+                }
+            }
+        }
+
+        private void DrawAudioDropdown()
+        {
+            T audioObject = (T)audio.objectReferenceValue;
             int selected = 0;
             if (audioObject != null) selected = options.IndexOf(audioObject.SafeName);
             if (selected == -1) selected = 0;
+
             if (options.Count > 0)
             {
-                selected = EditorGUILayout.Popup(soundDesc, selected, options.ToArray());
-                soundProperty.objectReferenceValue = AudioManager.Instance.Library.Sounds[selected];
+                var n = audioLibrary[selected].SafeName;
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel(audioDesc);
+                if (EditorGUILayout.DropdownButton(new GUIContent(n), FocusType.Keyboard))
+                {
+                    var menu = new GenericMenu();
+                    for (int i = 0; i < ctl.Count; i++)
+                    {
+                        for (int j = 0; j < ctl[i].files.Count; j++)
+                        {
+                            var categoryName = ctl[i].name == "" ? "Uncategorized" : ctl[i].name;
+                            var c = new GUIContent(categoryName + "/" + ctl[i].files[j].SafeName);
+                            menu.AddItem(c, ctl[i].files[j].SafeName == n, SetSelected, ctl[i].files[j].SafeName);
+                        }
+                    }
+                    menu.ShowAsContext();
+                }
+                EditorGUILayout.EndHorizontal();
             }
             else
             {
                 using (new EditorGUI.DisabledScope(true))
                 {
-                    EditorGUILayout.Popup(soundDesc, selected, new string[] {"<None>"});
+                    EditorGUILayout.Popup(audioDesc, selected, new string[] {"<None>"});
                 }
             }
         }
@@ -93,6 +149,13 @@ namespace JSAM
             EditorGUILayout.Space();
             showHowTo = EditorCompatability.SpecialFoldouts(showHowTo, "Quick Reference Guide");
             EditorGUILayout.Space();
+        }
+
+        protected void SetSelected(object data)
+        {
+            int i = options.IndexOf((string)data);
+            audio.objectReferenceValue = audioLibrary[i];
+            if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
         }
     }
 }

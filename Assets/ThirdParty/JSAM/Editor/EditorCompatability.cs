@@ -3,10 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-namespace JSAM
+namespace JSAM.JSAMEditor
 {
     public class EditorCompatability : Editor
     {
+        [System.Serializable]
+        public struct AgnosticGUID<T> where T : UnityEngine.Object
+        {
+#if UNITY_2020_3_OR_NEWER
+            public GUID guid;
+#else
+            public string guid;
+#endif
+            [SerializeField] T savedObject;
+            public T SavedObject
+            {
+                get
+                {
+                    return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                }
+                set
+                {
+#if UNITY_2020_3_OR_NEWER
+                    guid = AssetDatabase.GUIDFromAssetPath(AssetDatabase.GetAssetPath(value));
+#else
+                    guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(value));
+#endif
+                }
+            }
+        }
+
         public static bool SpecialFoldouts(bool foldout, string foldoutText)
         {
 #if UNITY_2019_4_OR_NEWER

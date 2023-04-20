@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using System.Linq;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
 
 public struct DamageStruct
@@ -211,6 +212,7 @@ public abstract class BaseCharacter : MonoBehaviour
     protected ViewportBillboard billBoard;
 
     protected bool usedSuperCritThisTurn;
+    public bool UsedSuperCritThisTurn => usedSuperCritThisTurn;
 
     public Action<AppliedEffect> onApplyGameEffect;
     public Action<AppliedEffect> onRemoveGameEffect;
@@ -298,14 +300,37 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    protected virtual void Initialize()
+    void Initialize()
     {
-        if (characterReference.characterRig)
+        if (characterReference.characterRig != null)
         {
-            characterMesh = Instantiate(characterReference.characterRig, transform);
-            rigAnim = characterMesh.GetComponentInChildren<Animator>();
-            animHelper = GetComponentInChildren<AnimationHelper>();
+            var op = characterReference.characterRig.OperationHandle;
+            AsyncOperationHandle<GameObject> loadOp;
+            if (!op.IsValid())
+            {
+                loadOp = characterReference.characterRig.LoadAssetAsync<GameObject>();
+            }
+            else
+            {
+                loadOp = op.Convert<GameObject>();
+            }
+
+            if (!loadOp.IsDone)
+            {
+                loadOp.Completed += OnCharacterLoaded;
+            }
+            else
+            {
+                OnCharacterLoaded(loadOp);
+            }
         }
+    }
+
+    protected virtual void OnCharacterLoaded(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> obj)
+    {
+        characterMesh = Instantiate(obj.Result, transform);
+        rigAnim = characterMesh.GetComponentInChildren<Animator>();
+        animHelper = GetComponentInChildren<AnimationHelper>();
     }
 
     protected virtual void OnEnable()
