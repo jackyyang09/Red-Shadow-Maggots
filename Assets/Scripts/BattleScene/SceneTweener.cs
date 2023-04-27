@@ -64,12 +64,22 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     {
         GlobalEvents.OnCharacterUseSuperCritical += OnCharacterUseSuperCritical;
         //GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
+        ui.OffenseBar.OnExecuteQuickTime += OnExecuteQuickTime;
     }
 
     private void OnDisable()
     {
         GlobalEvents.OnCharacterUseSuperCritical -= OnCharacterUseSuperCritical;
         //GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
+
+        // References may be lost on Application Quit
+        if (ui)
+        {
+            if (ui.OffenseBar)
+            {
+                ui.OffenseBar.OnExecuteQuickTime -= OnExecuteQuickTime;
+            }
+        }
     }
 
     private void Start()
@@ -143,6 +153,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
+                playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
                 attacker.LookAt(target.position);
                 break;
             case BattlePhases.EnemyTurn:
@@ -220,6 +231,15 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         StartCoroutine(ReturnToPositionDelayed());
     }
 
+    private void OnExecuteQuickTime()
+    {
+        // Look at enemy whose getting hit by the attack
+        if (BaseCharacter.IncomingAttack.attackRange == AttackRange.LongRange)
+        {
+            playerCam.m_LookAt = battleSystem.ActiveEnemy.transform;
+        }
+    }
+
     public void RotateBackInstantly()
     {
         battleSystem.ActiveEnemy.CharacterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
@@ -233,7 +253,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     IEnumerator RotateBackDelayed()
     {
-        switch (BattleSystem.Instance.CurrentPhase)
+        switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
@@ -245,7 +265,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
         yield return new WaitForSeconds(returnTweenDelay);
 
-        switch (BattleSystem.Instance.CurrentPhase)
+        switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 var activePlayer = battleSystem.ActivePlayer;
@@ -312,7 +332,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
                     yield return null;
                 }
-
                 break;
             case BattlePhases.EnemyTurn:
                 var activeEnemy = battleSystem.ActiveEnemy;

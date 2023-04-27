@@ -9,7 +9,7 @@ public class CharacterSidebar : BasicSingleton<CharacterSidebar>
 
     [SerializeField] BaseStatRenderer[] statRenderers;
 
-    public void UpdateStats(PlayerData.MaggotState state, CharacterObject character)
+    public void UpdateStats(PlayerSave.MaggotState state, CharacterObject character)
     {
         for (int i = 0; i < statRenderers.Length; i++)
         {

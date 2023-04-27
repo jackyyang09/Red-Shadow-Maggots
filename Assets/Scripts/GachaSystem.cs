@@ -65,7 +65,7 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     // Start is called before the first frame update
     void Start()
     {
-        if (legacyMode/* && !playerDataManager.LoadedData.InBattle*/)
+        if (legacyMode)
         {
             for (int i = 0; i < maggots.Count; i++)
             {
@@ -84,11 +84,11 @@ public class GachaSystem : BasicSingleton<GachaSystem>
             }
 
             if (offenseMaggots.Count > 0)
-                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(offenseMaggots), RandomRarity);
+                characterLoader.SpawnCharacterWithRarity(0, GetRandomMaggot(offenseMaggots), RandomRarity);
             if (defenseMaggots.Count > 0)
-                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(defenseMaggots), RandomRarity);
+                characterLoader.SpawnCharacterWithRarity(1, GetRandomMaggot(defenseMaggots), RandomRarity);
             if (supportMaggots.Count > 0)
-                battleSystem.SpawnCharacterWithRarity(GetRandomMaggot(supportMaggots), RandomRarity);
+                characterLoader.SpawnCharacterWithRarity(2, GetRandomMaggot(supportMaggots), RandomRarity);
         }
     }
 
@@ -149,11 +149,11 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
     IEnumerator GiveMaggotRoutine()
     {
-        if (PlayerDataManager.Initialized)
+        if (PlayerSaveManager.Initialized)
         {
             var data = playerDataManager.LoadedData;
 
-            PlayerData.MaggotState newState = new PlayerData.MaggotState();
+            PlayerSave.MaggotState newState = new PlayerSave.MaggotState();
 
             var ar = RandomMaggot;
             var op = LoadMaggot(ar);

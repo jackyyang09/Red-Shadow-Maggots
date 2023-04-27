@@ -8,6 +8,7 @@ public class BattleState
 {
     public class SerializedEffect
     {
+        public TargetMode TargetMode;
         public int EffectIndex;
         public int RemainingTurns;
         public EffectStrength Strength;
@@ -43,6 +44,7 @@ public class BattleState
     public int WaveCount = 0;
     public int TurnCount;
     public int MoveCount;
+    public int SelectedEnemy;
     public bool[] IsBossWave;
     public bool[] UseSpecialCam;
     public bool BattleWon;

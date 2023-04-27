@@ -209,6 +209,9 @@ public abstract class BaseCharacter : MonoBehaviour
         return resultSkill != null && resultSkill.CanUse;
     }
 
+    bool initialized;
+    public bool Initialized => initialized;
+
     protected ViewportBillboard billBoard;
 
     protected bool usedSuperCritThisTurn;
@@ -259,7 +262,7 @@ public abstract class BaseCharacter : MonoBehaviour
         rarity = newRarity;
     }
 
-    public virtual void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
+    public virtual void InitializeWithInfo(int level, BattleState.State stateInfo = null)
     {
         if (characterReference == null) return;
 
@@ -271,6 +274,13 @@ public abstract class BaseCharacter : MonoBehaviour
 
         Initialize();
 
+        for (int i = 0; i < characterReference.skills.Length; i++)
+        {
+            GameSkill newSkill = new GameSkill();
+            newSkill.InitWithSkill(characterReference.skills[i]);
+            gameSkills.Add(newSkill);
+        }
+
         if (stateInfo != null)
         {
             health = stateInfo.Health;
@@ -278,11 +288,6 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 DieSilently();
                 return;
-            }
-
-            for (int i = 0; i < stateInfo.Effects.Count; i++)
-            {
-                ApplyEffect(gameEffectLoader.DeserializeEffect(stateInfo.Effects[i], this));
             }
         }
         else
@@ -292,11 +297,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
         onSetHealth?.Invoke();
 
-        for (int i = 0; i < characterReference.skills.Length; i++)
+        CreateBillboardUI();
+
+        for (int i = 0; i < stateInfo.Effects.Count; i++)
         {
-            GameSkill newSkill = new GameSkill();
-            newSkill.InitWithSkill(characterReference.skills[i]);
-            gameSkills.Add(newSkill);
+            ApplyEffect(gameEffectLoader.DeserializeEffect(stateInfo.Effects[i], this));
         }
     }
 
@@ -326,11 +331,14 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
+    protected abstract void CreateBillboardUI();
+
     protected virtual void OnCharacterLoaded(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> obj)
     {
         characterMesh = Instantiate(obj.Result, transform);
         rigAnim = characterMesh.GetComponentInChildren<Animator>();
         animHelper = GetComponentInChildren<AnimationHelper>();
+        initialized = true;
     }
 
     protected virtual void OnEnable()
@@ -391,14 +399,14 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void PlayAttackAnimation()
     {
         OnCharacterStartAttack?.Invoke(this);
-        QuickTimeBase.onExecuteQuickTime += ExecuteAttack;
+        QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
     }
 
     public virtual void ExecuteAttack()
     {
         CalculateAttackDamage();
 
-        QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
+        QuickTimeBase.OnExecuteAnyQuickTime -= ExecuteAttack;
 
         //if (rigAnim)
         //{
@@ -607,7 +615,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
                         break;
                 }
-
                 break;
             case TargetMode.AllEnemies:
                 switch (battleSystem.CurrentPhase)
@@ -629,7 +636,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
                         break;
                 }
-
                 break;
         }
 
@@ -1032,6 +1038,12 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void DieSilently()
     {
+        StartCoroutine(DeathRoutine());
+    }
+
+    IEnumerator DeathRoutine()
+    {
+        yield return new WaitUntil(() => initialized);
         animHelper.EnableRagdoll();
         if (billBoard) Destroy(billBoard.gameObject);
     }

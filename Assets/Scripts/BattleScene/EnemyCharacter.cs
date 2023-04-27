@@ -37,9 +37,9 @@ public class EnemyCharacter : BaseCharacter
     public static System.Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
     public System.Action<int> onCritLevelChanged;
 
-    public override void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
+    public override void InitializeWithInfo(int level, BattleState.State stateInfo = null)
     {
-        base.ApplyCharacterStats(level, stateInfo);
+        base.InitializeWithInfo(level, stateInfo);
 
         if (stateInfo != null)
         {
@@ -59,7 +59,11 @@ public class EnemyCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
+        if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+    }
 
+    protected override void CreateBillboardUI()
+    {
         // Set to World-Scale of 1
         if (isBossCharacter)
         {
@@ -70,7 +74,6 @@ public class EnemyCharacter : BaseCharacter
         {
             billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform)
                 .GetComponent<ViewportBillboard>();
-            billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
             billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
         }
     }
@@ -204,11 +207,7 @@ public class EnemyCharacter : BaseCharacter
     {
         if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
         {
-            if (IsDead) return;
-            OnSelectCharacter?.Invoke(this);
-            if (battleSystem.ActiveEnemy == this) return;
-            battleSystem.SetActiveEnemy(this);
-            OnSelectedEnemyCharacterChange?.Invoke(this);
+            battleSystem.TrySetActiveEnemy(this);
         }
     }
 
@@ -228,7 +227,7 @@ public class EnemyCharacter : BaseCharacter
             IncomingDamage.isCritical = true;
         }
 
-        QuickTimeBase.onExecuteQuickTime -= ExecuteAttack;
+        QuickTimeBase.OnExecuteAnyQuickTime -= ExecuteAttack;
 
         if (rigAnim)
         {

@@ -4,5 +4,5 @@ using UnityEngine;
 
 public abstract class BaseStatRenderer : MonoBehaviour
 {
-    public abstract void UpdateRendererForCharacter(PlayerData.MaggotState state, CharacterObject character, bool isEnemy);
+    public abstract void UpdateRendererForCharacter(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy);
 }

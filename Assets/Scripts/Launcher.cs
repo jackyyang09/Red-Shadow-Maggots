@@ -10,7 +10,7 @@ public class Launcher : MonoBehaviour
 
     public void StartGame()
     {
-        if (!PlayerDataManager.Initialized) return;
+        if (!PlayerSaveManager.Initialized) return;
 
         if (playerDataManager.LoadedData.InBattle)
         {

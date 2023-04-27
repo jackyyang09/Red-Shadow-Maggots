@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class ViewportBillboard : MonoBehaviour
 {
-    [SerializeField] float hideDistance = 0;
-    [SerializeField] float fadeDistance = 1;
+    //[SerializeField] float hideDistance = 0;
+    //[SerializeField] float fadeDistance = 1;
     [SerializeField] Vector2 scale = new Vector2(0.7f, 1.25f);
     [SerializeField] Vector2 scaleDistance = new Vector2(5, 20);
 
@@ -19,9 +19,9 @@ public class ViewportBillboard : MonoBehaviour
     [SerializeField] Camera cam;
 
     Vector3 originalScale;
-    [SerializeField] RectTransform canvas = null;
+    [SerializeField] RectTransform canvas;
 
-    [SerializeField] CanvasGroup canvasGroup = null;
+    //[SerializeField] CanvasGroup canvasGroup;
 
     [ContextMenu("Find Rect")]
     private void OnValidate()

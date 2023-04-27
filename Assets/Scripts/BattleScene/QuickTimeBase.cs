@@ -17,8 +17,6 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     protected PlayerCharacter activePlayer = null;
 
-    public static System.Action onExecuteQuickTime;
-
     public abstract void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null);
 
     public abstract void StartTicking();
@@ -29,6 +27,7 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     public static bool AlwaysSucceed = false;
 
+    public static System.Action OnExecuteAnyQuickTime;
     public System.Action OnExecuteQuickTime;
     public System.Action OnQuickTimeComplete;
 

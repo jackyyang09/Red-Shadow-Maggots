@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class PlayerData
+public class PlayerSave
 {
     public class MaggotState
     {
@@ -24,13 +24,13 @@ public class PlayerData
     public bool InBattle { get; set; }
     public Vector2 MapPosition { get; set; }
 
-    public PlayerData()
+    public PlayerSave()
     {
         MapPosition = new Vector2(-3, -2.5f);
     }
 }
 
-public class PlayerDataManager : BaseSaveManager<PlayerData>
+public class PlayerSaveManager : BaseSaveManager<PlayerSave>
 {
     public override string FILE_NAME => "PlayerData";
 
@@ -48,15 +48,19 @@ public class PlayerDataManager : BaseSaveManager<PlayerData>
         Map.MapPlayerTracker.OnEnterNode -= OnAdvanceFloor;
     }
 
-    public void AddNewMaggot(PlayerData.MaggotState newState)
+    public void AddNewMaggot(PlayerSave.MaggotState newState)
     {
         loadedData.MaggotStates.Add(newState);
 
         int index = loadedData.MaggotStates.Count - 1;
-        if (loadedData.Party[1] == -1) loadedData.Party[1] = index;
-        else if (loadedData.Party[0] == -1) loadedData.Party[0] = index;
-        else if (loadedData.Party[2] == -1) loadedData.Party[2] = index;
-
+        for (int i = 0; i < loadedData.Party.Length; i++)
+        {
+            if (loadedData.Party[i] == -1)
+            {
+                loadedData.Party[i] = index;
+                break;
+            }
+        }
         SaveData();
 
         OnMaggotStatesChanged?.Invoke();

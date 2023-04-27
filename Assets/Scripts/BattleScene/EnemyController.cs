@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
@@ -11,15 +12,7 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         get
         {
-            List<EnemyCharacter> e = new List<EnemyCharacter>();
-            for (int i = 0; i < Enemies.Length; i++)
-            {
-                if (Enemies[i])
-                {
-                    if (!Enemies[i].IsDead) e.Add(Enemies[i]);
-                }
-            }
-
+            var e = Enemies.Where(item => !item.IsDead).ToList();
             if (e.Count == 0) return null;
             battleStateManager.InitializeRandom();
             return e[Random.Range(0, e.Count)];

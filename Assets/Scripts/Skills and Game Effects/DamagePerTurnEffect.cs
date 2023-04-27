@@ -23,7 +23,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
         float damage = 0;
         for (int i = 0; i < values.Count; i++)
         {
-            damage += (float)values[i];
+            damage += (float)values[i] * target.MaxHealth;
         }
 
         DamageStruct damageStruct = new DamageStruct();
@@ -41,17 +41,20 @@ public class DamagePerTurnEffect : BaseDamageEffect
 
         switch (targetMode)
         {
+            case TargetMode.Self:
+                s += "Lose ";
+                break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
-                s += "loses ";
+                s += " loses ";
                 break;
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += "lose ";
+                s += " lose ";
                 break;
         }
 
-        s += change + " health every turn ";
+        s += (int)(change * 100) + "% health every turn ";
 
         return s + DurationDescriptor(duration);
     }

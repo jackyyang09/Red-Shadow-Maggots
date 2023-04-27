@@ -33,9 +33,9 @@ public class PlayerCharacter : BaseCharacter
     public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
     public static Action<PlayerCharacter> OnPlayerQTEAttack;
 
-    public override void ApplyCharacterStats(int level, BattleState.State stateInfo = null)
+    public override void InitializeWithInfo(int level, BattleState.State stateInfo = null)
     {
-        base.ApplyCharacterStats(level, stateInfo);
+        base.InitializeWithInfo(level, stateInfo);
 
         maxHealth = characterReference.GetMaxHealth(currentLevel, false)/* * RarityMultiplier*/;
 
@@ -62,8 +62,12 @@ public class PlayerCharacter : BaseCharacter
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
 
+        if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+    }
+
+    protected override void CreateBillboardUI()
+    {
         billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
-        billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
         billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
     }
 
@@ -105,12 +109,17 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        //if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
-        //if (ui.CharacterPanelOpen) return;
-        //if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
-        //{
-        //    battleSystem.TrySetActivePlayer(this);
-        //}
+        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
+        if (ui.CharacterPanelOpen) return;
+        if (UIManager.SelectingAllyForSkill)
+        {
+            OnSelectPlayer?.Invoke(this);
+            return;
+        }
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        {
+            battleSystem.TrySetActivePlayer(this);
+        }
     }
 
     private void OnMouseDrag()
@@ -137,13 +146,13 @@ public class PlayerCharacter : BaseCharacter
     {
         if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
         {
-            QuickTimeBase.onExecuteQuickTime += PlayBlockAnimation;
+            QuickTimeBase.OnExecuteAnyQuickTime += PlayBlockAnimation;
         }
     }
 
     public virtual void EndDefense()
     {
-        QuickTimeBase.onExecuteQuickTime -= PlayBlockAnimation;
+        QuickTimeBase.OnExecuteAnyQuickTime -= PlayBlockAnimation;
     }
 
     void PlayBlockAnimation(DamageStruct d) => PlayBlockAnimation();

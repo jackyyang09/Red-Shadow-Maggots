@@ -16,17 +16,17 @@ public class PartyManager : BasicSingleton<PartyManager>
 
     private void OnEnable()
     {
-        PlayerDataManager.OnMaggotStatesChanged += UpdateCardStack;
+        PlayerSaveManager.OnMaggotStatesChanged += UpdateCardStack;
     }
 
     private void OnDisable()
     {
-        PlayerDataManager.OnMaggotStatesChanged -= UpdateCardStack;
+        PlayerSaveManager.OnMaggotStatesChanged -= UpdateCardStack;
     }
 
     private IEnumerator Start()
     {
-        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+        yield return new WaitUntil(() => PlayerSaveManager.Initialized && BattleStateManager.Initialized);
 
         InstantiateCardHolders();
     }

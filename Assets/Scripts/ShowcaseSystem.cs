@@ -173,9 +173,12 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
 
     public void HideShowcase()
     {
-        (loadedAssets[loadedCharacter.characterRig] as GameObject).SetActive(false);
-        (loadedAssets[loadedCharacter.environmentAsset] as GameObject).SetActive(false);
-        showcaseCam.enabled = false;
+        if (loadedCharacter)
+        {
+            (loadedAssets[loadedCharacter.characterRig] as GameObject).SetActive(false);
+            (loadedAssets[loadedCharacter.environmentAsset] as GameObject).SetActive(false);
+            showcaseCam.enabled = false;
+        }
     }
 
     public void Cleanup()

@@ -6,8 +6,8 @@ public class CritDamageRenderer : BaseStatRenderer
 {
     [SerializeField] TMPro.TextMeshProUGUI critLabel;
 
-    public override void UpdateRendererForCharacter(PlayerData.MaggotState state, CharacterObject character, bool isEnemy)
+    public override void UpdateRendererForCharacter(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
     {
-        critLabel.text = (character.critDamageMultiplier * 100).ToString();
+        critLabel.text = (character.critDamageMultiplier * 100).ToString() + "%";
     }
 }

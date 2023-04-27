@@ -5,6 +5,12 @@ using UnityEngine;
 public class EffectHelper : MonoBehaviour
 {
     [SerializeField] ParticleSystem[] particles;
+    [SerializeField] float lifeTime = 1;
+
+    private void Start()
+    {
+        Destroy(gameObject, lifeTime);
+    }
 
     public void PlayEffect()
     {

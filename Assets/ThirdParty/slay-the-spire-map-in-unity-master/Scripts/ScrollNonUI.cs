@@ -46,9 +46,9 @@ namespace Map
 
         private IEnumerator Start()
         {
-            yield return new WaitUntil(() => PlayerDataManager.Initialized);
+            yield return new WaitUntil(() => PlayerSaveManager.Initialized);
 
-            var pos = PlayerDataManager.Instance.LoadedData.MapPosition;
+            var pos = PlayerSaveManager.Instance.LoadedData.MapPosition;
             vCam.position = new Vector3(pos.x, vCam.position.y, pos.y);
         }
 
@@ -60,11 +60,11 @@ namespace Map
         private void SaveMapPosition(Scene arg0, Scene arg1) => SaveMapPosition();
         void SaveMapPosition()
         {
-            if (!PlayerDataManager.Initialized) return;
+            if (!PlayerSaveManager.Initialized) return;
 
-            var data = PlayerDataManager.Instance.LoadedData;
+            var data = PlayerSaveManager.Instance.LoadedData;
             data.MapPosition = new Vector2(vCam.position.x, vCam.position.z);
-            PlayerDataManager.Instance.SaveData();
+            PlayerSaveManager.Instance.SaveData();
         }
 
         public void OnMouseUp()

@@ -17,7 +17,7 @@ public class RSMEditorTools : Editor
     {
         if (EditorUtility.DisplayDialog("Confirm Deletion", "Delete BattleData.xml, PlayerData.xml and Map.json?", "Yes", "Cancel"))
         {
-            if (File.Exists(PlayerDataManager.FILE_PATH)) File.Delete(PlayerDataManager.FILE_PATH);
+            if (File.Exists(PlayerSaveManager.FILE_PATH)) File.Delete(PlayerSaveManager.FILE_PATH);
             if (File.Exists(BattleStateManager.FILE_PATH)) File.Delete(BattleStateManager.FILE_PATH);
             if (File.Exists(Map.MapManager.FILE_PATH)) File.Delete(Map.MapManager.FILE_PATH);
             EditorUtility.DisplayDialog("Done!", "Deletion Completion", "Neat!");

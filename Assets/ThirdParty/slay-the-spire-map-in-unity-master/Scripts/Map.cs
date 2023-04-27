@@ -42,7 +42,7 @@ namespace Map
 
         public string ToJson()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented);
+            return UnityEngine.JsonUtility.ToJson(this, true);
         }
     }
 }

@@ -61,7 +61,7 @@ public class CharacterCardHolder : MonoBehaviour
     //{
     //}
 
-    public void InitializeStatsCanvas(PlayerData.MaggotState state)
+    public void InitializeStatsCanvas(PlayerSave.MaggotState state)
     {
         var level = characterData.GetLevelFromExp(state.Exp);
         levelLabel.text = level.ToString();

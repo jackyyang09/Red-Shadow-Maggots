@@ -21,6 +21,9 @@ public class BaseDamageEffect : BaseGameEffect
 
         switch (targetMode)
         {
+            case TargetMode.Self:
+                s += "Lose ";
+                break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
                 s += "loses ";
@@ -31,7 +34,7 @@ public class BaseDamageEffect : BaseGameEffect
                 break;
         }
 
-        s += change + " health ";
+        s += change + "% health ";
 
         return s;
     }
@@ -48,15 +51,15 @@ public class BaseDamageEffect : BaseGameEffect
             case EffectStrength.Custom:
                 return customValues[0];
             case EffectStrength.Weak:
-                return 200f;
+                return 0.01f;
             case EffectStrength.Small:
-                return 300f;
+                return 0.025f;
             case EffectStrength.Medium:
-                return 500f;
+                return 0.05f;
             case EffectStrength.Large:
-                return 1000f;
+                return 0.075f;
             case EffectStrength.EX:
-                return 3000f;
+                return 0.1f;
         }
         return 0;
     }

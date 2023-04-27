@@ -19,7 +19,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
     [SerializeField] Cinemachine.CinemachineVirtualCamera vCam;
     [SerializeField] UncrateSequence uncrateSequence;
 
-    PlayerData.MaggotState[] maggots;
+    PlayerSave.MaggotState[] maggots;
 
     [ContextMenu("Test")]
     public void Initialize()
@@ -48,7 +48,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         vCam.enabled = true;
 
         var characters = new List<CharacterObject>();
-        maggots = new PlayerData.MaggotState[3];
+        maggots = new PlayerSave.MaggotState[3];
 
         for (int i = 0; i < cardHolders.Count; i++)
         {
@@ -61,7 +61,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
 
             cardHolders[i].SetCharacterAndRarity(characters[i], Rarity.Common);
 
-            maggots[i] = new PlayerData.MaggotState();
+            maggots[i] = new PlayerSave.MaggotState();
             maggots[i].GUID = maggot.AssetGUID;
             int level = playerDataManager.LoadedData.BattlesFought;
             maggots[i].Exp = Mathf.RoundToInt(characters[i].GetExpRequiredForLevel(0, level));

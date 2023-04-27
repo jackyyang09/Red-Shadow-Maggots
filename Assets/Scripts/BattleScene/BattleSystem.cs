@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using DevLocker.Utils;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
 
 public enum BattlePhases
@@ -53,6 +55,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void FinishTurn() => finishedTurn = true;
 
     [SerializeField] List<PlayerCharacter> playerCharacters = null;
+
+    [SerializeField] SceneReference mapScene;
 
     public List<PlayerCharacter> PlayerCharacters
     {
@@ -163,15 +167,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     [SerializeField] TargettedCharacters enemyTargets = new TargettedCharacters();
 
-    [SerializeField] GameObject playerPrefab = null;
-    [SerializeField] GameObject player3Dprefab = null;
-
-    [SerializeField] Transform leftSpawnPos = null;
-
-    [SerializeField] Transform middleSpawnPos = null;
-
-    [SerializeField] Transform rightSpawnPos = null;
-
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
     int moveCount = 0;
 
@@ -198,6 +193,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         SceneTweener.OnBattleEntered += EndTurn;
         SkillManagerUI.OnSkillActivated += ActivateSkill;
+
+        BaseCharacter.OnCharacterDeath += OnCharacterDeath;
     }
 
     private void OnDisable()
@@ -207,54 +204,50 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         SceneTweener.OnBattleEntered -= EndTurn;
         SkillManagerUI.OnSkillActivated -= ActivateSkill;
+
+        BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
     }
 
     private IEnumerator Start()
     {
         screenEffects.BlackOut(ScreenEffects.EffectType.Fullscreen);
 
-        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+        yield return new WaitUntil(() => PlayerSaveManager.Initialized && BattleStateManager.Initialized);
 
-        if (!gachaSystem.LegacyMode)
+        waveManager.SetupWave();
+
+        characterLoader.LoadAllPlayerCharacters();
+
+        yield return new WaitUntil(() => characterLoader.PlayersLoaded && characterLoader.EnemiesLoaded);
+
+        LoadBattleState();
+
+        // Initialize turn order
+        for (int i = 0; i < playerCharacters.Count; i++)
         {
-            yield return StartCoroutine(LoadBattleState());
-        }
-
-        GameStart();
-    }
-
-    public void GameStart()
-    {
-        if (playerCharacters[0]) playerTargets.player = playerCharacters[0];
-        else if (playerCharacters[1]) playerTargets.player = playerCharacters[1];
-        else if (playerCharacters[2]) playerTargets.player = playerCharacters[2];
-        playerTargets.player.ShowCharacterUI();
-
-        StartCoroutine(InitiateNextBattle());
-    }
-
-    public IEnumerator InitiateNextBattle()
-    {
-        yield return waveManager.SetupWave();
-
-        if (battleStateManager.LoadedData.SavedSeed == 0)
-        {
-            var seed = (int)System.DateTime.Now.Ticks;
-            battleStateManager.LoadedData.SavedSeed = seed;
-            battleStateManager.SaveData();
+            if (!playerCharacters[i]) continue;
+            yield return new WaitUntil(() => playerCharacters[i].Initialized);
+            if (playerCharacters[i].IsDead) continue;
+            moveOrder.Add(playerCharacters[i]);
         }
 
         for (int i = 0; i < enemyController.Enemies.Length; i++)
         {
             if (!enemyController.Enemies[i]) continue;
+            yield return new WaitUntil(() => enemyController.Enemies[i].Initialized);
             if (enemyController.Enemies[i].IsDead) continue;
-            playerTargets.enemy = enemyController.Enemies[i];
-            playerTargets.enemy.ShowCharacterUI();
-            break;
+            moveOrder.Add(enemyController.Enemies[i]);
         }
 
-        enemyController.ChooseAttackTarget();
-        enemyController.CalculateSkillUsage();
+        sceneTweener.EnterBattle();
+        currentPhase = BattlePhases.Entry;
+    }
+
+    public IEnumerator InitiateNextBattle()
+    {
+        waveManager.SetupWave();
+
+        yield return characterLoader.EnemiesLoaded;
 
         for (int i = 0; i < deadMaggots.Count; i++)
         {
@@ -263,14 +256,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         sceneTweener.EnterBattle();
         currentPhase = BattlePhases.Entry;
-
-        moveOrder.AddRange(playerCharacters);
-        moveOrder.AddRange(enemyController.Enemies);
-        // Remove empty slots
-        for (int i = moveOrder.Count - 1; i >= 0; i--)
-        {
-            if (!moveOrder[i]) moveOrder.RemoveAt(i);
-        }
     }
 
     // Update is called once per frame
@@ -286,38 +271,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             Time.timeScale = 1;
         }
 #endif
-    }
-
-    public void SpawnCharacterWithRarity(CharacterObject character, Rarity rarity, int level = 1,
-        BattleState.PlayerState stateInfo = null)
-    {
-        Transform spawnPos = null;
-        switch (playerCharacters.Count)
-        {
-            case 0:
-                spawnPos = middleSpawnPos;
-                break;
-            case 1:
-                spawnPos = leftSpawnPos;
-                break;
-            case 2:
-                spawnPos = rightSpawnPos;
-                break;
-        }
-
-        if (character.characterRig != null)
-        {
-            PlayerCharacter player = Instantiate(player3Dprefab, spawnPos).GetComponent<PlayerCharacter>();
-            player.SetCharacterAndRarity(character, rarity);
-            player.ApplyCharacterStats(level, stateInfo);
-            playerCharacters.Add(player);
-        }
-        else // Legacy
-        {
-            PlayerCharacter player = Instantiate(playerPrefab, spawnPos).GetComponent<PlayerCharacter>();
-            player.SetCharacterAndRarity(character, rarity);
-            playerCharacters.Add(player);
-        }
     }
 
     public void BeginPlayerAttack()
@@ -478,7 +431,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void TrySetActivePlayer(PlayerCharacter player)
     {
         if (battleSystem.ActivePlayer == player) return;
-        if (UIManager.SelectingAllyForSkill) return;
         if (player.IsDead) return;
         SetActivePlayer(player);
     }
@@ -488,9 +440,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         switch (currentPhase)
         {
             case BattlePhases.PlayerTurn:
-                BaseCharacter.OnSelectCharacter?.Invoke(player);
-                PlayerCharacter.OnSelectPlayer?.Invoke(player);
                 playerTargets.player = player;
+                BaseCharacter.OnSelectCharacter?.Invoke(player);
                 PlayerCharacter.OnSelectedPlayerCharacterChange?.Invoke(player);
                 break;
             case BattlePhases.EnemyTurn:
@@ -499,17 +450,29 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
+    public void TrySetActiveEnemy(EnemyCharacter enemy)
+    {
+        if (!enemy) return;
+        if (enemy.IsDead) return;
+        if (battleSystem.ActiveEnemy == enemy) return;
+        battleSystem.SetActiveEnemy(enemy);
+    }
+
     public void SetActiveEnemy(EnemyCharacter enemy)
     {
         switch (currentPhase)
         {
+            case BattlePhases.Entry:
             case BattlePhases.PlayerTurn:
                 playerTargets.enemy = enemy;
+                BaseCharacter.OnSelectCharacter?.Invoke(enemy);
+                EnemyCharacter.OnSelectedEnemyCharacterChange?.Invoke(enemy);
                 break;
             case BattlePhases.EnemyTurn:
                 enemyTargets.enemy = enemy;
                 break;
         }
+        Debug.Log(enemy.Reference.name);
     }
 
     public void SetEnemyAttackTarget(PlayerCharacter player) => enemyTargets.player = player;
@@ -519,6 +482,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         StartCoroutine(ChangeBattlePhase());
     }
+
+    public void IncrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
 
     public IEnumerator ChangeBattlePhase()
     {
@@ -534,7 +499,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
                 enemyTargets.enemy.IncreaseChargeLevel();
-                SaveBattleState();
                 break;
         }
 
@@ -547,6 +511,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (lastPhase == BattlePhases.EnemyTurn)
             {
+                SaveBattleState();
                 OnEndTurn?.Invoke();
             }
 
@@ -560,6 +525,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
         else
         {
+            if (lastPhase == BattlePhases.PlayerTurn)
+            {
+                enemyController.CalculateSkillUsage();
+            }
+
             if (PlayersAlive)
             {
                 currentPhase = BattlePhases.EnemyTurn;
@@ -568,8 +538,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
             else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
         }
-        moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
 
+        IncrementMoveCount();
         finishedTurn = false;
 
         switch (currentPhase)
@@ -645,33 +615,19 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         yield return null;
     }
 
-    IEnumerator LoadBattleState()
+    void LoadBattleState()
     {
-        var battleData = battleStateManager.LoadedData;
-        var playerData = playerDataManager.LoadedData;
-        for (int i = 0; i < playerData.Party.Length; i++)
+        gameManager.TurnCount = BattleData.TurnCount;
+        moveCount = BattleData.MoveCount;
+        canteenSystem.SetCanteenCharge(BattleData.StoredCharge);
+        if (enemyController.Enemies[BattleData.SelectedEnemy].IsDead)
         {
-            if (playerData.Party[i] == -1)
-            {
-                playerCharacters.Add(null);
-                continue;
-            }
-
-            var mState = playerData.MaggotStates[playerData.Party[i]];
-            var guid = mState.GUID;
-            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(guid);
-            yield return opHandle;
-
-            var characterObject = opHandle.Result;
-            var pState = battleData.PlayerStates.Count > 0 ? battleData.PlayerStates[i] : null;
-            var level = characterObject.GetLevelFromExp(mState.Exp);
-
-            SpawnCharacterWithRarity(characterObject, Rarity.Common, level, pState);
+            SetActiveEnemy(enemyController.RandomEnemy);
         }
-
-        canteenSystem.SetCanteenCharge(battleData.StoredCharge);
-        gameManager.TurnCount = battleData.TurnCount;
-        moveCount = battleData.MoveCount;
+        else
+        {
+            SetActiveEnemy(enemyController.Enemies[BattleData.SelectedEnemy]);
+        }
     }
 
     void SaveBattleState()
@@ -682,13 +638,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             return;
         }
 
-        var data = battleStateManager.LoadedData;
-
         var partyData = new List<BattleState.PlayerState>();
         var waveData = new List<BattleState.EnemyState>();
 
         var seed = (int)System.DateTime.Now.Ticks;
-        data.SavedSeed = seed;
+        BattleData.SavedSeed = seed;
 
         for (int i = 0; i < 3; i++)
         {
@@ -744,20 +698,38 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             waveData.Add(d);
         }
 
-        data.PlayerStates = partyData;
-        data.EnemyStates = waveData;
+        BattleData.PlayerStates = partyData;
+        BattleData.EnemyStates = waveData;
 
-        data.StoredCharge = canteenSystem.AvailableCharge;
-        data.TurnCount = gameManager.TurnCount;
-        data.MoveCount = moveCount;
+        BattleData.StoredCharge = canteenSystem.AvailableCharge;
+        BattleData.TurnCount = gameManager.TurnCount;
+        BattleData.MoveCount = moveCount;
+        BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(ActiveEnemy);
 
         battleStateManager.SaveData();
+    }
+
+    public void ReturnToMapSuccess()
+    {
+        PlayerData.InBattle = false;
+        PlayerData.Exp += BattleData.RoomLevel;
+        playerDataManager.SaveData();
+
+        battleStateManager.DeleteData();
+
+        sceneLoader.SwitchScene(mapScene.SceneName);
     }
 
     public void RegisterPlayerDeath(PlayerCharacter player)
     {
         deadMaggots.Add(player);
         player.transform.parent = null;
+    }
+
+    private void OnCharacterDeath(BaseCharacter obj)
+    {
+        moveOrder.Remove(obj);
+        moveCount = (int)Mathf.Repeat(moveCount, moveOrder.Count);
     }
 
     public void ApplyTargetFocus(PlayerCharacter player)

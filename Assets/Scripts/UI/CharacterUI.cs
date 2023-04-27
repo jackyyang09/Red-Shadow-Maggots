@@ -48,7 +48,6 @@ public class CharacterUI : BaseGameUI
     {
         designatedCharacter = character;
 
-
         classIcon.sprite = index.GetClassIcon(designatedCharacter.Reference.characterClass);
         nameText.text = designatedCharacter.Reference.characterName;
         levelLabel.text = character.CurrentLevel.ToString();

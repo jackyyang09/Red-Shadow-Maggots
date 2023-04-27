@@ -59,4 +59,14 @@ public abstract class BaseSaveManager<T> : Singleton<BaseSaveManager<T>> where T
     {
         loadedData = new T();
     }
+
+    public void DeleteData()
+    {
+        if (File.Exists(FILE_PATH))
+        {
+            File.Delete(FILE_PATH);
+
+            Debug.Log("Deleted save data at " + FILE_NAME);
+        }
+    }
 }

@@ -77,7 +77,7 @@ public class QuickTimeHold : QuickTimeBase
         enabled = false;
         StopCoroutine(tickRoutine);
         GetMultiplier();
-        onExecuteQuickTime?.Invoke();
+        OnExecuteAnyQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
         Invoke(nameof(Hide), hideDelay);
         fillBar.DOKill();

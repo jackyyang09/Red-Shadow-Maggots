@@ -44,14 +44,14 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     int scrapOffered;
 
     CharacterObject targetCharacter;
-    PlayerData.MaggotState maggotState;
+    PlayerSave.MaggotState maggotState;
 
     private void OnValidate()
     {
         upgradeAnimCurve = EasingAnimationCurve.EaseToAnimationCurve(upgradeAnimationEase);
     }
 
-    public void InitializeUI(CharacterCardHolder holder, PlayerData.MaggotState state)
+    public void InitializeUI(CharacterCardHolder holder, PlayerSave.MaggotState state)
     {
         maggotState = state;
 

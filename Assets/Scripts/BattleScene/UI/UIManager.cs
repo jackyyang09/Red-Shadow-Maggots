@@ -17,8 +17,8 @@ public class UIManager : BasicSingleton<UIManager>
 
     [SerializeField] UICharacterDetails characterDetailsPanel = null;
     [SerializeField] QuickTimeBar offenseBar = null;
+    public QuickTimeBar OffenseBar => offenseBar;
     [SerializeField] QuickTimeDefense defenseBar = null;
-
     [SerializeField] QuickTimeHold holdBar = null;
 
     //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;

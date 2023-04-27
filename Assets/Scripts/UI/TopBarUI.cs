@@ -12,7 +12,7 @@ public class TopBarUI : MonoBehaviour
 
     private IEnumerator Start()
     {
-        yield return new WaitUntil(() => PlayerDataManager.Initialized);
+        yield return new WaitUntil(() => PlayerSaveManager.Initialized);
 
         UpdateFloorcount(playerDataManager.LoadedData.NodesTravelled);
         UpdateExpCounter(playerDataManager.LoadedData.Exp);
@@ -20,14 +20,14 @@ public class TopBarUI : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayerDataManager.OnUpdateEXP += UpdateExpCounter;
-        PlayerDataManager.OnUpdateFloorCount += UpdateFloorcount;
+        PlayerSaveManager.OnUpdateEXP += UpdateExpCounter;
+        PlayerSaveManager.OnUpdateFloorCount += UpdateFloorcount;
     }
 
     private void OnDisable()
     {
-        PlayerDataManager.OnUpdateEXP -= UpdateExpCounter;
-        PlayerDataManager.OnUpdateFloorCount -= UpdateFloorcount;
+        PlayerSaveManager.OnUpdateEXP -= UpdateExpCounter;
+        PlayerSaveManager.OnUpdateFloorCount -= UpdateFloorcount;
     }
 
     private void UpdateExpCounter(int obj)

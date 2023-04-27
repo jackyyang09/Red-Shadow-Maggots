@@ -31,7 +31,7 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
 
     private IEnumerator Start()
     {
-        yield return new WaitUntil(() => PlayerDataManager.Initialized && BattleStateManager.Initialized);
+        yield return new WaitUntil(() => PlayerSaveManager.Initialized && BattleStateManager.Initialized);
 
         cardHolders = new List<CharacterCardHolder>();
 
@@ -65,19 +65,30 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
             case NodeType.Boss:
                 battleStateManager.ResetData();
 
-                var data = battleStateManager.LoadedData;
                 var b = battleList[Random.Range(0, battleList.Length)];
 
-                data.RoomLevel = playerDataManager.LoadedData.BattlesFought + 1;
-                data.IsBossWave = new bool[b.waves.Count];
-                data.UseSpecialCam = new bool[b.waves.Count];
+                BattleData.PlayerStates = new List<BattleState.PlayerState>();
+                for (int i = 0; i < PlayerData.Party.Length && i < PlayerData.MaggotStates.Count; i++)
+                {
+                    var newState = new BattleState.PlayerState();
+                    newState.Index = PlayerData.Party[i];
+                    if (PlayerData.MaggotStates[i] != null)
+                    {
+                        newState.Health = PlayerData.MaggotStates[i].Health;
+                    }
+                    BattleData.PlayerStates.Add(newState);
+                }
+
+                BattleData.RoomLevel = playerDataManager.LoadedData.BattlesFought + 1;
+                BattleData.IsBossWave = new bool[b.waves.Count];
+                BattleData.UseSpecialCam = new bool[b.waves.Count];
 
                 for (int i = 0; i < b.waves.Count; i++)
                 {
-                    data.IsBossWave[i] = b.waves[i].IsBossWave;
-                    data.UseSpecialCam[i] = b.waves[i].UseSpecialCam;
+                    BattleData.IsBossWave[i] = b.waves[i].IsBossWave;
+                    BattleData.UseSpecialCam[i] = b.waves[i].UseSpecialCam;
 
-                    data.EnemyGUIDs.Add(new List<string>());
+                    BattleData.EnemyGUIDs.Add(new List<string>());
                     for (int j = 0; j < b.waves[i].Enemies.Length; j++)
                     {
                         string guid = "";
@@ -85,7 +96,7 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
                         {
                             guid = b.waves[i].Enemies[j].AssetGUID;
                         }
-                        data.EnemyGUIDs[i].Add(guid);
+                        BattleData.EnemyGUIDs[i].Add(guid);
                     }
                 }
                 battleStateManager.SaveData();

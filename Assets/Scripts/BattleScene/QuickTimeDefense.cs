@@ -114,7 +114,7 @@ public class QuickTimeDefense : QuickTimeBase
     public void CheckDefense()
     {
         GetMultiplier();
-        onExecuteQuickTime?.Invoke();
+        OnExecuteAnyQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
         if (attacks == animationEvents.Count - 1)
         {

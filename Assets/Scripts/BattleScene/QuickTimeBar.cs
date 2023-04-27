@@ -40,7 +40,7 @@ public class QuickTimeBar : QuickTimeBase
     {
         enabled = false;
         GetMultiplier();
-        onExecuteQuickTime?.Invoke();
+        OnExecuteAnyQuickTime?.Invoke();
         OnExecuteQuickTime?.Invoke();
         BonusFeedback();
         Invoke(nameof(Hide), hideDelay);

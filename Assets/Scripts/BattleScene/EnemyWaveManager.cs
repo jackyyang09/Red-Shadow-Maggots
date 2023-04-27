@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using static Facade;
 
 public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
@@ -74,57 +73,17 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 
     public static System.Action OnEnterBossWave;
 
-    public IEnumerator SetupWave()
+    public void SetupWave()
     {
         RemoveDeadEnemies();
 
         var enemies = new List<EnemyCharacter>();
 
-        if (playerDataManager.LoadedData.InBattle)
+        if (PlayerData.InBattle)
         {
-            var data = battleStateManager.LoadedData;
-            var currentWave = data.EnemyGUIDs[data.WaveCount];
-            for (int j = 0; j < currentWave.Count; j++)
-            {
-                string guid = currentWave[j];
+            characterLoader.LoadAllEnemies();
 
-                if (!guid.IsNullEmptyOrWhiteSpace())
-                {
-                    var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[j]);
-                    yield return opHandle;
-
-                    if (opHandle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded &&
-                        opHandle.Result != null)
-                    {
-                        var enemy = opHandle.Result;
-                        var t = leftSpawnPos;
-                        switch (j)
-                        {
-                            case 1:
-                                if (data.IsBossWave[data.WaveCount])
-                                {
-                                    var s = data.EnemyStates.Count > 0 ? data.EnemyStates[j] : null;
-                                    enemies.Add(SpawnBoss(enemy, middleSpawnPos, data.RoomLevel, s));
-                                    continue;
-                                }
-                                t = middleSpawnPos;
-                                break;
-                            case 2:
-                                t = rightSpawnPos;
-                                break;
-                        }
-
-                        BattleState.EnemyState state = data.EnemyStates.Count > 0 ? data.EnemyStates[j] : null;
-                        enemies.Add(SpawnEnemy(enemy, t, data.RoomLevel, state));
-                    }
-                }
-                else
-                {
-                    enemies.Add(null);
-                }
-            }
-
-            if (data.IsBossWave[data.WaveCount]) OnEnterBossWave?.Invoke();
+            if (BattleData.IsBossWave[BattleData.WaveCount]) OnEnterBossWave?.Invoke();
         }
         else
         {
@@ -133,30 +92,28 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 
             if (newWave.leftEnemy)
             {
-                enemies[0] = SpawnEnemy(newWave.leftEnemy, leftSpawnPos);
+                enemies[0] = characterLoader.SpawnEnemy(newWave.leftEnemy, leftSpawnPos);
             }
 
             if (newWave.middleEnemy)
             {
                 if (newWave.IsBossWave)
                 {
-                    enemies[1] = SpawnBoss(newWave.middleEnemy, middleSpawnPos);
+                    enemies[1] = characterLoader.SpawnBoss(newWave.middleEnemy, middleSpawnPos);
                 }
                 else
                 {
-                    enemies[1] = SpawnEnemy(newWave.middleEnemy, middleSpawnPos);
+                    enemies[1] = characterLoader.SpawnEnemy(newWave.middleEnemy, middleSpawnPos);
                 }
             }
 
             if (newWave.rightEnemy)
             {
-                enemies[2] = SpawnEnemy(newWave.rightEnemy, rightSpawnPos);
+                enemies[2] = characterLoader.SpawnEnemy(newWave.rightEnemy, rightSpawnPos);
             }
 
             if (newWave.IsBossWave) OnEnterBossWave?.Invoke();
         }
-
-        enemyController.AssignEnemies(enemies);
     }
 
     public void RemoveDeadEnemies()
@@ -164,23 +121,5 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         if (leftSpawnPos.childCount > 0) Destroy(leftSpawnPos.GetChild(0).gameObject);
         if (middleSpawnPos.childCount > 0) Destroy(middleSpawnPos.GetChild(0).gameObject);
         if (rightSpawnPos.childCount > 0) Destroy(rightSpawnPos.GetChild(0).gameObject);
-    }
-
-    public EnemyCharacter SpawnEnemy(CharacterObject character, Transform spawnPos, int level = 1, BattleState.EnemyState stateInfo = null)
-    {
-        EnemyCharacter newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
-        newEnemy.SetCharacterAndRarity(character, Rarity.Common);
-        newEnemy.ApplyCharacterStats(level, stateInfo);
-
-        return newEnemy;
-    }
-
-    public EnemyCharacter SpawnBoss(CharacterObject character, Transform spawnPos, int level = 1, BattleState.EnemyState stateInfo = null)
-    {
-        EnemyCharacter newEnemy = Instantiate(bossPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
-        newEnemy.SetCharacterAndRarity(character, Rarity.Common);
-        newEnemy.ApplyCharacterStats(level, stateInfo);
-
-        return newEnemy;
     }
 }

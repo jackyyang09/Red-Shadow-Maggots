@@ -11,6 +11,7 @@
 
     // Battle System
     public static BattleSystem battleSystem => BattleSystem.Instance;
+    public static CharacterLoader characterLoader => CharacterLoader.Instance;
     public static EnemyController enemyController => EnemyController.Instance;
     public static EnemyWaveManager waveManager => EnemyWaveManager.Instance;
     public static GameManager gameManager => GameManager.Instance;
@@ -28,7 +29,9 @@
     public static SceneLoader sceneLoader => SceneLoader.Instance;
 
     // Save Systems
-    public static PlayerDataManager playerDataManager => PlayerDataManager.Instance as PlayerDataManager;
+    public static PlayerSaveManager playerDataManager => PlayerSaveManager.Instance as PlayerSaveManager;
+    public static PlayerSave PlayerData => playerDataManager.LoadedData;
     public static BattleStateManager battleStateManager => BattleStateManager.Instance as BattleStateManager;
+    public static BattleState BattleData => battleStateManager.LoadedData;
     public static GameEffectLoader gameEffectLoader => GameEffectLoader.Instance;
 }
