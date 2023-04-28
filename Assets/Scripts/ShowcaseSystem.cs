@@ -181,6 +181,11 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
         }
     }
 
+    private void OnDestroy()
+    {
+        Cleanup();
+    }
+
     public void Cleanup()
     {
         foreach (var item in loadedAssets.Keys)

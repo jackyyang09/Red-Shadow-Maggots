@@ -54,6 +54,8 @@ public class PlayerCharacter : BaseCharacter
         {
             health = maxHealth;
         }
+
+        onSetHealth?.Invoke();
     }
 
     protected override void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)

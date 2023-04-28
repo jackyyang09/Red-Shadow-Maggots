@@ -7,7 +7,8 @@ using static Facade;
 public class GameManager : BasicSingleton<GameManager>
 {
     [SerializeField] int baseExpGain = 100;
-    int ExpGained
+
+    public int ExpGained
     {
         get
         {
@@ -66,8 +67,7 @@ public class GameManager : BasicSingleton<GameManager>
 
     public void ReturnToMapVictorious()
     {
-        battleStateManager.LoadedData.BattleWon = true;
-        battleStateManager.SaveData();
+        battleStateManager.DeleteData();
 
         var playerData = playerDataManager.LoadedData;
         playerData.Exp += ExpGained;
@@ -75,7 +75,6 @@ public class GameManager : BasicSingleton<GameManager>
         playerData.BattlesFought++;
         playerDataManager.SaveData();
 
-        screenEffects.FadeToBlack(ScreenEffects.EffectType.Fullscreen);
         sceneLoader.SwitchScene(mapScene.SceneName);
     }
 

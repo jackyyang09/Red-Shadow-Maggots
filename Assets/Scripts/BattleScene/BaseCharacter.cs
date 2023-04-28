@@ -295,13 +295,14 @@ public abstract class BaseCharacter : MonoBehaviour
             health = maxHealth;
         }
 
-        onSetHealth?.Invoke();
-
         CreateBillboardUI();
 
-        for (int i = 0; i < stateInfo.Effects.Count; i++)
+        if (stateInfo != null)
         {
-            ApplyEffect(gameEffectLoader.DeserializeEffect(stateInfo.Effects[i], this));
+            for (int i = 0; i < stateInfo.Effects.Count; i++)
+            {
+                ApplyEffect(gameEffectLoader.DeserializeEffect(stateInfo.Effects[i], this));
+            }
         }
     }
 
@@ -916,6 +917,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void TakeDamage(DamageStruct damage)
     {
+        if (IsDead) return;
+
         var myClass = characterReference.characterClass;
         CharacterClass attackerClass = CharacterClass.Offense;
         if (damage.source != null)
@@ -1066,5 +1069,11 @@ public abstract class BaseCharacter : MonoBehaviour
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)
     {
         ShowCharacterUI();
+    }
+
+    private void OnDestroy()
+    {
+        if (characterReference.characterRig.IsValid())
+            characterReference.characterRig.ReleaseAsset();
     }
 }

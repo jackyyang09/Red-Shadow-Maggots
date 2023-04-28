@@ -170,6 +170,14 @@ public class GachaSystem : BasicSingleton<GachaSystem>
         }
     }
 
+    private void OnDestroy()
+    {
+        for (int i = 0; i < loadingMaggots.Count; i++)
+        {
+            loadingMaggots[i].ReleaseAsset();
+        }
+    }
+
     [ContextMenu("RNG Test")]
     public void RNGTest()
     {

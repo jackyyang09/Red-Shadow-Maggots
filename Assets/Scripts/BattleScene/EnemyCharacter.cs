@@ -52,6 +52,8 @@ public class EnemyCharacter : BaseCharacter
             critLevel = ((BattleState.EnemyState)stateInfo).Crit;
             onCritLevelChanged?.Invoke(critLevel);
         }
+
+        onSetHealth?.Invoke();
     }
 
     protected override void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)

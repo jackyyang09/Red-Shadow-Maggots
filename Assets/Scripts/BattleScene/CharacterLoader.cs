@@ -22,6 +22,8 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     Dictionary<AsyncOperationHandle<CharacterObject>, int> playerHandleToIndex = new Dictionary<AsyncOperationHandle<CharacterObject>, int>();
     Dictionary<AsyncOperationHandle<CharacterObject>, int> enemyHandleToIndex = new Dictionary<AsyncOperationHandle<CharacterObject>, int>();
 
+    EnemyCharacter[] enemies = new EnemyCharacter[3];
+
     public void LoadAllPlayerCharacters()
     {
         playersLoaded = 0;
@@ -67,11 +69,9 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         battleSystem.PlayerCharacters[index] = player;
     }
 
-    List<EnemyCharacter> enemies = new List<EnemyCharacter>();
     public void LoadAllEnemies()
     {
         enemiesLoaded = 0;
-        enemies.Clear();
 
         var currentWave = BattleData.EnemyGUIDs[BattleData.WaveCount];
 
@@ -84,10 +84,6 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
                 var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[j]);
                 opHandle.Completed += OnEnemyLoaded;
                 enemyHandleToIndex.Add(opHandle, j);
-            }
-            else
-            {
-                enemies.Add(null);
             }
         }
     }
@@ -102,13 +98,13 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
                 if (BattleData.IsBossWave[BattleData.WaveCount])
                 {
                     var s = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[j] : null;
-                    enemies.Add(SpawnBoss(obj.Result, enemySpawns[1], BattleData.RoomLevel, s));
+                    enemies[j] = SpawnBoss(obj.Result, enemySpawns[1], BattleData.RoomLevel, s);
                 }
                 break;
         }
 
         BattleState.EnemyState state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[j] : null;
-        enemies.Add(SpawnEnemy(obj.Result, t, BattleData.RoomLevel, state));
+        enemies[j] = SpawnEnemy(obj.Result, t, BattleData.RoomLevel, state);
         enemiesLoaded++;
 
         if (EnemiesLoaded)
@@ -133,5 +129,18 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         newEnemy.InitializeWithInfo(level, stateInfo);
 
         return newEnemy;
+    }
+
+    private void OnDestroy()
+    {
+        foreach (var item in playerHandleToIndex)
+        {
+            Addressables.Release(item.Key);
+        }
+
+        foreach (var item in enemyHandleToIndex)
+        {
+            Addressables.Release(item.Key);
+        }
     }
 }

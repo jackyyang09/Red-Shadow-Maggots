@@ -136,6 +136,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         
         uncrateSequence.UncrateCharacter(activeCard.Character, Rarity.Common, ReturnToMapScreen);
         characterPreview.OptimizedCanvas.Hide();
+        ShowcaseSystem.Instance.HideShowcase();
     }
 
     public void ReturnToMaggotSelection()

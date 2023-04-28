@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using DevLocker.Utils;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -55,8 +54,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void FinishTurn() => finishedTurn = true;
 
     [SerializeField] List<PlayerCharacter> playerCharacters = null;
-
-    [SerializeField] SceneReference mapScene;
 
     public List<PlayerCharacter> PlayerCharacters
     {
@@ -472,7 +469,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 enemyTargets.enemy = enemy;
                 break;
         }
-        Debug.Log(enemy.Reference.name);
     }
 
     public void SetEnemyAttackTarget(PlayerCharacter player) => enemyTargets.player = player;
@@ -707,17 +703,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(ActiveEnemy);
 
         battleStateManager.SaveData();
-    }
-
-    public void ReturnToMapSuccess()
-    {
-        PlayerData.InBattle = false;
-        PlayerData.Exp += BattleData.RoomLevel;
-        playerDataManager.SaveData();
-
-        battleStateManager.DeleteData();
-
-        sceneLoader.SwitchScene(mapScene.SceneName);
     }
 
     public void RegisterPlayerDeath(PlayerCharacter player)
