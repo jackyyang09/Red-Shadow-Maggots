@@ -19,8 +19,8 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     public bool PlayersLoaded => playersLoaded == playerHandleToIndex.Count;
     public bool EnemiesLoaded => enemiesLoaded == enemyHandleToIndex.Count;
 
-    Dictionary<AsyncOperationHandle<CharacterObject>, int> playerHandleToIndex = new Dictionary<AsyncOperationHandle<CharacterObject>, int>();
-    Dictionary<AsyncOperationHandle<CharacterObject>, int> enemyHandleToIndex = new Dictionary<AsyncOperationHandle<CharacterObject>, int>();
+    List<AsyncOperationHandle<CharacterObject>> playerHandleToIndex = new List<AsyncOperationHandle<CharacterObject>>();
+    List<AsyncOperationHandle<CharacterObject>> enemyHandleToIndex = new List<AsyncOperationHandle<CharacterObject>>();
 
     EnemyCharacter[] enemies = new EnemyCharacter[3];
 
@@ -40,20 +40,21 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
 
             var guid = PlayerData.MaggotStates[PlayerData.Party[i]].GUID;
             var opHandle = Addressables.LoadAssetAsync<CharacterObject>(guid);
-            opHandle.Completed += OnCharacterLoaded;
-            playerHandleToIndex.Add(opHandle, i);
+            StartCoroutine(LoadCharacter(i, opHandle));
+            playerHandleToIndex.Add(opHandle);
         }
     }
 
-    private void OnCharacterLoaded(AsyncOperationHandle<CharacterObject> obj)
+    IEnumerator LoadCharacter(int index, AsyncOperationHandle<CharacterObject> obj)
     {
-        var i = playerHandleToIndex[obj];
-        var mState = PlayerData.MaggotStates[PlayerData.Party[i]];
+        yield return obj;
+
+        var mState = PlayerData.MaggotStates[PlayerData.Party[index]];
         var characterObject = obj.Result;
-        var pState = BattleData.PlayerStates.Count > 0 ? BattleData.PlayerStates[i] : null;
+        var pState = BattleData.PlayerStates.Count > 0 ? BattleData.PlayerStates[index] : null;
         var level = characterObject.GetLevelFromExp(mState.Exp);
 
-        characterLoader.SpawnCharacterWithRarity(i, characterObject, Rarity.Common, level, pState);
+        characterLoader.SpawnCharacterWithRarity(index, characterObject, Rarity.Common, level, pState);
         playersLoaded++;
     }
 
@@ -75,36 +76,37 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
 
         var currentWave = BattleData.EnemyGUIDs[BattleData.WaveCount];
 
-        for (int j = 0; j < currentWave.Count; j++)
+        for (int i = 0; i < currentWave.Count; i++)
         {
-            string guid = currentWave[j];
+            string guid = currentWave[i];
 
             if (!guid.IsNullEmptyOrWhiteSpace())
             {
-                var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[j]);
-                opHandle.Completed += OnEnemyLoaded;
-                enemyHandleToIndex.Add(opHandle, j);
+                var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[i]);
+                StartCoroutine(LoadEnemy(i, opHandle));
+                enemyHandleToIndex.Add(opHandle);
             }
         }
     }
 
-    private void OnEnemyLoaded(AsyncOperationHandle<CharacterObject> obj)
+    IEnumerator LoadEnemy(int index, AsyncOperationHandle<CharacterObject> obj)
     {
-        var j = enemyHandleToIndex[obj];
-        var t = enemySpawns[j];
-        switch (j)
+        yield return obj;
+
+        var t = enemySpawns[index];
+        switch (index)
         {
             case 1:
                 if (BattleData.IsBossWave[BattleData.WaveCount])
                 {
-                    var s = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[j] : null;
-                    enemies[j] = SpawnBoss(obj.Result, enemySpawns[1], BattleData.RoomLevel, s);
+                    var s = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
+                    enemies[index] = SpawnBoss(obj.Result, enemySpawns[1], BattleData.RoomLevel, s);
                 }
                 break;
         }
 
-        BattleState.EnemyState state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[j] : null;
-        enemies[j] = SpawnEnemy(obj.Result, t, BattleData.RoomLevel, state);
+        BattleState.EnemyState state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
+        enemies[index] = SpawnEnemy(obj.Result, t, BattleData.RoomLevel, state);
         enemiesLoaded++;
 
         if (EnemiesLoaded)
@@ -135,12 +137,12 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     {
         foreach (var item in playerHandleToIndex)
         {
-            Addressables.Release(item.Key);
+            Addressables.Release(item);
         }
 
         foreach (var item in enemyHandleToIndex)
         {
-            Addressables.Release(item.Key);
+            Addressables.Release(item);
         }
     }
 }

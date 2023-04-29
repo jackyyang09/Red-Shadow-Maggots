@@ -179,6 +179,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public static System.Action OnTargettableCharactersChanged;
     public static System.Action<BaseGameEffect> OnTickEffect;
+    public static System.Action OnFinishTickingEffects;
 
     public static System.Action OnWaveClear;
     public static System.Action OnFinalWaveClear;
@@ -489,11 +490,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 break;
             case BattlePhases.PlayerTurn:
                 yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
-                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
                 break;
             case BattlePhases.EnemyTurn:
                 yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
-                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
                 enemyTargets.enemy.IncreaseChargeLevel();
                 break;
         }
@@ -507,6 +506,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (lastPhase == BattlePhases.EnemyTurn)
             {
+                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
                 SaveBattleState();
                 OnEndTurn?.Invoke();
             }
@@ -523,6 +523,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (lastPhase == BattlePhases.PlayerTurn)
             {
+                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
                 enemyController.CalculateSkillUsage();
             }
 
@@ -608,7 +609,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             }
         }
 
-        yield return null;
+        OnFinishTickingEffects?.Invoke();
     }
 
     void LoadBattleState()

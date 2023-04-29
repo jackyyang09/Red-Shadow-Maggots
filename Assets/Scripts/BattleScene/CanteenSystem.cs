@@ -7,12 +7,12 @@ using static Facade;
 public class CanteenSystem : BasicSingleton<CanteenSystem>
 {
     [SerializeField] float chargePerCanteen = 0.25f;
-    public float ChargePerCanteen { get { return chargePerCanteen; } }
+    public float ChargePerCanteen => chargePerCanteen;
     [SerializeField] int maxCanteens = 12;
 
-    float storedCharge;
     public float StoredCharge { get { return storedCharge; } }
     public float AvailableCharge { get { return storedCharge - grabbedCharge - borrowedCharge; } }
+    float storedCharge;
 
     float grabbedCharge;
     public float GrabbedCharge { get { return grabbedCharge; } }
@@ -28,7 +28,7 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     {
         BaseCharacter.OnCharacterCritChanceReduced += AddExpiredCrits;
 
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += ResetBonusFlag;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += ResetBonusFlag;
         BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] += AddQTECritBonus;
     }
 
@@ -36,8 +36,13 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     {
         BaseCharacter.OnCharacterCritChanceReduced -= AddExpiredCrits;
 
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= ResetBonusFlag;
+        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= ResetBonusFlag;
         BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] -= AddQTECritBonus;
+    }
+
+    public void AddCanteenCharge(float charge)
+    {
+        storedCharge = Mathf.Clamp(storedCharge + charge, 0, maxCanteens * ChargePerCanteen);
     }
 
     public void SetCanteenCharge(float charge)
@@ -77,20 +82,20 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
     {
         if (BaseCharacter.IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
         {
-            storedCharge += BattleSystem.QuickTimeCritModifier;
+            AddCanteenCharge(BattleSystem.QuickTimeCritModifier);
         }
         else if (BaseCharacter.IncomingDamage.source)
         {
             switch (BaseCharacter.IncomingDamage.source.Reference.characterClass)
             {
                 case CharacterClass.Offense:
-                    storedCharge += BattleSystem.QuickTimeCritModifier * 0.5f;
+                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier * 0.5f);
                     break;
                 case CharacterClass.Defense:
-                    storedCharge += BattleSystem.QuickTimeCritModifier * 0.75f;
+                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier * 0.75f);
                     break;
                 case CharacterClass.Support:
-                    storedCharge += BattleSystem.QuickTimeCritModifier;
+                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier);
                     break;
             }
         }
@@ -104,13 +109,13 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
             switch (character.Reference.characterClass)
             {
                 case CharacterClass.Offense:
-                    storedCharge += changedAmount * 0.5f;
+                    AddCanteenCharge(changedAmount * 0.5f);
                     break;
                 case CharacterClass.Defense:
-                    storedCharge += changedAmount * 0.75f;
+                    AddCanteenCharge(changedAmount * 0.75f);
                     break;
                 case CharacterClass.Support:
-                    storedCharge += changedAmount;
+                    AddCanteenCharge(changedAmount);
                     break;
             }
             OnStoredChargeChanged?.Invoke();

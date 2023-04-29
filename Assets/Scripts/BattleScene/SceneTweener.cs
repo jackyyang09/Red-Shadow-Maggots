@@ -8,11 +8,11 @@ using static Facade;
 
 public class SceneTweener : BasicSingleton<SceneTweener>
 {
-    [SerializeField] Transform worldCenter = null;
+    [SerializeField] Transform worldCenter;
 
-    [SerializeField] CinemachineVirtualCamera playerCam = null;
+    [SerializeField] CinemachineVirtualCamera playerCam;
 
-    [SerializeField] Camera sceneCamera = null;
+    [SerializeField] Camera sceneCamera;
     public Camera SceneCamera { get { return sceneCamera; } }
 
     /// <summary>
@@ -20,20 +20,20 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     /// </summary>
     public CinemachineVirtualCamera PlayerCamera { get { return playerCam; } }
 
-    [SerializeField] CinemachineVirtualCamera lerpCam = null;
+    [SerializeField] CinemachineVirtualCamera lerpCam;
     public CinemachineVirtualCamera LerpCamera { get { return lerpCam; } }
 
     CinemachineComposer composer;
     CinemachineTrackedDolly playerDolly;
 
-    [SerializeField] CinemachineVirtualCamera enemyCam = null;
+    [SerializeField] CinemachineVirtualCamera enemyCam;
     CinemachineTrackedDolly enemyDolly;
 
-    [SerializeField] CinemachineVirtualCamera specialCam = null;
+    [SerializeField] CinemachineVirtualCamera specialCam;
 
-    [SerializeField] CinemachineSmoothPath playerPath = null;
+    [SerializeField] CinemachineSmoothPath playerPath;
 
-    [SerializeField] CinemachineSmoothPath enemyPath = null;
+    [SerializeField] CinemachineSmoothPath enemyPath;
 
     [SerializeField] Vector3 characterDestinationOffset = new Vector3();
 
@@ -135,12 +135,14 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 enemyCam.enabled = false;
                 playerCam.m_LookAt = attacker;
                 attacker.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic);
+                playerPath.transform.DOKill();
                 playerPath.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
                 break;
             case BattlePhases.EnemyTurn:
                 enemyCam.enabled = true;
                 enemyCam.m_LookAt = attacker;
                 attacker.transform.DOMove(target.position - characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic);
+                enemyPath.transform.DOKill();
                 enemyPath.transform.DOMove(target.position - characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
                 break;
         }
@@ -313,6 +315,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 activePlayer.PlayReturnAnimation();
 
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
+                playerPath.transform.DOKill();
                 playerPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
                 activePlayer.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.Linear).onComplete += () =>
@@ -341,6 +344,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 activeEnemy.PlayReturnAnimation();
 
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
+                enemyPath.transform.DOKill();
                 enemyPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
                 activeEnemy.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.OutCubic).onComplete += () => {

@@ -11,7 +11,7 @@ public class CharacterUI : BaseGameUI
 {
     [SerializeField] protected BaseCharacter designatedCharacter = null;
     [SerializeField] protected List<AppliedEffect> effects = new List<AppliedEffect>();
-    List<AppliedEffect> effectsToRemove = new List<AppliedEffect>();
+    List<int> indicesToRemove = new List<int>();
 
     [Header("Crit Charge Bars")] [SerializeField]
     GridLayoutGroup layoutGroup = null;
@@ -54,7 +54,7 @@ public class CharacterUI : BaseGameUI
         health.InitializeWithCharacter(character);
 
         designatedCharacter.onApplyGameEffect += AddEffectIcon;
-        designatedCharacter.onRemoveGameEffect += RemoveEffectIcon;
+        designatedCharacter.onRemoveGameEffect += QueueEffectIconRemoval;
         designatedCharacter.onDeath.AddListener(SelfDestruct);
 
         enemy = designatedCharacter as EnemyCharacter;
@@ -94,6 +94,7 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
         UIManager.OnShowBattleUI += OptimizedCanvas.Show;
+        BattleSystem.OnFinishTickingEffects += RemoveEffects;
     }
 
     private void OnDisable()
@@ -101,7 +102,7 @@ public class CharacterUI : BaseGameUI
         if (designatedCharacter)
         {
             designatedCharacter.onApplyGameEffect -= AddEffectIcon;
-            designatedCharacter.onRemoveGameEffect -= RemoveEffectIcon;
+            designatedCharacter.onRemoveGameEffect -= QueueEffectIconRemoval;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);
         }
 
@@ -119,6 +120,7 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnExitBattleCutscene -= OptimizedCanvas.Show;
         UIManager.OnAttackCommit -= UpdateUIState;
         UIManager.OnShowBattleUI -= OptimizedCanvas.Show;
+        BattleSystem.OnFinishTickingEffects -= RemoveEffects;
     }
 
     private void Update()
@@ -189,7 +191,7 @@ public class CharacterUI : BaseGameUI
         UpdateEffectIcons();
     }
 
-    private void RemoveEffectIcon(AppliedEffect obj)
+    private void QueueEffectIconRemoval(AppliedEffect obj)
     {
         var index = effects.IndexOf(obj);
         UpdateEffectIcons(index);
@@ -206,13 +208,16 @@ public class CharacterUI : BaseGameUI
         }
         else
         {
-            Destroy(iconImages[index].gameObject);
-            iconImages.RemoveAt(index);
-            // TODO: What is this?
-            for (int i = index; i < iconImages.Count; i++)
-            {
-                var icon = iconImages[i].transform as RectTransform;
-            }
+            indicesToRemove.Add(index);
+        }
+    }
+
+    private void RemoveEffects()
+    {
+        for (int i = indicesToRemove.Count - 1; i > -1; i--)
+        {
+            Destroy(iconImages[indicesToRemove[i]].gameObject);
+            iconImages.RemoveAt(indicesToRemove[i]);
         }
     }
 
