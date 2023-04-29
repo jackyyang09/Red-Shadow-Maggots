@@ -7,7 +7,9 @@ public class BaseHealEffect : BaseGameEffect
 {
     public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        target.Heal((int)GetEffectStrength(strength, customValues));
+        var amount = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+
+        target.Heal(amount);
     }
 
     public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -22,7 +24,7 @@ public class BaseHealEffect : BaseGameEffect
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        int change = (int)GetEffectStrength(strength, customValues);
+        var change = (int)((float)GetEffectStrength(strength, customValues) * 100);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -38,7 +40,7 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += change + " health ";
+        s += change + "% of their Max Health.";
 
         return s + DurationDescriptor(duration);
     }
@@ -50,19 +52,19 @@ public class BaseHealEffect : BaseGameEffect
             case EffectStrength.Custom:
                 if (customValues.Length == 0)
                 {
-                    return 0;
+                    return 0f;
                 }
                 else return (float)customValues[0];
             case EffectStrength.Weak:
-                return 800;
+                return 0.05f;
             case EffectStrength.Small:
-                return 1500;
+                return 0.15f;
             case EffectStrength.Medium:
-                return 2000;
+                return 0.3f;
             case EffectStrength.Large:
-                return 3000;
+                return 0.6f;
             case EffectStrength.EX:
-                return 5000;
+                return 1f;
         }
         return 0;
     }

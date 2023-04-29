@@ -3,41 +3,29 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 
-public class EffectTextSpawner : MonoBehaviour
+public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
 {
     [SerializeField] float numberLifetime = 3;
     [SerializeField] float textVerticalMovement = 50;
     [SerializeField] float textFadeTime;
     [SerializeField] float textFadeDelay;
 
-    [SerializeField] Camera cam = null;
+    [SerializeField] Camera cam;
 
-    [SerializeField] GameObject healthTextPrefab = null;
-    [SerializeField] GameObject critTextPrefab = null;
-    [SerializeField] GameObject effectTextPrefab = null;
+    [SerializeField] GameObject healthTextPrefab;
+    [SerializeField] GameObject critTextPrefab;
+    [SerializeField] GameObject effectTextPrefab;
 
-    [SerializeField] TMPro.TMP_FontAsset buffTextColour = null;
-    [SerializeField] TMPro.TMP_FontAsset debuffTextColour = null;
+    [SerializeField] TMPro.TMP_FontAsset buffTextColour;
+    [SerializeField] TMPro.TMP_FontAsset debuffTextColour;
 
     [SerializeField] GameObject missPrefab;
     
-    public static EffectTextSpawner Instance;
-
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-            Destroy(gameObject);
-    }
-
     public void SpawnHealNumberAt(float healAmount, Transform trans)
     {
         var text = Instantiate(healthTextPrefab, transform.GetChild(0)).GetComponentInChildren<TMPro.TextMeshProUGUI>();
         var billboard = text.GetComponent<ViewportBillboard>();
-        text.text = "+" + healAmount.ToString();
+        text.text = "+" + ((int)healAmount).ToString();
         billboard.EnableWithSettings(cam, trans);
         DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
 

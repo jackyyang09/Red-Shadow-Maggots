@@ -103,10 +103,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     public void EnterBattle()
     {
-        anim.SetTrigger("EnterBattle");
-
-        MakePlayersWalk(1);
-
         screenEffects.FadeFromBlack(ScreenEffects.EffectType.Fullscreen);
 
         bool useSpecialCam = playerDataManager.LoadedData.InBattle ?
@@ -117,10 +113,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         specialCam.enabled = useSpecialCam;
 
         OnBattleTransition?.Invoke();
-    }
-
-    public void PlayersArrived()
-    {
         OnBattleEntered?.Invoke();
     }
 
@@ -376,16 +368,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         anim.enabled = true;
         screenEffects.FadeToBlack(ScreenEffects.EffectType.Fullscreen, 1.5f);
         anim.SetTrigger("OpenGate");
-    }
-
-    public void MakePlayersWalk(float walkTime)
-    {
-        for (int i = 0; i < BattleSystem.Instance.PlayerCharacters.Count; i++)
-        {
-            var player = BattleSystem.Instance.PlayerCharacters[i];
-            if (!player) continue;
-            player.AnimHelper.WalkForward(1);
-        }
     }
 
     public void GateEntered()

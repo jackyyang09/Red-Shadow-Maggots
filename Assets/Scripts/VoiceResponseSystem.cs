@@ -8,8 +8,6 @@ public class VoiceResponseSystem : MonoBehaviour
     // Start is called before the first frame update
     void OnEnable()
     {
-        SceneTweener.OnBattleTransition += Entry;
-
         EnemyWaveManager.OnEnterBossWave += EnterFinal;
 
         BattleSystem.OnWaveClear += WaveClear;
@@ -34,8 +32,6 @@ public class VoiceResponseSystem : MonoBehaviour
 
     private void OnDisable()
     {
-        SceneTweener.OnBattleTransition -= Entry;
-
         EnemyWaveManager.OnEnterBossWave -= EnterFinal;
 
         BattleSystem.OnWaveClear -= WaveClear;
@@ -71,12 +67,6 @@ public class VoiceResponseSystem : MonoBehaviour
     void UIClick(BaseCharacter obj)
     {
         AudioManager.PlaySound(BattleSceneSounds.UIClick);
-    }
-
-    public void Entry()
-    {
-        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceEntry;
-        AudioManager.PlaySound(audio);
     }
 
     public void EnterFinal()

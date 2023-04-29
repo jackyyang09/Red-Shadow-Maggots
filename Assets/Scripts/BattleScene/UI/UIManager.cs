@@ -5,7 +5,7 @@ using static Facade;
 
 public class UIManager : BasicSingleton<UIManager>
 {
-    [SerializeField] Canvas viewPortBillboardCanvas = null;
+    [SerializeField] Canvas viewPortBillboardCanvas;
 
     public Canvas ViewportBillboardCanvas
     {
@@ -13,33 +13,33 @@ public class UIManager : BasicSingleton<UIManager>
     }
 
     [Header("Battle System")] [SerializeField]
-    OptimizedButton attackButton = null;
+    OptimizedButton attackButton;
 
-    [SerializeField] UICharacterDetails characterDetailsPanel = null;
-    [SerializeField] QuickTimeBar offenseBar = null;
+    [SerializeField] UICharacterDetails characterDetailsPanel;
+    [SerializeField] QuickTimeBar offenseBar;
     public QuickTimeBar OffenseBar => offenseBar;
-    [SerializeField] QuickTimeDefense defenseBar = null;
-    [SerializeField] QuickTimeHold holdBar = null;
+    [SerializeField] QuickTimeDefense defenseBar;
+    [SerializeField] QuickTimeHold holdBar;
 
-    //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText = null;
-    [SerializeField] CharacterUI bossUI = null;
+    //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText;
+    [SerializeField] CharacterUI bossUI;
 
-    [SerializeField] TMPro.TextMeshProUGUI waveCounter = null;
-    [SerializeField] TMPro.TextMeshProUGUI turnCounter = null;
+    [SerializeField] TMPro.TextMeshProUGUI waveCounter;
+    [SerializeField] TMPro.TextMeshProUGUI turnCounter;
 
     [Header("Skill System")] [SerializeField]
-    SkillDetailPanel skillPanel = null;
+    SkillDetailPanel skillPanel;
 
-    //[SerializeField] SkillButtonUI[] skillButtons = null;
-    [SerializeField] OptimizedCanvas skillTargetMessage = null;
-    [SerializeField] OptimizedButton skillBackButton = null;
+    //[SerializeField] SkillButtonUI[] skillButtons;
+    [SerializeField] OptimizedCanvas skillTargetMessage;
+    [SerializeField] OptimizedButton skillBackButton;
 
     [SerializeField] private SkillManagerUI _skillManagerUI;
 
     [Header("System Objects")] [SerializeField]
-    OptimizedCanvas winCanvas = null;
+    OptimizedCanvas winCanvas;
 
-    [SerializeField] OptimizedCanvas loseCanvas = null;
+    [SerializeField] OptimizedCanvas loseCanvas;
 
     public bool CharacterPanelOpen { get; private set; }
 

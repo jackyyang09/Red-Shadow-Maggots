@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using System;
-using static Facade;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
-    [SerializeField] float currentExperience = 0;
-    [SerializeField] float maxExperience = 100;
-
     const float FINGER_HOLD_TIME = 0.75f;
     float fingerHoldTimer = 0;
 
@@ -111,16 +108,10 @@ public class PlayerCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
-        if (ui.CharacterPanelOpen) return;
         if (UIManager.SelectingAllyForSkill)
         {
             OnSelectPlayer?.Invoke(this);
             return;
-        }
-        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
-        {
-            battleSystem.TrySetActivePlayer(this);
         }
     }
 

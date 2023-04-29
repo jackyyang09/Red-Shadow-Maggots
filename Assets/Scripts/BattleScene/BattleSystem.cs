@@ -237,8 +237,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             moveOrder.Add(enemyController.Enemies[i]);
         }
 
-        sceneTweener.EnterBattle();
         currentPhase = BattlePhases.Entry;
+        sceneTweener.EnterBattle();
     }
 
     public IEnumerator InitiateNextBattle()

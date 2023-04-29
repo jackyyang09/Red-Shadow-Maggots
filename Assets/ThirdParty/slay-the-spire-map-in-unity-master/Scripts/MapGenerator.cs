@@ -8,13 +8,12 @@ namespace Map
     {
         private static MapConfig config;
 
-        private static readonly List<NodeType> RandomNodes = new List<NodeType>
-        {NodeType.Mystery, NodeType.Store, NodeType.Treasure, NodeType.MinorEnemy, NodeType.RestSite};
-
         private static List<float> layerDistances;
         private static List<List<Point>> paths;
         // ALL nodes by layer:
         private static readonly List<List<Node>> nodes = new List<List<Node>>();
+
+        public static List<NodeType> NodeTypes = new List<NodeType>();
 
         public static Map GetMap(MapConfig conf)
         {
@@ -26,6 +25,16 @@ namespace Map
 
             config = conf;
             nodes.Clear();
+
+            NodeTypes = new List<NodeType>();
+            for (int i = 0; i < config.nodeBlueprints.Count; i++)
+            {
+                if (!NodeTypes.Contains(config.nodeBlueprints[i].nodeType))
+                {
+                    if (config.nodeBlueprints[i].nodeType == NodeType.Boss) continue;
+                    NodeTypes.Add(config.nodeBlueprints[i].nodeType);
+                }
+            }
 
             GenerateLayerDistances();
 
@@ -74,7 +83,7 @@ namespace Map
 
             for (var i = 0; i < width; i++)
             {
-                var nodeType = Random.Range(0f, 1f) < layer.randomizeNodes ? GetRandomNode() : layer.nodeType;
+                var nodeType = Random.Range(0f, 1f) < layer.randomizeNodes ? NodeTypes[Random.Range(0, NodeTypes.Count)] : layer.nodeType;
                 var blueprintName = config.nodeBlueprints.Where(b => b.nodeType == nodeType).ToList().Random().name;
                 var node = new Node(nodeType, blueprintName, new Point(i, layerIndex))
                 {
@@ -290,11 +299,6 @@ namespace Map
             }
 
             return path;
-        }
-
-        private static NodeType GetRandomNode()
-        {
-            return RandomNodes[Random.Range(0, RandomNodes.Count)];
         }
     }
 }
