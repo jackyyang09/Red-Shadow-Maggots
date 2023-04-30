@@ -39,20 +39,18 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
     [SerializeField] List<AssetReference> maggotReferences;
     public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
-    List<AsyncOperationHandle> LoadedMaggots = new List<AsyncOperationHandle>();
-    List<AssetReference> loadingMaggots = new List<AssetReference>();
+    public List<AsyncOperationHandle<CharacterObject>> LoadedMaggots = new List<AsyncOperationHandle<CharacterObject>>();
+    public void TryAddLoadedMaggot(AsyncOperationHandle<CharacterObject> maggot)
+    {
+        if (!LoadedMaggots.Contains(maggot)) LoadedMaggots.Add(maggot);
+    }
+
     [SerializeField] List<CharacterObject> maggots = null;
 
     [Header("Legacy")]
     List<CharacterObject> offenseMaggots = new List<CharacterObject>();
     List<CharacterObject> defenseMaggots = new List<CharacterObject>();
     List<CharacterObject> supportMaggots = new List<CharacterObject>();
-
-    private void Awake()
-    {
-        LoadedMaggots = new List<AsyncOperationHandle>();
-        loadingMaggots = new List<AssetReference>();
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -91,46 +89,8 @@ public class GachaSystem : BasicSingleton<GachaSystem>
         return maggot;
     }
 
-    public AsyncOperationHandle LoadMaggot(AssetReference reference)
-    {
-        if (LoadedMaggots.Contains(reference.OperationHandle)) return reference.OperationHandle;
-
-        loadingMaggots.Add(reference);
-        var op = reference.LoadAssetAsync<CharacterObject>();
-        LoadedMaggots.Add(op);
-        loadingMaggots.Remove(reference);
-        op.Completed += OnCharacterLoaded;
-        return op;
-    }
-
     private void OnCharacterLoaded(AsyncOperationHandle<CharacterObject> obj)
     {
-    }
-
-    public IEnumerator LoadMaggot(AssetReference reference, System.Action<CharacterObject> callback)
-    {
-        if (!LoadedMaggots.Contains(reference.OperationHandle) && !loadingMaggots.Contains(reference))
-        {
-            loadingMaggots.Add(reference);
-
-            var op = reference.LoadAssetAsync<CharacterObject>();
-
-            yield return op;
-
-            LoadedMaggots.Add(op);
-
-            loadingMaggots.Remove(reference);
-
-            callback?.Invoke(op.Result);
-        }
-        else
-        {
-            while (!reference.IsDone)
-            {
-                yield return new WaitUntil(() => reference.IsDone);
-            }
-            callback?.Invoke(reference.OperationHandle.Result as CharacterObject);
-        }
     }
 
     [ContextMenu(nameof(GiveMaggot))]
@@ -148,11 +108,13 @@ public class GachaSystem : BasicSingleton<GachaSystem>
             PlayerSave.MaggotState newState = new PlayerSave.MaggotState();
 
             var ar = RandomMaggot;
-            var op = LoadMaggot(ar);
+            var op = ar.LoadAssetAsync<CharacterObject>();
 
             yield return op;
 
-            var maggotObject = op.Result as CharacterObject;
+            var maggotObject = op.Result;
+
+            TryAddLoadedMaggot(op);
 
             newState.GUID = ar.AssetGUID;
             newState.Health = maggotObject.GetMaxHealth(1, false);
@@ -164,9 +126,9 @@ public class GachaSystem : BasicSingleton<GachaSystem>
 
     private void OnDestroy()
     {
-        for (int i = 0; i < loadingMaggots.Count; i++)
+        for (int i = 0; i < LoadedMaggots.Count; i++)
         {
-            loadingMaggots[i].ReleaseAsset();
+            if (LoadedMaggots[i].IsValid()) Addressables.Release(LoadedMaggots[i]);
         }
     }
 

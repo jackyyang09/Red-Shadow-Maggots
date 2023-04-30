@@ -1,12 +1,12 @@
 ﻿using DG.Tweening;
 using UnityEngine;
 using System.Collections;
-using System;
 using UnityEngine.SceneManagement;
+using static Facade;
 
 namespace Map
 {
-    public class ScrollNonUI : MonoBehaviour
+    public class ScrollNonUI : BasicSingleton<ScrollNonUI>
     {
         [SerializeField] Vector2 xRange;
         [SerializeField] Vector2 zRange;
@@ -34,16 +34,6 @@ namespace Map
         }
         Vector3 lastMousePos;
 
-        private void OnEnable()
-        {
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += SaveMapPosition;
-        }
-
-        private void OnDisable()
-        {
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= SaveMapPosition;
-        }
-
         private IEnumerator Start()
         {
             yield return new WaitUntil(() => PlayerSaveManager.Initialized);
@@ -54,17 +44,14 @@ namespace Map
 
         private void OnApplicationQuit()
         {
+            if (!PlayerSaveManager.Initialized) return;
             SaveMapPosition();
+            playerDataManager.SaveData();
         }
 
-        private void SaveMapPosition(Scene arg0, Scene arg1) => SaveMapPosition();
-        void SaveMapPosition()
+        public void SaveMapPosition()
         {
-            if (!PlayerSaveManager.Initialized) return;
-
-            var data = PlayerSaveManager.Instance.LoadedData;
-            data.MapPosition = new Vector2(vCam.position.x, vCam.position.z);
-            PlayerSaveManager.Instance.SaveData();
+            PlayerData.MapPosition = new Vector2(vCam.position.x, vCam.position.z);
         }
 
         public void OnMouseUp()

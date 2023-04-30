@@ -79,7 +79,8 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
                     BattleData.PlayerStates.Add(newState);
                 }
 
-                BattleData.RoomLevel = playerDataManager.LoadedData.BattlesFought + 1;
+                mapScroller.SaveMapPosition();
+                BattleData.RoomLevel = playerDataManager.LoadedData.NodesTravelled;
                 BattleData.IsBossWave = new bool[b.waves.Count];
                 BattleData.UseSpecialCam = new bool[b.waves.Count];
 

@@ -35,6 +35,7 @@ public class CardListUI : BasicSingleton<CardListUI>
         cardLoaded = new bool[cardProjections.Count];
     }
 
+    [ContextMenu(nameof(InitializeAsPartySetupUI))]
     public void InitializeAsPartySetupUI()
     {
         mode = CardListMode.PartySetup;
@@ -44,6 +45,7 @@ public class CardListUI : BasicSingleton<CardListUI>
         finishButton.Hide();
     }
 
+    [ContextMenu(nameof(InitializeAsUpgradeUI))]
     public void InitializeAsUpgradeUI()
     {
         mode = CardListMode.Upgrade;

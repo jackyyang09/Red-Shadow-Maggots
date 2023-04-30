@@ -69,10 +69,16 @@ public class GameManager : BasicSingleton<GameManager>
     {
         battleStateManager.DeleteData();
 
-        var playerData = playerDataManager.LoadedData;
-        playerData.Exp += ExpGained;
-        playerData.InBattle = false;
-        playerData.BattlesFought++;
+        PlayerData.Exp += ExpGained;
+        PlayerData.InBattle = false;
+        PlayerData.BattlesFought++;
+
+        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
+        {
+            if (!battleSystem.PlayerCharacters[i]) continue;
+            PlayerData.MaggotStates[i].Health = battleSystem.PlayerCharacters[i].CurrentHealth;
+        }
+
         playerDataManager.SaveData();
 
         sceneLoader.SwitchScene(mapScene.SceneName);

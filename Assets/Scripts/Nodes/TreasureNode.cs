@@ -55,9 +55,10 @@ public class TreasureNode : BasicSingleton<TreasureNode>
             cardRigidbodies[i].transform.localPosition = Vector3.zero;
 
             var maggot = gachaSystem.RandomMaggot;
-            var op = gachaSystem.LoadMaggot(maggot);
+            var op = maggot.LoadAssetAsync<CharacterObject>();
             yield return op;
-            characters.Add(op.Result as CharacterObject);
+            characters.Add(op.Result);
+            gachaSystem.TryAddLoadedMaggot(op);
 
             cardHolders[i].SetCharacterAndRarity(characters[i], Rarity.Common);
 
