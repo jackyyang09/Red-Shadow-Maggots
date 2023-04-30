@@ -41,9 +41,6 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
     List<AsyncOperationHandle> LoadedMaggots = new List<AsyncOperationHandle>();
     List<AssetReference> loadingMaggots = new List<AssetReference>();
-    Dictionary<string, AssetReference> guidToAssetRef = new Dictionary<string, AssetReference>();
-    public Dictionary<string, AssetReference> GUIDToAssetReference { get { return guidToAssetRef; } }
-
     [SerializeField] List<CharacterObject> maggots = null;
 
     [Header("Legacy")]
@@ -55,11 +52,6 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     {
         LoadedMaggots = new List<AsyncOperationHandle>();
         loadingMaggots = new List<AssetReference>();
-
-        for (int i = 0; i < maggotReferences.Count; i++)
-        {
-            guidToAssetRef.Add(maggotReferences[i].AssetGUID, maggotReferences[i]);
-        }
     }
 
     // Start is called before the first frame update

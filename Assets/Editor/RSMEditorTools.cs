@@ -6,13 +6,28 @@ using UnityEditor;
 
 public class RSMEditorTools : Editor
 {
-    [MenuItem("RSM Tools/Open Save Folder")]
+    public const string RSM_TOOLS_MENU = "RSM Tools/";
+    public const string SAVE_MENU = RSM_TOOLS_MENU + "Save Tools/";
+
+    [MenuItem(SAVE_MENU + "Open Save Folder")]
     public static void OpenSaveFolder()
     {
         Application.OpenURL(Application.persistentDataPath);
     }
 
-    [MenuItem("RSM Tools/Wipe Save Data")]
+    [MenuItem(SAVE_MENU + "Battle State")]
+    public static void OpenBattleState()
+    {
+        Application.OpenURL(Application.persistentDataPath + "\\BattleState.xml");
+    }
+
+    [MenuItem(SAVE_MENU + "Player Data")]
+    public static void OpenPlayerData()
+    {
+        Application.OpenURL(Application.persistentDataPath + "\\PlayerData.xml");
+    }
+
+    [MenuItem(SAVE_MENU + "Wipe Save Data")]
     public static void WipeSaveData()
     {
         if (EditorUtility.DisplayDialog("Confirm Deletion", "Delete BattleData.xml, PlayerData.xml and Map.json?", "Yes", "Cancel"))

@@ -66,7 +66,6 @@ namespace Map
         }
 
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("RSM Tools/Generate New Map")]
         public static void GenerateMap()
         {
             if (!Application.isPlaying) return;

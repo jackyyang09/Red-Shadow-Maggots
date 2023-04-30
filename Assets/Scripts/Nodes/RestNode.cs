@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.ResourceManagement;
+using UnityEngine.AddressableAssets;
 using static Facade;
 
 public class RestNode : BasicSingleton<RestNode>
@@ -51,11 +51,11 @@ public class RestNode : BasicSingleton<RestNode>
 
         for (int i = 0; i < states.Count; i++)
         {
-            var op = gachaSystem.LoadMaggot(gachaSystem.GUIDToAssetReference[states[i].GUID]);
+            var op = Addressables.LoadAssetAsync<CharacterObject>(states[i].GUID);
 
             yield return op;
 
-            var character = op.Result as CharacterObject;
+            var character = op.Result;
 
             var level = 1 + states[i].Exp % 100;
             float maxHealth = (float)character.GetMaxHealth((int)level, false);

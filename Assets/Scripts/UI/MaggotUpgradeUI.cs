@@ -14,10 +14,10 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     [SerializeField] float upgradeAnimationTime = 1;
 
     [SerializeField] OptimizedCanvas canvas;
-    public OptimizedCanvas OptimizedCanvas { get { return canvas; } }
+    public OptimizedCanvas OptimizedCanvas => canvas;
 
-    [SerializeField] Transform cardHolderParent;
-    Transform cardHolder;
+    [SerializeField] CardCanvasProjection projection;
+    Transform CardHolder => projection.transform;
 
     [SerializeField]
     TextMeshProUGUI
@@ -32,18 +32,26 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         levelChangeLabel,
         expBarLabel;
     [SerializeField] Image currentExpFill, nextExpFill;
-    [SerializeField] Button plusButton, minusButton;
-    [SerializeField] GraphicRaycaster plusRaycaster, minusRaycaster;
+    [SerializeField] OptimizedButton plusButton, minusButton;
     [SerializeField] Image raycastMask;
-    [SerializeField] Button backButton, doneButton;
 
     /// <summary>
     /// TODO: Put this somewhere else
     /// </summary>
     int expMultiplier = 30;
     int scrapOffered;
+    int ScrapOffered
+    {
+        set
+        {
+            scrapOffered = value;
+            scrapOfferedLabel.enabled = value > 0;
+            scrapOfferedLabel.text = scrapOffered.ToString();
+        }
+        get => scrapOffered;
+    }
 
-    CharacterObject targetCharacter;
+    CharacterObject TargetCharacter => projection.CardHolder.Character;
     PlayerSave.MaggotState maggotState;
 
     private void OnValidate()
@@ -51,15 +59,11 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         upgradeAnimCurve = EasingAnimationCurve.EaseToAnimationCurve(upgradeAnimationEase);
     }
 
-    public void InitializeUI(CharacterCardHolder holder, PlayerSave.MaggotState state)
+    public void InitializeUI(CharacterObject character, PlayerSave.MaggotState state)
     {
         maggotState = state;
 
-        cardHolder = holder.transform;
-        holder.transform.SetParent(cardHolderParent);
-        holder.transform.localPosition = Vector3.zero;
-
-        targetCharacter = holder.Character;
+        projection.CardHolder.SetCharacterAndRarity(character, gachaSystem.RandomRarity);
 
         RefreshUI();
     }
@@ -71,16 +75,16 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         scrapOfferedLabel.enabled = false;
         scrapOwnedLabel.text = "x" + data.Exp.ToString();
 
-        int currentLevel = targetCharacter.GetLevelFromExp(maggotState.Exp);
-        currentHealthLabel.text = targetCharacter.GetMaxHealth(currentLevel, false).ToString();
+        int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
+        currentHealthLabel.text = TargetCharacter.GetMaxHealth(currentLevel, false).ToString();
         healthArrow.enabled = false;
         nextHealthLabel.text = "";
-        currentAttackLabel.text = targetCharacter.GetAttack(currentLevel).ToString();
+        currentAttackLabel.text = TargetCharacter.GetAttack(currentLevel).ToString();
         attackArrow.enabled = false;
         nextAttackLabel.text = "";
 
-        float expProgress = maggotState.Exp - targetCharacter.GetExpRequiredForLevel(0, currentLevel);
-        float expRequirement = targetCharacter.GetExpRequiredForLevel(currentLevel, currentLevel + 1);
+        float expProgress = maggotState.Exp - TargetCharacter.GetExpRequiredForLevel(0, currentLevel);
+        float expRequirement = TargetCharacter.GetExpRequiredForLevel(currentLevel, currentLevel + 1);
 
         levelChangeLabel.text = "Lvl " + currentLevel;
         expBarLabel.text = (int)expProgress + "/" + (int)expRequirement;
@@ -90,23 +94,21 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
         if (playerDataManager.LoadedData.Exp == 0)
         {
-            plusButton.interactable = false;
-            plusRaycaster.enabled = false;
+            plusButton.SetButtonInteractable(false);
         }
 
-        minusButton.interactable = false;
-        minusRaycaster.enabled = false;
+        minusButton.SetButtonInteractable(false);
     }
 
     void UpdateUIElements()
     {
-        int currentLevel = targetCharacter.GetLevelFromExp(maggotState.Exp);
-        float currentExp = maggotState.Exp - targetCharacter.GetExpRequiredForLevel(0, currentLevel);
-        float incomingExp = maggotState.Exp + scrapOffered * expMultiplier;
-        int incomingLevel = targetCharacter.GetLevelFromExp(incomingExp);
+        int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
+        float currentExp = maggotState.Exp - TargetCharacter.GetExpRequiredForLevel(0, currentLevel);
+        float incomingExp = maggotState.Exp + ScrapOffered * expMultiplier;
+        int incomingLevel = TargetCharacter.GetLevelFromExp(incomingExp);
 
-        float expProgress = incomingExp - targetCharacter.GetExpRequiredForLevel(0, incomingLevel);
-        float expRequirement = targetCharacter.GetExpRequiredForLevel(incomingLevel, incomingLevel + 1);
+        float expProgress = incomingExp - TargetCharacter.GetExpRequiredForLevel(0, incomingLevel);
+        float expRequirement = TargetCharacter.GetExpRequiredForLevel(incomingLevel, incomingLevel + 1);
 
         levelChangeLabel.text = "Lvl " + currentLevel;
         expBarLabel.text = (int)expProgress + "/" + (int)expRequirement;
@@ -119,8 +121,8 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         else
         {
             levelChangeLabel.text += " -> <color=#EFD026>" + incomingLevel + "</color>";
-            nextHealthLabel.text = targetCharacter.GetMaxHealth(incomingLevel, false).ToString();
-            nextAttackLabel.text = targetCharacter.GetAttack(incomingLevel).ToString();
+            nextHealthLabel.text = TargetCharacter.GetMaxHealth(incomingLevel, false).ToString();
+            nextAttackLabel.text = TargetCharacter.GetAttack(incomingLevel).ToString();
         }
 
         healthArrow.enabled = !currentExpFill.enabled;
@@ -128,47 +130,47 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         attackArrow.enabled = !currentExpFill.enabled;
         nextAttackLabel.enabled = !currentExpFill.enabled;
 
-        nextExpFill.enabled = scrapOffered > 0;
+        nextExpFill.enabled = ScrapOffered > 0;
         nextExpFill.fillAmount = Mathf.Round(expProgress) / expRequirement;
     }
 
     public void OfferScrap()
     {
-        scrapOffered++;
+        ScrapOffered++;
 
-        scrapOfferedLabel.enabled = true;
-        scrapOfferedLabel.text = scrapOffered.ToString();
-
-        minusButton.interactable = true;
-        minusRaycaster.enabled = true;
+        minusButton.SetButtonInteractable(true);
 
         UpdateUIElements();
 
-        if (scrapOffered >= playerDataManager.LoadedData.Exp)
+        if (ScrapOffered >= playerDataManager.LoadedData.Exp)
         {
-            plusButton.interactable = false;
-            plusRaycaster.enabled = false;
+            plusButton.SetButtonInteractable(false);
         }
     }
 
     public void MinusScrap()
     {
-        scrapOffered--;
+        ScrapOffered--;
 
         UpdateUIElements();
 
-        if (scrapOffered == 0)
+        if (ScrapOffered == 0)
         {
-            minusButton.interactable = false;
-            minusRaycaster.enabled = false;
-            scrapOfferedLabel.enabled = false;
+            minusButton.SetButtonInteractable(false);
         }
         else
         {
-            plusButton.interactable = true;
-            plusRaycaster.enabled = true;
-            scrapOfferedLabel.text = scrapOffered.ToString();
+            plusButton.SetButtonInteractable(true);
         }
+    }
+
+    public void ResetScrap()
+    {
+        ScrapOffered = 0;
+
+        UpdateUIElements();
+        minusButton.SetButtonInteractable(false);
+        plusButton.SetButtonInteractable(true);
     }
 
     public void Upgrade()
@@ -178,12 +180,9 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     
     IEnumerator UpgradeAnimation()
     {
-        backButton.interactable = false;
-        doneButton.interactable = false;
-
-        int currentLevel = targetCharacter.GetLevelFromExp(maggotState.Exp);
+        int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
         float currentExp = maggotState.Exp;
-        float incomingExp = scrapOffered * expMultiplier;
+        float incomingExp = ScrapOffered * expMultiplier;
         float targetExp = maggotState.Exp + incomingExp;
 
         nextExpFill.enabled = false;
@@ -200,9 +199,9 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
             var xp = Mathf.Lerp(currentExp, targetExp, upgradeAnimCurve.Evaluate(timer / upgradeAnimationTime));
 
-            currentLevel = targetCharacter.GetLevelFromExp(xp);
-            xp -= targetCharacter.GetExpRequiredForLevel(0, currentLevel);
-            var requiredExp = targetCharacter.GetExpRequiredForLevel(currentLevel, currentLevel + 1);
+            currentLevel = TargetCharacter.GetLevelFromExp(xp);
+            xp -= TargetCharacter.GetExpRequiredForLevel(0, currentLevel);
+            var requiredExp = TargetCharacter.GetExpRequiredForLevel(currentLevel, currentLevel + 1);
             currentExpFill.fillAmount = xp / requiredExp;
 
             expBarLabel.text = (int)xp + "/" + (int)requiredExp;
@@ -210,34 +209,32 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
             yield return null;
         }
 
-        cardHolder.DOLocalMoveZ(-0.5f, inTime).SetEase(inEase);
+        CardHolder.DOLocalMoveZ(-0.5f, inTime).SetEase(inEase);
 
         yield return new WaitForSeconds(inAndSpin);
 
-        cardHolder.DOLocalRotate(new Vector3(0, spinAmount, 0), spinTime, RotateMode.LocalAxisAdd)
+        CardHolder.DOLocalRotate(new Vector3(0, spinAmount, 0), spinTime, RotateMode.LocalAxisAdd)
             .SetEase(spinEase);
 
         yield return new WaitForSeconds(spinAndOut);
 
-        cardHolder.DOLocalMoveZ(0, outTime).SetEase(outEase);
+        CardHolder.DOLocalMoveZ(0, outTime).SetEase(outEase);
 
         yield return new WaitForSeconds(spinTime);
 
-        cardHolder.localEulerAngles = new Vector3(0, 90, 0);
+        CardHolder.localEulerAngles = Vector3.zero;
 
         raycastMask.enabled = false;
 
         if (!dontConfirmUpgrade)
         {
             maggotState.Exp = targetExp;
-            playerDataManager.SetExp(playerDataManager.LoadedData.Exp - scrapOffered);
+            playerDataManager.SetExp(playerDataManager.LoadedData.Exp - ScrapOffered);
             playerDataManager.SaveData();
 
-            scrapOffered = 0;
+            ScrapOffered = 0;
             RefreshUI();
         }
-
-        doneButton.interactable = true;
     }
 
     public void ReturnToMaggotSelect()

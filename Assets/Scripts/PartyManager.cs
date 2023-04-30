@@ -39,25 +39,25 @@ public class PartyManager : BasicSingleton<PartyManager>
         var maggotStates = playerDataManager.LoadedData.MaggotStates;
         for (int i = 0; i < party.Length; i++)
         {
-            if (party[i] > -1)
-            {
-                var co = gachaSystem.GUIDToAssetReference[maggotStates[party[i]].GUID];
-
-                StartCoroutine(gachaSystem.LoadMaggot(co, OnMaggotLoaded));
-            }
+            //if (party[i] > -1)
+            //{
+            //    var co = gachaSystem.GUIDToAssetReference[maggotStates[party[i]].GUID];
+            //
+            //    StartCoroutine(gachaSystem.LoadMaggot(co, OnMaggotLoaded));
+            //}
         }
     }
 
-    void OnMaggotLoaded(CharacterObject obj)
-    {
-        var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
-        card.SetCharacterAndRarity(obj, Rarity.Common);
-        card.OnCardHovered += MousedOver;
-        card.OnCardExited += MousedAway;
-        card.OnCardClicked += MouseClicked;
-        cardHolders.Add(card);
-        cardHolders.GetLast().transform.localPosition = Vector3.zero + (cardHolders.Count - 1) * cardDelta;
-    }
+    //void OnMaggotLoaded(CharacterObject obj)
+    //{
+    //    var card = Instantiate(cardPrefab, cardStack).GetComponent<CharacterCardHolder>();
+    //    card.SetCharacterAndRarity(obj, Rarity.Common);
+    //    card.OnCardHovered += MousedOver;
+    //    card.OnCardExited += MousedAway;
+    //    card.OnCardClicked += MouseClicked;
+    //    cardHolders.Add(card);
+    //    cardHolders.GetLast().transform.localPosition = Vector3.zero + (cardHolders.Count - 1) * cardDelta;
+    //}
 
     void MousedOver(CharacterCardHolder c)
     {

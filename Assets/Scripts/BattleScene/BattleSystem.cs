@@ -749,6 +749,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         for (int i = 0; i < Instance.playerCharacters.Count; i++)
         {
+            if (!Instance.playerCharacters[i]) continue;
             Instance.playerCharacters[i].ApplyCritChanceModifier(1);
         }
 

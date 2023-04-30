@@ -12,7 +12,7 @@ public class ExpTableViewer : ScriptableWizard
 
     [SerializeField] Vector3[] table = new Vector3[101];
 
-    [MenuItem("RSM Tools/EXP Table Viewer")]
+    [MenuItem(RSMEditorTools.RSM_TOOLS_MENU + "EXP Table Viewer")]
     static void CreateWindow()
     {
         var w = DisplayWizard<ExpTableViewer>("Character Stat Wizard", "Close", "Fill Table");

@@ -79,4 +79,14 @@ public class PlayerSaveManager : BaseSaveManager<PlayerSave>
         SaveData();
         OnUpdateFloorCount?.Invoke(LoadedData.NodesTravelled);
     }
+
+#if UNITY_EDITOR
+    [IngameDebugConsole.ConsoleMethod(nameof(GiveXP), "Gives a bunch of EXP")]
+    public static void GiveXP()
+    {
+        (Instance as PlayerSaveManager).SetExp(9999);
+
+        Debug.Log("Enemies damaged!");
+    }
+#endif
 }

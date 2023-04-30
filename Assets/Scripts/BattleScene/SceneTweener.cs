@@ -127,8 +127,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 enemyCam.enabled = false;
                 playerCam.m_LookAt = attacker;
                 attacker.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic);
-                playerPath.transform.DOKill();
-                playerPath.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
+                //playerPath.transform.DOKill();
+                //playerPath.transform.DOMove(target.position + characterDestinationOffset, characterTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
                 break;
             case BattlePhases.EnemyTurn:
                 enemyCam.enabled = true;
@@ -307,8 +307,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 activePlayer.PlayReturnAnimation();
 
                 DOTween.To(() => lerpValue, x => lerpValue = x, 0, camTweenTime).SetEase(Ease.OutCubic);
-                playerPath.transform.DOKill();
-                playerPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
+                //playerPath.transform.DOKill();
+                //playerPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
                 activePlayer.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.Linear).onComplete += () =>
                 {

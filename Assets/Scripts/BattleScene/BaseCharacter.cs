@@ -917,8 +917,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void TakeDamage(DamageStruct damage)
     {
-        if (IsDead) return;
-
         var myClass = characterReference.characterClass;
         CharacterClass attackerClass = CharacterClass.Offense;
         if (damage.source != null)

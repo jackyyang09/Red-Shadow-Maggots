@@ -21,7 +21,7 @@ public class CharacterStatWizard : ScriptableWizard
 
     public static CharacterObject FocusedCharacter;
 
-    [MenuItem("RSM Tools/Character Stat Wizard")]
+    [MenuItem(RSMEditorTools.RSM_TOOLS_MENU + "Character Stat Wizard")]
     public static void CreateWizard()
     {
         var w = ScriptableWizard.DisplayWizard<CharacterStatWizard>("Character Stat Wizard", "Apply", "Randomize w/ Class");

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using DG.Tweening;
 using static Facade;
 
@@ -24,6 +25,9 @@ public class CardListUI : BasicSingleton<CardListUI>
     [SerializeField] List<CardCanvasProjection> cardProjections = new List<CardCanvasProjection>();
     bool[] cardLoaded;
 
+    [SerializeField] OptimizedButton backButton;
+    [SerializeField] OptimizedButton finishButton;
+
     public System.Action OnBackOut;
 
     private void Start()
@@ -35,12 +39,18 @@ public class CardListUI : BasicSingleton<CardListUI>
     {
         mode = CardListMode.PartySetup;
         ShowUI();
+
+        backButton.Show();
+        finishButton.Hide();
     }
 
     public void InitializeAsUpgradeUI()
     {
         mode = CardListMode.Upgrade;
         ShowUI();
+
+        backButton.Hide();
+        finishButton.Show();
     }
 
     [ContextMenu(nameof(ShowUI))]
@@ -114,11 +124,11 @@ public class CardListUI : BasicSingleton<CardListUI>
 
     IEnumerator LoadCardHolder(int index, string GUID)
     {
-        var op = gachaSystem.LoadMaggot(gachaSystem.GUIDToAssetReference[GUID]);
+        var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
 
         yield return op;
 
-        cardProjections[index].CardHolder.SetCharacterAndRarity(op.Result as CharacterObject, gachaSystem.RandomRarity);
+        cardProjections[index].CardHolder.SetCharacterAndRarity(op.Result, gachaSystem.RandomRarity);
         //cardHolders[index].InitializeStatsCanvas(playerDataManager.LoadedData.MaggotStates[index]);
         //cardHolders[index].StatsCanvas.Show();
         cardLoaded[index] = true;
@@ -155,7 +165,8 @@ public class CardListUI : BasicSingleton<CardListUI>
             case CardListMode.PartySetup:
                 break;
             case CardListMode.Upgrade:
-                //maggotUpgradeUI.InitializeUI(obj, maggotStates[index]);
+                optimizedCanvas.Hide();
+                maggotUpgradeUI.InitializeUI(obj.CardHolder.Character, maggotStates[index]);
                 maggotUpgradeUI.OptimizedCanvas.Show();
                 break;
         }

@@ -7,10 +7,8 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Canvas))]
 public class OptimizedButton : MonoBehaviour
 {
-    [SerializeField]
-    OptimizedCanvas canvas;
-    [SerializeField]
-    Button button;
+    [SerializeField] OptimizedCanvas canvas;
+    [SerializeField] Button button;
     public Button Button { get { return button; } }
 
     [ContextMenu("Find References")]
@@ -35,6 +33,7 @@ public class OptimizedButton : MonoBehaviour
     public void SetButtonInteractable(bool b)
     {
         button.interactable = b;
+        canvas.Raycaster.enabled = b;
     }
 
     public void SetActive(bool active)

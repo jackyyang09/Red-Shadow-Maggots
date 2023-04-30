@@ -13,7 +13,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
     {
         DamageStruct damageStruct = new DamageStruct();
         damageStruct.percentage = 1;
-        damageStruct.damage = (float)GetEffectStrength(strength, customValues);
+        damageStruct.damage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
         damageStruct.effectivity = DamageEffectivess.Normal;
         target.TakeDamage(damageStruct);
     }

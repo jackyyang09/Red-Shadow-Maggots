@@ -202,6 +202,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         for (int i = 0; i < Instance.Enemies.Length; i++)
         {
             if (!Instance.Enemies[i]) continue;
+            if (Instance.Enemies[i].IsDead) continue;
             BaseCharacter.IncomingDamage.damage = Instance.Enemies[i].CurrentHealth - 1;
             Instance.Enemies[i].TakeDamage();
         }
