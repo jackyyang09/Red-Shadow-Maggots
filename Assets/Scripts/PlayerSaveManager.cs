@@ -5,6 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class PlayerSave
 {
+    [System.Serializable]
     public class MaggotState
     {
         public string GUID;

@@ -12,7 +12,7 @@ public class RSMEditorTools : Editor
     [MenuItem(SAVE_MENU + "Open Save Folder")]
     public static void OpenSaveFolder()
     {
-        Application.OpenURL(Application.persistentDataPath);
+        OpenFolder(Application.persistentDataPath);
     }
 
     [MenuItem(SAVE_MENU + "Battle State")]
@@ -37,5 +37,24 @@ public class RSMEditorTools : Editor
             if (File.Exists(Map.MapManager.FILE_PATH)) File.Delete(Map.MapManager.FILE_PATH);
             EditorUtility.DisplayDialog("Done!", "Deletion Completion", "Neat!");
         }
+    }
+
+    public static void OpenFolder(string path)
+    {
+#if UNITY_EDITOR_WIN
+        Application.OpenURL(path);
+#elif UNITY_EDITOR_LINUX
+        Debug.Log(path);
+
+        // xdg-open works in the terminal but doesn't here???
+        var startInfo = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "xdg-open",
+            Arguments = "\"" + path + "\"",
+            UseShellExecute = false
+        };
+
+        System.Diagnostics.Process.Start(startInfo);
+#endif
     }
 }

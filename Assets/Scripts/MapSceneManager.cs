@@ -89,13 +89,14 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
         var b = battleList[Random.Range(0, battleList.Length)];
 
         BattleData.PlayerStates = new List<BattleState.PlayerState>();
-        for (int i = 0; i < PlayerData.Party.Length && i < PlayerData.MaggotStates.Count; i++)
+        for (int i = 0; i < PlayerData.Party.Length; i++)
         {
+            if (PlayerData.Party[i] == -1) continue;
             var newState = new BattleState.PlayerState();
             newState.Index = PlayerData.Party[i];
-            if (PlayerData.MaggotStates[i] != null)
+            if (PlayerData.MaggotStates[newState.Index] != null)
             {
-                newState.Health = PlayerData.MaggotStates[i].Health;
+                newState.Health = PlayerData.MaggotStates[newState.Index].Health;
             }
             BattleData.PlayerStates.Add(newState);
         }
