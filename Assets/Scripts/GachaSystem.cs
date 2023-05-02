@@ -40,6 +40,22 @@ public class GachaSystem : BasicSingleton<GachaSystem>
     [SerializeField] List<AssetReference> maggotReferences;
     public AssetReference RandomMaggot { get { return maggotReferences[Random.Range(0, maggotReferences.Count)]; } }
     public List<AsyncOperationHandle<CharacterObject>> LoadedMaggots = new List<AsyncOperationHandle<CharacterObject>>();
+
+    public static AsyncOperationHandle<CharacterObject> GetValidOperationHandle(AssetReference ar)
+    {
+        var op = ar.OperationHandle;
+        AsyncOperationHandle<CharacterObject> loadOp;
+        if (!op.IsValid())
+        {
+            loadOp = ar.LoadAssetAsync<CharacterObject>();
+        }
+        else
+        {
+            loadOp = op.Convert<CharacterObject>();
+        }
+        return loadOp;
+    }
+
     public void TryAddLoadedMaggot(AsyncOperationHandle<CharacterObject> maggot)
     {
         if (!LoadedMaggots.Contains(maggot)) LoadedMaggots.Add(maggot);

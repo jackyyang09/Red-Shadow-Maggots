@@ -64,6 +64,7 @@ public class RestNode : BasicSingleton<RestNode>
                 0, maxHealth);
         }
 
+        mapManager.SaveMap();
         battleStateManager.SaveData();
 
         float halfTime = fadeTime / 2;

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using DG.Tweening;
 using static Facade;
 
@@ -55,7 +56,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
             cardRigidbodies[i].transform.localPosition = Vector3.zero;
 
             var maggot = gachaSystem.RandomMaggot;
-            var op = maggot.LoadAssetAsync<CharacterObject>();
+            var op = GachaSystem.GetValidOperationHandle(maggot);
             yield return op;
             characters.Add(op.Result);
             gachaSystem.TryAddLoadedMaggot(op);
@@ -138,6 +139,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         uncrateSequence.UncrateCharacter(activeCard.Character, Rarity.Common, ReturnToMapScreen);
         characterPreview.OptimizedCanvas.Hide();
         ShowcaseSystem.Instance.HideShowcase();
+        mapManager.SaveMap();
     }
 
     public void ReturnToMaggotSelection()

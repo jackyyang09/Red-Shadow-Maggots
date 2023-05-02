@@ -41,8 +41,7 @@ public class CritGlowEffect : MonoBehaviour
             var main = particleSystems[i].main;
             main.startColor = particleSparkColor;
 
-            ParticleSystem child;
-            if (particleSystems[i].TryGetComponent(out child))
+            if (particleSystems[i].transform.GetChild(0).TryGetComponent(out ParticleSystem child))
             {
                 var m = child.main;
                 m.startColor = particleGlowColor;

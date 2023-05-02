@@ -63,48 +63,7 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
             case NodeType.MinorEnemy:
             case NodeType.EliteEnemy:
             case NodeType.Boss:
-                battleStateManager.ResetData();
-
-                var b = battleList[Random.Range(0, battleList.Length)];
-
-                BattleData.PlayerStates = new List<BattleState.PlayerState>();
-                for (int i = 0; i < PlayerData.Party.Length && i < PlayerData.MaggotStates.Count; i++)
-                {
-                    var newState = new BattleState.PlayerState();
-                    newState.Index = PlayerData.Party[i];
-                    if (PlayerData.MaggotStates[i] != null)
-                    {
-                        newState.Health = PlayerData.MaggotStates[i].Health;
-                    }
-                    BattleData.PlayerStates.Add(newState);
-                }
-
-                mapScroller.SaveMapPosition();
-                BattleData.RoomLevel = playerDataManager.LoadedData.NodesTravelled;
-                BattleData.IsBossWave = new bool[b.waves.Count];
-                BattleData.UseSpecialCam = new bool[b.waves.Count];
-
-                for (int i = 0; i < b.waves.Count; i++)
-                {
-                    BattleData.IsBossWave[i] = b.waves[i].IsBossWave;
-                    BattleData.UseSpecialCam[i] = b.waves[i].UseSpecialCam;
-
-                    BattleData.EnemyGUIDs.Add(new List<string>());
-                    for (int j = 0; j < b.waves[i].Enemies.Length; j++)
-                    {
-                        string guid = "";
-                        if (b.waves[i].Enemies[j] != null)
-                        {
-                            guid = b.waves[i].Enemies[j].AssetGUID;
-                        }
-                        BattleData.EnemyGUIDs[i].Add(guid);
-                    }
-                }
-                battleStateManager.SaveData();
-
-                playerDataManager.LoadedData.InBattle = true;
-                playerDataManager.SaveData();
-                sceneLoader.SwitchScene(battleScene.SceneName);
+                partySetup.Initialize();
                 break;
             case NodeType.RestSite:
                 restNode.Initialize();
@@ -121,5 +80,54 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
     public void UpdateCardStack()
     {
 
+    }
+
+    public void MoveToBattleScene()
+    {
+        battleStateManager.ResetData();
+
+        var b = battleList[Random.Range(0, battleList.Length)];
+
+        BattleData.PlayerStates = new List<BattleState.PlayerState>();
+        for (int i = 0; i < PlayerData.Party.Length && i < PlayerData.MaggotStates.Count; i++)
+        {
+            var newState = new BattleState.PlayerState();
+            newState.Index = PlayerData.Party[i];
+            if (PlayerData.MaggotStates[i] != null)
+            {
+                newState.Health = PlayerData.MaggotStates[i].Health;
+            }
+            BattleData.PlayerStates.Add(newState);
+        }
+
+        mapScroller.SaveMapPosition();
+        BattleData.RoomLevel = playerDataManager.LoadedData.NodesTravelled;
+        BattleData.IsBossWave = new bool[b.waves.Count];
+        BattleData.UseSpecialCam = new bool[b.waves.Count];
+
+        for (int i = 0; i < b.waves.Count; i++)
+        {
+            BattleData.IsBossWave[i] = b.waves[i].IsBossWave;
+            BattleData.UseSpecialCam[i] = b.waves[i].UseSpecialCam;
+
+            BattleData.EnemyGUIDs.Add(new List<string>());
+            for (int j = 0; j < b.waves[i].Enemies.Length; j++)
+            {
+                string guid = "";
+                if (b.waves[i].Enemies[j] != null)
+                {
+                    guid = b.waves[i].Enemies[j].AssetGUID;
+                }
+                BattleData.EnemyGUIDs[i].Add(guid);
+            }
+        }
+        battleStateManager.SaveData();
+
+        playerDataManager.LoadedData.InBattle = true;
+        playerDataManager.SaveData();
+
+        mapManager.SaveMap();
+
+        sceneLoader.SwitchScene(battleScene.SceneName);
     }
 }

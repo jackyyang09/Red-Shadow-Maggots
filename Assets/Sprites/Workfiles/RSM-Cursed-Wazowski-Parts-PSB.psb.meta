@@ -21,11 +21,13 @@ ScriptedImporter:
     convertToNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
+    swizzle: 50462976
     isReadable: 0
     streamingMipmaps: 1
     streamingMipmapsPriority: 0
     vTOnly: 0
-    ignoreMasterTextureLimit: 0
+    ignoreMipmapLimit: 0
     nPOTScale: 1
     sRGBTexture: 1
     spriteMode: 2
@@ -47,6 +49,7 @@ ScriptedImporter:
     flipbookRows: 0
     flipbookColumns: 0
     ignorePngGamma: 0
+    cookieMode: 0
     filterMode: 1
     aniso: 1
     mipBias: 0
@@ -87,8 +90,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 0, y: 0}
+    spritePosition: {x: 0, y: 0}
   mosaicSpriteImportData: []
   rigSpriteImportData:
   - name: SHIELD
@@ -110,8 +113,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 1425, y: -1157}
+    uvTransform: {x: 2970, y: 4}
+    spritePosition: {x: 1545, y: 1161}
   - name: FOREHAIR
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -120,7 +123,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 1395
-      y: 1129
+      y: 1131
       width: 1092
       height: 1188
     spriteID: 6f1e693f7a96012458d521e394426bd0
@@ -131,8 +134,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 248, y: -663}
+    uvTransform: {x: 1395, y: 1131}
+    spritePosition: {x: 1147, y: 1792}
   - name: SHIELD ARM FOREARM
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -141,7 +144,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 1395
-      y: 2325
+      y: 2327
       width: 1350
       height: 922
     spriteID: 1c744f3db3b53e840aca740e438a4296
@@ -152,8 +155,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 290, y: 1164}
+    uvTransform: {x: 1395, y: 2327}
+    spritePosition: {x: 1105, y: 1161}
   - name: SHIELD ARM SHOULDER
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -173,8 +176,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -1087, y: 1484}
+    uvTransform: {x: 800, y: 3299}
+    spritePosition: {x: 1887, y: 1815}
   - name: EYELIDS TOP
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -194,8 +197,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -273, y: 1635}
+    uvTransform: {x: 800, y: 3755}
+    spritePosition: {x: 1073, y: 2120}
   - name: EYELIDS BOTTOM
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -215,8 +218,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -1070, y: 1820}
+    uvTransform: {x: 4, y: 3911}
+    spritePosition: {x: 1074, y: 2091}
   - name: HEAD
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -236,8 +239,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -988, y: -1275}
+    uvTransform: {x: 4, y: 4}
+    spritePosition: {x: 992, y: 1279}
   - name: FRONT LEG
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -257,8 +260,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -1061, y: 1782}
+    uvTransform: {x: 800, y: 1885}
+    spritePosition: {x: 1861, y: 103}
   - name: FRONG THIGH
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -267,7 +270,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 1891
-      y: 3255
+      y: 3257
       width: 602
       height: 636
     spriteID: 4547bb6a2d07a0f43b5cd17802418ac3
@@ -278,8 +281,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 149, y: 2115}
+    uvTransform: {x: 1891, y: 3257}
+    spritePosition: {x: 1742, y: 1140}
   - name: AXE ARM
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -299,8 +302,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -516, y: 48}
+    uvTransform: {x: 4, y: 1885}
+    spritePosition: {x: 520, y: 1837}
   - name: BACK LEG
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -309,7 +312,7 @@ ScriptedImporter:
     rect:
       serializedVersion: 2
       x: 1395
-      y: 3255
+      y: 3257
       width: 488
       height: 824
     spriteID: b68698349e5fde548b32b95635a51e40
@@ -320,8 +323,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 871, y: 2370}
+    uvTransform: {x: 1395, y: 3257}
+    spritePosition: {x: 524, y: 885}
   - name: BACK THIGH
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -341,8 +344,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 2219, y: -484}
+    uvTransform: {x: 2970, y: 970}
+    spritePosition: {x: 751, y: 1454}
   - name: MAIN DROP SHADOW
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -362,13 +365,14 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 730, y: -337}
+    uvTransform: {x: 1395, y: 4}
+    spritePosition: {x: 665, y: 339}
   characterData:
     bones: []
     parts: []
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   sharedRigSpriteImportData: []
   sharedRigCharacterData:
@@ -376,6 +380,7 @@ ScriptedImporter:
     parts: []
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   platformSettings: []
   mosaicLayers: 1
@@ -388,6 +393,8 @@ ScriptedImporter:
   paperDollMode: 0
   keepDupilcateSpriteName: 0
   skeletonAssetReferenceID: 
+  padding: 4
+  spriteSizeExpand: 0
   spriteCategoryList:
     categories: []
   spritePackingTag: 
@@ -428,7 +435,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: 1
-    spriteID: 00000000000000000000000000000000
+    spriteID: e0691754954eb584cbec3933727dc99d
     layerID: 418
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
@@ -450,7 +457,7 @@ ScriptedImporter:
     parentIndex: 4
     spriteID: 6f1e693f7a96012458d521e394426bd0
     layerID: 255
-    mosaicPosition: {x: 1395, y: 1129}
+    mosaicPosition: {x: 1395, y: 1131}
     flatten: 0
     isImported: 1
     isVisible: 1
@@ -470,7 +477,7 @@ ScriptedImporter:
     parentIndex: 6
     spriteID: 1c744f3db3b53e840aca740e438a4296
     layerID: 448
-    mosaicPosition: {x: 1395, y: 2325}
+    mosaicPosition: {x: 1395, y: 2327}
     flatten: 0
     isImported: 1
     isVisible: 1
@@ -488,7 +495,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: 6
-    spriteID: 00000000000000000000000000000000
+    spriteID: e282ece56d31ad544af5cafcad04f94d
     layerID: 409
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
@@ -560,7 +567,7 @@ ScriptedImporter:
     parentIndex: 14
     spriteID: 4547bb6a2d07a0f43b5cd17802418ac3
     layerID: 579
-    mosaicPosition: {x: 1891, y: 3255}
+    mosaicPosition: {x: 1891, y: 3257}
     flatten: 0
     isImported: 1
     isVisible: 1
@@ -600,7 +607,7 @@ ScriptedImporter:
     parentIndex: 19
     spriteID: b68698349e5fde548b32b95635a51e40
     layerID: 544
-    mosaicPosition: {x: 1395, y: 3255}
+    mosaicPosition: {x: 1395, y: 3257}
     flatten: 0
     isImported: 1
     isVisible: 1
@@ -626,6 +633,9 @@ ScriptedImporter:
     isVisible: 1
   sharedRigPSDLayers: []
   pSDLayerImportSetting: []
+  importFileNodeState: 1
+  platformSettingsDirtyTick: 0
+  spriteSizeExpandChanged: 0
   generateGOHierarchy: 0
   textureAssetName: RSM-Cursed-Wazowski-Parts-PSB Texture
   prefabAssetName: RSM-Cursed-Wazowski-Parts-PSB Prefab

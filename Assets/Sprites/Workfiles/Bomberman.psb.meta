@@ -21,11 +21,13 @@ ScriptedImporter:
     convertToNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
+    swizzle: 50462976
     isReadable: 0
     streamingMipmaps: 1
     streamingMipmapsPriority: 0
     vTOnly: 0
-    ignoreMasterTextureLimit: 0
+    ignoreMipmapLimit: 0
     nPOTScale: 1
     sRGBTexture: 1
     spriteMode: 2
@@ -47,6 +49,7 @@ ScriptedImporter:
     flipbookRows: 0
     flipbookColumns: 0
     ignorePngGamma: 0
+    cookieMode: 0
     filterMode: 1
     aniso: 1
     mipBias: 0
@@ -87,8 +90,8 @@ ScriptedImporter:
     indices: 
     edges: []
     tessellationDetail: 0
-    parentGroupIndex: -1
     uvTransform: {x: 0, y: 0}
+    spritePosition: {x: 0, y: 0}
   mosaicSpriteImportData: []
   rigSpriteImportData:
   - name: Layer 1
@@ -859,8 +862,8 @@ ScriptedImporter:
     - {x: 62, y: 7}
     - {x: 63, y: 41}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -117, y: 493}
+    uvTransform: {x: 4, y: 1404}
+    spritePosition: {x: 121, y: 911}
   - name: Layer 1 Copy
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -1284,8 +1287,8 @@ ScriptedImporter:
     - {x: 34, y: 33}
     - {x: 0, y: 34}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 782, y: -852}
+    uvTransform: {x: 874, y: 560}
+    spritePosition: {x: 92, y: 1412}
   - name: Layer 2
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -1744,8 +1747,8 @@ ScriptedImporter:
     - {x: 30, y: 29}
     - {x: 0, y: 30}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 799, y: -743}
+    uvTransform: {x: 1549, y: 560}
+    spritePosition: {x: 750, y: 1303}
   - name: Layer 3
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -2183,8 +2186,8 @@ ScriptedImporter:
     - {x: 30, y: 29}
     - {x: 0, y: 30}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 672, y: -106}
+    uvTransform: {x: 1549, y: 1056}
+    spritePosition: {x: 877, y: 1162}
   - name: Layer 6
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -2730,8 +2733,8 @@ ScriptedImporter:
     - {x: 39, y: 38}
     - {x: 39, y: 0}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -598, y: -248}
+    uvTransform: {x: 4, y: 4}
+    spritePosition: {x: 602, y: 252}
   - name: Layer 4
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -3248,8 +3251,8 @@ ScriptedImporter:
     - {x: 6, y: 41}
     - {x: 5, y: 41}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: -246, y: 1667}
+    uvTransform: {x: 4, y: 2281}
+    spritePosition: {x: 250, y: 614}
   - name: Layer 3 copy 3
     originalName: 
     pivot: {x: 0.5, y: 0.5}
@@ -3748,8 +3751,8 @@ ScriptedImporter:
     - {x: 33, y: 32}
     - {x: 33, y: 0}
     tessellationDetail: 0
-    parentGroupIndex: -1
-    uvTransform: {x: 583, y: 4}
+    uvTransform: {x: 874, y: 4}
+    spritePosition: {x: 291, y: 0}
   characterData:
     bones:
     - name: Root
@@ -3971,6 +3974,7 @@ ScriptedImporter:
       order: 0
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   sharedRigSpriteImportData: []
   sharedRigCharacterData:
@@ -3978,6 +3982,7 @@ ScriptedImporter:
     parts: []
     dimension: {x: 0, y: 0}
     characterGroups: []
+    pivot: {x: 0, y: 0}
     boneReadOnly: 0
   platformSettings: []
   mosaicLayers: 1
@@ -3990,6 +3995,8 @@ ScriptedImporter:
   paperDollMode: 0
   keepDupilcateSpriteName: 0
   skeletonAssetReferenceID: 
+  padding: 4
+  spriteSizeExpand: 0
   spriteCategoryList:
     categories: []
   spritePackingTag: 
@@ -4070,7 +4077,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: -1
-    spriteID: 00000000000000000000000000000000
+    spriteID: 5b9aaa822f7435c458629e2fb3ff1b9e
     layerID: -7500612
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
@@ -4080,7 +4087,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 0
     parentIndex: -1
-    spriteID: 00000000000000000000000000000000
+    spriteID: 4b2e205d1beffbd44a2f617e7e9cffe2
     layerID: -1129296549
     mosaicPosition: {x: 0, y: 0}
     flatten: 0
@@ -4088,6 +4095,9 @@ ScriptedImporter:
     isVisible: 0
   sharedRigPSDLayers: []
   pSDLayerImportSetting: []
+  importFileNodeState: 1
+  platformSettingsDirtyTick: 0
+  spriteSizeExpandChanged: 0
   generateGOHierarchy: 0
   textureAssetName: Bomberman - Copy Texture
   prefabAssetName: Bomberman - Copy Prefab

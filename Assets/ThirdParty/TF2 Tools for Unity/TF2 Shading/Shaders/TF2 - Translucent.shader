@@ -18,7 +18,7 @@
             Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
-                #pragma surface surf TF2 alphatest:_Cutoff
+                #pragma surface surf TF2 alpha
                 #pragma target 3.0
 
                 struct Input

@@ -63,9 +63,9 @@ public class AttackStructDrawer : PropertyDrawer
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]
 public class CharacterObject : ScriptableObject
 {
-    [ReadObjectName] public string characterName = null;
-    public Sprite sprite = null;
-    public Sprite headshotSprite = null;
+    [ReadObjectName] public string characterName;
+    public Sprite sprite;
+    public Sprite headshotSprite;
 
     [Header("Game Stats")]
     public const int MAX_LEVEL_PLAYER = 90;

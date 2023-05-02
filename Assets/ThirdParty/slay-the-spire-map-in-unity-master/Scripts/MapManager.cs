@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Map
 {
-    public class MapManager : MonoBehaviour
+    public class MapManager : BasicSingleton<MapManager>
     {
         [SerializeField] MapConfig config;
         public MapConfig CurrentConfig { get { return config; } }
@@ -58,11 +58,6 @@ namespace Map
             });
 
             System.IO.File.WriteAllText(FILE_PATH, json);
-        }
-
-        private void OnApplicationQuit()
-        {
-            SaveMap();
         }
 
 #if UNITY_EDITOR

@@ -2,6 +2,7 @@
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
+using static Facade;
 
 namespace Map
 {
@@ -9,7 +10,6 @@ namespace Map
     {
         public bool lockAfterSelecting = false;
         public float enterNodeDelay = 1f;
-        public MapManager mapManager;
         public MapView view;
 
         public static MapPlayerTracker Instance;
@@ -53,7 +53,6 @@ namespace Map
         {
             Locked = lockAfterSelecting;
             mapManager.CurrentMap.path.Add(mapNode.Node.point);
-            mapManager.SaveMap();
             view.SetAttainableNodes();
             view.SetLineColors();
             mapNode.ShowSwirlAnimation();

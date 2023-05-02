@@ -21,4 +21,9 @@ public static class Extensions
         if (list.Count == 0) return default(T);
         else return list[list.Count - 1];
     }
+
+    public static int ToInt(this bool b)
+    {
+        return System.Convert.ToInt32(b);
+    }
 }

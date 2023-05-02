@@ -230,7 +230,6 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         {
             maggotState.Exp = targetExp;
             playerDataManager.SetExp(playerDataManager.LoadedData.Exp - ScrapOffered);
-            playerDataManager.SaveData();
 
             ScrapOffered = 0;
             RefreshUI();
@@ -245,6 +244,8 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
     public void FinishUpgrade()
     {
+        mapManager.SaveMap();
+        playerDataManager.SaveData();
         cardListUI.ShowUI();
         canvas.Hide();
         cardListUI.HideUI();

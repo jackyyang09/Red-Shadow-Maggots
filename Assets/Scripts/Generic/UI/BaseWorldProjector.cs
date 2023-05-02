@@ -49,19 +49,20 @@ public class BaseWorldProjector : MonoBehaviour
         cam.targetTexture = RenderTexture;
     }
 
+    [SerializeField] TextureFormat format;
 #if UNITY_EDITOR
     [ContextMenu(nameof(GeneratePlaceholderGraphic))]
     void GeneratePlaceholderGraphic()
     {
         RenderTexture renderTexture = RenderTexture;
 
-        Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.ARGB32, false, true);
+        Texture2D tex = new Texture2D(renderTexture.width, renderTexture.height, format, false, true);
         RenderTexture.active = renderTexture;
         tex.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0, false);
         tex.Apply();
         RenderTexture.active = null;
 
-        Texture2D referenceTex = new Texture2D(renderTexture.width, renderTexture.height, TextureFormat.ARGB32, false, true);
+        Texture2D referenceTex = new Texture2D(renderTexture.width, renderTexture.height, format, false, true);
         referenceTex.SetPixels(tex.GetPixels());
         referenceTex.Apply();
 
