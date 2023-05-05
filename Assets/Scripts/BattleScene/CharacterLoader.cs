@@ -29,8 +29,6 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         playersLoaded = 0;
         playerHandleToIndex.Clear();
 
-        battleSystem.PlayerCharacters.AddRange(new PlayerCharacter[3]);
-
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {
             if (PlayerData.Party[i] == -1)

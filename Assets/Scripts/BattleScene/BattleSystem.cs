@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -53,12 +54,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void FinishTurn() => finishedTurn = true;
 
-    [SerializeField] List<PlayerCharacter> playerCharacters = null;
+    PlayerCharacter[] playerCharacters = new PlayerCharacter[3];
 
-    public List<PlayerCharacter> PlayerCharacters
-    {
-        get { return playerCharacters; }
-    }
+    public PlayerCharacter[] PlayerCharacters => playerCharacters;
 
     public PlayerCharacter RandomPlayerCharacter
     {
@@ -67,7 +65,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (priorityPlayers.Count > 0) return priorityPlayers[0];
 
             List<PlayerCharacter> p = new List<PlayerCharacter>();
-            for (int i = 0; i < playerCharacters.Count; i++)
+            for (int i = 0; i < playerCharacters.Length; i++)
             {
                 if (PlayerCharacters[i])
                 {
@@ -85,7 +83,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         get
         {
-            for (int i = 0; i < playerCharacters.Count; i++)
+            for (int i = 0; i < playerCharacters.Length; i++)
             {
                 if (playerCharacters[i])
                 {
@@ -214,14 +212,20 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         waveManager.SetupWave();
 
-        characterLoader.LoadAllPlayerCharacters();
-
-        yield return new WaitUntil(() => characterLoader.PlayersLoaded && characterLoader.EnemiesLoaded);
-
-        LoadBattleState();
+        if (gachaSystem.LegacyMode)
+        {
+            yield return new WaitUntil(() => playerCharacters.Any(t => t != null) && enemyController.Enemies.Any(t => t != null));
+            SetActiveEnemy(enemyController.RandomEnemy);
+        }
+        else
+        {
+            characterLoader.LoadAllPlayerCharacters();
+            yield return new WaitUntil(() => characterLoader.PlayersLoaded && characterLoader.EnemiesLoaded);
+            LoadBattleState();
+        }
 
         // Initialize turn order
-        for (int i = 0; i < playerCharacters.Count; i++)
+        for (int i = 0; i < playerCharacters.Length; i++)
         {
             if (!playerCharacters[i]) continue;
             yield return new WaitUntil(() => playerCharacters[i].Initialized);
@@ -304,7 +308,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (PlayersAlive)
             {
                 playerTargets.player.ForceDeselect();
-                for (int i = 0; i < playerCharacters.Count; i++)
+                for (int i = 0; i < playerCharacters.Length; i++)
                 {
                     if (!playerCharacters[i].IsDead)
                     {
@@ -363,8 +367,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
                 break;
             case BattlePhases.EnemyTurn:
-                for (int i = 0; i < playerCharacters.Count; i++)
+                for (int i = 0; i < playerCharacters.Length; i++)
                 {
+                    if (!playerCharacters[i]) continue;
                     if (enemyTargets.enemy.Reference.attackEffectPrefab != null)
                     {
                         playerCharacters[i].SpawnEffectPrefab(enemyTargets.enemy.Reference.attackEffectPrefab);
@@ -747,7 +752,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [IngameDebugConsole.ConsoleMethod(nameof(MaxPlayerCrit), "Set player characters crit chance to 100%")]
     public static void MaxPlayerCrit()
     {
-        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Length; i++)
         {
             if (!Instance.playerCharacters[i]) continue;
             Instance.playerCharacters[i].ApplyCritChanceModifier(1);
@@ -760,7 +765,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         "Set player characters crit chance to a number from 0 to 1")]
     public static void AddPlayerCrit(float value)
     {
-        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Length; i++)
         {
             Instance.playerCharacters[i].ApplyCritChanceModifier(value);
         }
@@ -771,7 +776,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]
     public static void CripplePlayers()
     {
-        for (int i = 0; i < Instance.playerCharacters.Count; i++)
+        for (int i = 0; i < Instance.playerCharacters.Length; i++)
         {
             BaseCharacter.IncomingDamage.damage = Instance.playerCharacters[i].CurrentHealth - 1;
             Instance.playerCharacters[i].TakeDamage();

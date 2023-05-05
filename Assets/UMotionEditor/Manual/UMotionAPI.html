@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div class="versionHeader">
-			<p class="versionText">Version: <b>1.28</b> </p>
+			<p class="versionText">Version: <b>1.29p02</b> </p>
 		</div>
 		<div class="leftContent">
 			<div class="leftContentInner">
@@ -241,7 +241,7 @@ There are two classes within this namespace:</p><ul class="listMain">
     </span></li>
 </ul><h3 class="headline3" id="">Methods</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
-        <b>static void AddMenuItem(ClipEditor.MenuCategory category, string name, GenericMenu.MenuFunction clickedAction)</b>
+        <b>static void AddMenuItem(<a href="#MenuCategory" class="link">ClipEditor.MenuCategory</a> category, string name, GenericMenu.MenuFunction clickedAction)</b>
         </br>Adds a new menu item to the clip editor's "File", "Edit" or "Help" menu. When the menu item is clicked, the clickedAction method is called.
         </br>
         </br><b>Example usage (place this script in a folder named "Editor"):</b>
@@ -254,7 +254,7 @@ public class UMotionExtensions
 {
    static UMotionExtensions()
    {
-      ClipEditor.AddMenuItem(ClipEditor.MenuCategory.File, "My Menu Item", MyMenuItemPressed);
+   ClipEditor.AddMenuItem(<a href="#MenuCategory" class="link">ClipEditor.MenuCategory.File</a>, "My Menu Item", MyMenuItemPressed);
    }
    
    private static void MyMenuItemPressed()
@@ -297,6 +297,10 @@ public class UMotionExtensions
         </br>Changes the name of an animation clip. When called right before "ExportCurrentClip()" this method can be used to change the name of the exported animation clip. This is useful when exporting the same animation clip several times (with different animation layers enabled).
     </span></li>
     <li class="listItem"><span class="listText">
+        <b>static void DeleteClip(string name)</b>
+        </br>Deletes the clip with the given name from the UMotion project.
+    </span></li>
+    <li class="listItem"><span class="listText">
         <b>static void ExportCurrentClip()</b>
         </br>Exports the clip currently opened in the Clip Editor. This method blocks until the export is finished.
     </span></li>
@@ -332,7 +336,15 @@ public class UMotionExtensions
         <b>static float GetPlaybackFramePosition()</b>
         </br>Returns the current frame position during playback or -1.0 if playback is not active.
     </span></li>
-</ul><h3 class="headline3" id="">enum ClipEditor.MenuCategory</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">
+        <b>static float GetLastKeyFrame()</b>
+        </br>Returns the last frame number of the current clip where at least one key is present.
+    </span></li>
+    <li class="listItem"><span class="listText">
+    <b>static float ImportClips(IEnumerable&ltAnimationClip&gt animationClips, <a href="#ImportClipSettings" class="link">ClipEditor.ImportClipSettings</a> importClipSettings)</b>
+        </br>Starts the UMotion clip importer. Imports the passed animation clips with the passed settings. In order to import clips from FBX files, use the Unity AssetDatabase API to get the required references to the FBX file's animation clips.
+    </span></li>
+</ul><h3 class="headline3" id="MenuCategory">enum ClipEditor.MenuCategory</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
         <b>File</b>
         </br>File menu of the clip editor.
@@ -345,7 +357,33 @@ public class UMotionExtensions
         <b>Help</b>
         </br>Help menu of the clip editor.
     </span></li>
-</ul><h2 class="headline2" id="">PoseEditor Overview</h2><h3 class="headline3" id="">Properties</h3><ul class="listMain">
+</ul><h3 class="headline3" id="ImportClipSettings">struct ClipEditor.ImportClipSettings</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">
+        <b>bool ConvertToProgressive</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool DisableAnimCompression</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool DisableAnimCompression</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool FkToIkConversion</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool FkToIkDeleteFkKeys</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool HumanoidHandIKEnable</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>bool HumanoidLosslessKeyframeReduction</b>
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static ClipEditor.ImportClipSettings Default</b>
+        </br>Default settings
+    </span></li>
+</ul><p class="textBlock">Please check out the <a href="ImportExport.html#Importing" class="link">clip import dialog</a> documentation for a detailed description of each of these settings.</p><h2 class="headline2" id="">PoseEditor Overview</h2><h3 class="headline3" id="">Properties</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
         <b>static bool IsWindowOpened</b>
         </br>True when the Pose Editor window is opened and initialized. It might be necessary to focus either the Pose Editor or the Clip Editor window in order to initialize UMotion.
@@ -355,9 +393,13 @@ public class UMotionExtensions
         </br>When a GameObject is assigned to the UMotion pose editor, it is duplicated and the original GameObject gets hidden. All modifications done to the pose are only applied to the duplicated GameObject. As soon as "Clear" is pressed in the pose editor, the duplicated GameObject gets destroyed and the original GameObject gets visible again. This ensures that changes done to the pose are only kept within the UMotion editing session and do not influence the "real" GameObject in the scene.
         </br>This proprety returns the duplicated GameObject or null if there is currently no GameObject assigned to the pose editor.
     </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static <a href="#PivotMode" class="link">PoseEditor.PivotMode</a> Pivot</b>
+        </br>Gets or sets the current pivot mode of the pose editor (local/global).
+    </span></li>
 </ul><h3 class="headline3" id="">Methods</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
-        <b>static void AddButton(PoseEditor.FoldoutCategory category, string name, string tooltip, System.Action buttonPressedAction)</b>
+        <b>static void AddButton(<a href="#FoldoutCategory" class="link">PoseEditor.FoldoutCategory</a> category, string name, string tooltip, System.Action buttonPressedAction)</b>
         </br>Adds a button with the given name to a foldout in the pose editor. Them method supplied for "buttonPressedAction" is called as soon as the button is pressed. The tooltip string is shown when the user hovers the mouse over the button. Use it to provide helpful information.
         </br>
         </br><b>Example usage (place this script in a folder named "Editor"):</b>
@@ -388,12 +430,36 @@ public class UMotionExtensions
         </br>Applies a GameObject (from the current Unity scene) to the Pose Editor. A UMotion project already needs to be loaded.
     </span></li>
     <li class="listItem"><span class="listText">
-        <b>static void ClearAnimatedGameObject(PoseEditor.ClearMode clearMode = PoseEditor.ClearMode.RevertChanges)</b>
+        <b>static void ClearAnimatedGameObject(<a href="#ClearMode" class="link">PoseEditor.ClearMode</a> clearMode = PoseEditor.ClearMode.RevertChanges)</b>
         </br>Removes a GameObject from the Pose Editor. By default, the GameObject is reverted to the pose that it had before it has been assigned to UMotion.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static void GetAllTransforms(List&ltTransform&gt transformsList)</b>
+        </br>Fills the list with all bones/transforms of the current animated GameObject. 
     </span></li>
     <li class="listItem"><span class="listText">
         <b>static void GetSelectedTransforms(List&ltTransform&gt transformsList)</b>
         </br>Clears the provided list and then adds every transfrom currently selected in UMotion.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static int GetTransformChildCount(Transform transform)</b>
+        </br>Returns the number of child bones/transforms of the given transform. This includes custom transforms that only exist within UMotion's pose editing time.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static Transform GetTransformChildAt(Transform transform, int index)</b>
+        </br>Returns the child bone/transform with the given index.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static void SetTransformIsSelected(Transform transform, bool selected)</b>
+        </br>Selects or deselects the transform based on the "selected" value.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static bool GetTransformIsSelected(Transform transform)</b>
+        </br>Returns true if the passed transform is currently selected.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static void GetMirrorTable(List&ltTransform&gt leftHandSideList, List&ltTransform&gt rightHandSideList)</b>
+        </br>Returns the <a href="MirrorMapping.html" class="link">mirror table</a>.
     </span></li>
     <li class="listItem"><span class="listText">
         <b>static bool TrySetFkLocalPosition(Transform transform, Vector3 localPosition, string undoMessage, bool createKey)</b>
@@ -401,14 +467,34 @@ public class UMotionExtensions
         </br>This method throws an exception if called from within a UMotion callback because adjusting the current FK pose while updating the current pose would result in an endless loop.
     </span></li>
     <li class="listItem"><span class="listText">
+        <b>static bool TrySetFkWorldPosition(Transform transform, Vector3 worldPosition, string undoMessage, bool createKey)</b>
+        </br>Same as TrySetFkLocalPosition() but sets the world space position.
+    </span></li>
+    <li class="listItem"><span class="listText">
         <b>static bool TrySetFkLocalRotation(Transform transform, Quaternion localRotation, string undoMessage, bool createKey)</b>
         </br>Same as TrySetFkLocalPosition() but sets the local rotation.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static bool TrySetFkWorldRotation(Transform transform, Quaternion worldRotation, string undoMessage, bool createKey)</b>
+        </br>Same as TrySetFkLocalPosition() but sets the world space rotation.
     </span></li>
     <li class="listItem"><span class="listText">
         <b>static bool TrySetFkLocalScale(Transform transform, Vector3 localScale, string undoMessage, bool createKey)</b>
         </br>Same as TrySetFkLocalPosition() but sets the local scale.
     </span></li>
-</ul><h3 class="headline3" id="">enum PoseEditor.FoldoutCategory</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">
+        <b>static void GetCustomPropertyConstraintNames(Transform transform, List&ltstring&gt constraintNamesList)</b>
+        </br>Returns a list of all <a href="CustomProperty.html" class="link">custom property constraints</a> of the passed bone/transform.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static bool TrySetCustomPropertyConstraintValue(Transform transform, int customPropertyConstraintIndex, float value, string undoMessage, bool createKey)</b>
+        </br>Updates the current value of the custom property constraint at the passed index. The index is the same as the index the constraint has in the list returned by "GetCustomPropertyConstraintNames()". Other than that the method acts the same as TrySetFkLocalPosition().
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>static void CopyToOtherSide(Transform transform, bool position, bool rotation)</b>
+        </br>Copies the current position and/or rotation of the passed bone/transform to it's sibling on the other side.
+    </span></li>
+</ul><h3 class="headline3" id="FoldoutCategory">enum PoseEditor.FoldoutCategory</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
         <b>Tools</b>
         </br>Tools foldout of the pose editor.
@@ -425,7 +511,7 @@ public class UMotionExtensions
         <b>Display</b>
         </br>Display foldout of the pose editor.
     </span></li>
-</ul><h3 class="headline3" id="">enum PoseEditor.ClearMode</h3><ul class="listMain">
+</ul><h3 class="headline3" id="ClearMode">enum PoseEditor.ClearMode</h3><ul class="listMain">
     <li class="listItem"><span class="listText">
         <b>RevertChanges</b>
         </br>Restores the original pose of the GameObject before it was assigned to the UMotion Pose Editor.
@@ -433,6 +519,15 @@ public class UMotionExtensions
     <li class="listItem"><span class="listText">
         <b>KeepChanges</b>
         </br>Keeps the current pose of the GameObject.
+    </span></li>
+</ul><h3 class="headline3" id="PoseMode">enum PoseEditor.PoseMode</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">
+        <b>Local</b>
+        </br>Local space pivot mode.
+    </span></li>
+    <li class="listItem"><span class="listText">
+        <b>Global</b>
+        </br>World space pivot mode.
     </span></li>
 </ul>
 				<div class="mainContentFooter">

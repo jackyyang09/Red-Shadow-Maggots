@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Facade;
@@ -55,10 +56,10 @@ public class QuickTimeDefense : QuickTimeBase
 
         if (isAOE)
         {
-            targetPlayers = battleSystem.PlayerCharacters;
+            targetPlayers = battleSystem.PlayerCharacters.Where(t => t != null).ToList();
             for (int i = 0; i < targetPlayers.Count; i++)
             {
-                targetPlayers[i].InitiateDefense();
+                if (targetPlayers[i]) targetPlayers[i].InitiateDefense();
             }
         }
         else

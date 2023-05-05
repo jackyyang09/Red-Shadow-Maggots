@@ -12,10 +12,11 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         get
         {
-            var e = Enemies.Where(item => !item.IsDead).ToList();
-            if (e.Count == 0) return null;
+            var e = Enemies.Where(item => item != null).ToList();
+            var notDead = e.Where(item => !item.IsDead).ToList();
+            if (notDead.Count == 0) return null;
             battleStateManager.InitializeRandom();
-            return e[Random.Range(0, e.Count)];
+            return notDead[Random.Range(0, notDead.Count)];
         }
     }
 

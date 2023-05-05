@@ -82,7 +82,6 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
             if (!panelsInParty[i]) continue;
             PlayerData.Party[i] = partyPanels[i].MaggotIndex;
         }
-
         mapSceneManager.MoveToBattleScene();
     }
 }

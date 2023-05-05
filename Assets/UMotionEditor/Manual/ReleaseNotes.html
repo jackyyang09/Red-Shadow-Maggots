@@ -18,7 +18,7 @@
 			</div>
 		</div>
 		<div class="versionHeader">
-			<p class="versionText">Version: <b>1.28</b> </p>
+			<p class="versionText">Version: <b>1.29p02</b> </p>
 		</div>
 		<div class="leftContent">
 			<div class="leftContentInner">
@@ -249,7 +249,43 @@
         </br>
         </br>The beta version is incremented with every change related to the current beta generation (includes bug fixes, new features or changes to the manual). Beta versions are watermarked as "beta" in the Clip Editor and are not available via the Asset Store.</td>
     </tr>
-</table></br></br><h2 class="headline2" id="">UMotion V1.28</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+</table></br></br><h2 class="headline2" id="">UMotion V1.29p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that selecting bones is not possible under a specific combination of project settings and 3D character on Mac OSX.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.29p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that the "Texture ST" property isn't previewed correctly by UMotion's custom property constraint (correct: X, Y ... tiling; Z, W ... offset). Removed "Texture Texel Size" from the selected animatable properties as there seems to be no official Unity API to preview it's changes correctly (and there shouldn't be much practical use to animate this property anyway).</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.29</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Added new methods/properties to the UMotion API "ClipEditor" class: DeleteClip(), GetLastKeyFrame(), ImportClips()</span></li>
+    <li class="listItem"><span class="listText">Added new methods/properties to the UMotion API "PoseEditor" class: Pivot (get/set), GetAllTransforms(), GetTransformChildCount(), GetTransformChildAt(), GetMirrorTable(), SetTransformIsSelected(), GetTransformIsSelected(), TrySetFkWorldPosition(), TrySetFkWorldRotation(), GetCustomPropertyConstraintNames(), TrySetCustomPropertyConstraintValue(), CopyToOtherSide()</span></li>
+    <li class="listItem"><span class="listText">Added a "Copy Pose" and "Paste Pose" button to the Pose Editor's "Tools" foldout.</span></li>
+    <li class="listItem"><span class="listText">When the pose editor window is opened but the clip editor window is not opened, a button is now displayed in the pose editor window that opens the clip editor on click.</span></li>
+</ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that the FBX export feature doesn't set the "Root Motion Node" setting correctly to "&ltRoot Transform&gt" when the exported animation clip has the root transform selected as root motion node in the Clip Editor.</span></li>
+    <li class="listItem"><span class="listText">Fixed an exception that is thrown when importing an animation clip that has a quaternion curve that is missing some keys on one of the components (x, y, z, w).</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed a dead link in the "Exporting Animations FAQ".</span></li>
+    <li class="listItem"><span class="listText">Added descriptions of the new properties/methods to the UMotion API chapter.</span></li>
+    <li class="listItem"><span class="listText">Added a description of the new copy/paste pose buttons to the "Pose Editor/Pose Mode/Tools" chapter.</span></li>
+</ul></br></br><h2 class="headline2" id="">UMotion V1.28p04</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed an error message regarding "Arial.ttf" when opening UMotion in Unity 2022.2 alpha.</span></li>
+    <li class="listItem"><span class="listText">Fixed that in Unity 2022.2 alpha a error dialog is shown that states that the FBX dlls can't be found.</span></li>
+    <li class="listItem"><span class="listText">Fixed that the clip tab in the settings window isn't displayed correctly on Linux.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.28p03</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that the IK setup wizard doesn't extrude the IK pole handle's position when the IK chain contains an in-between joint (auxillary joint) that is at the exact same location as the knee/ellbow joint.</span></li>
+    <li class="listItem"><span class="listText">Fixed that the IK solver doesn't bend correctly when the IK chain contains an in-between joint (auxillary joint) that is at the exact same location as the knee/ellbow joint.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.28p02</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that when "Parallel Asset Import" is enabled, the FBX Exporter displays a "Failed to write FBX importer clip settings! Please contact support." error.</span></li>
+    <li class="listItem"><span class="listText">Fixed that in Unity 2021.2 and above, the tool assistant window is clipped at the bottom of the scene view window.</span></li>
+    <li class="listItem"><span class="listText">Fixed that in newer Untiy versions, the text of links turn black once the mouse hovers over them.</span></li>
+    <li class="listItem"><span class="listText">Fixed that decimal separators in floating point input fields are dependent on the current OS culture. The behaviour should now be in-line with how default Unity float fields work.</span></li>
+    <li class="listItem"><span class="listText">Fixed that the error message "The same Component Properties are defined in multiple Custom Property Constraints:" is shown even though there is only one custom property who's bone/transform isn't locked.</span></li>
+    <li class="listItem"><span class="listText">Changed the "No bone/transform selected" text shown in the constraints panel (config mode) to "No bone/transform selected that is part of this rig." to better indicate that something within the current animated character's/object's rig needs to be selected and external objects won't work.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Updated the child-of constraint chapter to clarified that the child-of constraint can only be assigned to joints/transforms that are within the animated character's/object's hierarchy.</span></li>
+</ul></br></br><h2 class="headline2" id="">UMotion V1.28p01</h2><h3 class="headline3" id="">New or Changed Features</h3><p class="textBlock">None</p><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
+    <li class="listItem"><span class="listText">Fixed that under certain circumstances, exporting multiple *.anim files at once (export --&gt all) caused Unity 2021.2 and above to stall for several minutes.</span></li>
+    <li class="listItem"><span class="listText">Fixed that exporting generic/legacy animations doesn't show a progress bar.</span></li>
+    <li class="listItem"><span class="listText">Fixed that assigning a GameObject that has an inactive parent GameObject doesn't show the "Please activate the GameObject" dialog.</span></li>
+</ul><h3 class="headline3" id="">Manual Changes</h3><p class="textBlock">None</p></br></br><h2 class="headline2" id="">UMotion V1.28</h2><h3 class="headline3" id="">New or Changed Features</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Added new methods/properties to the UMotion API. It is now possible to add custom menu items to the Clip Editor, add custom buttons to the Pose Editor, to modify the bones/transforms local position, rotation and scale, create key frames and more.</span></li>
 </ul><h3 class="headline3" id="">Bug Fixes</h3><ul class="listMain">
     <li class="listItem"><span class="listText">Fixed an index out of range exception when the root animated game object is assigned to the "Target" field in the IK setup wizard's "Custom IK" section.</span></li>

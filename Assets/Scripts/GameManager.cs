@@ -73,7 +73,7 @@ public class GameManager : BasicSingleton<GameManager>
         PlayerData.InBattle = false;
         PlayerData.BattlesFought++;
 
-        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
+        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
         {
             if (!battleSystem.PlayerCharacters[i]) continue;
             PlayerData.MaggotStates[i].Health = battleSystem.PlayerCharacters[i].CurrentHealth;

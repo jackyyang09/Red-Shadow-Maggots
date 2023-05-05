@@ -77,8 +77,6 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
     {
         RemoveDeadEnemies();
 
-        var enemies = new List<EnemyCharacter>();
-
         if (PlayerData.InBattle)
         {
             characterLoader.LoadAllEnemies();
@@ -88,7 +86,7 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         else
         {
             WaveObject newWave = waves[waveCount];
-            enemies.AddRange(new EnemyCharacter[3]);
+            var enemies = new List<EnemyCharacter>(new EnemyCharacter[3]);
 
             if (newWave.leftEnemy)
             {
@@ -113,6 +111,8 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
             }
 
             if (newWave.IsBossWave) OnEnterBossWave?.Invoke();
+
+            enemyController.AssignEnemies(enemies.ToArray());
         }
     }
 

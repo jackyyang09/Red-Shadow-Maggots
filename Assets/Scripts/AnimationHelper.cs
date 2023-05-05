@@ -351,7 +351,7 @@ public class AnimationHelper : MonoBehaviour
     {
         var players = battleSystem.PlayerCharacters;
         var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < players.Count; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             if (!players[i]) continue;
             if (!players[i].IsDead && players[i] != baseCharacter)
@@ -366,7 +366,7 @@ public class AnimationHelper : MonoBehaviour
     {
         var players = battleSystem.PlayerCharacters;
         var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < players.Count; i++)
+        for (int i = 0; i < players.Length; i++)
         {
             if (!players[i]) continue;
             if (!players[i].IsDead)

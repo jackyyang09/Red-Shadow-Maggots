@@ -600,7 +600,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (battleSystem.CurrentPhase)
                 {
                     case BattlePhases.PlayerTurn:
-                        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
+                        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
                         {
                             if (!battleSystem.PlayerCharacters[i]) continue;
                             targets.Add(battleSystem.PlayerCharacters[i]);
@@ -629,7 +629,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
                         break;
                     case BattlePhases.EnemyTurn:
-                        for (int i = 0; i < battleSystem.PlayerCharacters.Count; i++)
+                        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
                         {
                             if (!battleSystem.PlayerCharacters[i]) continue;
                             targets.Add(battleSystem.PlayerCharacters[i]);
@@ -764,7 +764,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     switch (battleSystem.CurrentPhase)
                     {
                         case BattlePhases.PlayerTurn:
-                            for (int j = 0; j < battleSystem.PlayerCharacters.Count; j++)
+                            for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
                             {
                                 ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
                             }
@@ -787,7 +787,7 @@ public abstract class BaseCharacter : MonoBehaviour
                             }
                             break;
                         case BattlePhases.EnemyTurn:
-                            for (int j = 0; j < battleSystem.PlayerCharacters.Count; j++)
+                            for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
                             {
                                 ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
                             }

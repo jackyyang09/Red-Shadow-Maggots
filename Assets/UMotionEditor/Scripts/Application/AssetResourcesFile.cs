@@ -23,6 +23,8 @@ namespace UMotionEditor
         {
             public string Name;
             public UnityEngine.Object Reference;
+            // Added because in Unity 2022.2 (alpha), the FileID of dlls has changed. In order to support all Unity versions, we need two different versions of the reference: One compatible pre 2022.2 and one post 2022.2.
+            public UnityEngine.Object AlternativeReference;
         }
         #pragma warning restore 0649
 
@@ -101,18 +103,21 @@ namespace UMotionEditor
             resourcesDictionary.Clear();
             foreach (ResourceDefinition resourceDef in resourcesList)
             {
-                if (resourceDef.Reference == null)
+                UnityEngine.Object reference = (resourceDef.Reference == null) ? resourceDef.AlternativeReference : resourceDef.Reference;
+
+                if (reference == null)
                 {
                     throw new UnityException(string.Format("Required resource \"{0}\" not found. Please reinstall UMotion.", resourceDef.Name));
                 }
                 else
                 {
-                    resourcesDictionary.Add(resourceDef.Name, resourceDef.Reference);
+                    resourcesDictionary.Add(resourceDef.Name, reference);
                 }
             }
             foreach (ResourceDefinition resourceDef in optionalResourcesList)
             {
-                resourcesDictionary.Add(resourceDef.Name, resourceDef.Reference);
+                UnityEngine.Object reference = (resourceDef.Reference == null) ? resourceDef.AlternativeReference : resourceDef.Reference;
+                resourcesDictionary.Add(resourceDef.Name, reference);
             }
         }
     }
