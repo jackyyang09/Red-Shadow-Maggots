@@ -61,7 +61,7 @@ public class EnemyCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
-        if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+        EnableBillboardUI();
     }
 
     protected override void CreateBillboardUI()

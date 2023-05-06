@@ -118,6 +118,10 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         EnemyCharacter newEnemy = Instantiate(enemyPrefab.gameObject, spawnPos).GetComponent<EnemyCharacter>();
         newEnemy.SetCharacterAndRarity(character, Rarity.Common);
         newEnemy.InitializeWithInfo(level, stateInfo);
+        if (gachaSystem.LegacyMode)
+        {
+            newEnemy.EnableBillboardUI();
+        }
 
         return newEnemy;
     }

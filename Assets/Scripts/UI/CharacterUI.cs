@@ -9,12 +9,12 @@ using static Facade;
 
 public class CharacterUI : BaseGameUI
 {
-    [SerializeField] protected BaseCharacter designatedCharacter = null;
+    [SerializeField] protected BaseCharacter designatedCharacter;
     [SerializeField] protected List<AppliedEffect> effects = new List<AppliedEffect>();
     List<int> indicesToRemove = new List<int>();
 
     [Header("Crit Charge Bars")] [SerializeField]
-    GridLayoutGroup layoutGroup = null;
+    GridLayoutGroup layoutGroup;
 
     [SerializeField] List<Image> chargeBars = new List<Image>();
     [SerializeField] Color chargeEmptyColor;
@@ -25,21 +25,21 @@ public class CharacterUI : BaseGameUI
     float tweenTime = 0.35f;
 
     [SerializeField] float barFlashSpeed = 0.5f;
-    [SerializeField] TextMeshProUGUI chargeText = null;
-    [SerializeField] Image chargeFill = null;
+    [SerializeField] TextMeshProUGUI chargeText;
+    [SerializeField] Image chargeFill;
     [SerializeField] private Color chargeFillColor;
 
     [Header("Object References")] [SerializeField]
-    protected TextMeshProUGUI nameText = null;
+    protected TextMeshProUGUI nameText;
 
-    [SerializeField] protected TextMeshProUGUI levelLabel = null;
-    [SerializeField] protected Image classIcon = null;
-    [SerializeField] protected GameObject iconPrefab = null;
-    [SerializeField] protected RectTransform iconContainer = null;
-    [SerializeField] protected GameObject playerCritCanvas = null;
-    [SerializeField] protected GameObject enemyCritCanvas = null;
+    [SerializeField] protected TextMeshProUGUI levelLabel;
+    [SerializeField] protected Image classIcon;
+    [SerializeField] protected GameObject iconPrefab;
+    [SerializeField] protected RectTransform iconContainer;
+    [SerializeField] protected GameObject playerCritCanvas;
+    [SerializeField] protected GameObject enemyCritCanvas;
     protected List<Image> iconImages = new List<Image>();
-    [SerializeField] SimpleHealth health = null;
+    [SerializeField] SimpleHealth health;
 
     PlayerCharacter player;
     EnemyCharacter enemy;
@@ -92,8 +92,8 @@ public class CharacterUI : BaseGameUI
     private void OnEnable()
     {
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
-        GlobalEvents.OnExitBattleCutscene += OptimizedCanvas.Show;
-        UIManager.OnShowBattleUI += OptimizedCanvas.Show;
+        GlobalEvents.OnExitBattleCutscene += TryShowUI;
+        UIManager.OnShowBattleUI += TryShowUI;
         BattleSystem.OnFinishTickingEffects += RemoveEffects;
     }
 
@@ -117,9 +117,9 @@ public class CharacterUI : BaseGameUI
         }
 
         GlobalEvents.OnEnterBattleCutscene -= OptimizedCanvas.Hide;
-        GlobalEvents.OnExitBattleCutscene -= OptimizedCanvas.Show;
+        GlobalEvents.OnExitBattleCutscene -= TryShowUI;
         UIManager.OnAttackCommit -= UpdateUIState;
-        UIManager.OnShowBattleUI -= OptimizedCanvas.Show;
+        UIManager.OnShowBattleUI -= TryShowUI;
         BattleSystem.OnFinishTickingEffects -= RemoveEffects;
     }
 
@@ -224,6 +224,14 @@ public class CharacterUI : BaseGameUI
     void SelfDestruct()
     {
         Destroy(gameObject);
+    }
+
+    void TryShowUI()
+    {
+        if (designatedCharacter)
+        {
+            OptimizedCanvas.Show();
+        }
     }
 
     public override void ShowUI()

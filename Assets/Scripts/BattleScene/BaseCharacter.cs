@@ -334,6 +334,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected abstract void CreateBillboardUI();
 
+    public void EnableBillboardUI()
+    {
+        if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+    }
+
     protected virtual void OnCharacterLoaded(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> obj)
     {
         characterMesh = Instantiate(obj.Result, transform);
