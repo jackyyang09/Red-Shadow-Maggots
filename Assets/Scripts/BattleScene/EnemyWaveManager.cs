@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Facade;
 
@@ -47,18 +48,6 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         } 
     }
 
-    public bool IsBossWave
-    {
-        get
-        {
-            if (playerDataManager.LoadedData.InBattle)
-            {
-                return battleStateManager.LoadedData.IsBossWave[battleStateManager.LoadedData.WaveCount];
-            }
-            return CurrentWave.IsBossWave;
-        }
-    }
-
     [SerializeField] Transform leftSpawnPos = null;
 
     [SerializeField] Transform middleSpawnPos = null;
@@ -80,39 +69,10 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         if (PlayerData.InBattle)
         {
             characterLoader.LoadAllEnemies();
-
-            if (BattleData.IsBossWave[BattleData.WaveCount]) OnEnterBossWave?.Invoke();
         }
         else
         {
-            WaveObject newWave = waves[waveCount];
-            var enemies = new List<EnemyCharacter>(new EnemyCharacter[3]);
-
-            if (newWave.leftEnemy)
-            {
-                enemies[0] = characterLoader.SpawnEnemy(newWave.leftEnemy, leftSpawnPos);
-            }
-
-            if (newWave.middleEnemy)
-            {
-                if (newWave.IsBossWave)
-                {
-                    enemies[1] = characterLoader.SpawnBoss(newWave.middleEnemy, middleSpawnPos);
-                }
-                else
-                {
-                    enemies[1] = characterLoader.SpawnEnemy(newWave.middleEnemy, middleSpawnPos);
-                }
-            }
-
-            if (newWave.rightEnemy)
-            {
-                enemies[2] = characterLoader.SpawnEnemy(newWave.rightEnemy, rightSpawnPos);
-            }
-
-            if (newWave.IsBossWave) OnEnterBossWave?.Invoke();
-
-            enemyController.AssignEnemies(enemies.ToArray());
+            characterLoader.LoadAllEnemies(waves[waveCount]);
         }
     }
 

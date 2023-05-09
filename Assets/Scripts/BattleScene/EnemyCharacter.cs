@@ -22,15 +22,9 @@ public class EnemyCharacter : BaseCharacter
     // Enemies shouldn't be able to crit randomly
     public override float CritChanceModified => 0;
 
-    public int CritLevel
-    {
-        get { return critLevel; }
-    }
+    public int CritLevel => critLevel;
 
-    public override bool CanCrit
-    {
-        get { return critLevel == Reference.turnsToCrit; }
-    }
+    public override bool CanCrit => critLevel == Reference.turnsToCrit;
 
     [SerializeField] bool isBossCharacter = false;
 
@@ -107,6 +101,8 @@ public class EnemyCharacter : BaseCharacter
             critLevel = (int)Mathf.Clamp(critLevel + i, 0, Reference.turnsToCrit);
             onCritLevelChanged?.Invoke(critLevel);
         }
+
+        if (usedSuperCritThisTurn) ResetChargeLevel();
 
         usedSkillThisTurn = false;
     }

@@ -31,7 +31,7 @@ public class OptimizedCanvas : MonoBehaviour
     float transitionOutTime;
     public float TransitionOutTime { get { return transitionOutTime; } }
 
-    [SerializeField] new OptimizedAnimationBase animation = null;
+    [SerializeField] new OptimizedAnimationBase animation;
 
     [SerializeField] public UnityEngine.Events.UnityEvent onCanvasShow;
     [SerializeField] public UnityEngine.Events.UnityEvent onCanvasStartHide;
@@ -155,6 +155,7 @@ public class OptimizedCanvas : MonoBehaviour
     [ContextMenu("Find Get References")]
     private void OnValidate()
     {
+        if (Application.isPlaying) return;
         if (canvas != GetComponent<Canvas>()) canvas = GetComponent<Canvas>();
         if (caster != GetComponent<GraphicRaycaster>()) caster = GetComponent<GraphicRaycaster>();
         if (canvasGroup != GetComponent<CanvasGroup>()) canvasGroup = GetComponent<CanvasGroup>();

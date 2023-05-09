@@ -13,11 +13,11 @@ public class CharacterPanelUI : MonoBehaviour
     [SerializeField] float minHoldTime;
     float holdTime;
 
-    [SerializeField] CanvasGroup canvasGroup;
+    [SerializeField] OptimizedCanvas canvas;
     [SerializeField] new Collider2D collider;
     public void SetActive(bool active)
     {
-        canvasGroup.alpha = active.ToInt();
+        canvas.SetActive(active);
         collider.enabled = active;
     }
 
@@ -56,8 +56,32 @@ public class CharacterPanelUI : MonoBehaviour
     {
         var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
         yield return op;
+        gachaSystem.TryAddLoadedMaggot(op);
         healthBar.fillAmount = maggot.Health / (float)op.Result.GetMaxHealth(op.Result.GetLevelFromExp(maggot.Exp), false);
         profileGraphic.sprite = op.Result.headshotSprite;
+    }
+
+    public void InitializeWithEnemy(int index)
+    {
+        var GUID = BattleData.EnemyGUIDs[0][index];
+        if (string.IsNullOrEmpty(GUID))
+        {
+            SetActive(false);
+        }
+        else
+        {
+            StartCoroutine(LoadEnemy(GUID));
+        }
+    }
+
+    IEnumerator LoadEnemy(string GUID)
+    {
+        var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
+        yield return op;
+        gachaSystem.TryAddLoadedMaggot(op);
+        healthBar.fillAmount = 1;
+        profileGraphic.sprite = op.Result.headshotSprite;
+        canvas.Raycaster.enabled = false;
     }
 
     // Update is called once per frame

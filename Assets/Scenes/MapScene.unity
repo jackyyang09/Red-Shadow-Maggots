@@ -478,6 +478,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2117133115}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -3169,6 +3173,7 @@ MonoBehaviour:
   cardStack: {fileID: 0}
   cardPrefab: {fileID: 8809940504199553765, guid: 561441614d524e14f93b5a3cab207f22, type: 3}
   cardDelta: {x: 0, y: 0, z: 0}
+  NextFightNode: {fileID: 0}
 --- !u!1 &244087344
 GameObject:
   m_ObjectHideFlags: 0
@@ -7751,7 +7756,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 508941930}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -7843,7 +7848,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 508941930}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -7874,6 +7879,10 @@ MonoBehaviour:
   - {fileID: 2048737590}
   - {fileID: 44215325}
   - {fileID: 1516832014}
+  enemyPanels:
+  - {fileID: 2043341429}
+  - {fileID: 1626245726}
+  - {fileID: 2042986738}
   panelPrefab: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
 --- !u!1001 &509716451
 PrefabInstance:
@@ -24318,6 +24327,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1037668784}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -27004,6 +27017,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 744307977}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -27106,6 +27123,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9056581224464060293, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
   m_PrefabInstance: {fileID: 1626245724}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1626245726 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9056581224464060296, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+  m_PrefabInstance: {fileID: 1626245724}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9562ebe5e07fd4cb64a6722c4b17c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1640301560
 GameObject:
   m_ObjectHideFlags: 0
@@ -27668,6 +27696,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1316981216}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -33588,6 +33620,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1052697617}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -33690,6 +33726,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9056581224464060293, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
   m_PrefabInstance: {fileID: 2042986736}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2042986738 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9056581224464060296, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+  m_PrefabInstance: {fileID: 2042986736}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9562ebe5e07fd4cb64a6722c4b17c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &2043341427
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33698,6 +33745,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 807210815}
     m_Modifications:
+    - target: {fileID: 4864691580248233007, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 9056581224464060290, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
       propertyPath: m_Name
       value: Character Panel
@@ -33800,6 +33851,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 9056581224464060293, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
   m_PrefabInstance: {fileID: 2043341427}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2043341429 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9056581224464060296, guid: 677e7a5f186484746a79664f9cd33df1, type: 3}
+  m_PrefabInstance: {fileID: 2043341427}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec9562ebe5e07fd4cb64a6722c4b17c0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &2045821768 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5859313293803644140, guid: 92d4430c1aabefa4691079bac409cbf9, type: 3}

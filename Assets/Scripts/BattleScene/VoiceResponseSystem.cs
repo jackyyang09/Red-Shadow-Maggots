@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using JSAM;
 
@@ -52,7 +53,7 @@ public class VoiceResponseSystem : MonoBehaviour
 
     private void Start()
     {
-        if (EnemyWaveManager.Instance.CurrentWave.IsBossWave)
+        if (EnemyController.Instance.Enemies.Any(e => e.Reference.isBoss))
         {
             AudioManager.PlayMusic(BattleSceneMusic.BossTheme);
         }

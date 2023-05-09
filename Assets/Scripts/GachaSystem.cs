@@ -89,12 +89,16 @@ public class GachaSystem : BasicSingleton<GachaSystem>
                 }
             }
 
+            var characters = new List<CharacterObject>();
+
             if (offenseMaggots.Count > 0)
-                characterLoader.SpawnCharacterWithRarity(0, GetRandomMaggot(offenseMaggots), RandomRarity);
+                characters.Add(GetRandomMaggot(offenseMaggots));
             if (defenseMaggots.Count > 0)
-                characterLoader.SpawnCharacterWithRarity(1, GetRandomMaggot(defenseMaggots), RandomRarity);
+                characters.Add(GetRandomMaggot(defenseMaggots));
             if (supportMaggots.Count > 0)
-                characterLoader.SpawnCharacterWithRarity(2, GetRandomMaggot(supportMaggots), RandomRarity);
+                characters.Add(GetRandomMaggot(supportMaggots));
+
+            characterLoader.LoadPlayerCharacters(characters);
         }
     }
 

@@ -13,15 +13,15 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     [SerializeField] CinemachineVirtualCamera playerCam;
 
     [SerializeField] Camera sceneCamera;
-    public Camera SceneCamera { get { return sceneCamera; } }
+    public Camera SceneCamera => sceneCamera;
 
     /// <summary>
     /// The player-centric camera
     /// </summary>
-    public CinemachineVirtualCamera PlayerCamera { get { return playerCam; } }
+    public CinemachineVirtualCamera PlayerCamera => playerCam;
 
     [SerializeField] CinemachineVirtualCamera lerpCam;
-    public CinemachineVirtualCamera LerpCamera { get { return lerpCam; } }
+    public CinemachineVirtualCamera LerpCamera => lerpCam;
 
     CinemachineComposer composer;
     CinemachineTrackedDolly playerDolly;
@@ -49,10 +49,10 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     [SerializeField] float waveTransitionDelay = 1;
 
     [SerializeField] float enemyTurnTransitionDelay = 2;
-    public float EnemyTurnTransitionDelay { get { return enemyTurnTransitionDelay; } }
+    public float EnemyTurnTransitionDelay => enemyTurnTransitionDelay;
 
     [SerializeField] float playerTurnTransitionDelay = 2;
-    public float PlayerTurnTransitionDelay { get { return playerTurnTransitionDelay; } }
+    public float PlayerTurnTransitionDelay => playerTurnTransitionDelay;
 
     Animator anim;
 
@@ -202,12 +202,12 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         switch (obj.Reference.attackAnimations[0].attackRange)
         {
             case AttackRange.CloseRange:
-                cam.m_LookAt = obj.transform;
-                savedPosition = obj.transform.position;
-                Vector3 position = target.position + offset;
-                //obj.transform.position = position;
-                path.transform.position = position;
-                lerpValue = 2;
+                //cam.m_LookAt = obj.transform;
+                //savedPosition = obj.transform.position;
+                //Vector3 position = target.position + offset;
+                ////obj.transform.position = position;
+                //path.transform.position = position;
+                //lerpValue = 2;
                 break;
             case AttackRange.LongRange:
                 obj.CharacterMesh.transform.LookAt(target.position);

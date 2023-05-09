@@ -16,7 +16,7 @@ public class PlayerSave
     /// <summary>
     /// Uses MaggotStates indices
     /// </summary>
-    public int[] Party = new int[3] { -1, -1, -1 };
+    public int[] Party = new int[] { -1, -1, -1, -1 };
     public List<MaggotState> MaggotStates = new List<MaggotState>();
     public int BattlesFought { get; set; }
     public int NodesTravelled { get; set; }

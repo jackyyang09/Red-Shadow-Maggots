@@ -45,7 +45,6 @@ public class BattleState
     public int TurnCount;
     public int MoveCount;
     public int SelectedEnemy;
-    public bool[] IsBossWave;
     public bool[] UseSpecialCam;
     public bool BattleWon;
 }

@@ -54,7 +54,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void FinishTurn() => finishedTurn = true;
 
-    PlayerCharacter[] playerCharacters = new PlayerCharacter[3];
+    PlayerCharacter[] playerCharacters = new PlayerCharacter[4];
 
     public PlayerCharacter[] PlayerCharacters => playerCharacters;
 
@@ -646,7 +646,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         var seed = (int)System.DateTime.Now.Ticks;
         BattleData.SavedSeed = seed;
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < playerCharacters.Length; i++)
         {
             BattleState.PlayerState p = null;
             var player = playerCharacters[i];
@@ -675,7 +675,10 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             }
 
             partyData.Add(p);
+        }
 
+        for (int i = 0; i < enemyController.Enemies.Length; i++)
+        {
             BattleState.EnemyState d = null;
             var enemy = enemyController.Enemies[i];
             if (enemy)

@@ -50,13 +50,11 @@ public class EnemyController : BasicSingleton<EnemyController>
     private void OnEnable()
     {
         BattleSystem.OnTargettableCharactersChanged += ChooseAttackTarget;
-        GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
 
     private void OnDisable()
     {
         BattleSystem.OnTargettableCharactersChanged -= ChooseAttackTarget;
-        GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
 
     //void Update()
@@ -118,7 +116,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
 #endif
 
-        if (useSkill[battleSystem.ActiveEnemy] && !battleSystem.ActiveEnemy.UsedSkillThisTurn)
+        if (!battleSystem.ActiveEnemy.CanCrit && useSkill[battleSystem.ActiveEnemy] && !battleSystem.ActiveEnemy.UsedSkillThisTurn)
         {
             GameSkill randomSkill =
                 battleSystem.ActiveEnemy.Skills[Random.Range(0, battleSystem.ActiveEnemy.Skills.Count)];
@@ -183,16 +181,6 @@ public class EnemyController : BasicSingleton<EnemyController>
     public void RegisterEnemyDeath(EnemyCharacter enemy)
     {
         ChooseAttacker();
-    }
-
-    private void OnCharacterFinishSuperCritical(BaseCharacter obj)
-    {
-        var enemy = obj as EnemyCharacter;
-        if (enemy)
-        {
-            enemy.ResetChargeLevel();
-            enemyController.MakeYourMove();
-        }
     }
 
     #region Debug Hacks

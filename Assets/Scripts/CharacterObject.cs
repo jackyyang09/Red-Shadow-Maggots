@@ -77,6 +77,7 @@ public class CharacterObject : ScriptableObject
 
     [Header("Enemy Stats")]
     [SerializeField] Vector2 enemyHealthRange = new Vector2();
+    public bool isBoss;
 
     [ContextMenu(nameof(TestMaxHealth))]
     void TestMaxHealth()

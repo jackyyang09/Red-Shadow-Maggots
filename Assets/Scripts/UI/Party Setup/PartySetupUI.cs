@@ -11,6 +11,8 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
     [SerializeField] CharacterPanelSlot[] characterSlots;
 
     [SerializeField] CharacterPanelUI[] partyPanels;
+    [SerializeField] CharacterPanelUI[] enemyPanels;
+
     List<CharacterPanelUI> characterPanels = new();
     List<CharacterPanelUI> panelsInParty = new() { null, null, null };
 
@@ -50,6 +52,11 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
             {
                 panelsInParty[party.IndexOf(i)] = newPanel;
             }
+        }
+
+        for (int i = 0; i < enemyPanels.Length; i++)
+        {
+            enemyPanels[i].InitializeWithEnemy(i);
         }
 
         canvas.Show();

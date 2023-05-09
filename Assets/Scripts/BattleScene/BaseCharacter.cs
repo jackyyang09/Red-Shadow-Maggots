@@ -49,46 +49,28 @@ public abstract class BaseCharacter : MonoBehaviour
 {
     [SerializeField] protected CharacterObject characterReference;
 
-    public CharacterObject Reference
-    {
-        get { return characterReference; }
-    }
+    public CharacterObject Reference => characterReference;
 
     [SerializeField] [Range(1, 90)] protected int currentLevel = 1;
 
-    public int CurrentLevel
-    {
-        get { return currentLevel; }
-    }
+    public int CurrentLevel => currentLevel;
 
     [SerializeField] protected float health;
 
-    public float CurrentHealth
-    {
-        get { return health; }
-    }
+    public float CurrentHealth => health;
 
     [SerializeField] protected float maxHealth;
 
-    public float MaxHealth
-    {
-        get { return maxHealth; }
-    }
+    public float MaxHealth => maxHealth;
 
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     [SerializeField] float attackModifier;
 
-    public float AttackModifier
-    {
-        get { return attackModifier; }
-    }
+    public float AttackModifier => attackModifier;
 
-    public float AttackModified
-    {
-        get { return characterReference.GetAttack(currentLevel) + attackModifier; }
-    }
+    public float AttackModified => characterReference.GetAttack(currentLevel) + attackModifier;
 
     /// <summary>
     /// Additive modifier from skills
@@ -97,17 +79,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public float attackLeniencyModifier;
 
-    public float AttackLeniency
-    {
-        get { return characterReference.attackLeniency + attackLeniencyModifier; }
-    }
+    public float AttackLeniency => characterReference.attackLeniency + attackLeniencyModifier;
 
     public float defenseLeniencyModifier;
 
-    public float DefenseLeniency
-    {
-        get { return characterReference.defenseLeniency + defenseLeniencyModifier; }
-    }
+    public float DefenseLeniency => characterReference.defenseLeniency + defenseLeniencyModifier;
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
 
@@ -121,53 +97,33 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] float critChanceModifier = 0;
 
-    public float CritChanceModifier
-    {
-        get { return critChanceModifier; }
-    }
+    public float CritChanceModifier => critChanceModifier;
 
     public abstract bool CanCrit { get; }
 
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
 
-    public float CritDamageModified
-    {
-        get { return critMultiplier + critDamageModifier; }
-    }
+    public float CritDamageModified => critMultiplier + critDamageModifier;
 
     [SerializeField] protected Rarity rarity;
-
-    public float RarityMultiplier
-    {
-        get { return 1 + 0.5f * (int)rarity; }
-    }
+    public float RarityMultiplier => 1 + 0.5f * (int)rarity;
 
     public bool IsDodging;
 
-    public bool IsDead
-    {
-        get { return health <= 0; }
-    }
+    public bool IsDead => health <= 0;
 
     public bool CanDie = true;
 
     [Header("Object References")] [SerializeField]
     protected Animator spriteAnim;
 
-    [SerializeField] Transform effectRegion = null;
-
-    public Transform EffectRegion
-    {
-        get { return effectRegion; }
-    }
+    [SerializeField] Transform effectRegion;
+    public Transform EffectRegion => effectRegion;
 
     protected GameObject characterMesh;
 
-    public GameObject CharacterMesh
-    {
-        get { return characterMesh; }
-    }
+    public GameObject CharacterMesh => characterMesh;
 
     protected Animator rigAnim;
 
@@ -180,23 +136,14 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected Vector2 selectionCircleScale = new Vector2(0.7f, 1f);
 
     [SerializeField] AnimationHelper animHelper = null;
-
-    public AnimationHelper AnimHelper
-    {
-        get { return animHelper; }
-    }
+    public AnimationHelper AnimHelper => animHelper;
 
     [SerializeField] protected GameObject canvasPrefab = null;
 
-    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects { get; } =
-        new Dictionary<BaseGameEffect, List<AppliedEffect>>();
+    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
 
     protected List<GameSkill> gameSkills = new List<GameSkill>();
-
-    public List<GameSkill> Skills
-    {
-        get { return gameSkills; }
-    }
+    public List<GameSkill> Skills => gameSkills;
 
     public bool CanUseSkill(int index)
     {
@@ -339,7 +286,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
     }
 
-    protected virtual void OnCharacterLoaded(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<GameObject> obj)
+    protected virtual void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)
     {
         characterMesh = Instantiate(obj.Result, transform);
         rigAnim = characterMesh.GetComponentInChildren<Animator>();
