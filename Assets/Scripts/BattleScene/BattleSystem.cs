@@ -214,7 +214,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         if (gachaSystem.LegacyMode)
         {
-            yield return new WaitUntil(() => playerCharacters.Any(t => t != null) && enemyController.Enemies.Any(t => t != null));
+            yield return new WaitUntil(() => playerCharacters.Any(t => t != null) && enemyController.Enemies != null);
             SetActiveEnemy(enemyController.RandomEnemy);
         }
         else

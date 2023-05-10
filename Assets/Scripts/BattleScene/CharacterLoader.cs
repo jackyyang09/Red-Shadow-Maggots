@@ -37,6 +37,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             padding = 0.5f / partySize;
         }
+        else if (partySize == 1) padding = 0.5f;
 
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {
@@ -61,6 +62,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             padding = 0.5f / characterCount;
         }
+        else if (characterCount == 1) padding = 0.5f;
 
         for (int i = 0; i < characters.Count; i++)
         {
@@ -106,6 +108,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             padding = 0.5f / enemyCount;
         }
+        else if (enemyCount == 1) padding = 0.5f;
 
         for (int i = 0; i < currentWave.Count; i++)
         {
@@ -121,19 +124,19 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
 
     public void LoadAllEnemies(WaveObject wave)
     {
-        var enemies = new List<EnemyCharacter>(new EnemyCharacter[4]);
         float enemyCount = wave.Enemies.Count(e => e != null);
         float padding = 0;
         if (enemyCount % 2 == 0)
         {
             padding = 0.5f / enemyCount;
         }
+        else if (enemyCount == 1) padding = 0.5f;
 
         for (int i = 0; i < wave.Enemies.Length; i++)
         {
             if (wave.Enemies[i] == null) continue;
 
-            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(enemies[i]);
+            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(wave.Enemies[i]);
             var spawnPos = GetEnemySpawns(padding + (float)i / enemyCount);
             StartCoroutine(LoadEnemy(i, spawnPos, opHandle));
             enemyHandleToIndex.Add(opHandle);

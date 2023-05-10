@@ -48,16 +48,6 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         } 
     }
 
-    [SerializeField] Transform leftSpawnPos = null;
-
-    [SerializeField] Transform middleSpawnPos = null;
-
-    [SerializeField] Transform rightSpawnPos = null;
-
-    [SerializeField] GameObject enemyPrefab = null;
-
-    [SerializeField] GameObject bossPrefab = null;
-
     [SerializeField] WaveObject[] waves = null;
 
     public static System.Action OnEnterBossWave;
@@ -78,8 +68,10 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 
     public void RemoveDeadEnemies()
     {
-        if (leftSpawnPos.childCount > 0) Destroy(leftSpawnPos.GetChild(0).gameObject);
-        if (middleSpawnPos.childCount > 0) Destroy(middleSpawnPos.GetChild(0).gameObject);
-        if (rightSpawnPos.childCount > 0) Destroy(rightSpawnPos.GetChild(0).gameObject);
+        for (int i = 0; i < enemyController.Enemies.Length; i++)
+        {
+            if (!enemyController.Enemies[i]) continue;
+            Destroy(enemyController.Enemies[i].gameObject);
+        }
     }
 }
