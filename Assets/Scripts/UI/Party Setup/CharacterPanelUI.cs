@@ -1,87 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 using static Facade;
 
-public class CharacterPanelUI : MonoBehaviour
+public class CharacterPanelUI : BaseFacePanelUI
 {
-    [SerializeField] float minDragDistance;
-    float dragDistance;
-    bool dragging;
-    [SerializeField] float minHoldTime;
-    float holdTime;
-
-    [SerializeField] OptimizedCanvas canvas;
-    [SerializeField] new Collider2D collider;
-    public void SetActive(bool active)
+    public override void InitializeWithIndex(int index)
     {
-        canvas.SetActive(active);
-        collider.enabled = active;
-    }
+        base.InitializeWithIndex(index);
 
-    [SerializeField] CharacterPanelSlot parentSlot;
-
-    [SerializeField] CharacterPanelSlot hoveredSlot;
-
-    [SerializeField] Image profileGraphic;
-    [SerializeField] Image healthBar;
-
-    [SerializeField] CanvasGroup inPartyCG;
-    public bool InParty
-    {
-        set
+        if (index > -1)
         {
-            inPartyCG.alpha = value.ToInt();
+            var state = PlayerData.MaggotStates[panelIndex];
+            StartCoroutine(LoadMaggot(state, state.GUID));
         }
+
+        if (panelIndex == -1) SetActive(false);
     }
 
-    bool pointerDown;
-
-    Vector3 lastMousePos;
-    Vector3 dragOffset;
-
-    int maggotIndex;
-    public int MaggotIndex => maggotIndex;
-
-    public void InitializeWithMaggot(int index)
+    private void OnEnable()
     {
-        maggotIndex = index;
-        var state = PlayerData.MaggotStates[maggotIndex];
-        StartCoroutine(LoadMaggot(state, state.GUID));
+        partySetup.OnPartyStateChanged += UpdateCharacterPanel;
     }
 
-    IEnumerator LoadMaggot(PlayerSave.MaggotState maggot, string GUID)
+    private void OnDisable()
     {
-        var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
-        yield return op;
-        gachaSystem.TryAddLoadedMaggot(op);
-        healthBar.fillAmount = maggot.Health / (float)op.Result.GetMaxHealth(op.Result.GetLevelFromExp(maggot.Exp), false);
-        profileGraphic.sprite = op.Result.headshotSprite;
-    }
-
-    public void InitializeWithEnemy(int index)
-    {
-        var GUID = BattleData.EnemyGUIDs[0][index];
-        if (string.IsNullOrEmpty(GUID))
-        {
-            SetActive(false);
-        }
-        else
-        {
-            StartCoroutine(LoadEnemy(GUID));
-        }
-    }
-
-    IEnumerator LoadEnemy(string GUID)
-    {
-        var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
-        yield return op;
-        gachaSystem.TryAddLoadedMaggot(op);
-        healthBar.fillAmount = 1;
-        profileGraphic.sprite = op.Result.headshotSprite;
-        canvas.Raycaster.enabled = false;
+        partySetup.OnPartyStateChanged -= UpdateCharacterPanel;
     }
 
     // Update is called once per frame
@@ -89,14 +35,18 @@ public class CharacterPanelUI : MonoBehaviour
     {
         if (!pointerDown) return;
 
-        if (dragging)
+        if (canMove)
         {
             transform.position = Input.mousePosition + dragOffset;
         }
         else
         {
             dragDistance += Vector3.Distance(Input.mousePosition, lastMousePos);
-            if (dragDistance >= minDragDistance) dragging = true;
+            if (dragDistance >= minDragDistance)
+            {
+                dragging = true;
+                canMove = true;
+            }
 
             holdTime += Time.deltaTime;
 
@@ -108,70 +58,19 @@ public class CharacterPanelUI : MonoBehaviour
         }
     }
 
-    public void PointerDown()
+    public override void OnReleaseOverHoveredSlot()
     {
-        pointerDown = true;
-        dragging = false;
-        transform.SetParent(partySetup.transform);
-        dragOffset = transform.position - Input.mousePosition;
-        lastMousePos = Input.mousePosition;
-        dragDistance = 0;
-        holdTime = 0;
+        partySetup.SetMaggotAtPartySlot(panelIndex, hoveredSlot);
     }
 
-    public void PointerUp()
+    public override void OnTap()
     {
-        pointerDown = false;
-
-        if (dragging)
-        {
-            if (hoveredSlot)
-            {
-                parentSlot.Unoccupy(this);
-                parentSlot = hoveredSlot;
-                parentSlot.OccupySlot(this);
-            }
-
-            transform.SetParent(parentSlot.transform);
-            transform.position = parentSlot.transform.position;
-            dragging = false;
-        }
-        else
-        {
-            if (holdTime < minHoldTime)
-            {
-                partySetup.TogglePartyStatus(this);
-            }
-        }
+        partySetup.TogglePartyStatusForMaggotAtIndex(PanelIndex);
     }
 
-    public void SetParentSlot(CharacterPanelSlot slot)
+    protected void UpdateCharacterPanel()
     {
-        parentSlot = slot;
-        hoveredSlot = null;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.attachedRigidbody.TryGetComponent(out CharacterPanelSlot slot))
-        {
-            if (slot.Occupied) return;
-            hoveredSlot = slot;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.attachedRigidbody.TryGetComponent(out CharacterPanelSlot slot))
-        {
-            if (hoveredSlot == slot) hoveredSlot = null;
-        }
-    }
-
-    public void CopyTo(CharacterPanelUI other)
-    {
-        other.profileGraphic.sprite = profileGraphic.sprite;
-        other.healthBar.fillAmount = healthBar.fillAmount;
-        other.maggotIndex = maggotIndex;
+        var partyList = PlayerData.Party.ToList();
+        inPartyCG.alpha = partyList.Contains(PanelIndex).ToInt();
     }
 }

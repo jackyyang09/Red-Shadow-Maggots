@@ -896,7 +896,7 @@ public abstract class BaseCharacter : MonoBehaviour
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
         damage.damage = trueDamage;
 
-        DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform.parent, damage);
+        DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage);
         if (rigAnim)
         {
             bool blocked = true;

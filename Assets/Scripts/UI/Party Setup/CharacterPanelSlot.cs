@@ -4,24 +4,33 @@ using UnityEngine;
 
 public class CharacterPanelSlot : MonoBehaviour
 {
-    CharacterPanelUI characterPanel;
-    public CharacterPanelUI CharacterPanel => characterPanel;
+    public enum CharacterSlotType
+    {
+        Party,
+        Character,
+        Enemy
+    }
+
+    public CharacterSlotType SlotType;
+
+    BaseFacePanelUI characterPanel;
+    public BaseFacePanelUI CharacterPanel => characterPanel;
 
     public bool Occupied => CharacterPanel;
 
-    public void InitializeWithOccupant(CharacterPanelUI occupant)
+    public void InitializeWithOccupant(BaseFacePanelUI occupant, int index)
     {
         OccupySlot(occupant);
-        occupant.transform.SetParent(transform);
         occupant.SetParentSlot(this);
+        occupant.InitializeWithIndex(index);
     }
 
-    public void OccupySlot(CharacterPanelUI occupant)
+    public void OccupySlot(BaseFacePanelUI occupant)
     {
         characterPanel = occupant;
     }
 
-    public void Unoccupy(CharacterPanelUI formerOccupant)
+    public void LeaveSlot(BaseFacePanelUI formerOccupant)
     {
         if (formerOccupant == CharacterPanel) characterPanel = null;
     }

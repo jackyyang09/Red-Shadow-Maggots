@@ -61,44 +61,14 @@ public class GachaSystem : BasicSingleton<GachaSystem>
         if (!LoadedMaggots.Contains(maggot)) LoadedMaggots.Add(maggot);
     }
 
-    [SerializeField] List<CharacterObject> maggots = null;
-
-    [Header("Legacy")]
-    List<CharacterObject> offenseMaggots = new List<CharacterObject>();
-    List<CharacterObject> defenseMaggots = new List<CharacterObject>();
-    List<CharacterObject> supportMaggots = new List<CharacterObject>();
+    [SerializeField] List<CharacterObject> maggots;
 
     // Start is called before the first frame update
     void Start()
     {
         if (legacyMode)
         {
-            for (int i = 0; i < maggots.Count; i++)
-            {
-                switch (maggots[i].characterClass)
-                {
-                    case CharacterClass.Offense:
-                        offenseMaggots.Add(maggots[i]);
-                        break;
-                    case CharacterClass.Defense:
-                        defenseMaggots.Add(maggots[i]);
-                        break;
-                    case CharacterClass.Support:
-                        supportMaggots.Add(maggots[i]);
-                        break;
-                }
-            }
-
-            var characters = new List<CharacterObject>();
-
-            if (offenseMaggots.Count > 0)
-                characters.Add(GetRandomMaggot(offenseMaggots));
-            if (defenseMaggots.Count > 0)
-                characters.Add(GetRandomMaggot(defenseMaggots));
-            if (supportMaggots.Count > 0)
-                characters.Add(GetRandomMaggot(supportMaggots));
-
-            characterLoader.LoadPlayerCharacters(characters);
+            characterLoader.LoadPlayerCharacters(maggots);
         }
     }
 

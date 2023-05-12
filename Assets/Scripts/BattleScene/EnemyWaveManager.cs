@@ -68,6 +68,7 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
 
     public void RemoveDeadEnemies()
     {
+        if (enemyController.Enemies == null) return;
         for (int i = 0; i < enemyController.Enemies.Length; i++)
         {
             if (!enemyController.Enemies[i]) continue;

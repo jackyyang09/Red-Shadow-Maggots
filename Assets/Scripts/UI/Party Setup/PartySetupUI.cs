@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Facade;
 
@@ -9,86 +10,68 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
 
     [SerializeField] CharacterPanelSlot[] partySlots;
     [SerializeField] CharacterPanelSlot[] characterSlots;
+    [SerializeField] CharacterPanelSlot[] enemySlots;
 
-    [SerializeField] CharacterPanelUI[] partyPanels;
-    [SerializeField] CharacterPanelUI[] enemyPanels;
+    [SerializeField] PartyPanelUI[] partyPanels;
+    [SerializeField] EnemyPanelUI[] enemyPanels;
 
     List<CharacterPanelUI> characterPanels = new();
-    List<CharacterPanelUI> panelsInParty = new() { null, null, null };
 
     [SerializeField] GameObject panelPrefab;
+
+    public System.Action OnPartyStateChanged;
 
     [ContextMenu(nameof(Initialize))]
     public void Initialize()
     {
-        var party = new List<int>();
-
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {
-            if (PlayerData.Party[i] == -1)
-            {
-                partyPanels[i].SetActive(false);
-                continue;
-            }
-            else
-            {
-                partyPanels[i].InitializeWithMaggot(PlayerData.Party[i]);
-                partySlots[i].InitializeWithOccupant(partyPanels[i]);
-                party.Add(PlayerData.Party[i]);
-            }
+            partySlots[i].InitializeWithOccupant(partyPanels[i], i);
         }
 
         int slotsOccupied = 0;
         for (int i = 0; i < PlayerData.MaggotStates.Count; i++)
         {
-            bool inParty = party.Contains(i);
             var newPanel = Instantiate(panelPrefab, characterSlots[slotsOccupied].transform).GetComponent<CharacterPanelUI>();
-            newPanel.InitializeWithMaggot(i);
-            newPanel.InParty = inParty;
             characterPanels.Add(newPanel);
-            characterSlots[slotsOccupied].InitializeWithOccupant(newPanel);
+            characterSlots[slotsOccupied].InitializeWithOccupant(newPanel, i);
             slotsOccupied++;
-            if (inParty)
-            {
-                panelsInParty[party.IndexOf(i)] = newPanel;
-            }
         }
 
         for (int i = 0; i < enemyPanels.Length; i++)
         {
-            enemyPanels[i].InitializeWithEnemy(i);
+            enemySlots[i].InitializeWithOccupant(enemyPanels[i], i);
         }
+
+        OnPartyStateChanged?.Invoke();
 
         canvas.Show();
     }
 
-    public void TogglePartyStatus(CharacterPanelUI panel)
+    public void TogglePartyStatusForMaggotAtIndex(int index)
     {
-        if (panelsInParty.Contains(panel))
+        var partyList = PlayerData.Party.ToList();
+        var i = partyList.IndexOf(index);
+        if (i > -1)
         {
-            int i = panelsInParty.IndexOf(panel);
-            partyPanels[i].SetActive(false);
-            panel.InParty = false;
-            panelsInParty[i] = null;
+            PlayerData.Party[i] = -1;
         }
         else
         {
-            int i = panelsInParty.IndexOf(null);
-            if (i == -1) return;
-            partyPanels[i].SetActive(true);
-            panel.CopyTo(partyPanels[i]);
-            panel.InParty = true;
-            panelsInParty[i] = panel;
+            PlayerData.Party[partyList.IndexOf(-1)] = index;
         }
+        OnPartyStateChanged?.Invoke();
+    }
+
+    public void SetMaggotAtPartySlot(int maggot, CharacterPanelSlot slot)
+    {
+        var partyIndex = enemySlots.ToList().IndexOf(slot);
+        PlayerData.Party[partyIndex] = maggot;
+        OnPartyStateChanged?.Invoke();
     }
 
     public void StartBattle()
     {
-        for (int i = 0; i < partyPanels.Length; i++)
-        {
-            if (!panelsInParty[i]) continue;
-            PlayerData.Party[i] = partyPanels[i].MaggotIndex;
-        }
         mapSceneManager.MoveToBattleScene();
     }
 }

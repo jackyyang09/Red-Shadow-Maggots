@@ -32,12 +32,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         playerHandleToIndex.Clear();
 
         float partySize = PlayerData.Party.Where(t => t > -1).Count();
-        float padding = 0;
-        if (partySize % 2 == 0)
-        {
-            padding = 0.5f / partySize;
-        }
-        else if (partySize == 1) padding = 0.5f;
+        float increment = 1f / (partySize + 1);
 
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {
@@ -46,7 +41,9 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
                 continue;
             }
 
-            var spawnPos = GetPlayerSpawns(padding + (float)i / partySize);
+            float percentage = increment * (i + 1);
+
+            var spawnPos = GetPlayerSpawns(percentage);
             var guid = PlayerData.MaggotStates[PlayerData.Party[i]].GUID;
             var opHandle = Addressables.LoadAssetAsync<CharacterObject>(guid);
             StartCoroutine(LoadCharacter(i, spawnPos, opHandle));
@@ -56,17 +53,13 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
 
     public void LoadPlayerCharacters(List<CharacterObject> characters)
     {
-        float characterCount = characters.Count();
-        float padding = 0;
-        if (characterCount % 2 == 0)
-        {
-            padding = 0.5f / characterCount;
-        }
-        else if (characterCount == 1) padding = 0.5f;
+        float increment = 1f / (characters.Count() + 1);
 
         for (int i = 0; i < characters.Count; i++)
         {
-            var spawnPos = GetPlayerSpawns(padding + (float)i / (float)characters.Count);
+            float percentage = increment * (i + 1);
+
+            var spawnPos = GetPlayerSpawns(percentage);
 
             SpawnCharacterWithRarity(i, characters[i], spawnPos, gachaSystem.RandomRarity);
         }
@@ -103,20 +96,18 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         var currentWave = BattleData.EnemyGUIDs[BattleData.WaveCount];
 
         float enemyCount = currentWave.Count(e => e != null);
-        float padding = 0;
-        if (enemyCount % 2 == 0)
-        {
-            padding = 0.5f / enemyCount;
-        }
-        else if (enemyCount == 1) padding = 0.5f;
+        float increment = 1f / (enemyCount + 1);
 
         for (int i = 0; i < currentWave.Count; i++)
         {
             string guid = currentWave[i];
 
             if (guid.IsNullEmptyOrWhiteSpace()) continue;
+
+            float percentage = increment * (i + 1);
+            var spawnPos = GetEnemySpawns(percentage);
+
             var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[i]);
-            var spawnPos = GetEnemySpawns(padding + (float)i / enemyCount);
             StartCoroutine(LoadEnemy(i, spawnPos, opHandle));
             enemyHandleToIndex.Add(opHandle);
         }
@@ -125,19 +116,16 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     public void LoadAllEnemies(WaveObject wave)
     {
         float enemyCount = wave.Enemies.Count(e => e != null);
-        float padding = 0;
-        if (enemyCount % 2 == 0)
-        {
-            padding = 0.5f / enemyCount;
-        }
-        else if (enemyCount == 1) padding = 0.5f;
 
+        float increment = 1f / (enemyCount + 1);
         for (int i = 0; i < wave.Enemies.Length; i++)
         {
             if (wave.Enemies[i] == null) continue;
 
+            float percentage = increment * (i + 1);
+
             var opHandle = Addressables.LoadAssetAsync<CharacterObject>(wave.Enemies[i]);
-            var spawnPos = GetEnemySpawns(padding + (float)i / enemyCount);
+            var spawnPos = GetEnemySpawns(percentage);
             StartCoroutine(LoadEnemy(i, spawnPos, opHandle));
             enemyHandleToIndex.Add(opHandle);
         }
@@ -147,19 +135,17 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     {
         yield return obj;
 
-        switch (index)
-        {
-            case 1:
-                if (obj.Result.isBoss)
-                {
-                    var s = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
-                    enemies[index] = SpawnBoss(obj.Result, spawnPos, BattleData.RoomLevel, s);
-                }
-                break;
-        }
-
         BattleState.EnemyState state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
-        enemies[index] = SpawnEnemy(obj.Result, spawnPos, BattleData.RoomLevel, state);
+
+        if (obj.Result.isBoss)
+        {
+            var s = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
+            enemies[index] = SpawnBoss(obj.Result, spawnPos, BattleData.RoomLevel, s);
+        }
+        else
+        {
+            enemies[index] = SpawnEnemy(obj.Result, spawnPos, BattleData.RoomLevel, state);
+        }
         enemiesLoaded++;
 
         if (EnemiesLoaded)
