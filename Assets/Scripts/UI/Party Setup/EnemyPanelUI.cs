@@ -10,7 +10,13 @@ public class EnemyPanelUI : BaseFacePanelUI
     {
         base.InitializeWithIndex(index);
 
-        var GUID = index > -1 ? BattleData.EnemyGUIDs[0][index] : "";
+        AssetReference enemy = null;
+        if (mapSceneManager.NextFightNode.waves[0].Enemies.Length > index)
+        {
+            enemy = mapSceneManager.NextFightNode.waves[0].Enemies[index];
+        }
+
+        var GUID = enemy == null ? "" : enemy.AssetGUID;
         if (string.IsNullOrEmpty(GUID))
         {
             SetActive(false);
