@@ -30,37 +30,16 @@ public class CharacterPanelUI : BaseFacePanelUI
         partySetup.OnPartyStateChanged -= UpdateCharacterPanel;
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void TryStartDrag()
     {
-        if (!pointerDown) return;
-
-        if (canMove)
-        {
-            transform.position = Input.mousePosition + dragOffset;
-        }
-        else
-        {
-            dragDistance += Vector3.Distance(Input.mousePosition, lastMousePos);
-            if (dragDistance >= minDragDistance)
-            {
-                dragging = true;
-                canMove = true;
-            }
-
-            holdTime += Time.deltaTime;
-
-            if (holdTime >= minHoldTime)
-            {
-                // Open Character Showcase
-            }
-            lastMousePos = Input.mousePosition;
-        }
+        if (PlayerData.Party.ToList().Contains(PanelIndex)) return;
+        base.TryStartDrag();
     }
 
     public override void OnReleaseOverHoveredSlot()
     {
-        partySetup.SetMaggotAtPartySlot(panelIndex, hoveredSlot);
+        if (ClosestHoveredSlot.SlotType != CharacterPanelSlot.CharacterSlotType.Party) return;
+        partySetup.SetMaggotAtPartySlot(panelIndex, ClosestHoveredSlot);
     }
 
     public override void OnTap()

@@ -42,7 +42,23 @@ public class PartyPanelUI : BaseFacePanelUI
 
     public override void OnTap()
     {
-        partySetup.TogglePartyStatusForMaggotAtIndex(PanelIndex);
+        partySetup.TogglePartyStatusForMaggotAtIndex(PlayerData.Party[panelIndex]);
+    }
+
+    public override void OnReleaseOverHoveredSlot()
+    {
+        if (ClosestHoveredSlot != parentSlot)
+        {
+            switch (ClosestHoveredSlot.SlotType)
+            {
+                case CharacterPanelSlot.CharacterSlotType.Character:
+                    partySetup.TogglePartyStatusForMaggotAtIndex(PlayerData.Party[panelIndex]);
+                    break;
+                case CharacterPanelSlot.CharacterSlotType.Party:
+                    partySetup.SwapMaggotAtPartySlot(parentSlot, ClosestHoveredSlot);
+                    break;
+            }
+        }
     }
 
     public override void OnReleaseOverNoSlot()

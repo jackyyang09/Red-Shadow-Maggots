@@ -23,7 +23,25 @@ public abstract class BaseFacePanelUI : MonoBehaviour
 
     protected CharacterPanelSlot parentSlot;
 
-    protected CharacterPanelSlot hoveredSlot;
+    protected List<CharacterPanelSlot> hoveredSlots = new List<CharacterPanelSlot>();
+    protected CharacterPanelSlot ClosestHoveredSlot
+    {
+        get
+        {
+            float closestDist = float.MaxValue;
+            CharacterPanelSlot closest = null;
+            foreach (var slot in hoveredSlots)
+            {
+                var dist = Vector3.Distance(transform.position, slot.transform.position);
+                if (dist < closestDist) 
+                {
+                    closest = slot;
+                    closestDist = dist;
+                }
+            }
+            return closest;
+        }
+    }
 
     [SerializeField] protected Image profileGraphic;
     [SerializeField] protected Image healthBar;
@@ -42,6 +60,43 @@ public abstract class BaseFacePanelUI : MonoBehaviour
     public virtual void InitializeWithIndex(int index)
     {
         panelIndex = index;
+    }
+
+    protected virtual void Update()
+    {
+        if (!pointerDown) return;
+
+        if (parentSlot.SlotType == CharacterPanelSlot.CharacterSlotType.Character)
+        {
+            //if (partySetup.IsPanelInParty(this)) canMove = false;
+        }
+
+        if (canMove)
+        {
+            transform.position = Input.mousePosition + dragOffset;
+        }
+        else
+        {
+            dragDistance += Vector3.Distance(Input.mousePosition, lastMousePos);
+            if (dragDistance >= minDragDistance)
+            {
+                TryStartDrag();
+            }
+
+            holdTime += Time.deltaTime;
+
+            if (holdTime >= minHoldTime)
+            {
+                // Open Character Showcase
+            }
+            lastMousePos = Input.mousePosition;
+        }
+    }
+
+    protected virtual void TryStartDrag()
+    {
+        dragging = true;
+        canMove = true;
     }
 
     protected virtual IEnumerator LoadMaggot(PlayerSave.MaggotState state, string GUID)
@@ -65,16 +120,10 @@ public abstract class BaseFacePanelUI : MonoBehaviour
     {
         transform.SetParent(slot.transform);
         parentSlot = slot;
-        hoveredSlot = null;
     }
 
     public void PointerDown()
     {
-        if (parentSlot.SlotType == CharacterPanelSlot.CharacterSlotType.Character)
-        {
-            //if (partySetup.IsPanelInParty(this)) canMove = false;
-        }
-
         pointerDown = true;
         dragging = false;
         transform.SetParent(partySetup.transform);
@@ -96,7 +145,7 @@ public abstract class BaseFacePanelUI : MonoBehaviour
 
         if (dragging)
         {
-            if (hoveredSlot)
+            if (ClosestHoveredSlot)
             {
                 OnReleaseOverHoveredSlot();
             }
@@ -116,13 +165,15 @@ public abstract class BaseFacePanelUI : MonoBehaviour
                 OnTap();
             }
         }
+
+        hoveredSlots.Clear();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.attachedRigidbody.TryGetComponent(out CharacterPanelSlot slot))
         {
-            hoveredSlot = slot;
+            hoveredSlots.Add(slot);
         }
     }
 
@@ -130,7 +181,7 @@ public abstract class BaseFacePanelUI : MonoBehaviour
     {
         if (collision.attachedRigidbody.TryGetComponent(out CharacterPanelSlot slot))
         {
-            if (hoveredSlot == slot) hoveredSlot = null;
+            hoveredSlots.Remove(slot);
         }
     }
 }

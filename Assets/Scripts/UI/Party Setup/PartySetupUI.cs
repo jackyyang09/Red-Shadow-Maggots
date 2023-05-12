@@ -65,8 +65,17 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
 
     public void SetMaggotAtPartySlot(int maggot, CharacterPanelSlot slot)
     {
-        var partyIndex = enemySlots.ToList().IndexOf(slot);
+        var partyIndex = slot.CharacterPanel.PanelIndex;
         PlayerData.Party[partyIndex] = maggot;
+        OnPartyStateChanged?.Invoke();
+    }
+
+    public void SwapMaggotAtPartySlot(CharacterPanelSlot start, CharacterPanelSlot dest)
+    {
+        var startI = start.CharacterPanel.PanelIndex;
+        var destI = dest.CharacterPanel.PanelIndex;
+        PlayerData.Party[destI] = PlayerData.Party[startI];
+        PlayerData.Party[startI] = -1;
         OnPartyStateChanged?.Invoke();
     }
 
