@@ -27,6 +27,8 @@ public class SimpleHealth : MonoBehaviour
     [SerializeField, Tooltip("The percentage of damage currently displayed on the health bar"), HideInInspector]
     private float _displayDamagePercent = 0;
 
+    [SerializeField] float _healthSteps = 1000;
+
     /// <summary>
     /// Initializes the health bar with the character's max health and sets up event listeners for when the character takes damage, sets their health, or heals.
     /// </summary>
@@ -42,7 +44,7 @@ public class SimpleHealth : MonoBehaviour
         baseCharacter.onHeal += OnHeal;
 
         //set "steps" property (there will be new sector for each 100 health points)
-        healthBar.material.SetFloat("_Steps", character.MaxHealth / 100);
+        healthBar.material.SetFloat("_Steps", character.MaxHealth / _healthSteps);
 
         // set color of the health bar depending on the character type
         if (character is EnemyCharacter)

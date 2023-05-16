@@ -51,8 +51,10 @@ public class VoiceResponseSystem : MonoBehaviour
         PlayerCharacter.OnSelectedPlayerCharacterChange -= Select;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
+        yield return new WaitUntil(() => BattleSystem.Initialized);
+
         if (EnemyController.Instance.Enemies.Any(e => e.Reference.isBoss))
         {
             AudioManager.PlayMusic(BattleSceneMusic.BossTheme);

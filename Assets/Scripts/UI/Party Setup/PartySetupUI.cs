@@ -74,8 +74,9 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
     {
         var startI = start.CharacterPanel.PanelIndex;
         var destI = dest.CharacterPanel.PanelIndex;
+        var temp = PlayerData.Party[destI];
         PlayerData.Party[destI] = PlayerData.Party[startI];
-        PlayerData.Party[startI] = -1;
+        PlayerData.Party[startI] = temp;
         OnPartyStateChanged?.Invoke();
     }
 

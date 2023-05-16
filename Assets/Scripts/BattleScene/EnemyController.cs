@@ -49,12 +49,12 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     private void OnEnable()
     {
-        BattleSystem.OnTargettableCharactersChanged += ChooseAttackTarget;
+        BattleSystem.OnTargetableCharactersChanged += ChooseAttackTarget;
     }
 
     private void OnDisable()
     {
-        BattleSystem.OnTargettableCharactersChanged -= ChooseAttackTarget;
+        BattleSystem.OnTargetableCharactersChanged -= ChooseAttackTarget;
     }
 
     //void Update()

@@ -162,7 +162,7 @@ public class UIManager : BasicSingleton<UIManager>
 
         skillTargetMessage.Show();
         skillBackButton.Show();
-        if (enemyController.Enemies.Any(e => e.Reference.isBoss)) bossUI.HideUI();
+        if (enemyController.Enemies.Where(e => e != null).Any(e => e.Reference.isBoss)) bossUI.HideUI();
         attackButton.Hide();
 
         _skillManagerUI.HideAllButtons();
@@ -190,7 +190,7 @@ public class UIManager : BasicSingleton<UIManager>
     {
         SelectingAllyForSkill = false;
 
-        if (enemyController.Enemies.Any(e => e.Reference.isBoss)) bossUI.ShowUI();
+        if (enemyController.Enemies.Where(e => e != null).Any(e => e.Reference.isBoss)) bossUI.ShowUI();
         skillBackButton.Hide();
         skillTargetMessage.Hide();
 

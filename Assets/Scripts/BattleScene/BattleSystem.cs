@@ -25,7 +25,7 @@ public static class BattlePhaseExtensions
 /// If its the player's turn, player refers to the attacker and enemy refers to the defender
 /// <para>Vice-versa if its the enemy's turn</para>
 /// </summary>
-public struct TargettedCharacters
+public struct TargetedCharacters
 {
     public PlayerCharacter player;
     public EnemyCharacter enemy;
@@ -158,9 +158,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    [SerializeField] TargettedCharacters playerTargets = new TargettedCharacters();
+    [SerializeField] TargetedCharacters playerTargets = new TargetedCharacters();
 
-    [SerializeField] TargettedCharacters enemyTargets = new TargettedCharacters();
+    [SerializeField] TargetedCharacters enemyTargets = new TargetedCharacters();
 
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
     int moveCount = 0;
@@ -175,12 +175,14 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static System.Action[] OnEndPhase = new System.Action[(int)BattlePhases.Count];
     public static System.Action OnEndTurn;
 
-    public static System.Action OnTargettableCharactersChanged;
+    public static System.Action OnTargetableCharactersChanged;
     public static System.Action<BaseGameEffect> OnTickEffect;
     public static System.Action OnFinishTickingEffects;
 
     public static System.Action OnWaveClear;
     public static System.Action OnFinalWaveClear;
+
+    public static bool Initialized;
 
     private void OnEnable()
     {
@@ -243,6 +245,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         currentPhase = BattlePhases.Entry;
         sceneTweener.EnterBattle();
+
+        Initialized = true;
     }
 
     public IEnumerator InitiateNextBattle()
@@ -729,25 +733,25 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void ApplyTargetFocus(PlayerCharacter player)
     {
         priorityPlayers.Add(player);
-        OnTargettableCharactersChanged?.Invoke();
+        OnTargetableCharactersChanged?.Invoke();
     }
 
     public void RemoveTargetFocus(PlayerCharacter player)
     {
         priorityPlayers.Remove(player);
-        OnTargettableCharactersChanged?.Invoke();
+        OnTargetableCharactersChanged?.Invoke();
     }
 
     public void ApplyTargetFocus(EnemyCharacter enemy)
     {
         priorityEnemies.Add(enemy);
-        OnTargettableCharactersChanged?.Invoke();
+        OnTargetableCharactersChanged?.Invoke();
     }
 
     public void RemoveTargetFocus(EnemyCharacter enemy)
     {
         priorityEnemies.Remove(enemy);
-        OnTargettableCharactersChanged?.Invoke();
+        OnTargetableCharactersChanged?.Invoke();
     }
 
     #region Debug Hacks
