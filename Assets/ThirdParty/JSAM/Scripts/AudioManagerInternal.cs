@@ -129,6 +129,8 @@ namespace JSAM
         /// </summary>
         public static Action<float> OnTimeScaleChanged;
 
+        public static Action OnSceneUnloaded;
+
         void Awake()
         {
             audioManager = GetComponent<AudioManager>();

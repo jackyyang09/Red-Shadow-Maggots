@@ -180,7 +180,8 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     
     IEnumerator UpgradeAnimation()
     {
-        int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
+        int startLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
+        int currentLevel = startLevel;
         float currentExp = maggotState.Exp;
         float incomingExp = ScrapOffered * expMultiplier;
         float targetExp = maggotState.Exp + incomingExp;
@@ -228,8 +229,11 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
         if (!dontConfirmUpgrade)
         {
+            var healthPercent = maggotState.Health / TargetCharacter.GetMaxHealth(startLevel, false);
             maggotState.Exp = targetExp;
             playerDataManager.SetExp(playerDataManager.LoadedData.Exp - ScrapOffered);
+            var newLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
+            maggotState.Health = healthPercent * TargetCharacter.GetMaxHealth(newLevel, false);
 
             ScrapOffered = 0;
             RefreshUI();

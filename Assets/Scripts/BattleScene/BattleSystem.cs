@@ -189,7 +189,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyPlayerDeath += SwitchTargets;
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
 
-        SceneTweener.OnBattleEntered += EndTurn;
+        SceneTweener.OnBattleEntered += ChangeBattlePhase;
         SkillManagerUI.OnSkillActivated += ActivateSkill;
 
         BaseCharacter.OnCharacterDeath += OnCharacterDeath;
@@ -200,7 +200,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyPlayerDeath -= SwitchTargets;
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
 
-        SceneTweener.OnBattleEntered -= EndTurn;
+        SceneTweener.OnBattleEntered -= ChangeBattlePhase;
         SkillManagerUI.OnSkillActivated -= ActivateSkill;
 
         BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
@@ -484,14 +484,20 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void SetEnemyAttackTarget(PlayerCharacter player) => enemyTargets.player = player;
     public void SetEnemyAttacker(EnemyCharacter enemy) => enemyTargets.enemy = enemy;
 
+    public void ChangeBattlePhase()
+    {
+        StartCoroutine(ChangePhaseRoutine());
+    }
+
     public void EndTurn()
     {
-        StartCoroutine(ChangeBattlePhase());
+        IncrementMoveCount();
+        ChangeBattlePhase();
     }
 
     public void IncrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
 
-    public IEnumerator ChangeBattlePhase()
+    public IEnumerator ChangePhaseRoutine()
     {
         switch (currentPhase)
         {
@@ -530,7 +536,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
         else
         {
-            if (lastPhase == BattlePhases.PlayerTurn)
+            if (lastPhase != BattlePhases.EnemyTurn)
             {
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
                 enemyController.CalculateSkillUsage();
@@ -545,7 +551,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
         }
 
-        IncrementMoveCount();
         finishedTurn = false;
 
         switch (currentPhase)

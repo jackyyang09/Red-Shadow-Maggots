@@ -12,27 +12,25 @@ public class EnemyController : BasicSingleton<EnemyController>
     {
         get
         {
-            var e = Enemies.Where(item => item != null).ToList();
-            var notDead = e.Where(item => !item.IsDead).ToList();
+            var notDead = EnemyList.Where(item => !item.IsDead).ToList();
             if (notDead.Count == 0) return null;
             battleStateManager.InitializeRandom();
             return notDead[Random.Range(0, notDead.Count)];
         }
     }
 
-    public bool EnemiesAlive
+    public bool EnemiesAlive => EnemyList.Any(e => !e.IsDead);
+
+    List<EnemyCharacter> enemyList;
+    public List<EnemyCharacter> EnemyList
     {
         get
         {
-            for (int i = 0; i < Enemies.Length; i++)
+            if (enemyList == null)
             {
-                if (Enemies[i])
-                {
-                    if (!Enemies[i].IsDead) return true;
-                }
+                enemyList = Enemies.Where(e => e != null).ToList();
             }
-
-            return false;
+            return enemyList;
         }
     }
 
@@ -115,7 +113,6 @@ public class EnemyController : BasicSingleton<EnemyController>
             return;
         }
 #endif
-
         if (!battleSystem.ActiveEnemy.CanCrit && useSkill[battleSystem.ActiveEnemy] && !battleSystem.ActiveEnemy.UsedSkillThisTurn)
         {
             GameSkill randomSkill =

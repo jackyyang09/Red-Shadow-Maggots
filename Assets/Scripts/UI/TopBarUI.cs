@@ -37,6 +37,6 @@ public class TopBarUI : MonoBehaviour
 
     private void UpdateFloorcount(int obj)
     {
-        floorCountLabel.text = "Floor " + (1 + obj).ToString();
+        floorCountLabel.text = "Floor " + obj.ToString();
     }
 }

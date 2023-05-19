@@ -22,6 +22,9 @@ public class CharacterStatEditor : ScriptableSingleton<CharacterStatEditor>
 
     public string CharacterPath;
     public CharacterObject[] CharacterReferences;
+
+    public void Save() => Save(true);
+    public string GetPath() => GetFilePath();
 }
 
 public class CharacterStatWindow : EditorWindow
@@ -65,7 +68,7 @@ public class CharacterStatWindow : EditorWindow
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         Instance.CharacterPath = EditorGUILayout.TextField("Character Object Path", Instance.CharacterPath);
         if (Instance.CharacterPath == null) EditorGUILayout.LabelField("Loaded Characters", "0");
-        EditorGUILayout.LabelField("Loaded Characters", Instance.CharacterReferences.Length.ToString());
+        else EditorGUILayout.LabelField("Loaded Characters", Instance.CharacterReferences.Length.ToString());
         if (GUILayout.Button("Load Characters At Path"))
         {
             Instance.CharacterReferences = EditorHelper.ImportAssetsOrFoldersAtPath<CharacterObject>(Instance.CharacterPath).ToArray();
@@ -89,6 +92,13 @@ public class CharacterStatWindow : EditorWindow
         if (GUILayout.Button("Apply New Stats to Characters"))
         {
             RandomizeStatsForAllCharacters();
+            EditorUtility.DisplayDialog("Character Stat Window", "Stats Applied", "OK");
+        }
+
+        if (GUILayout.Button("Save Settings"))
+        {
+            Instance.Save();
+            EditorUtility.DisplayDialog("Character Stat Window", "Save Confirmed", "OK");
         }
     }
 

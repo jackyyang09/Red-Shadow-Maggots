@@ -77,7 +77,6 @@ public class PlayerSaveManager : BaseSaveManager<PlayerSave>
     private void OnAdvanceFloor(Map.NodeType obj)
     {
         LoadedData.NodesTravelled++;
-        SaveData();
         OnUpdateFloorCount?.Invoke(LoadedData.NodesTravelled);
     }
 

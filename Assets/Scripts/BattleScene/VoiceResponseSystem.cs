@@ -55,7 +55,7 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         yield return new WaitUntil(() => BattleSystem.Initialized);
 
-        if (EnemyController.Instance.Enemies.Any(e => e.Reference.isBoss))
+        if (EnemyController.Instance.EnemyList.Any(e => e.Reference.isBoss))
         {
             AudioManager.PlayMusic(BattleSceneMusic.BossTheme);
         }

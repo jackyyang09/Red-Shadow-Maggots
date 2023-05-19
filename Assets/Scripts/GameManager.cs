@@ -12,18 +12,7 @@ public class GameManager : BasicSingleton<GameManager>
     {
         get
         {
-            var data = battleStateManager.LoadedData;
-            var GUIDs = data.EnemyGUIDs;
-
-            int enemyCount = 0;
-            for (int i = 0; i < GUIDs.Count; i++)
-            {
-                for (int j = 0; j < GUIDs[i].Count; j++)
-                {
-                    if (!string.IsNullOrEmpty(GUIDs[i][j])) enemyCount++;
-                }
-            }
-            return baseExpGain * enemyCount;
+            return (PlayerData.NodesTravelled + 1);
         }
     }
 
