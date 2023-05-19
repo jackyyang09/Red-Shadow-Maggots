@@ -249,6 +249,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         Initialized = true;
     }
 
+    void OnDestroy()
+    {
+        Initialized = false;
+    }
+
     public IEnumerator InitiateNextBattle()
     {
         waveManager.SetupWave();

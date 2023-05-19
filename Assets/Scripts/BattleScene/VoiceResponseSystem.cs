@@ -53,8 +53,9 @@ public class VoiceResponseSystem : MonoBehaviour
 
     private IEnumerator Start()
     {
+        Debug.Log("Trying to Start");
         yield return new WaitUntil(() => BattleSystem.Initialized);
-
+        Debug.Log("BattleSystem Initialized!");
         if (EnemyController.Instance.EnemyList.Any(e => e.Reference.isBoss))
         {
             AudioManager.PlayMusic(BattleSceneMusic.BossTheme);
@@ -62,6 +63,7 @@ public class VoiceResponseSystem : MonoBehaviour
         else
         {
             AudioManager.PlayMusic(BattleSceneMusic.BattleTheme);
+            Debug.Log("Playing Battle Theme...");
         }
     }
 

@@ -98,7 +98,8 @@ public class CharacterObject : ScriptableObject
         }   
         else
         {
-            lerp = Mathf.Pow(currentLevel / (float)MAX_LEVEL_ENEMY, 2);
+            lerp = (float)currentLevel / (float)MAX_LEVEL_PLAYER;
+            //lerp = Mathf.Pow(currentLevel / (float)MAX_LEVEL_ENEMY, 2);
             return (int)Mathf.Lerp(enemyHealthRange.x, enemyHealthRange.y, lerp);
         }
     }

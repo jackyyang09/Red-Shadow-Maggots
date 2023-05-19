@@ -38,7 +38,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     /// <summary>
     /// TODO: Put this somewhere else
     /// </summary>
-    int expMultiplier = 30;
+    int expMultiplier = 10;
     int scrapOffered;
     int ScrapOffered
     {
