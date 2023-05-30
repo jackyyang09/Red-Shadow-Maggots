@@ -170,9 +170,13 @@ public class CardListUI : BasicSingleton<CardListUI>
                 optimizedCanvas.Hide();
                 maggotUpgradeUI.InitializeUI(obj.CardHolder.Character, maggotStates[index]);
                 maggotUpgradeUI.OptimizedCanvas.Show();
+                obj.transform.DOKill();
+                obj.transform.localScale = Vector3.one;
+                obj.transform.localEulerAngles = Vector3.zero;
                 break;
         }
         
         JSAM.AudioManager.PlaySound(MapMenuSounds.UIClick);
+        HideUI();
     }
 }

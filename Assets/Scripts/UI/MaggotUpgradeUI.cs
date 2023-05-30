@@ -33,6 +33,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         expBarLabel;
     [SerializeField] Image currentExpFill, nextExpFill;
     [SerializeField] OptimizedButton plusButton, minusButton;
+    [SerializeField] Button upgradeButton;
     [SerializeField] Image raycastMask;
 
     /// <summary>
@@ -95,9 +96,11 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         if (playerDataManager.LoadedData.Exp == 0)
         {
             plusButton.SetButtonInteractable(false);
-        }
+        }   
 
         minusButton.SetButtonInteractable(false);
+
+        upgradeButton.interactable = false;
     }
 
     void UpdateUIElements()
@@ -132,6 +135,8 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
         nextExpFill.enabled = ScrapOffered > 0;
         nextExpFill.fillAmount = Mathf.Round(expProgress) / expRequirement;
+
+        upgradeButton.interactable = ScrapOffered > 0;
     }
 
     public void OfferScrap()
@@ -250,9 +255,8 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     {
         mapManager.SaveMap();
         playerDataManager.SaveData();
-        cardListUI.ShowUI();
-        canvas.Hide();
         cardListUI.HideUI();
+        canvas.Hide();
         restNode.FinishUpgrade();
     }
 
