@@ -87,7 +87,7 @@ public abstract class SuperCriticalEffect : MonoBehaviour
 
         for (int i = 0; i < targets.Count; i++)
         {
-            BaseCharacter.ApplyEffectToCharacter(effect, targets[i]);
+            BaseCharacter.ApplyEffectToCharacter(effect, baseCharacter, targets[i]);
         }
 
         GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[effectsApplied].effect);

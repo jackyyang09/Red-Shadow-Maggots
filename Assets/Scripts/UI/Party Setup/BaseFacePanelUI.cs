@@ -7,14 +7,16 @@ using static Facade;
 
 public abstract class BaseFacePanelUI : MonoBehaviour
 {
-    [SerializeField] protected float minDragDistance;
+    [SerializeField] FacePanelShared shared;
+
+    protected float minDragDistance => shared.MinDragDistance;
     protected float dragDistance;
     protected bool dragging;
-    [SerializeField] protected float minHoldTime;
+    protected float minHoldTime => shared.MinHoldTime;
     protected float holdTime;
 
-    [SerializeField] protected OptimizedCanvas canvas;
-    [SerializeField] protected new Collider2D collider;
+    protected OptimizedCanvas canvas => shared.Canvas;
+    protected new Collider2D collider => shared.Collider;
     public void SetActive(bool active)
     {
         canvas.SetActive(active);
@@ -43,10 +45,11 @@ public abstract class BaseFacePanelUI : MonoBehaviour
         }
     }
 
-    [SerializeField] protected Image profileGraphic;
-    [SerializeField] protected Image healthBar;
+    protected Image profileGraphic => shared.ProfileGraphic;
+    protected Image classGraphic => shared.ClassGraphic;
+    protected Image healthBar => shared.HealthBar;
 
-    [SerializeField] protected CanvasGroup inPartyCG;
+    protected CanvasGroup inPartyCG => shared.InPartyCG;
 
     protected bool pointerDown;
     protected bool canMove;
@@ -106,6 +109,7 @@ public abstract class BaseFacePanelUI : MonoBehaviour
         gachaSystem.TryAddLoadedMaggot(op);
         healthBar.fillAmount = state.Health / (float)op.Result.GetMaxHealth(op.Result.GetLevelFromExp(state.Exp), false);
         profileGraphic.sprite = op.Result.headshotSprite;
+        classGraphic.sprite = index.GetClassIcon(op.Result.characterClass);
         SetActive(true);
     }
 

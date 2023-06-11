@@ -8,6 +8,7 @@ public class BattleState
 {
     public class SerializedEffect
     {
+        public int Caster;
         public TargetMode TargetMode;
         public int EffectIndex;
         public int RemainingTurns;

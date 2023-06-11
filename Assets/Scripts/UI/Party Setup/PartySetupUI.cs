@@ -30,7 +30,7 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
         }
 
         int slotsOccupied = 0;
-        for (int i = 0; i < PlayerData.MaggotStates.Count; i++)
+        for (int i = 0; i < PlayerData.MaggotStates.Count && i < characterSlots.Length; i++)
         {
             var newPanel = Instantiate(panelPrefab, characterSlots[slotsOccupied].transform).GetComponent<CharacterPanelUI>();
             characterPanels.Add(newPanel);

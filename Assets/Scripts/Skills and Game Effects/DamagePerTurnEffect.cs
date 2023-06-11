@@ -5,11 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Damage Per Turn Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
 public class DamagePerTurnEffect : BaseDamageEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         DamageStruct damageStruct = new DamageStruct();
         damageStruct.percentage = 1;
@@ -18,7 +18,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
         target.TakeDamage(damageStruct);
     }
 
-    public override void TickCustom(BaseCharacter target, List<object> values)
+    public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
     {
         float damage = 0;
         for (int i = 0; i < values.Count; i++)

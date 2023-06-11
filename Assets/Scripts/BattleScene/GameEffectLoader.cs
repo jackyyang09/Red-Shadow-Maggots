@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class GameEffectLoader : BasicSingleton<GameEffectLoader>
 {
@@ -9,6 +10,11 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
     public BattleState.SerializedEffect SerializeGameEffect(AppliedEffect effect)
     {
         BattleState.SerializedEffect se = new BattleState.SerializedEffect();
+
+        var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
+        characters.AddRange(enemyController.EnemyList);
+        se.Caster = characters.IndexOf(effect.caster);
+
         se.EffectIndex = gameEffects.IndexOf(effect.referenceEffect);
         se.RemainingTurns = effect.remainingTurns;
         se.Strength = effect.strength;
@@ -19,6 +25,11 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
     public AppliedEffect DeserializeEffect(BattleState.SerializedEffect effect, BaseCharacter target)
     {
         AppliedEffect ae = new AppliedEffect();
+
+        var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
+        characters.AddRange(enemyController.EnemyList);
+        ae.caster = characters[effect.Caster];
+
         ae.target = target;
         ae.referenceEffect = gameEffects[effect.EffectIndex];
         ae.remainingTurns = effect.RemainingTurns;

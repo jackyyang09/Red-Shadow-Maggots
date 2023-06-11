@@ -5,12 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = nameof(DodgeEffect), menuName = "ScriptableObjects/Game Effects/Dodge Effect", order = 1)]
 public class DodgeEffect : BaseGameEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         target.IsDodging = true;
     }
 
-    public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         target.IsDodging = false;
     }
@@ -42,7 +42,7 @@ public class DodgeEffect : BaseGameEffect
         return null;
     }
 
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 }

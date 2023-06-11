@@ -673,18 +673,19 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill());
     }
 
-    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter character)
+    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
     {
-        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, character.transform);
-        props.effect.Activate(character, props.strength, props.customValues);
+        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
+        props.effect.Activate(caster, target, props.strength, props.customValues);
 
-        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, character.transform);
+        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, target.transform);
 
         if (props.effectDuration == 0) return;
 
         AppliedEffect newEffect = new AppliedEffect();
 
-        newEffect.target = character;
+        newEffect.caster = caster;
+        newEffect.target = target;
         newEffect.referenceEffect = props.effect;
         newEffect.remainingTurns = props.effectDuration;
         newEffect.strength = props.strength;
@@ -693,7 +694,7 @@ public abstract class BaseCharacter : MonoBehaviour
             props.effect.GetEffectDescription(TargetMode.Self, props.strength, props.customValues,
                 props.effectDuration);
         newEffect.description = newEffect.description.Remove(newEffect.description.IndexOf("("));
-        character.ApplyEffect(newEffect);
+        target.ApplyEffect(newEffect);
     }
 
     IEnumerator ActivateSkill()
@@ -708,7 +709,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 case TargetMode.None:
                     for (int j = 0; j < targets.Count; j++)
                     {
-                        ApplyEffectToCharacter(effect, targets[j]);
+                        ApplyEffectToCharacter(effect, this, targets[j]);
                     }
 
                     break;
@@ -718,13 +719,13 @@ public abstract class BaseCharacter : MonoBehaviour
                         case BattlePhases.PlayerTurn:
                             for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
                             {
-                                ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
+                                ApplyEffectToCharacter(effect, this, battleSystem.PlayerCharacters[j]);
                             }
                             break;
                         case BattlePhases.EnemyTurn:
                             for (int j = 0; j < enemyController.Enemies.Length; j++)
                             {
-                                ApplyEffectToCharacter(effect, enemyController.Enemies[j]);
+                                ApplyEffectToCharacter(effect, this, enemyController.Enemies[j]);
                             }
                             break;
                     }
@@ -735,19 +736,19 @@ public abstract class BaseCharacter : MonoBehaviour
                         case BattlePhases.PlayerTurn:
                             for (int j = 0; j < enemyController.Enemies.Length; j++)
                             {
-                                ApplyEffectToCharacter(effect, enemyController.Enemies[j]);
+                                ApplyEffectToCharacter(effect, this, enemyController.Enemies[j]);
                             }
                             break;
                         case BattlePhases.EnemyTurn:
                             for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
                             {
-                                ApplyEffectToCharacter(effect, battleSystem.PlayerCharacters[j]);
+                                ApplyEffectToCharacter(effect, this, battleSystem.PlayerCharacters[j]);
                             }
                             break;
                     }
                     break;
                 case TargetMode.Self:
-                    ApplyEffectToCharacter(effect, this);
+                    ApplyEffectToCharacter(effect, this, this);
                     break;
             }
 
@@ -810,7 +811,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
         else if (AppliedEffects[effect].Count > 1)
         {
-            var newList = effect.TickMultiple(this, AppliedEffects[effect]);
+            var newList = effect.TickMultiple(this, this, AppliedEffects[effect]);
             var diff = AppliedEffects[effect].Except(newList).ToList();
 
             for (int i = 0; i < diff.Count; i++)

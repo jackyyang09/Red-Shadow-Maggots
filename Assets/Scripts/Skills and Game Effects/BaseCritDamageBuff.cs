@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Crit Damage Effect", menuName = "ScriptableObjects/Game Effects/Crit Damage", order = 1)]
 public class BaseCritDamageBuff : BaseGameEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
@@ -14,11 +14,7 @@ public class BaseCritDamageBuff : BaseGameEffect
         target.ApplyCritDamageModifier(percentageChange);
     }
 
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-    }
-
-    public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 

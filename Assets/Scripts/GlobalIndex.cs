@@ -12,6 +12,6 @@ public sealed class GlobalIndex : BaseIndex
 
 	// Set up your references below! 
 	// You only need to assign references once with this pattern.
-	public Sprite[] classIcons = null;
+	[SerializeField] Sprite[] classIcons;
 	public Sprite GetClassIcon(CharacterClass characterClass) => classIcons[(int)characterClass];
 }

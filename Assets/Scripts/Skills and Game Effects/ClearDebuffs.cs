@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Clear Debuffs", menuName = "ScriptableObjects/Game Effects/Clear Debuffs", order = 1)]
 public class ClearDebuffs : BaseGameEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         List<BaseGameEffect> keys = new List<BaseGameEffect>();
 
@@ -53,11 +53,11 @@ public class ClearDebuffs : BaseGameEffect
         return null;
     }
 
-    public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
     }
 }

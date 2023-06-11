@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Defence Buff", menuName = "ScriptableObjects/Game Effects/Defence", order = 1)]
 public class BaseDefenceBuff : BaseGameEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
@@ -14,17 +14,13 @@ public class BaseDefenceBuff : BaseGameEffect
         target.ApplyDefenseModifier(percentageChange);
     }
 
-    public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
         target.ApplyDefenseModifier(-percentageChange);
-    }
-
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)

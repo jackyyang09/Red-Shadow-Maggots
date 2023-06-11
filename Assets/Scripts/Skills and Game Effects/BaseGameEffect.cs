@@ -48,21 +48,21 @@ public abstract class BaseGameEffect : ScriptableObject
     /// Invoked immediately
     /// </summary>
     /// <param name="targets"></param>
-    public abstract void Activate(BaseCharacter target, EffectStrength strength, float[] customValues);
+    public virtual void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
 
     /// <summary>
     /// Called on every turn after it's activation
     /// </summary>
-    public abstract void Tick(BaseCharacter target, EffectStrength strength, float[] customValues);
+    public virtual void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
 
     /// <summary>
     /// Stackable effects will implement this
     /// </summary>
     /// <param name="target"></param>
     /// <param name="customValues"></param>
-    public virtual void TickCustom(BaseCharacter target, List<object> values) { }
+    public virtual void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values) { }
 
-    public List<AppliedEffect> TickMultiple(BaseCharacter target, List<AppliedEffect> effects)
+    public List<AppliedEffect> TickMultiple(BaseCharacter user, BaseCharacter target, List<AppliedEffect> effects)
     {
         var remainingEffects = new List<AppliedEffect>(effects);
         var values = new List<object>();
@@ -74,15 +74,15 @@ public abstract class BaseGameEffect : ScriptableObject
                 remainingEffects.Remove(effects[i]);
             }
         }
-        TickCustom(target, values);
+        TickCustom(user, target, values);
         return remainingEffects;
     }
 
-    public abstract void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues);
+    public virtual void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
 
-    public abstract object GetEffectStrength(EffectStrength strength, float[] customValues);
+    public virtual object GetEffectStrength(EffectStrength strength, float[] customValues) { return null; }
 
-    public abstract string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration);
+    public virtual string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration) { return ""; }
 
     protected string DurationDescriptor(int turns)
     {

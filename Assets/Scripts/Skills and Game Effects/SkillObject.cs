@@ -60,6 +60,7 @@ public class SkillObject : ScriptableObject
 /// </summary>
 public class AppliedEffect
 {
+    public BaseCharacter caster;
     public BaseCharacter target;
     public BaseGameEffect referenceEffect;
     public int remainingTurns;
@@ -74,10 +75,10 @@ public class AppliedEffect
     public bool Tick()
     {
         remainingTurns--;
-        referenceEffect.Tick(target, strength, customValues);
+        referenceEffect.Tick(caster, target, strength, customValues);
         if (remainingTurns == 0)
         {
-            referenceEffect.OnExpire(target, strength, customValues);
+            referenceEffect.OnExpire(caster, target, strength, customValues);
             return false;
         }
         return true;
@@ -92,7 +93,7 @@ public class AppliedEffect
         remainingTurns--;
         if (remainingTurns == 0)
         {
-            referenceEffect.OnExpire(target, strength, customValues);
+            referenceEffect.OnExpire(caster, target, strength, customValues);
             return false;
         }
         return true;

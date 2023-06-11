@@ -88,8 +88,9 @@ GameObject:
   - component: {fileID: 6981012834611436428}
   - component: {fileID: 9058719461122710238}
   - component: {fileID: 451389776601032871}
+  - component: {fileID: 812593600836024503}
   m_Layer: 5
-  m_Name: Class Icons
+  m_Name: Class Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -153,6 +154,21 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &812593600836024503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2114969078654802916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2808631571702827899
 GameObject:
   m_ObjectHideFlags: 0
@@ -539,6 +555,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4154086553794342469}
+  - component: {fileID: 4227678612145801856}
   - component: {fileID: 599620460220287403}
   - component: {fileID: 3926616098218695681}
   - component: {fileID: 1058284910952200998}
@@ -573,13 +590,33 @@ RectTransform:
   - {fileID: 417384019335899004}
   - {fileID: 6981012834611436428}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 184.9087, y: 259.3391}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &4227678612145801856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8963036124416227460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b7585db4a6591e4cb34ab16a191d892, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <MinDragDistance>k__BackingField: 0.1
+  <MinHoldTime>k__BackingField: 25
+  <Canvas>k__BackingField: {fileID: 599620460220287403}
+  <Collider>k__BackingField: {fileID: 5435940978428158316}
+  <ProfileGraphic>k__BackingField: {fileID: 6230827893056424075}
+  <ClassGraphic>k__BackingField: {fileID: 451389776601032871}
+  <HealthBar>k__BackingField: {fileID: 2133623506976832105}
+  <InPartyCG>k__BackingField: {fileID: 3126296942180654485}
 --- !u!114 &599620460220287403
 MonoBehaviour:
   m_ObjectHideFlags: 0

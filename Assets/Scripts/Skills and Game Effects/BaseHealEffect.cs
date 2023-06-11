@@ -5,21 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
 public class BaseHealEffect : BaseGameEffect
 {
-    public override void Activate(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        var amount = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+        var amount = (float)GetEffectStrength(strength, customValues) * user.MaxHealth;
 
         target.Heal(amount);
-    }
-
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-
-    }
-
-    public override void OnExpire(BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
@@ -40,7 +30,7 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += change + "% of their Max Health.";
+        s += "health equal to " + change + "% of your Max Health.";
 
         return s + DurationDescriptor(duration);
     }

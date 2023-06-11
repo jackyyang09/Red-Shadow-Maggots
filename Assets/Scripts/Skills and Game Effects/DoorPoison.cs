@@ -19,14 +19,14 @@ public class DoorPoison : DamagePerTurnEffect
 
     public GameObject doorPrefab = null;
 
-    public override void Tick(BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        target.StartCoroutine(PlayEffect(target, () => base.Tick(target, strength, customValues)));
+        target.StartCoroutine(PlayEffect(target, () => base.Tick(user, target, strength, customValues)));
     }
 
-    public override void TickCustom(BaseCharacter target, List<object> values)
+    public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
     {
-        target.StartCoroutine(PlayEffect(target, () => base.TickCustom(target, values)));
+        target.StartCoroutine(PlayEffect(target, () => base.TickCustom(user, target, values)));
     }
 
     IEnumerator PlayEffect(BaseCharacter target, System.Action damageDelegate)
