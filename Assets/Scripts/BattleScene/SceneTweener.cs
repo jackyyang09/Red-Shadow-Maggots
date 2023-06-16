@@ -247,15 +247,15 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     IEnumerator RotateBackDelayed()
     {
-        switch (battleSystem.CurrentPhase)
-        {
-            case BattlePhases.PlayerTurn:
-                playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
-                break;
-            case BattlePhases.EnemyTurn:
-                enemyCam.m_LookAt = battleSystem.ActivePlayer.transform;
-                break;
-        }
+        //switch (battleSystem.CurrentPhase)
+        //{
+        //    case BattlePhases.PlayerTurn:
+        //        playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
+        //        break;
+        //    case BattlePhases.EnemyTurn:
+        //        enemyCam.m_LookAt = battleSystem.ActivePlayer.transform;
+        //        break;
+        //}
 
         yield return new WaitForSeconds(returnTweenDelay);
 

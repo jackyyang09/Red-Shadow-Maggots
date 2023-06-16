@@ -295,7 +295,15 @@ public class AnimationHelper : MonoBehaviour
 
     public void SpawnWorldEffectAtIndex(int index)
     {
-        Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]);
+        if (baseCharacter as PlayerCharacter)
+        {
+            var t = Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]).transform;
+            t.forward = -t.forward;
+        }
+        else
+        {
+            Instantiate(baseCharacter.Reference.extraEffectPrefabs[index]);
+        }
     }
 
     public void PlayWeaponSound() => AudioManager.PlaySound(baseCharacter.Reference.weaponSound);
