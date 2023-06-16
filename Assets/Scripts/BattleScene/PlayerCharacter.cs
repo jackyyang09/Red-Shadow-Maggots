@@ -167,10 +167,7 @@ public class PlayerCharacter : BaseCharacter
         if (!CanCrit || usedSuperCritThisTurn)
         {
             OnPlayerQTEAttack?.Invoke(this);
-        }
 
-        if (!CanCrit || usedSuperCritThisTurn)
-        {
             if (Reference.attackQteType == QTEType.SimpleBar)
             {
                 Windup();

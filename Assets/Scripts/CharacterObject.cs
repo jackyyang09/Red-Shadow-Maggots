@@ -145,6 +145,7 @@ public class CharacterObject : ScriptableObject
     public SkillObject superCritical;
     public AnimationClip superCriticalAnim;
     public bool isSuperCriticalAnAttack;
+    public AttackRange superCritRange;
 
     [Header("Animation Properties")]
     public GameObject spriteObject;

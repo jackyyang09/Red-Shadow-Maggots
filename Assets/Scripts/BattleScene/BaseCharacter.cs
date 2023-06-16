@@ -413,6 +413,12 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (CanCrit && !usedSuperCritThisTurn)
         {
+            switch (Reference.superCritRange)
+            {
+                case AttackRange.CloseRange:
+                    sceneTweener.MeleeMoveTo(transform, target);
+                    break;
+            }
             UseSuperCritical();
         }
         else
@@ -420,10 +426,10 @@ public abstract class BaseCharacter : MonoBehaviour
             switch (IncomingAttack.attackRange)
             {
                 case AttackRange.CloseRange:
-                    SceneTweener.Instance.MeleeTweenTo(transform, target);
+                    sceneTweener.MeleeTweenTo(transform, target);
                     break;
                 case AttackRange.LongRange:
-                    SceneTweener.Instance.RangedTweenTo(CharacterMesh.transform, target);
+                    sceneTweener.RangedTweenTo(CharacterMesh.transform, target);
                     break;
             }
         }

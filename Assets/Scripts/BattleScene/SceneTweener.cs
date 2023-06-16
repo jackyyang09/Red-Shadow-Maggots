@@ -142,6 +142,26 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         DOTween.To(() => lerpValue, x => lerpValue = x, 2, camTweenTime).SetEase(Ease.OutCubic);
     }
 
+    public void MeleeMoveTo(Transform attacker, Transform target)
+    {
+        savedPosition = attacker.position;
+        switch (BattleSystem.Instance.CurrentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                enemyCam.enabled = false;
+                playerCam.m_LookAt = attacker;
+                attacker.transform.position = target.position + characterDestinationOffset;
+                break;
+            case BattlePhases.EnemyTurn:
+                enemyCam.enabled = true;
+                enemyCam.m_LookAt = attacker;
+                attacker.transform.position = target.position - characterDestinationOffset;
+                enemyPath.transform.DOKill();
+                enemyPath.transform.position = target.position - characterDestinationOffset;
+                break;
+        }
+    }
+
     public void RangedTweenTo(Transform attacker, Transform target)
     {
         switch (BattleSystem.Instance.CurrentPhase)
