@@ -121,7 +121,7 @@ public class QuickTimeHold : QuickTimeBase
     public override void StartTicking()
     {
         tickRoutine = StartCoroutine(TickRoutine());
-        if (activePlayer) activePlayer.PlayAttackAnimation();
+        if (activePlayer) activePlayer.Windup();
         JSAM.AudioManager.PlaySound(chargeSound);
     }
 

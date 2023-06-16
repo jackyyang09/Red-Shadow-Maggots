@@ -55,10 +55,9 @@ public class EnemyCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
-        EnableBillboardUI();
     }
 
-    protected override void CreateBillboardUI()
+    protected override IEnumerator CreateBillboardUI()
     {
         // Set to World-Scale of 1
         if (isBossCharacter)
@@ -70,8 +69,12 @@ public class EnemyCharacter : BaseCharacter
         {
             billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform)
                 .GetComponent<ViewportBillboard>();
-            billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
         }
+
+        yield return new WaitUntil(() => Initialized);
+
+        EnableBillboardUI();
+        billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
     }
 
     protected override void OnEnable()
@@ -150,9 +153,10 @@ public class EnemyCharacter : BaseCharacter
         IncomingAttack = a;
     }
 
-    public override void PlayAttackAnimation()
+    public void PlayAttackAnimation()
     {
-        base.PlayAttackAnimation();
+        OnCharacterStartAttack?.Invoke(this);
+        QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
 
         if (rigAnim)
         {
@@ -173,7 +177,8 @@ public class EnemyCharacter : BaseCharacter
 
     public void PlayAttackAnimation(int selectedAttack)
     {
-        base.PlayAttackAnimation();
+        OnCharacterStartAttack?.Invoke(this);
+        QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
 
         rigAnim.Play("Enemy Attack Level " + (selectedAttack + 1).ToString());
     }

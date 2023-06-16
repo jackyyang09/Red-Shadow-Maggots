@@ -74,6 +74,7 @@ public class CharacterObject : ScriptableObject
     [Header("Player Stats")]
     [SerializeField] Vector2 attackRange = new Vector2();
     [SerializeField] Vector2 healthRange = new Vector2();
+    [SerializeField] Vector2 defenseRange = new Vector2();
 
     [Header("Enemy Stats")]
     [SerializeField] Vector2 enemyHealthRange = new Vector2();

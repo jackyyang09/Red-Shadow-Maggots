@@ -790,6 +790,17 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         Debug.Log("Added " + value + "% to player crit rate to!");
     }
 
+    [IngameDebugConsole.ConsoleMethod(nameof(ShieldPlayers), "Provide Max Shield Effect to Players")]
+    public static void ShieldPlayers()
+    {
+        for (int i = 0; i < Instance.playerCharacters.Length; i++)
+        {
+            Instance.playerCharacters[i].GiveShield(Instance.playerCharacters[i].MaxHealth);
+        }
+
+        Debug.Log("Players damaged!");
+    }
+
     [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]
     public static void CripplePlayers()
     {

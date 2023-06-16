@@ -1,9 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using DG.Tweening;
+﻿using DG.Tweening;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
 
@@ -52,16 +52,17 @@ public abstract class BaseCharacter : MonoBehaviour
     public CharacterObject Reference => characterReference;
 
     [SerializeField] [Range(1, 90)] protected int currentLevel = 1;
-
     public int CurrentLevel => currentLevel;
 
     [SerializeField] protected float health;
-
     public float CurrentHealth => health;
 
     [SerializeField] protected float maxHealth;
-
     public float MaxHealth => maxHealth;
+
+    protected float shield;
+    public float CurrentShield => shield;
+    public float ShieldPercent => shield / maxHealth;
 
     /// <summary>
     /// Additive modifier from skills
@@ -168,6 +169,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action<AppliedEffect> onRemoveGameEffect;
 
     public Action onHeal;
+    public Action OnShielded;
 
     /// <summary>
     /// Only invoked when changing health through abnormal means
@@ -242,8 +244,9 @@ public abstract class BaseCharacter : MonoBehaviour
             health = maxHealth;
         }
 
-        CreateBillboardUI();
+        StartCoroutine(CreateBillboardUI());
 
+        // This needs to happen after UI is made so UI can capture events
         if (stateInfo != null)
         {
             for (int i = 0; i < stateInfo.Effects.Count; i++)
@@ -279,11 +282,14 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    protected abstract void CreateBillboardUI();
+    protected abstract IEnumerator CreateBillboardUI();
 
     public void EnableBillboardUI()
     {
-        if (billBoard) billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+        if (billBoard)
+        {
+            billBoard.EnableWithSettings(sceneTweener.SceneCamera, CharacterMesh.transform);
+        }
     }
 
     protected virtual void OnCharacterLoaded(AsyncOperationHandle<GameObject> obj)
@@ -347,12 +353,6 @@ public abstract class BaseCharacter : MonoBehaviour
         IncomingDamage.isSuperCritical = true;
         IncomingDamage.critDamageModifier = CritDamageModified;
         animHelper.EnableCrits();
-    }
-
-    public virtual void PlayAttackAnimation()
-    {
-        OnCharacterStartAttack?.Invoke(this);
-        QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
     }
 
     public virtual void ExecuteAttack()
@@ -830,10 +830,16 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void Heal(float healthGain)
     {
-        health = Mathf.Clamp(health + healthGain, 0, maxHealth);
+        health = Mathf.Min(health + healthGain, maxHealth);
         onHeal?.Invoke();
         onSetHealth?.Invoke();
         EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
+    }
+
+    public virtual void GiveShield(float shieldGain)
+    {
+        shield = Mathf.Min(shield + shieldGain, maxHealth);
+        OnShielded?.Invoke();
     }
 
     public void ApplyAttackModifier(float modifier)

@@ -10,6 +10,7 @@ public class ClassStats
     public float StatDeviancy;
     public float CritRate;
     public float CritDamage;
+    public Vector2 DefenseRange;
 }
 
 [FilePath("ProjectSettings/CharacterStats.asset", FilePathAttribute.Location.ProjectFolder)]
@@ -48,16 +49,19 @@ public class CharacterStatWindow : EditorWindow
             Instance.ClassStats[(int)CharacterClass.Offense].StatDeviancy = 0.25f;
             Instance.ClassStats[(int)CharacterClass.Offense].CritRate = 0.01f;
             Instance.ClassStats[(int)CharacterClass.Offense].CritDamage = 0.5f;
+            Instance.ClassStats[(int)CharacterClass.Offense].DefenseRange = new Vector2(0.1f, 0.2f);
 
             Instance.ClassStats[(int)CharacterClass.Defense] = new ClassStats();
             Instance.ClassStats[(int)CharacterClass.Defense].StatDeviancy = 0.15f;
             Instance.ClassStats[(int)CharacterClass.Defense].CritRate = 0.025f;
             Instance.ClassStats[(int)CharacterClass.Defense].CritDamage = 0.5f;
+            Instance.ClassStats[(int)CharacterClass.Defense].DefenseRange = new Vector2(0.3f, 0.4f);
 
             Instance.ClassStats[(int)CharacterClass.Support] = new ClassStats();
             Instance.ClassStats[(int)CharacterClass.Support].StatDeviancy = 0.175f;
             Instance.ClassStats[(int)CharacterClass.Support].CritRate = 0.05f;
             Instance.ClassStats[(int)CharacterClass.Support].CritDamage = 0.5f;
+            Instance.ClassStats[(int)CharacterClass.Support].DefenseRange = new Vector2(0.2f, 0.3f);
         }
     }
 
@@ -86,6 +90,7 @@ public class CharacterStatWindow : EditorWindow
             Instance.ClassStats[i].StatDeviancy = EditorGUILayout.Slider("Stat Deviancy", Instance.ClassStats[i].StatDeviancy, 0, 1);
             Instance.ClassStats[i].CritRate = EditorGUILayout.FloatField("Crit Rate", Instance.ClassStats[i].CritRate);
             Instance.ClassStats[i].CritDamage = EditorGUILayout.FloatField("Crit Damage", Instance.ClassStats[i].CritDamage);
+            Instance.ClassStats[i].DefenseRange = EditorGUILayout.Vector2Field("Defense Range", Instance.ClassStats[i].DefenseRange);
             EditorGUILayout.EndVertical();
         }
 
@@ -109,6 +114,7 @@ public class CharacterStatWindow : EditorWindow
         foreach (var character in Instance.CharacterReferences)
         {
             Vector2 attackRange;
+            Vector2 defenseRange;
             Vector2 healthRange;
             Vector2 enemyHealthRange;
             float attackDeviancy = 0;
@@ -121,9 +127,13 @@ public class CharacterStatWindow : EditorWindow
             float healthDeviancy = 1 - attackDeviancy;
 
             attackRange.x = (int)Mathf.LerpUnclamped(0, Instance.StatPool.x, attackDeviancy);
-            healthRange.x = (int)Mathf.LerpUnclamped(0, Instance.StatPool.x, healthDeviancy);
             attackRange.y = (int)Mathf.LerpUnclamped(0, Instance.StatPool.y, attackDeviancy);
+
             healthRange.y = (int)Mathf.LerpUnclamped(0, Instance.StatPool.y, healthDeviancy);
+            healthRange.x = (int)Mathf.LerpUnclamped(0, Instance.StatPool.x, healthDeviancy);
+
+            defenseRange.x = Instance.ClassStats[characterClass].DefenseRange.x + RandomDeviancy;
+            defenseRange.y = Instance.ClassStats[characterClass].DefenseRange.y + RandomDeviancy;
 
             enemyHealthRange.x = healthRange.x * Instance.EnemyHealthMultiplier;
             enemyHealthRange.y = healthRange.y * Instance.EnemyHealthMultiplier;
@@ -134,6 +144,7 @@ public class CharacterStatWindow : EditorWindow
             so.FindProperty(nameof(enemyHealthRange)).vector2Value = enemyHealthRange;
             so.FindProperty("critChance").floatValue = Instance.ClassStats[characterClass].CritRate;
             so.FindProperty("critDamageMultiplier").floatValue = Instance.ClassStats[characterClass].CritDamage;
+            so.FindProperty("defenseRange").vector2Value = defenseRange;
             so.ApplyModifiedProperties();
         }
     }

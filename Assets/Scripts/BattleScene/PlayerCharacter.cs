@@ -60,12 +60,16 @@ public class PlayerCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
-        EnableBillboardUI();
     }
 
-    protected override void CreateBillboardUI()
+    protected override IEnumerator CreateBillboardUI()
     {
         billBoard = Instantiate(canvasPrefab, ui.ViewportBillboardCanvas.transform).GetComponent<ViewportBillboard>();
+
+        yield return new WaitUntil(() => Initialized);
+
+        EnableBillboardUI();
+
         billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
     }
 
@@ -165,17 +169,21 @@ public class PlayerCharacter : BaseCharacter
             OnPlayerQTEAttack?.Invoke(this);
         }
 
-        if (Reference.attackQteType == QTEType.SimpleBar)
+        if (!CanCrit || usedSuperCritThisTurn)
         {
-            PlayAttackAnimation();
+            if (Reference.attackQteType == QTEType.SimpleBar)
+            {
+                Windup();
+            }
         }
 
         base.BeginAttack(target);
     }
 
-    public override void PlayAttackAnimation()
+    public void Windup()
     {
-        base.PlayAttackAnimation();
+        OnCharacterStartAttack?.Invoke(this);
+        QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
 
         if (rigAnim)
         {

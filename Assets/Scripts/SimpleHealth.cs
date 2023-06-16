@@ -13,16 +13,18 @@ public class SimpleHealth : MonoBehaviour
     private float catchupTime = 0.5f;
 
     [SerializeField, Tooltip("The text element displaying the character's current health")]
-    private TMP_Text healthText = null;
+    private TMP_Text healthText;
 
     [SerializeField, Tooltip("The image element representing the character's health bar")]
-    private Image healthBar = null;
+    private Image healthBar;
+
+    [SerializeField] Image shieldBar;
 
     [SerializeField, Tooltip("The material used for the health bar image")]
     private Material _healthBarMaterial;
 
     [SerializeField, Tooltip("The character for which the health bar is displaying information"), HideInInspector]
-    private BaseCharacter baseCharacter = null;
+    private BaseCharacter baseCharacter;
 
     [SerializeField, Tooltip("The percentage of damage currently displayed on the health bar"), HideInInspector]
     private float _displayDamagePercent = 0;
@@ -42,6 +44,7 @@ public class SimpleHealth : MonoBehaviour
         baseCharacter.onTakeDamage += OnTakeDamage;
         baseCharacter.onSetHealth += OnSetHealth;
         baseCharacter.onHeal += OnHeal;
+        baseCharacter.OnShielded += OnShielded;
 
         //set "steps" property (there will be new sector for each 100 health points)
         healthBar.material.SetFloat("_Steps", character.MaxHealth / _healthSteps);
@@ -53,6 +56,7 @@ public class SimpleHealth : MonoBehaviour
         }
 
         OnSetHealth();
+        OnSetShield();
     }
 
     /// <summary>
@@ -113,5 +117,15 @@ public class SimpleHealth : MonoBehaviour
             healthBar.material.SetFloat("_Percent", baseCharacter.GetHealthPercent());
             healthText.text = baseCharacter.CurrentHealth.ToString();
         });
+    }
+
+    private void OnSetShield()
+    {
+        shieldBar.fillAmount = baseCharacter.ShieldPercent;
+    }
+
+    private void OnShielded()
+    {
+        shieldBar.fillAmount = baseCharacter.ShieldPercent;
     }
 }
