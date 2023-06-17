@@ -6,9 +6,9 @@ using static Facade;
 
 public class MobileShadowCaster : MonoBehaviour
 {
-    [SerializeField] Renderer[] defaultRenderers = null;
+    [SerializeField] Renderer[] defaultRenderers;
 
-    [SerializeField] Transform meshRoot;
+    [SerializeField] Renderer shadowOrigin;
     [SerializeField] float distanceOffset = 0;
     [SerializeField] float shadowOffset = 0.01f;
     [SerializeField] float maxDistance = 5;
@@ -60,7 +60,7 @@ public class MobileShadowCaster : MonoBehaviour
 
         Ray ray = new Ray();
         ray.direction = Vector3.down;
-        ray.origin = meshRoot.position;
+        ray.origin = shadowOrigin.bounds.center;
         RaycastHit hit = new RaycastHit();
 
         if (Physics.Raycast(ray, out hit, maxDistance + distanceOffset, layerMask))
