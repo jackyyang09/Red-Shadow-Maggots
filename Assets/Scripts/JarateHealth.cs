@@ -49,12 +49,14 @@ public class JarateHealth : MonoBehaviour
     [ContextMenu(nameof(TweenLiquid))]
     private void TweenLiquid(float damage)
     {
+        liquidTransform.DOKill();
         float lerpValue = character.GetHealthPercent();
         liquidTransform.DOLocalMoveY(Mathf.Lerp(liquidRange.x, liquidRange.y, lerpValue), liquidTweenTime).SetDelay(liquidTweenDelay);
         for (int i = 0; i < renderer.materials.Length; i++)
         {
             if (renderer.materials[i].HasProperty(colorProp))
             {
+                renderer.materials[i].DOComplete();
                 Color savedColour = renderer.materials[i].GetColor(colorProp);
                 renderer.materials[i].SetColor(colorProp, tweenColor);
                 renderer.materials[i].DOColor(savedColour, colourTweenTime).SetDelay(colourTweenDelay);
