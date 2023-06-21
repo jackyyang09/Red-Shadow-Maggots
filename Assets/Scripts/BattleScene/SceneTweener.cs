@@ -382,6 +382,23 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         battleSystem.EndTurn();
     }
 
+    public void TeleportBackToPosition()
+    {
+        switch (battleSystem.CurrentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                var activePlayer = battleSystem.ActivePlayer;
+                activePlayer.transform.position = savedPosition;
+                break;
+            case BattlePhases.EnemyTurn:
+                var activeEnemy = battleSystem.ActiveEnemy;
+                activeEnemy.transform.position = savedPosition;
+                break;
+        }
+
+        battleSystem.EndTurn();
+    }
+
     public void WaveClearSequence()
     {
         OnBattleTransition?.Invoke();

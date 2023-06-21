@@ -220,6 +220,10 @@ public class AnimationHelper : MonoBehaviour
 
     public void FinishAttack() => baseCharacter.FinishAttack();
 
+    public void FinishSuperCritAttack() => baseCharacter.FinishSuperCritAttack();
+
+    public void TeleportBack() => sceneTweener.TeleportBackToPosition();
+
     public void FinishSkill()
     {
         for (int i = 0; i < onFinishSkillAnimation.Count; i++)

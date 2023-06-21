@@ -56,7 +56,7 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
     {
         RemoveDeadEnemies();
 
-        if (PlayerData.InBattle)
+        if (PlayerData.InBattle && !gachaSystem.LegacyMode)
         {
             characterLoader.LoadAllEnemies();
         }

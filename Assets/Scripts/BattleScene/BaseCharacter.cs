@@ -455,6 +455,20 @@ public abstract class BaseCharacter : MonoBehaviour
         battleSystem.FinishTurn();
     }
 
+    public void FinishSuperCritAttack()
+    {
+        //switch (Reference.superCritRange)
+        //{
+        //    case AttackRange.CloseRange:
+        //        sceneTweener.TeleportBackToPosition();
+        //        break;
+        //}
+
+        animHelper.DisableCrits();
+
+        battleSystem.FinishTurn();
+    }
+
     public void PlayReturnAnimation()
     {
         if (rigAnim)

@@ -40,18 +40,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [SerializeField] BattlePhases currentPhase;
     [SerializeField] private SkillManagerUI _skillManagerUI;
 
-    public BattlePhases CurrentPhase
-    {
-        get { return currentPhase; }
-    }
+    public BattlePhases CurrentPhase => currentPhase;
 
     bool finishedTurn;
 
-    public bool FinishedTurn
-    {
-        get { return finishedTurn; }
-    }
-
+    public bool FinishedTurn => finishedTurn;
     public void FinishTurn() => finishedTurn = true;
 
     PlayerCharacter[] playerCharacters = new PlayerCharacter[4];
