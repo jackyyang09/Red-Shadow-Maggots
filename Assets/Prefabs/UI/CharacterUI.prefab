@@ -862,6 +862,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2472760129623638402}
   - component: {fileID: 590539219999453252}
+  - component: {fileID: 2361848744175885882}
   - component: {fileID: 546062871210804995}
   m_Layer: 5
   m_Name: Shield
@@ -898,6 +899,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4768131510608057717}
   m_CullTransparentMesh: 1
+--- !u!114 &2361848744175885882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4768131510608057717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3acc96ee8bc5264c919a5be5426ad4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  barTween: 0.15
+  shieldBar: {fileID: 546062871210804995}
 --- !u!114 &546062871210804995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -923,7 +938,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 0.452
+  m_FillAmount: 0.457
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -1731,9 +1746,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6807323996565836527}
+  - component: {fileID: 6807323996565836513}
   - component: {fileID: 6807323996565836515}
   - component: {fileID: 6807323996565836512}
-  - component: {fileID: 6807323996565836513}
   - component: {fileID: 6807323996565836526}
   - component: {fileID: 6987524507153386156}
   - component: {fileID: 7684996682996668035}
@@ -1772,6 +1787,46 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 14.97}
   m_SizeDelta: {x: 250, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &6807323996565836513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6807323996565836524}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3bf1af12dda3a94abb21a1f96ebf232, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  optimizedCanvas: {fileID: 6807323996565836512}
+  designatedCharacter: {fileID: 0}
+  layoutGroup: {fileID: 0}
+  chargeBars:
+  - {fileID: 4757051095514128997}
+  - {fileID: 2041864216703827131}
+  - {fileID: 5389887101025580481}
+  - {fileID: 1918785867008175032}
+  - {fileID: 7836055397804382007}
+  - {fileID: 7115128514314719590}
+  - {fileID: 7203712250857016023}
+  chargeEmptyColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
+  fullColor: {r: 1, g: 0, b: 0, a: 1}
+  enemyChargeFillColor: {r: 1, g: 0.7372549, b: 0.18039216, a: 1}
+  tweenTime: 0.35
+  barFlashSpeed: 1
+  chargeText: {fileID: 4589889901918221136}
+  chargeFill: {fileID: 8284317847947331739}
+  chargeFillColor: {r: 1, g: 0.7372549, b: 0.18039216, a: 1}
+  nameText: {fileID: 6807323996668760936}
+  levelLabel: {fileID: 8500167998835233512}
+  classIcon: {fileID: 6807323996704536291}
+  iconPrefab: {fileID: 3182005135311128000, guid: d67f9a3c83af61c4ca2507c97d32f14a, type: 3}
+  iconContainer: {fileID: 6807323997779213261}
+  playerCritCanvas: {fileID: 3555886904083856460}
+  enemyCritCanvas: {fileID: 8386604258334630241}
+  health: {fileID: 6807323996986767761}
+  shield: {fileID: 2361848744175885882}
 --- !u!223 &6807323996565836515
 Canvas:
   m_ObjectHideFlags: 0
@@ -1823,45 +1878,6 @@ MonoBehaviour:
   onCanvasHide:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &6807323996565836513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6807323996565836524}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3bf1af12dda3a94abb21a1f96ebf232, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  optimizedCanvas: {fileID: 6807323996565836512}
-  designatedCharacter: {fileID: 0}
-  layoutGroup: {fileID: 0}
-  chargeBars:
-  - {fileID: 4757051095514128997}
-  - {fileID: 2041864216703827131}
-  - {fileID: 5389887101025580481}
-  - {fileID: 1918785867008175032}
-  - {fileID: 7836055397804382007}
-  - {fileID: 7115128514314719590}
-  - {fileID: 7203712250857016023}
-  chargeEmptyColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
-  fullColor: {r: 1, g: 0, b: 0, a: 1}
-  enemyChargeFillColor: {r: 1, g: 0.7372549, b: 0.18039216, a: 1}
-  tweenTime: 0.35
-  barFlashSpeed: 1
-  chargeText: {fileID: 4589889901918221136}
-  chargeFill: {fileID: 8284317847947331739}
-  chargeFillColor: {r: 1, g: 0.7372549, b: 0.18039216, a: 1}
-  nameText: {fileID: 6807323996668760936}
-  levelLabel: {fileID: 8500167998835233512}
-  classIcon: {fileID: 6807323996704536291}
-  iconPrefab: {fileID: 3182005135311128000, guid: d67f9a3c83af61c4ca2507c97d32f14a, type: 3}
-  iconContainer: {fileID: 6807323997779213261}
-  playerCritCanvas: {fileID: 3555886904083856460}
-  enemyCritCanvas: {fileID: 8386604258334630241}
-  health: {fileID: 6807323996986767761}
 --- !u!114 &6807323996565836526
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2273,7 +2289,6 @@ MonoBehaviour:
   catchupTime: 0.5
   healthText: {fileID: 6807323997870787731}
   healthBar: {fileID: 6807323995909047825}
-  shieldBar: {fileID: 546062871210804995}
   _healthBarMaterial: {fileID: 2100000, guid: f3cd9ed4449d46e409cf3a1ad2bdc428, type: 2}
   baseCharacter: {fileID: 0}
   _displayDamagePercent: 0

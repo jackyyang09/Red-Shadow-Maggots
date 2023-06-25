@@ -40,6 +40,7 @@ public class CharacterUI : BaseGameUI
     [SerializeField] protected GameObject enemyCritCanvas;
     protected List<Image> iconImages = new List<Image>();
     [SerializeField] SimpleHealth health;
+    [SerializeField] ShieldUI shield;
 
     PlayerCharacter player;
     EnemyCharacter enemy;
@@ -52,6 +53,7 @@ public class CharacterUI : BaseGameUI
         nameText.text = designatedCharacter.Reference.characterName;
         levelLabel.text = character.CurrentLevel.ToString();
         health.InitializeWithCharacter(character);
+        shield.InitializeWithCharacter(character);
 
         designatedCharacter.onApplyGameEffect += AddEffectIcon;
         designatedCharacter.onRemoveGameEffect += QueueEffectIconRemoval;

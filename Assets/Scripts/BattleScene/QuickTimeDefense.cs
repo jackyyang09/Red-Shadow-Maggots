@@ -14,6 +14,8 @@ public class QuickTimeDefense : QuickTimeBase
 
     [SerializeField] float defenseBuffer = 0.1f;
 
+    [SerializeField] OptimizedCanvas helpCanvas;
+
     int attacks;
     List<AnimationEvent> animationEvents;
     List<PlayerCharacter> targetPlayers;
@@ -72,6 +74,8 @@ public class QuickTimeDefense : QuickTimeBase
 
         Enable();
         PrepareNextAttack();
+
+        helpCanvas.Show();
     }
 
     private void Update()
@@ -127,6 +131,7 @@ public class QuickTimeDefense : QuickTimeBase
                 ((PlayerCharacter)targetPlayers[i]).EndDefense();
             }
         }
+        helpCanvas.Hide();
     }
 
     public override void GetMultiplier()

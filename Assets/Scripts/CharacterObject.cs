@@ -89,6 +89,7 @@ public class CharacterObject : ScriptableObject
     }
 
     public int GetAttack(int currentLevel) => (int)Mathf.Lerp(attackRange.x, attackRange.y, (float)currentLevel / (float)MAX_LEVEL_PLAYER);
+    public float GetDefense(int currentLevel) => Mathf.Lerp(defenseRange.x, defenseRange.y, (float)currentLevel / (float)MAX_LEVEL_PLAYER);
     public int GetMaxHealth(int currentLevel, bool isEnemy)
     {
         float lerp;

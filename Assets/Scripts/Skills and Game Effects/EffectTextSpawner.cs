@@ -87,6 +87,6 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
         billboardText.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
         billboardImage.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f); 
 
-        Destroy(billboard.gameObject, numberLifetime);
+        Destroy(billboard.gameObject, numberLifetime + 0.5f);
     }
 }

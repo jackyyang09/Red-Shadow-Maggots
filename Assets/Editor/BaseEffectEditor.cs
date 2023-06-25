@@ -79,9 +79,9 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
     {
         for (int i = 0; i < gameEffects.Length; i++)
         {
-            var nullStyle = new GUIStyle(EditorStyles.label).ApplyTextAnchor(TextAnchor.MiddleCenter);
-            var buffStyle = new GUIStyle(EditorStyles.label).SetTextColor(buffColour).ApplyTextAnchor(TextAnchor.MiddleCenter);
-            var debuffStyle = new GUIStyle(EditorStyles.label).SetTextColor(debuffColour).ApplyTextAnchor(TextAnchor.MiddleCenter);
+            var nullStyle = new GUIStyle(EditorStyles.label).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
+            var buffStyle = new GUIStyle(EditorStyles.label).SetTextColor(buffColour).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
+            var debuffStyle = new GUIStyle(EditorStyles.label).SetTextColor(debuffColour).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
 
             var gameEffect = gameEffects[i];
 

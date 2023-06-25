@@ -64,26 +64,28 @@ public abstract class BaseCharacter : MonoBehaviour
     public float CurrentShield => shield;
     public float ShieldPercent => shield / maxHealth;
 
+    protected float damageAbsorption = 1;
+
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     [SerializeField] float attackModifier;
-
     public float AttackModifier => attackModifier;
-
-    public float AttackModified => characterReference.GetAttack(currentLevel) + attackModifier;
+    public float Attack => characterReference.GetAttack(currentLevel);
+    public float AttackModified => Attack + attackModifier;
 
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     [SerializeField] float defenseModifier;
+    public float DefenseModifier => defenseModifier;
+    public float Defense => characterReference.GetDefense(currentLevel);
+    public float DefenseModified => Defense + defenseModifier;
 
     public float attackLeniencyModifier;
-
     public float AttackLeniency => characterReference.attackLeniency + attackLeniencyModifier;
 
     public float defenseLeniencyModifier;
-
     public float DefenseLeniency => characterReference.defenseLeniency + defenseLeniencyModifier;
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
@@ -502,7 +504,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual float CalculateDefenseDamage(float damage)
     {
-        return Mathf.Clamp(damage * (1 - defenseModifier), 1, int.MaxValue);
+        return Mathf.Max(1, damage * damageAbsorption);
     }
 
     public virtual void UseSkill(GameSkill skill)
@@ -872,6 +874,11 @@ public abstract class BaseCharacter : MonoBehaviour
         defenseModifier += modifier;
     }
 
+    public void ApplyDamageAbsorptionModifier(float modifier)
+    {
+        damageAbsorption += modifier;
+    }
+
     public void ApplyCritChanceModifier(float modifier)
     {
         critChanceModifier += Mathf.Max(modifier, 0);
@@ -920,10 +927,37 @@ public abstract class BaseCharacter : MonoBehaviour
         if (damage.isCritical) damage.damage *= damage.critDamageModifier;
 
         float trueDamage = CalculateDefenseDamage(damage.damage);
+        float shieldedDamage = 0;
+
+        if (shield > 0)
+        {
+            var shielding = shield / (1 - DefenseModified);
+            if (shielding >= trueDamage)
+            {
+                shield -= trueDamage * (1 - DefenseModified);
+                shieldedDamage = trueDamage;
+                trueDamage = 0;
+            }
+            else
+            {
+                shieldedDamage = shield;
+                shield = 0;
+                trueDamage -= shielding;
+            }
+        }
+
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
         damage.damage = trueDamage;
 
-        DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage);
+        if (trueDamage > 0)
+        {
+            DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, 0);
+        }
+        else if (shieldedDamage > 0)
+        {
+            DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, (int)shieldedDamage);
+        }
+
         if (rigAnim)
         {
             bool blocked = true;
@@ -943,7 +977,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 rigAnim.Play("Block Reaction");
             }
-            else
+            else if (trueDamage > 0)
             {
                 rigAnim.Play("Hit Reaction");
             }
@@ -956,7 +990,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         onTakeDamage?.Invoke(trueDamage);
-        OnCharacterReceivedDamage?.Invoke(this, trueDamage);
+        OnCharacterReceivedDamage?.Invoke(this, trueDamage + shieldedDamage);
 
         if (health == 0 && CanDie)
         {

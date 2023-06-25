@@ -47,7 +47,10 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
         var skillDescriptions = targetObject.GetSkillDescriptions();
 
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         RenderEffectDescriptions(targetObject.gameEffects, skillDescriptions);
+        EditorGUILayout.EndVertical();
+
         RenderEffectProperties(targetObject.gameEffects, gameEffects);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();

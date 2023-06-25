@@ -11,7 +11,7 @@ public class BaseDefenceBuff : BaseGameEffect
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyDefenseModifier(percentageChange);
+        target.ApplyDamageAbsorptionModifier(percentageChange);
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -20,7 +20,7 @@ public class BaseDefenceBuff : BaseGameEffect
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyDefenseModifier(-percentageChange);
+        target.ApplyDamageAbsorptionModifier(-percentageChange);
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
