@@ -55,8 +55,9 @@ public class CharacterUI : BaseGameUI
         health.InitializeWithCharacter(character);
         shield.InitializeWithCharacter(character);
 
-        designatedCharacter.onApplyGameEffect += AddEffectIcon;
-        designatedCharacter.onRemoveGameEffect += QueueEffectIconRemoval;
+        designatedCharacter.OnApplyGameEffect += AddEffectIcon;
+        designatedCharacter.OnRemoveGameEffect += QueueEffectIconRemoval;
+        designatedCharacter.OnRemoveGameEffectImmediate += RemoveEffectImmediately;
         designatedCharacter.onDeath.AddListener(SelfDestruct);
 
         enemy = designatedCharacter as EnemyCharacter;
@@ -103,8 +104,9 @@ public class CharacterUI : BaseGameUI
     {
         if (designatedCharacter)
         {
-            designatedCharacter.onApplyGameEffect -= AddEffectIcon;
-            designatedCharacter.onRemoveGameEffect -= QueueEffectIconRemoval;
+            designatedCharacter.OnApplyGameEffect -= AddEffectIcon;
+            designatedCharacter.OnRemoveGameEffect -= QueueEffectIconRemoval;
+            designatedCharacter.OnRemoveGameEffectImmediate -= RemoveEffectImmediately;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);
         }
 
@@ -200,6 +202,12 @@ public class CharacterUI : BaseGameUI
         effects.Remove(obj);
     }
 
+    private void RemoveEffectImmediately(AppliedEffect obj)
+    {
+        QueueEffectIconRemoval(obj);
+        RemoveEffects();
+    }
+
     void UpdateEffectIcons(int index = -1)
     {
         if (index == -1)
@@ -221,6 +229,7 @@ public class CharacterUI : BaseGameUI
             Destroy(iconImages[indicesToRemove[i]].gameObject);
             iconImages.RemoveAt(indicesToRemove[i]);
         }
+        indicesToRemove.Clear();
     }
 
     void SelfDestruct()

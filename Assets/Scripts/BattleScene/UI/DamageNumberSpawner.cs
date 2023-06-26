@@ -19,10 +19,11 @@ public class DamageNumberSpawner : BasicSingleton<DamageNumberSpawner>
     [SerializeField] float numberFadeDelay = 1;
     [SerializeField] float numberFadeTime = 0.5f;
 
+    [SerializeField] float delayedSpawnDelay = 0.5f;
+
     [SerializeField] float verticalMovement = 0.5f;
 
     [SerializeField] GameObject[] damageNumberPrefabs;
-    [SerializeField]
 
     public void SpawnDamageNumberAt(Transform t, DamageStruct damage, int shieldedDamage)
     {
@@ -30,30 +31,17 @@ public class DamageNumberSpawner : BasicSingleton<DamageNumberSpawner>
         var dmgNumber = number.GetComponent<DamageNumber>();
 
         dmgNumber.Initialize(cam, t, (int)damage.damage, shieldedDamage);
-        //var billboard = number.GetComponent<ViewportBillboard>();
-        //billboard.EnableWithSettings(cam, t);
-        //
-        //TMPro.TextMeshProUGUI[] texts = number.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
-        //
-        //TMPro.TextMeshProUGUI numberText = texts[0];
-        //
-        //numberText.text = "-" + ((int)damage.damage).ToString();
-        //
-        //if (damage.isCritical)
-        //{
-        //    var criticalText = EffectTextSpawner.Instance.SpawnCriticalHitAt(number.transform).GetComponentInChildren<TMPro.TextMeshProUGUI>();
-        //    criticalText.DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
-        //}
-        //
-        //DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + verticalMovement, numberLifetime).SetEase(Ease.OutCubic);
-        //
-        //numberText.DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
-        //// Tween effectiveness if it exists
-        //if (texts.Length > 1)
-        //{
-        //    texts[1].DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
-        //}
-        //
-        //Destroy(number, numberLifetime);
+    }
+
+    public void SpawnDamageNumberDelayed(Transform t, DamageStruct damage, int shieldedDamage)
+    {
+        StartCoroutine(DelayedSpawn(t, damage, shieldedDamage, delayedSpawnDelay));
+    }
+
+    IEnumerator DelayedSpawn(Transform t, DamageStruct damage, int shieldedDamage, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        SpawnDamageNumberAt(t, damage, shieldedDamage);
     }
 }

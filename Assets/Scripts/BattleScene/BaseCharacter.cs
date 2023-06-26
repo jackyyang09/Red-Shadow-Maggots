@@ -167,11 +167,13 @@ public abstract class BaseCharacter : MonoBehaviour
     protected bool usedSuperCritThisTurn;
     public bool UsedSuperCritThisTurn => usedSuperCritThisTurn;
 
-    public Action<AppliedEffect> onApplyGameEffect;
-    public Action<AppliedEffect> onRemoveGameEffect;
+    public Action<AppliedEffect> OnApplyGameEffect;
+    public Action<AppliedEffect> OnRemoveGameEffect;
+    public Action<AppliedEffect> OnRemoveGameEffectImmediate;
 
     public Action onHeal;
     public Action OnShielded;
+    public Action OnShieldBroken;
 
     /// <summary>
     /// Only invoked when changing health through abnormal means
@@ -797,16 +799,23 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         AppliedEffects[newEffect.referenceEffect].Add(newEffect);
-        onApplyGameEffect?.Invoke(newEffect);
+        OnApplyGameEffect?.Invoke(newEffect);
     }
 
-    public void RemoveAllEffectsOfType(BaseGameEffect effect)
+    public void RemoveAllEffectsOfType(BaseGameEffect effect, bool immediate = false)
     {
         if (!AppliedEffects.ContainsKey(effect)) return;
 
         for (int i = AppliedEffects[effect].Count - 1; i > -1; i--)
         {
-            onRemoveGameEffect?.Invoke(AppliedEffects[effect][i]);
+            if (immediate)
+            {
+                OnRemoveGameEffectImmediate?.Invoke(AppliedEffects[effect][i]);
+            }
+            else
+            {
+                OnRemoveGameEffect?.Invoke(AppliedEffects[effect][i]);
+            }
             AppliedEffects[effect].RemoveAt(i);
         }
     }
@@ -827,7 +836,7 @@ public abstract class BaseCharacter : MonoBehaviour
             if (!AppliedEffects[effect][0].Tick()) // Check if still active after ticking
             {
                 // Remove the effect
-                onRemoveGameEffect?.Invoke(AppliedEffects[effect][0]);
+                OnRemoveGameEffect?.Invoke(AppliedEffects[effect][0]);
                 AppliedEffects[effect].RemoveAt(0);
             }
         }
@@ -838,7 +847,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
             for (int i = 0; i < diff.Count; i++)
             {
-                onRemoveGameEffect?.Invoke(diff.ElementAt(i));
+                OnRemoveGameEffect?.Invoke(diff.ElementAt(i));
             }
 
             AppliedEffects[effect] = newList;
@@ -949,12 +958,19 @@ public abstract class BaseCharacter : MonoBehaviour
         health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
         damage.damage = trueDamage;
 
+        DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, (int)shieldedDamage);
+
         if (trueDamage > 0)
         {
-            DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, 0);
             if (shieldedDamage > 0)
             {
-                Debug.Log("SHIELD BROKEN!");
+                DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, (int)shieldedDamage);
+                DamageNumberSpawner.Instance.SpawnDamageNumberDelayed(transform, damage, 0);
+                OnShieldBroken?.Invoke();
+            }
+            else
+            {
+                DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, 0);
             }
         }
         else if (shieldedDamage > 0)

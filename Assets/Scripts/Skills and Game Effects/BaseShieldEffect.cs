@@ -12,6 +12,9 @@ public class BaseShieldEffect : BaseGameEffect
     }
 
     [SerializeField] ScalingStat stat;
+    [SerializeField] GameObject forceFieldPrefab;
+    BaseCharacter targetCharacter;
+    ForceFieldFX forceFieldInstance;
 
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
@@ -26,6 +29,25 @@ public class BaseShieldEffect : BaseGameEffect
                 target.GiveShield(user.AttackModified * user.DefenseModified * percentageChange);
                 break;
         }
+
+        targetCharacter = target;
+
+        forceFieldInstance = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
+        forceFieldInstance.Initialize(target);
+
+        target.OnShieldBroken += OnShieldBroken;
+    }
+
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+        base.OnExpire(user, target, strength, customValues);
+        Destroy(forceFieldInstance.gameObject);
+    }
+
+    void OnShieldBroken()
+    {
+        targetCharacter.RemoveAllEffectsOfType(this, true);
+        Destroy(forceFieldInstance.gameObject);
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
