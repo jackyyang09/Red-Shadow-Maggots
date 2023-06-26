@@ -47,7 +47,7 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 
         portrait.sprite = character.Reference.headshotSprite;
 
-        int modifiedAttack = (int)(character.AttackModifier);
+        int modifiedAttack = (int)(character.AttackModified - character.Attack);
         attack.text = (character.AttackModified).ToString();
         if (character.AttackModifier > 0)
         {

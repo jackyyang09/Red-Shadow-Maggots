@@ -66,21 +66,21 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected float damageAbsorption = 1;
 
+    float attackModifier = 1;
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
-    [SerializeField] float attackModifier;
     public float AttackModifier => attackModifier;
     public float Attack => characterReference.GetAttack(currentLevel);
-    public float AttackModified => Attack + attackModifier;
+    public float AttackModified => Attack * attackModifier;
 
+    float defenseModifier = 1;
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
-    [SerializeField] float defenseModifier;
     public float DefenseModifier => defenseModifier;
     public float Defense => characterReference.GetDefense(currentLevel);
-    public float DefenseModified => Defense + defenseModifier;
+    public float DefenseModified => Defense * defenseModifier;
 
     public float attackLeniencyModifier;
     public float AttackLeniency => characterReference.attackLeniency + attackLeniencyModifier;
@@ -952,6 +952,10 @@ public abstract class BaseCharacter : MonoBehaviour
         if (trueDamage > 0)
         {
             DamageNumberSpawner.Instance.SpawnDamageNumberAt(transform, damage, 0);
+            if (shieldedDamage > 0)
+            {
+                Debug.Log("SHIELD BROKEN!");
+            }
         }
         else if (shieldedDamage > 0)
         {
