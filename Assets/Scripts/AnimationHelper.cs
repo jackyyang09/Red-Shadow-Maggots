@@ -178,13 +178,13 @@ public class AnimationHelper : MonoBehaviour
         DarkenSky();
         AudioManager.PlaySound(BattleSceneSounds.SuperCritical);
     }
-
+    
+    // TODO: Consider merging this with FinishSuperCritAttack()
     public void EndSuperCritical()
     {
         HideVirtualCamera();
     }
 
-    // TODO: Try the priority system instead
     public void ShowVirtualCamera() => vCam.enabled = true;
     public void HideVirtualCamera() => vCam.enabled = false;
 

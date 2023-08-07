@@ -305,9 +305,11 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
+                playerCam.enabled = true;
                 playerCam.m_LookAt = battleSystem.ActivePlayer.transform;
                 break;
             case BattlePhases.EnemyTurn:
+                enemyCam.enabled = true;
                 enemyCam.m_LookAt = battleSystem.ActiveEnemy.transform;
                 break;
         }
@@ -395,8 +397,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 activeEnemy.transform.position = savedPosition;
                 break;
         }
-
-        battleSystem.EndTurn();
     }
 
     public void WaveClearSequence()
