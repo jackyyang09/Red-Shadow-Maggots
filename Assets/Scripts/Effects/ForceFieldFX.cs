@@ -7,8 +7,8 @@ using DG.Tweening;
 public class ForceFieldFX : MonoBehaviour
 {
     [Header("Properties")]
-    [SerializeField] float idleAlpha;
-    [SerializeField] float hitAlpha;
+    [SerializeField] Vector2 alphaRange;
+    [SerializeField] Vector2 fresnelRange;
     [SerializeField] float tweenTime = 0.5f;
 
     [Header("Object References")]
@@ -16,6 +16,7 @@ public class ForceFieldFX : MonoBehaviour
     Material mat;
 
     int alphaStrengthID;
+    int fresnelID;
 
     BaseCharacter character;
 
@@ -23,9 +24,10 @@ public class ForceFieldFX : MonoBehaviour
     void Start()
     {
         alphaStrengthID = Shader.PropertyToID("_AlphaStrength");
+        fresnelID = Shader.PropertyToID("_FresnelPower");
 
         mat = renderer.material;
-        mat.SetFloat(alphaStrengthID, idleAlpha);
+        mat.SetFloat(alphaStrengthID, alphaRange.x);
     }
 
     public void Initialize(BaseCharacter character)
@@ -44,8 +46,10 @@ public class ForceFieldFX : MonoBehaviour
     private void OnTakeDamage(float obj)
     {
         if (!mat) return;
-        mat.SetFloat(alphaStrengthID, hitAlpha);
-        mat.DOFloat(idleAlpha, alphaStrengthID, tweenTime);
+        mat.SetFloat(alphaStrengthID, alphaRange.y);
+        mat.SetFloat(fresnelID, fresnelRange.y);
+        mat.DOFloat(alphaRange.x, alphaStrengthID, tweenTime);
+        mat.DOFloat(fresnelRange.x, fresnelID, tweenTime);
     }
 
     private void OnDestroy()

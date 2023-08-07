@@ -461,12 +461,18 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void FinishSuperCritAttack()
     {
-        //switch (Reference.superCritRange)
-        //{
-        //    case AttackRange.CloseRange:
-        //        sceneTweener.TeleportBackToPosition();
-        //        break;
-        //}
+        switch (Reference.tweenBackStyle)
+        {
+            case TweenBackType.None:
+                sceneTweener.RotateBack();
+                break;
+            case TweenBackType.Teleport:
+                sceneTweener.TeleportBackToPosition();
+                break;
+            case TweenBackType.Jump:
+                sceneTweener.ReturnToPosition();
+                break;
+        }
 
         animHelper.DisableCrits();
 

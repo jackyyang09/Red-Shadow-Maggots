@@ -19,7 +19,9 @@
         CritPower,
         CanteenDrop,
         CanteenGrab,
-        CanteenUse
+        CanteenUse,
+        ShieldHit,
+        ShieldActivate
     }
     public enum BattleSceneMusic {
         BattleTheme,

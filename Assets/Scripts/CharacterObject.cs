@@ -13,6 +13,13 @@ public enum AttackRange
     LongRange
 }
 
+public enum TweenBackType
+{
+    None,
+    Teleport,
+    Jump
+}
+
 public enum CharacterClass
 {
     Offense,
@@ -147,6 +154,7 @@ public class CharacterObject : ScriptableObject
     public AnimationClip superCriticalAnim;
     public bool isSuperCriticalAnAttack;
     public AttackRange superCritRange;
+    public TweenBackType tweenBackStyle;
 
     [Header("Animation Properties")]
     public GameObject spriteObject;
