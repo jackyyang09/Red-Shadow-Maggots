@@ -147,19 +147,19 @@ public class QuickTimeDefense : QuickTimeBase
 
         if (missed)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barMissValue;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Late;
+            BaseCharacter.IncomingDamage.DamageNormalized = barMissValue;
+            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Late;
         }
         else if (timeDiff <= window)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = barSuccessValue;
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Perfect;
+            BaseCharacter.IncomingDamage.DamageNormalized = barSuccessValue;
+            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Perfect;
             GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (!missed)
         {
-            BaseCharacter.IncomingDamage.damageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, window, timeDiff));
-            BaseCharacter.IncomingDamage.qteResult = QTEResult.Early;
+            BaseCharacter.IncomingDamage.DamageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, window, timeDiff));
+            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Early;
         }
     }
 

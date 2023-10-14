@@ -50,7 +50,7 @@ public class QuickTimeBar : QuickTimeBase
 
     void BonusFeedback()
     {
-        if (BaseCharacter.IncomingDamage.qteResult == QTEResult.Perfect)
+        if (BaseCharacter.IncomingDamage.QTEResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
         }
@@ -99,32 +99,32 @@ public class QuickTimeBar : QuickTimeBase
         var dmg = BaseCharacter.IncomingDamage;
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            dmg.damageNormalized = barSuccessValue;
-            dmg.damageType = DamageType.Heavy;
-            dmg.qteResult = QTEResult.Perfect;
+            dmg.DamageNormalized = barSuccessValue;
+            dmg.DamageType = DamageType.Heavy;
+            dmg.QTEResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            dmg.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            dmg.damageType = DamageType.Medium;
-            dmg.qteResult = QTEResult.Early;
+            dmg.DamageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.DamageType = DamageType.Medium;
+            dmg.QTEResult = QTEResult.Early;
         }
         else
         {
-            dmg.damageNormalized = barMissValue;
-            dmg.damageType = DamageType.Light;
-            dmg.qteResult = QTEResult.Late;
+            dmg.DamageNormalized = barMissValue;
+            dmg.DamageType = DamageType.Light;
+            dmg.QTEResult = QTEResult.Late;
         }
 
         if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
         {
-            dmg.damageType -= DamageType.Heavy;
-            dmg.damageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.damageType);
+            dmg.DamageType -= DamageType.Heavy;
+            dmg.DamageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.DamageType);
         }
 
-        dmg.barFill = fillBar.fillAmount;
+        dmg.BarFill = fillBar.fillAmount;
         BaseCharacter.IncomingDamage = dmg;
     }
 }

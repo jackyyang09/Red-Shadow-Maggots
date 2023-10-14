@@ -40,6 +40,7 @@ public class SimpleHealth : MonoBehaviour
 
         baseCharacter = character;
         baseCharacter.onTakeDamage += OnTakeDamage;
+        baseCharacter.onConsumeHealth += OnTakeDamage;
         baseCharacter.onSetHealth += OnSetHealth;
         baseCharacter.onHeal += OnHeal;
 
@@ -62,6 +63,7 @@ public class SimpleHealth : MonoBehaviour
     {
         if (!baseCharacter) return;
         baseCharacter.onTakeDamage -= OnTakeDamage;
+        baseCharacter.onConsumeHealth -= OnTakeDamage;
         baseCharacter.onSetHealth -= OnSetHealth;
         baseCharacter.onHeal -= OnHeal;
     }

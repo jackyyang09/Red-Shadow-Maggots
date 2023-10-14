@@ -57,7 +57,7 @@ public class QuickTimeHold : QuickTimeBase
 
     void BonusFeedback()
     {
-        if (BaseCharacter.IncomingDamage.qteResult == QTEResult.Perfect)
+        if (BaseCharacter.IncomingDamage.QTEResult == QTEResult.Perfect)
         {
             backgroundBar.rectTransform.DOPunchScale(new Vector3().NewUniformVector3(0.075f), 0.25f);
             gaugeArrow.DORotate(new Vector3(0, 0, successSpinCount * -360), successSpinTime, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuart);
@@ -155,23 +155,23 @@ public class QuickTimeHold : QuickTimeBase
 
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            dmg.damageNormalized = barSuccessValues[barLevel];
-            dmg.damageType = DamageType.Heavy;
-            dmg.qteResult = QTEResult.Perfect;
+            dmg.DamageNormalized = barSuccessValues[barLevel];
+            dmg.DamageType = DamageType.Heavy;
+            dmg.QTEResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            dmg.damageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
-            dmg.damageType = DamageType.Medium;
-            dmg.qteResult = QTEResult.Early;
+            dmg.DamageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.DamageType = DamageType.Medium;
+            dmg.QTEResult = QTEResult.Early;
         }
         else
         {
-            dmg.damageNormalized = barMissValue;
-            dmg.damageType = DamageType.Light;
-            dmg.qteResult = QTEResult.Late;
+            dmg.DamageNormalized = barMissValue;
+            dmg.DamageType = DamageType.Light;
+            dmg.QTEResult = QTEResult.Late;
         }
 
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.EnemyTurn)
@@ -182,18 +182,18 @@ public class QuickTimeHold : QuickTimeBase
 
         if (AlwaysSucceed)
         {
-            dmg.barFill = fillBar.fillAmount;
-            dmg.damageNormalized = barSuccessValues[barLevel];
-            dmg.damageType = DamageType.Heavy;
-            dmg.qteResult = QTEResult.Perfect;
-            dmg.chargeLevel = 2;
+            dmg.BarFill = fillBar.fillAmount;
+            dmg.DamageNormalized = barSuccessValues[barLevel];
+            dmg.DamageType = DamageType.Heavy;
+            dmg.QTEResult = QTEResult.Perfect;
+            dmg.ChargeLevel = 2;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
             else GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else
         {
-            dmg.barFill = fillBar.fillAmount;
-            dmg.chargeLevel = barLevel;
+            dmg.BarFill = fillBar.fillAmount;
+            dmg.ChargeLevel = barLevel;
         }
         BaseCharacter.IncomingDamage = dmg;
     }

@@ -229,8 +229,8 @@ public class EnemyCharacter : BaseCharacter
 
         if (CanCrit)
         {
-            IncomingDamage.isSuperCritical = true;
-            IncomingDamage.isCritical = true;
+            IncomingDamage.IsSuperCritical = true;
+            IncomingDamage.IsCritical = true;
         }
 
         QuickTimeBase.OnExecuteAnyQuickTime -= ExecuteAttack;

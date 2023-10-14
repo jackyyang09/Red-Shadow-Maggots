@@ -110,6 +110,9 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
 
     protected void RenderEffectProperties(EffectProperties[] gameEffects, SerializedProperty effectsProp)
     {
+        EditorGUILayout.PropertyField(effectsProp);
+        return;
+
         gameEffectsFoldout = EditorGUILayout.Foldout(gameEffectsFoldout, effectsProp.GUIContent());
         //gameEffectsFoldout = EditorGUILayout.BeginFoldoutHeaderGroup(gameEffectsFoldout, gameEffects.GUIContent());
         if (gameEffectsFoldout && Selection.objects.Length == 1)

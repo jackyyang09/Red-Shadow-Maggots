@@ -705,7 +705,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         for (int i = 0; i < Instance.PlayerCharacters.Length; i++)
         {
             if (!Instance.PlayerCharacters[i]) continue;
-            BaseCharacter.IncomingDamage.damage = Instance.playerCharacters[i].CurrentHealth - 1;
+            BaseCharacter.IncomingDamage.TrueDamage = Instance.playerCharacters[i].CurrentHealth - 1;
             Instance.playerCharacters[i].TakeDamage();
         }
 

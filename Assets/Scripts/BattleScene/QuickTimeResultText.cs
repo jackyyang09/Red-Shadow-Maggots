@@ -34,13 +34,13 @@ public class QuickTimeResultText : MonoBehaviour
     {
         RectTransform rect = transform as RectTransform;
         rect.anchoredPosition = new Vector2(
-            Mathf.Lerp(positionRange.x, positionRange.y, result.barFill),
+            Mathf.Lerp(positionRange.x, positionRange.y, result.BarFill),
             rect.anchoredPosition.y);
 
-        var text = Instantiate(resultTextPrefabs[(int)result.qteResult], transform).GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        var text = Instantiate(resultTextPrefabs[(int)result.QTEResult], transform).GetComponentInChildren<TMPro.TextMeshProUGUI>();
         RectTransform textRect = text.rectTransform;
 
-        if (result.qteResult == QuickTimeBase.QTEResult.Perfect)
+        if (result.QTEResult == QuickTimeBase.QTEResult.Perfect)
         {
             textRect.DOPunchScale(Vector3.one * 1.25f, 0.5f, 0, 0).SetEase(Ease.OutCubic);
         }

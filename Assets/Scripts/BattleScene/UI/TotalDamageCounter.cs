@@ -26,14 +26,15 @@ public class TotalDamageCounter : BasicSingleton<TotalDamageCounter>
         BattleSystem.OnEndPhase[(int)BattlePhases.EnemyTurn] -= HideUI;
     }
 
-    void AddDamage(BaseCharacter character, float d)
+    void AddDamage(BaseCharacter character, DamageStruct damage)
     {
+        float damageCount = 0;
         if (!canvas.IsVisible)
         {
-            damage = 0;
+            damageCount = 0;
             canvas.Show();
         }
-        damage += d;
-        damageLabel.text = ((int)damage).ToString();
+        damageCount += damage.TotalDamage;
+        damageLabel.text = ((int)damageCount).ToString();
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
 
 public enum DamageType
 {
@@ -25,12 +26,44 @@ public class DamageNumberSpawner : BasicSingleton<DamageNumberSpawner>
 
     [SerializeField] GameObject[] damageNumberPrefabs;
 
+    private void OnEnable()
+    {
+        BaseCharacter.OnCharacterReceivedDamage += OnCharacterReceivedDamage;
+        BaseCharacter.OnCharacterConsumedHealth += OnCharacterReceivedDamage;
+    }
+
+    private void OnDisable()
+    {
+        BaseCharacter.OnCharacterReceivedDamage -= OnCharacterReceivedDamage;
+        BaseCharacter.OnCharacterConsumedHealth -= OnCharacterReceivedDamage;
+    }
+
+    private void OnCharacterReceivedDamage(BaseCharacter character, DamageStruct damage)
+    {
+        if (damage.TrueDamage > 0)
+        {
+            if (damage.ShieldedDamage > 0)
+            {
+                SpawnDamageNumberAt(character.transform, damage, (int)damage.ShieldedDamage);
+                SpawnDamageNumberDelayed(character.transform, damage, 0);
+            }
+            else
+            {   
+                SpawnDamageNumberAt(character.transform, damage, 0);
+            }
+        }
+        else if (damage.ShieldedDamage > 0)
+        {
+            SpawnDamageNumberAt(character.transform, damage, (int)damage.ShieldedDamage);
+        }
+    }
+
     public void SpawnDamageNumberAt(Transform t, DamageStruct damage, int shieldedDamage)
     {
-        GameObject number = Instantiate(damageNumberPrefabs[(int)damage.effectivity], transform.GetChild(0));
+        GameObject number = Instantiate(damageNumberPrefabs[(int)damage.Effectivity], transform.GetChild(0));
         var dmgNumber = number.GetComponent<DamageNumber>();
 
-        dmgNumber.Initialize(cam, t, (int)damage.damage, shieldedDamage);
+        dmgNumber.Initialize(cam, t, (int)damage.TrueDamage, shieldedDamage);
     }
 
     public void SpawnDamageNumberDelayed(Transform t, DamageStruct damage, int shieldedDamage)

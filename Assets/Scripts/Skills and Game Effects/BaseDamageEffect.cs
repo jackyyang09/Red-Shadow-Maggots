@@ -5,6 +5,17 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Damage Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
 public class BaseDamageEffect : BaseGameEffect
 {
+    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+        base.Activate(user, target, strength, customValues);
+
+        DamageStruct damageStruct = new DamageStruct();
+        damageStruct.Percentage = 1;
+        damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+        damageStruct.Effectivity = DamageEffectivess.Normal;
+        target.ConsumeHealth(damageStruct);
+    }
+
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float change = (float)GetEffectStrength(strength, customValues);
@@ -26,7 +37,7 @@ public class BaseDamageEffect : BaseGameEffect
                 break;
         }
 
-        s += change + "% health ";
+        s += change * 100 + "% health of your max health";
 
         return s;
     }

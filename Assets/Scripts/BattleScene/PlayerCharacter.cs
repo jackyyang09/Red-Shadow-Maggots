@@ -20,7 +20,7 @@ public class PlayerCharacter : BaseCharacter
         get
         { 
             return base.CritChanceModified + canteenCharge +
-                System.Convert.ToInt32(IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
+                System.Convert.ToInt32(IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
         }
     }
 
@@ -201,11 +201,11 @@ public class PlayerCharacter : BaseCharacter
             switch (Reference.attackQteType)
             {
                 case QTEType.SimpleBar:
-                    if (IncomingDamage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
+                    if (IncomingDamage.IsSuperCritical) rigAnim.SetInteger("Charge Level", 4);
                     rigAnim.Play("Attack Execute");
                     break;
                 case QTEType.Hold:
-                    if (IncomingDamage.qteResult != QuickTimeBase.QTEResult.Perfect)
+                    if (IncomingDamage.QTEResult != QuickTimeBase.QTEResult.Perfect)
                     {
                         rigAnim.SetInteger("Charge Level", 0);
                         rigAnim.SetTrigger("Attack Execute");
@@ -214,7 +214,7 @@ public class PlayerCharacter : BaseCharacter
                     {
                         Invoke(nameof(ExecuteDelayedAttack), SPECIAL_ATTACK_DELAY);
                     }
-                    if (IncomingDamage.isSuperCritical)
+                    if (IncomingDamage.IsSuperCritical)
                     {
                         rigAnim.SetInteger("Charge Level", 4);
                         rigAnim.SetTrigger("Attack Execute");
@@ -230,7 +230,7 @@ public class PlayerCharacter : BaseCharacter
 
     public void ExecuteDelayedAttack()
     {
-        rigAnim.SetInteger("Charge Level", IncomingDamage.chargeLevel);
+        rigAnim.SetInteger("Charge Level", IncomingDamage.ChargeLevel);
         rigAnim.SetTrigger("Attack Execute");
     }
 

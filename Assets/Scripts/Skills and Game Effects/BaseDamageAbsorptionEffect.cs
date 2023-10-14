@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Defence Buff", menuName = "ScriptableObjects/Game Effects/Defence", order = 1)]
-public class BaseDefenceBuff : BaseGameEffect
+[CreateAssetMenu(fileName = "Damage Absorption Effect", menuName = "ScriptableObjects/Game Effects/Damage Absorption", order = 1)]
+public class BaseDamageAbsorptionEffect : BaseGameEffect
 {
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {

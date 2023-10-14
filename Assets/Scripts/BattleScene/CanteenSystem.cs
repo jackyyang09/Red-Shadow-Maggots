@@ -80,13 +80,13 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
 
     private void AddQTECritBonus()
     {
-        if (BaseCharacter.IncomingDamage.qteResult == QuickTimeBase.QTEResult.Perfect)
+        if (BaseCharacter.IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect)
         {
             AddCanteenCharge(BattleSystem.QuickTimeCritModifier);
         }
-        else if (BaseCharacter.IncomingDamage.source)
+        else if (BaseCharacter.IncomingDamage.Source)
         {
-            switch (BaseCharacter.IncomingDamage.source.Reference.characterClass)
+            switch (BaseCharacter.IncomingDamage.Source.Reference.characterClass)
             {
                 case CharacterClass.Offense:
                     AddCanteenCharge(BattleSystem.QuickTimeCritModifier * 0.5f);

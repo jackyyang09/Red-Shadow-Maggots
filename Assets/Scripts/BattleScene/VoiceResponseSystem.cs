@@ -126,7 +126,7 @@ public class VoiceResponseSystem : MonoBehaviour
     {
         var audio = character.Reference.weaponSound;
         AudioManager.PlaySound(audio);
-        if (damage.isCritical) AudioManager.PlaySound(BattleSceneSounds.HitCritical);
+        if (damage.IsCritical) AudioManager.PlaySound(BattleSceneSounds.HitCritical);
     }
 
     private void CharacterDeath(BaseCharacter character)

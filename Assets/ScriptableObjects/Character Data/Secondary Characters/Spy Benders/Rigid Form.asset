@@ -14,11 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillName: Rigid Form
   skillDescription: []
-  sprite: {fileID: 21300000, guid: 906f298bd6d108c4dbdb8e5090b90db1, type: 3}
-  targetMode: 4
-  skillCooldown: 0
+  sprite: {fileID: 21300000, guid: 6f2e4f5f1e2885740ab1891c523c4e3b, type: 3}
+  targetMode: 5
+  skillCooldown: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: 93c0c505074daf7499074166aabe2dc7, type: 2}
+  - effect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
+    effectDuration: 3
+    targetOverride: 3
+    strength: 1
+    customValues: []
+  - effect: {fileID: 11400000, guid: 4f1e08f41e5298843878353fc5cf3f32, type: 2}
+    effectDuration: 3
+    targetOverride: 0
+    strength: 3
+    customValues: []
+  - effect: {fileID: 11400000, guid: 201137323f285fa42a49d7b4a8380df0, type: 2}
     effectDuration: 3
     targetOverride: 0
     strength: 3
