@@ -157,6 +157,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
     int moveCount = 0;
+    public int MoveCount => moveCount;
+    public void SetMoveCount(int newCount) => moveCount = newCount;
 
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
@@ -216,7 +218,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             characterLoader.LoadAllPlayerCharacters();
             yield return new WaitUntil(() => characterLoader.PlayersLoaded && characterLoader.EnemiesLoaded);
-            LoadBattleState();
+            gameManager.LoadBattleState();
         }
 
         // Initialize turn order
@@ -428,7 +430,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
 
-        SaveBattleState();
+        gameManager.SaveBattleState();
 
         ui.ShowBattleUI();
     }
@@ -520,7 +522,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (lastPhase == BattlePhases.EnemyTurn)
             {
                 yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
-                SaveBattleState();
+                gameManager.SaveBattleState();
                 OnEndTurn?.Invoke();
             }
 
@@ -624,103 +626,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         OnFinishTickingEffects?.Invoke();
     }
 
-    void LoadBattleState()
-    {
-        gameManager.TurnCount = BattleData.TurnCount;
-        moveCount = BattleData.MoveCount;
-        canteenSystem.SetCanteenCharge(BattleData.StoredCharge);
-        if (enemyController.Enemies[BattleData.SelectedEnemy].IsDead)
-        {
-            SetActiveEnemy(enemyController.RandomEnemy);
-        }
-        else
-        {
-            SetActiveEnemy(enemyController.Enemies[BattleData.SelectedEnemy]);
-        }
-    }
-
-    void SaveBattleState()
-    {
-        if (gachaSystem.LegacyMode)
-        {
-            Debug.Log("Gacha System is in Legacy Mode, not saving");
-            return;
-        }
-
-        var partyData = new List<BattleState.PlayerState>();
-        var waveData = new List<BattleState.EnemyState>();
-
-        var seed = (int)System.DateTime.Now.Ticks;
-        BattleData.SavedSeed = seed;
-
-        for (int i = 0; i < playerCharacters.Length; i++)
-        {
-            BattleState.PlayerState p = null;
-            var player = playerCharacters[i];
-            if (player)
-            {
-                p = new BattleState.PlayerState();
-                p.Health = player.CurrentHealth;
-                p.Effects = new List<BattleState.SerializedEffect>();
-
-                BaseGameEffect[] keys = new BaseGameEffect[player.AppliedEffects.Keys.Count];
-                player.AppliedEffects.Keys.CopyTo(keys, 0);
-                for (int j = 0; j < keys.Length; j++)
-                {
-                    for (int l = 0; l < player.AppliedEffects[keys[j]].Count; l++)
-                    {
-                        var se = gameEffectLoader.SerializeGameEffect(player.AppliedEffects[keys[j]][l]);
-                        p.Effects.Add(se);
-                    }
-                }
-
-                p.Cooldowns = new int[2];
-                for (int j = 0; j < 2; j++)
-                {
-                    p.Cooldowns[j] = player.Skills[j].cooldownTimer;
-                }
-            }
-
-            partyData.Add(p);
-        }
-
-        for (int i = 0; i < enemyController.Enemies.Length; i++)
-        {
-            BattleState.EnemyState d = null;
-            var enemy = enemyController.Enemies[i];
-            if (enemy)
-            {
-                d = new BattleState.EnemyState();
-                d.Health = enemy.CurrentHealth;
-                d.Crit = enemy.CritLevel;
-                d.Effects = new List<BattleState.SerializedEffect>();
-
-                BaseGameEffect[] keys = new BaseGameEffect[enemy.AppliedEffects.Keys.Count];
-                enemy.AppliedEffects.Keys.CopyTo(keys, 0);
-                for (int j = 0; j < keys.Length; j++)
-                {
-                    for (int l = 0; l < enemy.AppliedEffects[keys[j]].Count; l++)
-                    {
-                        var se = gameEffectLoader.SerializeGameEffect(enemy.AppliedEffects[keys[j]][l]);
-                        d.Effects.Add(se);
-                    }
-                }
-            }
-
-            waveData.Add(d);
-        }
-
-        BattleData.PlayerStates = partyData;
-        BattleData.EnemyStates = waveData;
-
-        BattleData.StoredCharge = canteenSystem.AvailableCharge;
-        BattleData.TurnCount = gameManager.TurnCount;
-        BattleData.MoveCount = moveCount;
-        BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(ActiveEnemy);
-
-        battleStateManager.SaveData();
-    }
-
     public void RegisterPlayerDeath(PlayerCharacter player)
     {
         deadMaggots.Add(player);
@@ -797,8 +702,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]
     public static void CripplePlayers()
     {
-        for (int i = 0; i < Instance.playerCharacters.Length; i++)
+        for (int i = 0; i < Instance.PlayerCharacters.Length; i++)
         {
+            if (!Instance.PlayerCharacters[i]) continue;
             BaseCharacter.IncomingDamage.damage = Instance.playerCharacters[i].CurrentHealth - 1;
             Instance.playerCharacters[i].TakeDamage();
         }

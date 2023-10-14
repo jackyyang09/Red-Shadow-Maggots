@@ -22,6 +22,7 @@ public class BattleState
         public List<SerializedEffect> Effects = new List<SerializedEffect>();
     }
 
+    [System.Serializable]
     public class PlayerState : State
     {
         public int Index;

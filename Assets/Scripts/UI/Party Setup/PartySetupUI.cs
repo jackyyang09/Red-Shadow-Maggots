@@ -82,6 +82,47 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
 
     public void StartBattle()
     {
+        var node = mapSceneManager.NextFightNode;
+
+        battleStateManager.ResetData();
+
+        BattleData.StoredCharge = PlayerData.Canteens;
+        BattleData.PlayerStates = new List<BattleState.PlayerState>();
+        for (int i = 0; i < PlayerData.Party.Length; i++)
+        {
+            if (PlayerData.Party[i] == -1) continue;
+            var newState = new BattleState.PlayerState();
+            newState.Index = PlayerData.Party[i];
+            if (PlayerData.MaggotStates[newState.Index] != null)
+            {
+                newState.Health = PlayerData.MaggotStates[newState.Index].Health;
+            }
+            // Cooldown skills by 1 turn because this is what the player would expect to happen
+            newState.Cooldowns[0] = Mathf.Max(0, PlayerData.MaggotStates[newState.Index].SkillCoodowns[0] - 1);
+            newState.Cooldowns[1] = Mathf.Max(0, PlayerData.MaggotStates[newState.Index].SkillCoodowns[1] - 1);
+            BattleData.PlayerStates.Add(newState);
+        }
+
+        BattleData.RoomLevel = PlayerData.NodesTravelled - PlayerData.BattlesFought;
+        BattleData.UseSpecialCam = new bool[node.waves.Count];
+
+        for (int i = 0; i < node.waves.Count; i++)
+        {
+            BattleData.UseSpecialCam[i] = node.waves[i].UseSpecialCam;
+
+            BattleData.EnemyGUIDs.Add(new List<string>());
+            for (int j = 0; j < node.waves[i].Enemies.Length; j++)
+            {
+                string guid = "";
+                if (node.waves[i].Enemies[j] != null)
+                {
+                    guid = node.waves[i].Enemies[j].AssetGUID;
+                }
+                BattleData.EnemyGUIDs[i].Add(guid);
+            }
+        }
+        battleStateManager.SaveData();
+
         mapSceneManager.MoveToBattleScene();
     }
 }

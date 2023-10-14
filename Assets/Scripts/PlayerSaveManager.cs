@@ -11,6 +11,7 @@ public class PlayerSave
         public string GUID;
         public float Health;
         public float Exp;
+        public int[] SkillCoodowns = new int[2];
     }
 
     /// <summary>
@@ -18,6 +19,9 @@ public class PlayerSave
     /// </summary>
     public int[] Party = new int[] { -1, -1, -1, -1 };
     public List<MaggotState> MaggotStates = new List<MaggotState>();
+
+    // Everything is a property just in case the future database implementation is funny like Firebase
+    public float Canteens { get; set; }
     public int BattlesFought { get; set; }
     public int NodesTravelled { get; set; }
     public int Exp { get; set; }

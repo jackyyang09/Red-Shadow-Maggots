@@ -16,6 +16,11 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         se.Caster = characters.IndexOf(effect.caster);
 
         se.EffectIndex = gameEffects.IndexOf(effect.referenceEffect);
+        if (se.EffectIndex == -1)
+        {
+            Debug.LogError(nameof(GameEffectLoader) + ": Serialization failed! Effect " +
+                effect.referenceEffect + " not added to gameEffects list!");
+        }
         se.RemainingTurns = effect.remainingTurns;
         se.Strength = effect.strength;
         se.CustomValues = effect.customValues;

@@ -74,11 +74,13 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         var pState = BattleData.PlayerStates.Count > 0 ? BattleData.PlayerStates[index] : null;
         var level = characterObject.GetLevelFromExp(mState.Exp);
 
-        characterLoader.SpawnCharacterWithRarity(index, characterObject, spawnPos, Rarity.Common, level, pState);
+        var character = characterLoader.SpawnCharacterWithRarity(index, characterObject, spawnPos, Rarity.Common, level, pState);
+
+        yield return new WaitUntil(() => character.Initialized);
         playersLoaded++;
     }
 
-    public void SpawnCharacterWithRarity(int index, CharacterObject character, Vector3 spawnPos, Rarity rarity, int level = 1,
+    public PlayerCharacter SpawnCharacterWithRarity(int index, CharacterObject character, Vector3 spawnPos, Rarity rarity, int level = 1,
     BattleState.PlayerState stateInfo = null)
     {
         int playerCount = battleSystem.PlayerCharacters.Count(item => item != null);
@@ -87,6 +89,29 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         player.SetCharacterAndRarity(character, rarity);
         player.InitializeWithInfo(level, stateInfo);
         battleSystem.PlayerCharacters[index] = player;
+        return player;
+    }
+
+    public void ApplyPlayerSavedEffects()
+    {
+        for (int i = 0; i < BattleData.PlayerStates.Count; i++)
+        {
+            var state = BattleData.PlayerStates[i];
+            if (state == null) continue;
+
+            battleSystem.PlayerCharacters[i].InitializeAppliedEffects(state);
+        }   
+    }
+
+    public void ApplyEnemySavedEffects()
+    {
+        for (int i = 0; i < BattleData.EnemyStates.Count; i++)
+        {
+            var state = BattleData.EnemyStates[i];
+            if (state == null) continue;
+
+            enemyController.EnemyList[i].InitializeAppliedEffects(state);
+        }
     }
 
     public void LoadAllEnemies()
@@ -146,6 +171,9 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             enemies[index] = SpawnEnemy(obj.Result, spawnPos, BattleData.RoomLevel, state);
         }
+
+        yield return new WaitUntil(() => enemies[index]);
+
         enemiesLoaded++;
 
         if (EnemiesLoaded)
