@@ -23,6 +23,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     TextMeshProUGUI
         scrapOfferedLabel,
         scrapOwnedLabel,
+        expMultiplierLabel,
         currentHealthLabel,
         healthArrow,
         nextHealthLabel,
@@ -37,9 +38,16 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     [SerializeField] Image raycastMask;
 
     /// <summary>
-    /// TODO: Put this somewhere else
+    /// TODO: Maybe put this somewhere else
     /// </summary>
-    int expMultiplier = 10;
+    int ExpMultiplier
+    {
+        get
+        {
+            return PlayerData.NodesTravelled;
+        }
+    }
+
     int scrapOffered;
     int ScrapOffered
     {
@@ -71,10 +79,14 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
     void RefreshUI()
     {
+        ScrapOffered = 0;
+
         var data = playerDataManager.LoadedData;
 
         scrapOfferedLabel.enabled = false;
         scrapOwnedLabel.text = "x" + data.Exp.ToString();
+
+        expMultiplierLabel.text = ExpMultiplier.ToString() + "x";
 
         int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
         currentHealthLabel.text = TargetCharacter.GetMaxHealth(currentLevel, false).ToString();
@@ -90,14 +102,10 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         levelChangeLabel.text = "Lvl " + currentLevel;
         expBarLabel.text = (int)expProgress + "/" + (int)expRequirement;
 
-        currentExpFill.fillAmount = Mathf.Round(expProgress) / expRequirement;
+        currentExpFill.fillAmount = expProgress / expRequirement;
         nextExpFill.enabled = false;
 
-        if (playerDataManager.LoadedData.Exp == 0)
-        {
-            plusButton.SetButtonInteractable(false);
-        }   
-
+        plusButton.SetButtonInteractable(data.Exp > 0);
         minusButton.SetButtonInteractable(false);
 
         upgradeButton.interactable = false;
@@ -107,7 +115,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
     {
         int currentLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
         float currentExp = maggotState.Exp - TargetCharacter.GetExpRequiredForLevel(0, currentLevel);
-        float incomingExp = maggotState.Exp + ScrapOffered * expMultiplier;
+        float incomingExp = maggotState.Exp + ScrapOffered * ExpMultiplier;
         int incomingLevel = TargetCharacter.GetLevelFromExp(incomingExp);
 
         float expProgress = incomingExp - TargetCharacter.GetExpRequiredForLevel(0, incomingLevel);
@@ -119,7 +127,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         currentExpFill.enabled = incomingLevel <= currentLevel;
         if (currentExpFill.enabled)
         {
-            currentExpFill.fillAmount = Mathf.Round(currentExp) / expRequirement;
+            currentExpFill.fillAmount = currentExp / expRequirement;
         }
         else
         {
@@ -134,7 +142,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         nextAttackLabel.enabled = !currentExpFill.enabled;
 
         nextExpFill.enabled = ScrapOffered > 0;
-        nextExpFill.fillAmount = Mathf.Round(expProgress) / expRequirement;
+        nextExpFill.fillAmount = expProgress / expRequirement;
 
         upgradeButton.interactable = ScrapOffered > 0;
     }
@@ -175,7 +183,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
 
         UpdateUIElements();
         minusButton.SetButtonInteractable(false);
-        plusButton.SetButtonInteractable(true);
+        plusButton.SetButtonInteractable(playerDataManager.LoadedData.Exp > 0);
     }
 
     public void Upgrade()
@@ -188,7 +196,7 @@ public class MaggotUpgradeUI : BasicSingleton<MaggotUpgradeUI>
         int startLevel = TargetCharacter.GetLevelFromExp(maggotState.Exp);
         int currentLevel = startLevel;
         float currentExp = maggotState.Exp;
-        float incomingExp = ScrapOffered * expMultiplier;
+        float incomingExp = ScrapOffered * ExpMultiplier;
         float targetExp = maggotState.Exp + incomingExp;
 
         nextExpFill.enabled = false;

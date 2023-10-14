@@ -113,15 +113,15 @@ public class CharacterObject : ScriptableObject
         }
     }
 
-    float m = 0.7f;
-    float z = 2.8f;
-    float b = 0;
+    public static float m = 0.7f;
+    public static float z = 2.8f;
+    public static float b = 0;
 
     public float GetExpRequiredForLevel(int currentLevel, int targetLevel)
     {
         if (currentLevel == 0)
         {
-            return m * Mathf.Pow(targetLevel, z) + b;
+            return Mathf.Ceil(m * Mathf.Pow(targetLevel, z) + b);
         }
         else
         {
@@ -131,7 +131,8 @@ public class CharacterObject : ScriptableObject
 
     public int GetLevelFromExp(float exp)
     {
-        return (int)Mathf.Pow((exp - b) / m, 1 / z);
+        float level = Mathf.Pow((exp - b) / m, 1f / z);
+        return Mathf.FloorToInt(level);
     }
 
     [Range(0, 1)] public float critChance;

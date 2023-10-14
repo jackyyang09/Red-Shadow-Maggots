@@ -65,9 +65,10 @@ public class TreasureNode : BasicSingleton<TreasureNode>
 
             maggots[i] = new PlayerSave.MaggotState();
             maggots[i].GUID = maggot.AssetGUID;
-            int level = playerDataManager.LoadedData.BattlesFought;
+            int level = playerDataManager.LoadedData.NodesTravelled;
             maggots[i].Exp = Mathf.RoundToInt(characters[i].GetExpRequiredForLevel(0, level));
-            maggots[i].Health = characters[i].GetMaxHealth(level, false);
+            var realLevel = characters[i].GetLevelFromExp(maggots[i].Exp);
+            maggots[i].Health = characters[i].GetMaxHealth(realLevel, false);
         }
 
         for (int i = 0; i < cardHolders.Count; i++)
