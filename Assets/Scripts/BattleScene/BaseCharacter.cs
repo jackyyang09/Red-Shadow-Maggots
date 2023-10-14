@@ -75,12 +75,12 @@ public abstract class BaseCharacter : MonoBehaviour
     public float AttackModified => Attack * attackModifier;
 
     float defenseModifier = 1;
+    public float Defense => characterReference.GetDefense(currentLevel);
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     public float DefenseModifier => defenseModifier;
-    public float Defense => characterReference.GetDefense(currentLevel);
-    public float DefenseModified => Defense * defenseModifier;
+    public float DefenseModified => Defense * DefenseModifier;
 
     public float attackLeniencyModifier;
     public float AttackLeniency => characterReference.attackLeniency + attackLeniencyModifier;
@@ -249,8 +249,11 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         StartCoroutine(CreateBillboardUI());
+    }
 
-        // This needs to happen after UI is made so UI can capture events
+    // This needs to happen after UI is made so UI can capture events
+    public void InitializeAppliedEffects(BattleState.State stateInfo)
+    {
         if (stateInfo != null)
         {
             for (int i = 0; i < stateInfo.Effects.Count; i++)
@@ -503,7 +506,7 @@ public abstract class BaseCharacter : MonoBehaviour
         IncomingDamage.isCritical = UnityEngine.Random.value < finalCritChance;
         if (IncomingDamage.isCritical)
         {
-            IncomingDamage.isSuperCritical = finalCritChance >= 1.0f;
+            IncomingDamage.isSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
             animHelper.EnableCrits();
         }
 
@@ -705,6 +708,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
     {
+        if (target.IsDead) return;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
         props.effect.Activate(caster, target, props.strength, props.customValues);
 
@@ -914,6 +918,11 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void TakeDamage()
     {
         TakeDamage(IncomingDamage);
+    }
+
+    public virtual void HurtSilent(DamageStruct damage)
+    {
+
     }
 
     public virtual void TakeDamage(DamageStruct damage)

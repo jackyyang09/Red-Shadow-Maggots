@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using JSAM;
+using DG.Tweening;
 
 public class VoiceResponseSystem : MonoBehaviour
 {
@@ -91,9 +92,10 @@ public class VoiceResponseSystem : MonoBehaviour
         var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
         AudioManager.PlaySound(BattleSceneSounds.PlayerVictory);
         AudioManager.StopMusicIfPlaying(AudioManager.MainMusic);
-        var source = AudioManager.PlaySound(audio);
-        source.Stop();
-        source.AudioSource.PlayDelayed(2);
+        DOVirtual.DelayedCall(2, new TweenCallback(() =>
+        {
+            var source = AudioManager.PlaySound(audio);
+        }));
     }
 
     public void Attack(BaseCharacter character)

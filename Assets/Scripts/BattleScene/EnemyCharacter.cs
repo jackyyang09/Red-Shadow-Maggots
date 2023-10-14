@@ -74,7 +74,10 @@ public class EnemyCharacter : BaseCharacter
         yield return new WaitUntil(() => Initialized);
 
         EnableBillboardUI();
-        billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
+        if (!isBossCharacter)
+        {
+            billBoard.GetComponent<CharacterUI>().InitializeWithCharacter(this);
+        }
     }
 
     protected override void OnEnable()

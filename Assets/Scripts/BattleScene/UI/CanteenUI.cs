@@ -4,9 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using TMPro;
-using static Facade;
 using JSAM;
-using System;
+using static Facade;
 
 public class CanteenUI : BaseGameUI
 {
@@ -113,6 +112,8 @@ public class CanteenUI : BaseGameUI
     private void OnSetCharge()
     {
         UpdateCanteenCount();
+        previousCharge = canteenSystem.AvailableCharge;
+        previousFill = canteenSystem.AvailableCharge % canteenSystem.ChargePerCanteen;
     }
 
     public void UpdateCanteenCount(int canteenCount = -1)
@@ -142,7 +143,11 @@ public class CanteenUI : BaseGameUI
             StopCoroutine(canteenRoutine);
         }
 
-        canteenRoutine = StartCoroutine(CanteenRoutine());
+        if (previousFill != canteenSystem.AvailableCharge % canteenSystem.ChargePerCanteen ||
+            previousCharge != canteenSystem.AvailableCharge)
+        {
+            canteenRoutine = StartCoroutine(CanteenRoutine());
+        }
     }
 
     float previousFill = 0;
