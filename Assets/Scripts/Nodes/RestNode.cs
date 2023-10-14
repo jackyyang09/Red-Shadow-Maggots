@@ -57,8 +57,8 @@ public class RestNode : BasicSingleton<RestNode>
 
             var character = op.Result;
 
-            var level = 1 + states[i].Exp % 100;
-            float maxHealth = (float)character.GetMaxHealth((int)level, false);
+            var level = character.GetLevelFromExp(states[i].Exp);
+            float maxHealth = character.GetMaxHealth(level, false);
             states[i].Health = Mathf.Clamp(
                 states[i].Health + maxHealth * healPercentage,
                 0, maxHealth);
