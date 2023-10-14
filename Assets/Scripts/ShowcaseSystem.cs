@@ -9,6 +9,8 @@ using static Facade;
 
 public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
 {
+    [SerializeField] float transitionTime;
+
     [SerializeField] Vector3 sceneOffset = new Vector3(0, -50, 50);
     [SerializeField] Vector2 heightLimits;
 
@@ -128,11 +130,8 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
             }
         }
 
-        if (!alreadyLoaded)
-        {
-            screenEffects.ShowLoadingIcon(0);
-            screenEffects.BlackOut(ScreenEffects.EffectType.Partial);
-        }
+        screenEffects.ShowLoadingIcon(0);
+        screenEffects.BlackOut(ScreenEffects.EffectType.Partial);
 
         characterSidebar.Canvas.Show();
         showcaseCam.enabled = true;
@@ -140,13 +139,10 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
         yield return new WaitUntil(() => loadedEnvironment && loadedSkybox && loadedRig);
 
         // Has the camera finished moving?
-        yield return new WaitUntil(() => Time.time - startTime >= mapSceneManager.CinemachineBrain.m_DefaultBlend.BlendTime);
+        yield return new WaitUntil(() => Time.time - startTime >= transitionTime);
 
-        if (!alreadyLoaded)
-        {
-            screenEffects.FadeFromBlack(ScreenEffects.EffectType.Partial, 0.5f);
-            screenEffects.HideLoadingIcon(0.5f);
-        }
+        screenEffects.FadeFromBlack(ScreenEffects.EffectType.Partial, transitionTime);
+        screenEffects.HideLoadingIcon(transitionTime);
 
         loadedAssets[character.environmentAsset] = loadedEnvironment;
         loadedAssets[character.skyboxAsset] = loadedSkybox;
@@ -173,12 +169,22 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
 
     public void HideShowcase()
     {
-        if (loadedCharacter)
-        {
-            (loadedAssets[loadedCharacter.characterRig] as GameObject).SetActive(false);
-            (loadedAssets[loadedCharacter.environmentAsset] as GameObject).SetActive(false);
-            showcaseCam.enabled = false;
-        }
+        if (!loadedCharacter) return;
+        if (!showcaseCam.enabled) return;
+
+        (loadedAssets[loadedCharacter.characterRig] as GameObject).SetActive(false);
+        (loadedAssets[loadedCharacter.environmentAsset] as GameObject).SetActive(false);
+        showcaseCam.enabled = false;
+
+        screenEffects.ShowLoadingIcon(0);
+        screenEffects.BlackOut(ScreenEffects.EffectType.Partial);
+
+        DOVirtual.DelayedCall(transitionTime,
+            () =>
+            {
+                screenEffects.FadeFromBlack(ScreenEffects.EffectType.Partial, transitionTime);
+                screenEffects.HideLoadingIcon(transitionTime);
+            });
     }
 
     private void OnDestroy()

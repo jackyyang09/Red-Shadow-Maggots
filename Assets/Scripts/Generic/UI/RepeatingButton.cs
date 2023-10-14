@@ -38,6 +38,8 @@ public class RepeatingButton : MonoBehaviour
 
     public void ButtonPressed()
     {
+        if (!referenceButton.interactable) return;
+
         enabled = true;
         isHeld = true;
         invokeCount = 0;

@@ -72,6 +72,11 @@ namespace Map
             }
         }
 
+        private void OnDestroy()
+        {
+            sr.DOKill();
+        }
+
         private void OnMouseEnter()
         {
             if (nodeState != NodeStates.Attainable) return;

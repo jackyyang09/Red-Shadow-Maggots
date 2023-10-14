@@ -13,13 +13,19 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
 
     [SerializeField] BattleObject[] battleList;
 
+    [SerializeField] BattleObject bossBattle;
+
     [SerializeField] Transform cardStack;
     List<CharacterCardHolder> cardHolders;
 
     [SerializeField] GameObject cardPrefab;
     [SerializeField] Vector3 cardDelta;
 
-    public BattleObject NextFightNode;
+    BattleObject nextBattleNode;
+    public BattleObject NextFightNode
+    {
+        get => nextBattleNode;
+    }
 
     private void OnEnable()
     {
@@ -64,44 +70,12 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
         {
             case NodeType.MinorEnemy:
             case NodeType.EliteEnemy:
+                Random.InitState(PlayerData.NodesTravelled);
+                nextBattleNode = battleList[Random.Range(0, battleList.Length)];
+                partySetup.Initialize();
+                break;
             case NodeType.Boss:
-                NextFightNode = battleList[Random.Range(0, battleList.Length)];
-
-                battleStateManager.ResetData();
-
-                BattleData.PlayerStates = new List<BattleState.PlayerState>();
-                for (int i = 0; i < PlayerData.Party.Length; i++)
-                {
-                    if (PlayerData.Party[i] == -1) continue;
-                    var newState = new BattleState.PlayerState();
-                    newState.Index = PlayerData.Party[i];
-                    if (PlayerData.MaggotStates[newState.Index] != null)
-                    {
-                        newState.Health = PlayerData.MaggotStates[newState.Index].Health;
-                    }
-                    BattleData.PlayerStates.Add(newState);
-                }
-
-                BattleData.RoomLevel = playerDataManager.LoadedData.NodesTravelled;
-                BattleData.UseSpecialCam = new bool[NextFightNode.waves.Count];
-
-                for (int i = 0; i < NextFightNode.waves.Count; i++)
-                {
-                    BattleData.UseSpecialCam[i] = NextFightNode.waves[i].UseSpecialCam;
-
-                    BattleData.EnemyGUIDs.Add(new List<string>());
-                    for (int j = 0; j < NextFightNode.waves[i].Enemies.Length; j++)
-                    {
-                        string guid = "";
-                        if (NextFightNode.waves[i].Enemies[j] != null)
-                        {
-                            guid = NextFightNode.waves[i].Enemies[j].AssetGUID;
-                        }
-                        BattleData.EnemyGUIDs[i].Add(guid);
-                    }
-                }
-                battleStateManager.SaveData();
-
+                nextBattleNode = bossBattle;
                 partySetup.Initialize();
                 break;
             case NodeType.RestSite:
