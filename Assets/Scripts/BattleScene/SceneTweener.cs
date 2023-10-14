@@ -10,31 +10,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 {
     [SerializeField] Transform worldCenter;
 
-    [SerializeField] CinemachineVirtualCamera playerCam;
-
-    [SerializeField] Camera sceneCamera;
-    public Camera SceneCamera => sceneCamera;
-
-    /// <summary>
-    /// The player-centric camera
-    /// </summary>
-    public CinemachineVirtualCamera PlayerCamera => playerCam;
-
-    [SerializeField] CinemachineVirtualCamera lerpCam;
-    public CinemachineVirtualCamera LerpCamera => lerpCam;
-
-    CinemachineComposer composer;
-    CinemachineTrackedDolly playerDolly;
-
-    [SerializeField] CinemachineVirtualCamera enemyCam;
-    CinemachineTrackedDolly enemyDolly;
-
-    [SerializeField] CinemachineVirtualCamera specialCam;
-
-    [SerializeField] CinemachineSmoothPath playerPath;
-
-    [SerializeField] CinemachineSmoothPath enemyPath;
-
     [SerializeField] Vector3 characterDestinationOffset = new Vector3();
 
     [SerializeField] float characterTweenDelay = 0.15f;
@@ -53,6 +28,32 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     [SerializeField] float playerTurnTransitionDelay = 2;
     public float PlayerTurnTransitionDelay => playerTurnTransitionDelay;
+
+    [Header("Camera")]
+    [SerializeField] Camera sceneCamera;
+    public Camera SceneCamera => sceneCamera;
+
+    [SerializeField] CinemachineVirtualCamera playerCam;
+    /// <summary>
+    /// The player-centric camera
+    /// </summary>
+    public CinemachineVirtualCamera PlayerCamera => playerCam;
+    [SerializeField] CinemachineSmoothPath playerPath;
+
+    [SerializeField] CinemachineVirtualCamera lerpCam;
+    public CinemachineVirtualCamera LerpCamera => lerpCam;
+
+    [SerializeField] CinemachineVirtualCamera enemyCam;
+    [SerializeField] CinemachineSmoothPath enemyPath;
+    CinemachineTrackedDolly enemyDolly;
+
+    [SerializeField] CinemachineVirtualCamera specialCam;
+
+    [SerializeField] CinemachineVirtualCamera playerTeamCam;
+    public CinemachineVirtualCamera PlayerTeamCam => playerTeamCam;
+
+    CinemachineComposer composer;
+    CinemachineTrackedDolly playerDolly;
 
     Animator anim;
 
@@ -139,7 +140,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 break;
         }
         savedPosition = attacker.position;
-        DOTween.To(() => lerpValue, x => lerpValue = x, 2, camTweenTime).SetEase(Ease.OutCubic);
+
+        var newTween = DOTween.To(() => lerpValue, x => lerpValue = x, 2, camTweenTime).SetEase(Ease.OutCubic);
     }
 
     public void MeleeMoveTo(Transform attacker, Transform target)

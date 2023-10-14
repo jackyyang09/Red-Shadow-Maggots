@@ -188,6 +188,9 @@ public class AnimationHelper : MonoBehaviour
     public void ShowVirtualCamera() => vCam.enabled = true;
     public void HideVirtualCamera() => vCam.enabled = false;
 
+    public void ShowPlayerTeamCam() => sceneTweener.PlayerTeamCam.enabled = true;
+    public void HidePlayerTeamCam() => sceneTweener.PlayerTeamCam.enabled = false;
+
     public void MakePlayerCamLookAtMe() => sceneTweener.PlayerCamera.LookAt = transform;
 
     [ContextMenu("Test Impulse")]
@@ -208,7 +211,17 @@ public class AnimationHelper : MonoBehaviour
 
     public void HoldHitFrame() => anim.Play("Hit Reaction Frame");
 
-    public void MakeTargetShakeMesh() => battleSystem.ActiveEnemy.AnimHelper.ShakeMesh();
+    public void MakeTargetShakeMesh()
+    {
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            battleSystem.ActiveEnemy.AnimHelper.ShakeMesh();
+        }
+        else
+        {
+            battleSystem.ActivePlayer.AnimHelper.ShakeMesh();
+        }
+    }
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
@@ -261,6 +274,12 @@ public class AnimationHelper : MonoBehaviour
     {
         sceneTweener.LerpCamera.enabled = true;
         sceneTweener.LerpCamera.transform.position = vCam.transform.position;
+        sceneTweener.RotateBackInstantly();
+        Invoke(nameof(DisableLerpCam), 0.01f);
+    }
+
+    public void SuperCritCutUntween()
+    {
         sceneTweener.RotateBackInstantly();
         Invoke(nameof(DisableLerpCam), 0.01f);
     }
