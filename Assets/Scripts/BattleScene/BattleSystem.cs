@@ -98,7 +98,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-
     public PlayerCharacter ActivePlayer
     {
         get
@@ -181,7 +180,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     private void OnEnable()
     {
-        GlobalEvents.OnAnyPlayerDeath += SwitchTargets;
+        GlobalEvents.OnAnyPlayerDeath += OnAnyPlayerDeath;
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
 
         SceneTweener.OnBattleEntered += ChangeBattlePhase;
@@ -192,7 +191,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     private void OnDisable()
     {
-        GlobalEvents.OnAnyPlayerDeath -= SwitchTargets;
+        GlobalEvents.OnAnyPlayerDeath -= OnAnyPlayerDeath;
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
 
         SceneTweener.OnBattleEntered -= ChangeBattlePhase;
@@ -291,6 +290,12 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         //        SceneTweener.Instance.RangedTweenTo(playerTargets.player.CharacterMesh.transform, playerTargets.enemy.transform);
         //        break;
         //}
+    }
+
+    public void OnAnyPlayerDeath()
+    {
+        SwitchTargets();
+        DecrementMoveCount();
     }
 
     /// <summary>
@@ -496,6 +501,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     }
 
     public void IncrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
+    public void DecrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount - 1, moveOrder.Count);
 
     public IEnumerator ChangePhaseRoutine()
     {
