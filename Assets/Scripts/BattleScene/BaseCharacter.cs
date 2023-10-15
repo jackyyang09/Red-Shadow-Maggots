@@ -276,7 +276,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit += HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += OnStartPlayerTurn;
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += CooldownSkills;
+        BattleSystem.OnEndTurn += CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -285,7 +285,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit -= HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= OnStartPlayerTurn;
-        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= CooldownSkills;
+        BattleSystem.OnEndTurn -= CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
