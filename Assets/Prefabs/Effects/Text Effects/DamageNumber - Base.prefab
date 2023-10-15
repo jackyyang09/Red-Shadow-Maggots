@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 1566444318809001774}
   - component: {fileID: 4467956848510691840}
   - component: {fileID: 6527654321538586830}
+  - component: {fileID: 1511205966131190597}
   m_Layer: 11
   m_Name: DamageNumber - Base
   m_TagString: Untagged
@@ -216,6 +217,7 @@ MonoBehaviour:
   numberLifetime: 1
   numberFadeTime: 0.5
   numberFadeDelay: 1
+  canvasGroup: {fileID: 1511205966131190597}
   shield: {fileID: 3897318897722849740}
   billBoard: {fileID: 6527654321538586830}
   numberLabel: {fileID: 1566444318453848807}
@@ -239,6 +241,18 @@ MonoBehaviour:
   rect: {fileID: 1566444318809001775}
   cam: {fileID: 0}
   canvas: {fileID: 0}
+--- !u!225 &1511205966131190597
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566444318809001763}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3797179053036599115
 GameObject:
   m_ObjectHideFlags: 0

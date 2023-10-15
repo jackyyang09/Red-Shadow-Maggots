@@ -13,6 +13,7 @@ public class DamageNumber : MonoBehaviour
     [SerializeField] float numberFadeTime = 0.5f;
     [SerializeField] float numberFadeDelay = 1;
 
+    [SerializeField] CanvasGroup canvasGroup;
     [SerializeField] Image shield;
     [SerializeField] ViewportBillboard billBoard;
     [SerializeField] TextMeshProUGUI numberLabel;
@@ -36,12 +37,7 @@ public class DamageNumber : MonoBehaviour
 
         DOTween.To(() => billBoard.offset.y, x => billBoard.offset.y = x, billBoard.offset.y + verticalMovement, numberLifetime).SetEase(Ease.OutCubic);
 
-        numberLabel.DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
-        // Tween effectiveness if it exists
-        if (effectiveNessLabel)
-        {
-            effectiveNessLabel.DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
-        }
+        canvasGroup.DOFade(0, numberFadeTime).SetDelay(numberFadeDelay);
 
         Destroy(gameObject, numberFadeDelay + numberLifetime);
     }
