@@ -30,9 +30,9 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += "health equal to " + change + "% of your Max Health.";
+        s += "health equal to " + change + "% of your Max Health ";
 
-        return s + DurationDescriptor(duration);
+        return s;
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

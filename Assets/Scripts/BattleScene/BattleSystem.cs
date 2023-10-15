@@ -623,6 +623,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
             OnTickEffect?.Invoke(effectKeys[i]);
 
+            // TODO: Every tick-per-turn effect should have an animation that needs time to finish
             if (effectKeys[i].hasTickAnimation)
             {
                 yield return new WaitForSeconds(effectTickTime);
