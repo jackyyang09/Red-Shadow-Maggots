@@ -9,20 +9,15 @@ public class SkillDetailPanel : MonoBehaviour
     [SerializeField] Color debuffColour = new Color(1, 0.25f, 0.25f);
     string buffColourText, debuffColourText;
 
-    [SerializeField] float minimumHeight = 500;
-    [SerializeField] float lineHeight = 120;
-    [SerializeField] int characterCountPerLine;
+    [SerializeField] OptimizedCanvas canvas;
+    [SerializeField] TMPro.TextMeshProUGUI nameText;
+    [SerializeField] TMPro.TextMeshProUGUI cooldownCount;
+    [SerializeField] TMPro.TextMeshProUGUI description;
 
-    [SerializeField] OptimizedCanvas canvas = null;
-    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
-    [SerializeField] TMPro.TextMeshProUGUI cooldownCount = null;
-    [SerializeField] TMPro.TextMeshProUGUI description = null;
-
-    private void OnEnable()
-    {
-        canvas.onCanvasShow.AddListener(PanelOpenSound);
-        canvas.onCanvasHide.AddListener(PanelCloseSound);
-    }
+    [Header("Explainers")]
+    [SerializeField] RectTransform explainerParent;
+    [SerializeField] GameObject effectExplainerPrefab;
+    List<EffectExplainerUI> explainers = new List<EffectExplainerUI>();
 
     private void Start()
     {
@@ -30,16 +25,11 @@ public class SkillDetailPanel : MonoBehaviour
         debuffColourText = ColorUtility.ToHtmlStringRGB(debuffColour);
     }
 
-    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
-    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
-
-    public void ShowPanel()
+    private void OnEnable()
     {
-        //Rebuild layout before showing
-        StartCoroutine(RebuildAndShow());
+        canvas.onCanvasShow.AddListener(PanelOpenSound);
+        canvas.onCanvasHide.AddListener(PanelCloseSound);
     }
-
-    public void HidePanel() => canvas.Hide();
 
     private void OnDisable()
     {
@@ -47,7 +37,25 @@ public class SkillDetailPanel : MonoBehaviour
         canvas.onCanvasHide.RemoveListener(PanelCloseSound);
     }
 
-    public void UpdateDetails(GameSkill skill)
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
+
+    public void HidePanel()
+    {
+        canvas.Hide();
+
+        foreach (var e in explainers)
+        {
+            e.HideUI();
+        }
+    }
+
+    public void ShowWithDetails(GameSkill skill)
+    {
+        StartCoroutine(ShowRoutine(skill));
+    }
+
+    IEnumerator ShowRoutine(GameSkill skill)
     {
         nameText.text = skill.referenceSkill.skillName;
         cooldownCount.text = skill.referenceSkill.skillCooldown.ToString() + " Turn Cooldown";
@@ -73,16 +81,47 @@ public class SkillDetailPanel : MonoBehaviour
 
             description.text += ">" + descriptions[i] + "</color>\n";
         }
-    }
 
-    // Rebuild the layout of the panel using LayoutRebuilder
-    private IEnumerator RebuildAndShow()
-    {
-        yield return new WaitForEndOfFrame();
-        var rect = GetComponent<RectTransform>();
+        List<OptimizedCanvas> canvases = new List<OptimizedCanvas>();
+        List<BaseGameEffect> effects = new List<BaseGameEffect>();
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+        int j = 0;
+        for (int i = 0; j < skill.referenceSkill.gameEffects.Length; j++)
+        {
+            var e = skill.referenceSkill.gameEffects[j].effect;
+            if (!e.IncludesExplainer) continue;
+            if (effects.Contains(e)) continue;
+            effects.Add(e);
+
+            if (explainers.Count == i)
+            {
+                var explainer = Instantiate(effectExplainerPrefab, explainerParent).GetComponent<EffectExplainerUI>();
+                explainers.Add(explainer);
+            }
+            explainers[i].InitializeWithEffect(e);
+            canvases.Add(explainers[i].OptimizedCanvas);
+            i++;
+        }
+
+        // Hide unused explainers
+        for (; j < explainers.Count; j++)
+        {
+            if (explainers[j].OptimizedCanvas.IsVisible) break;
+            explainers[j].HideUI();
+        }
+
+        yield return null;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+        LayoutRebuilder.ForceRebuildLayoutImmediate(explainerParent);
+
+        yield return null;
 
         canvas.Show();
+
+        foreach (var item in canvases)
+        {
+            item.Show();
+        }
     }
 }

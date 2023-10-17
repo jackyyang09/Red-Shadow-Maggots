@@ -15,9 +15,40 @@ public class DoorPoison : DamagePerTurnEffect
     [SerializeField] float doorShrinkDelay = 0;
     [SerializeField] float doorLifetime = 2;
 
+    public override bool IncludesExplainer => true;
+    public override string EffectName => "Door";
+    public override string EffectDescription =>
+        "Every turn, get hit by a door and lose " + Keywords.Short.HEALTH + ".";
+
     System.Action damageDelegate;
 
     public GameObject doorPrefab = null;
+
+    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    {
+        float change = (float)GetEffectStrength(strength, customValues);
+
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.Self:
+                s += "Lose ";
+                break;
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+                s += "loses ";
+                break;
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "lose ";
+                break;
+        }
+
+        s += (int)(change * 100) + "% Max Health every turn by getting hit by a door ";
+
+        return s + DurationDescriptor(duration);
+    }
 
     public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {

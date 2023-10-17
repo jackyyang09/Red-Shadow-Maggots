@@ -12,8 +12,17 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
     [SerializeField] Vector3 characterDestinationOffset = new Vector3();
 
-    [SerializeField] float characterTweenDelay = 0.15f;
+    [Header("Skill Tween Props")]
+    [SerializeField] float effectTickTime = 2;
+    public float EffectTickTime => effectTickTime;
+
+    [SerializeField] float skillEffectApplyDelay = 0.5f;
+    public float SkillEffectApplyDelay => skillEffectApplyDelay;
+
+    [Header("Character Tween Props")]
+    [SerializeField] float characterTweenBackDelay = 0.15f;
     [SerializeField] float characterTweenTime = 0.5f;
+    [SerializeField] float postCharacterTweenWaitTime = 0.5f;
 
     [SerializeField] float tweenTime = 0;
 
@@ -22,12 +31,6 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     [SerializeField] float returnTweenDelay = 1;
 
     [SerializeField] float waveTransitionDelay = 1;
-
-    [SerializeField] float enemyTurnTransitionDelay = 2;
-    public float EnemyTurnTransitionDelay => enemyTurnTransitionDelay;
-
-    [SerializeField] float playerTurnTransitionDelay = 2;
-    public float PlayerTurnTransitionDelay => playerTurnTransitionDelay;
 
     [Header("Camera")]
     [SerializeField] Camera sceneCamera;
@@ -334,7 +337,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 //playerPath.transform.DOKill();
                 //playerPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
-                activePlayer.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.Linear).onComplete += () =>
+                activePlayer.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenBackDelay).SetEase(Ease.Linear).onComplete += () =>
                 {
                     activePlayer.CharacterMesh.transform.DORotate(ogRot, 0.15f, RotateMode.Fast);
                     playerCam.m_LookAt = worldCenter;
@@ -363,7 +366,7 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 enemyPath.transform.DOKill();
                 enemyPath.transform.DOMove(Vector3.zero, camTweenTime).SetEase(Ease.OutCubic).SetUpdate(UpdateType.Late);
 
-                activeEnemy.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenDelay).SetEase(Ease.OutCubic).onComplete += () => {
+                activeEnemy.transform.DOMove(savedPosition, characterTweenTime).SetDelay(characterTweenBackDelay).SetEase(Ease.OutCubic).onComplete += () => {
                     activeEnemy.CharacterMesh.transform.DORotate(ogRot, 0.15f, RotateMode.Fast);
                     enemyCam.m_LookAt = worldCenter;
                     enemyCam.enabled = false;
@@ -382,6 +385,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 }
                 break;
         }
+
+        yield return new WaitForSeconds(postCharacterTweenWaitTime);
 
         battleSystem.EndTurn();
     }

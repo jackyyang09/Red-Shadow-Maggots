@@ -79,9 +79,22 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
     {
         for (int i = 0; i < gameEffects.Length; i++)
         {
-            var nullStyle = new GUIStyle(EditorStyles.label).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
-            var buffStyle = new GUIStyle(EditorStyles.label).SetTextColor(buffColour).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
-            var debuffStyle = new GUIStyle(EditorStyles.label).SetTextColor(debuffColour).ApplyTextAnchor(TextAnchor.MiddleCenter).ApplyWordWrap();
+            var nullStyle = new GUIStyle(EditorStyles.label)
+                .ApplyTextAnchor(TextAnchor.MiddleCenter)
+                .ApplyWordWrap()
+                .ApplyRichText();
+
+            var buffStyle = new GUIStyle(EditorStyles.label)
+                .SetTextColor(buffColour)
+                .ApplyTextAnchor(TextAnchor.MiddleCenter)
+                .ApplyWordWrap()
+                .ApplyRichText();
+
+            var debuffStyle = new GUIStyle(EditorStyles.label)
+                .SetTextColor(debuffColour)
+                .ApplyTextAnchor(TextAnchor.MiddleCenter)
+                .ApplyWordWrap()
+                .ApplyRichText();
 
             var gameEffect = gameEffects[i];
 
@@ -91,18 +104,24 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
                 continue;
             }
 
+            var desc = skillDescriptions[i];
+            if (desc.Contains("<u>"))
+            {
+                desc = desc.Replace("u>", "b>");
+            }
+
             switch (gameEffect.effect.effectType)
             {
                 case EffectType.None:
-                    EditorGUILayout.LabelField(skillDescriptions[i], nullStyle);
+                    EditorGUILayout.LabelField(desc, nullStyle);
                     break;
                 case EffectType.Heal:
                 case EffectType.Buff:
-                    EditorGUILayout.LabelField(skillDescriptions[i], buffStyle);
+                    EditorGUILayout.LabelField(desc, buffStyle);
                     break;
                 case EffectType.Debuff:
                 case EffectType.Damage:
-                    EditorGUILayout.LabelField(skillDescriptions[i], debuffStyle);
+                    EditorGUILayout.LabelField(desc, debuffStyle);
                     break;
             }
         }

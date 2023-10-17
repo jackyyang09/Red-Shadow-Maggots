@@ -33,13 +33,24 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public string effectText;
 
+    [HideInInspector] public virtual bool IncludesExplainer { get; }
+    /// <summary>
+    /// Only used if IncludesExplainer is true
+    /// </summary>
+    [HideInInspector] public virtual string EffectName { get; }
+    [HideInInspector] public virtual string EffectDescription { get; }
+
     public EffectType effectType = EffectType.None;
 
-    public bool canStack = false;
+    public bool canStack;
 
-    public bool hasTickAnimation = false;
+    /// <summary>
+    /// Overrides default tick time if value is above -1
+    /// </summary>
+    public float tickAnimationTime = -1;
 
     public GameObject particlePrefab;
+    public GameObject tickPrefab;
 
     public JSAM.SoundFileObject activationSound;
     public JSAM.SoundFileObject tickSound;

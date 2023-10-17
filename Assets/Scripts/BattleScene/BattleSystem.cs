@@ -33,14 +33,12 @@ public struct TargetedCharacters
 
 public class BattleSystem : BasicSingleton<BattleSystem>
 {
-    [SerializeField] float effectTickTime = 2;
-
     public static float QuickTimeCritModifier = 0.15f;
 
     [SerializeField] BattlePhases currentPhase;
-    [SerializeField] private SkillManagerUI _skillManagerUI;
-
     public BattlePhases CurrentPhase => currentPhase;
+
+    [SerializeField] private SkillManagerUI _skillManagerUI;
 
     bool finishedTurn;
 
@@ -505,17 +503,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public IEnumerator ChangePhaseRoutine()
     {
-        switch (currentPhase)
+        if (CurrentPhase == BattlePhases.EnemyTurn)
         {
-            case BattlePhases.Entry:
-                break;
-            case BattlePhases.PlayerTurn:
-                yield return new WaitForSeconds(sceneTweener.EnemyTurnTransitionDelay);
-                break;
-            case BattlePhases.EnemyTurn:
-                yield return new WaitForSeconds(sceneTweener.PlayerTurnTransitionDelay);
-                enemyTargets.enemy.IncreaseChargeLevel();
-                break;
+            enemyTargets.enemy.IncreaseChargeLevel();
         }
 
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
@@ -623,10 +613,13 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
             OnTickEffect?.Invoke(effectKeys[i]);
 
-            // TODO: Every tick-per-turn effect should have an animation that needs time to finish
-            if (effectKeys[i].hasTickAnimation)
+            if (effectKeys[i].tickAnimationTime > -1)
             {
-                yield return new WaitForSeconds(effectTickTime);
+                yield return new WaitForSeconds(effectKeys[i].tickAnimationTime);
+            }
+            else
+            {
+                yield return new WaitForSeconds(sceneTweener.EffectTickTime);
             }
         }
 

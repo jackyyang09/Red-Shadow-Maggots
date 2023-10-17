@@ -29,15 +29,15 @@ public class BaseDamageEffect : BaseGameEffect
                 break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
-                s += "loses ";
+                s += " lose ";
                 break;
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += "lose ";
+                s += " lose ";
                 break;
         }
 
-        s += change * 100 + "% health of your max health";
+        s += Keywords.Short.HEALTH + " equal to " + change * 100 + "% of your " + Keywords.Short.MAX_HEALTH;
 
         return s;
     }

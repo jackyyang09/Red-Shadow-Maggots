@@ -208,8 +208,7 @@ public class UIManager : BasicSingleton<UIManager>
         var selectedSkill = battleSystem.ActivePlayer.Skills.FirstOrDefault(x => x == skill);
         if (selectedSkill == null) return;
 
-        skillPanel.UpdateDetails(selectedSkill);
-        skillPanel.ShowPanel();
+        skillPanel.ShowWithDetails(selectedSkill);
     }
 
     private void HideSkillDetails(GameSkill skill)

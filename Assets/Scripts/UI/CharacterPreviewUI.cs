@@ -90,8 +90,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
     {
         GameSkill newSkill = new GameSkill();
         newSkill.InitWithSkill(previewingCharacter.skills[id]);
-        skillPanel.UpdateDetails(newSkill);
-        skillPanel.ShowPanel();
+        skillPanel.ShowWithDetails(newSkill);
     }
 
     public void ShowcaseCharacter()

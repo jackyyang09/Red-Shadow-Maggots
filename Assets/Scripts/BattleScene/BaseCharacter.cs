@@ -673,6 +673,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
     {
+        if (!target) return;
         if (target.IsDead) return;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
         props.effect.Activate(caster, target, props.strength, props.customValues);
@@ -758,7 +759,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
             GlobalEvents.OnGameEffectApplied?.Invoke(effect.effect);
 
-            yield return new WaitForSeconds(0.75f);
+            yield return new WaitForSeconds(sceneTweener.SkillEffectApplyDelay);
         }
 
         for (int i = 0; i < onFinishApplyingSkillEffects.Count; i++)
@@ -811,6 +812,9 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void TickEffect(BaseGameEffect effect)
     {
+        // Make sure the effect destroys itself
+        if (effect.tickPrefab) Instantiate(effect.tickPrefab, transform);
+
         if (AppliedEffects[effect].Count == 1)
         {
             if (!AppliedEffects[effect][0].Tick()) // Check if still active after ticking
@@ -934,6 +938,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (shield > 0)
         {
+            // Convert Shield health into raw health
             var shielding = shield / (1 - DefenseModified);
             if (shielding >= trueDamage)
             {
@@ -955,15 +960,22 @@ public abstract class BaseCharacter : MonoBehaviour
 
         bool blocked = true;
 
-        if (IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect)
+        if (IncomingDamage.Source)
         {
-            if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
-                blocked = false;
+            if (IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect)
+            {
+                if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+                    blocked = false;
+            }
+            else
+            {
+                if (battleSystem.CurrentPhase != BattlePhases.PlayerTurn)
+                    blocked = false;
+            }
         }
-        else
+        else // Effect damage
         {
-            if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn)
-                blocked = false;
+            blocked = false;
         }
 
         if (rigAnim)

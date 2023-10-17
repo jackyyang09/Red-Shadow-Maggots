@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Damage Per Turn Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
+[CreateAssetMenu(fileName = "New Damage Per Turn Effect", menuName = "ScriptableObjects/Game Effects/Take Damage Per Turn", order = 1)]
 public class DamagePerTurnEffect : BaseDamageEffect
 {
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -15,7 +15,8 @@ public class DamagePerTurnEffect : BaseDamageEffect
         damageStruct.Percentage = 1;
         damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
         damageStruct.Effectivity = DamageEffectivess.Normal;
-        target.TakeDamage(damageStruct);
+        damageStruct.QTEResult = QuickTimeBase.QTEResult.Early;
+        target.ConsumeHealth(damageStruct);
     }
 
     public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
@@ -54,7 +55,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
                 break;
         }
 
-        s += (int)(change * 100) + "% health every turn ";
+        s += (int)(change * 100) + "% Max Health every turn ";
 
         return s + DurationDescriptor(duration);
     }

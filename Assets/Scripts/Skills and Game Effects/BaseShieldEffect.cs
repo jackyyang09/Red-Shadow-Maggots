@@ -13,6 +13,16 @@ public class BaseShieldEffect : BaseGameEffect
 
     [SerializeField] ScalingStat stat;
     [SerializeField] GameObject forceFieldPrefab;
+
+    /// <summary>
+    /// Applies a Shield to all allies, absorbing DMG equal to 45% of Gepard's DEF plus 600 for 3 turn(s).
+    /// </summary>
+    public override bool IncludesExplainer => true;
+    public override string EffectName => "Shield";
+    public override string EffectDescription =>
+        "Takes " + Keywords.Short.DAMAGE + " in place of " + Keywords.Short.HEALTH + ". " +
+        Keywords.Short.DAMAGE + " taken is reduced by " + Keywords.Short.DEFENSE + ".";
+
     BaseCharacter targetCharacter;
     ForceFieldFX forceFieldInstance;
 
@@ -23,10 +33,10 @@ public class BaseShieldEffect : BaseGameEffect
         switch (stat)
         {
             case ScalingStat.Health:
-                target.GiveShield(user.MaxHealth * user.DefenseModified * percentageChange);
+                target.GiveShield(user.MaxHealth * percentageChange);
                 break;
             case ScalingStat.Attack:
-                target.GiveShield(user.AttackModified * user.DefenseModified * percentageChange);
+                target.GiveShield(user.AttackModified * percentageChange);
                 break;
         }
 
@@ -72,18 +82,23 @@ public class BaseShieldEffect : BaseGameEffect
                 break;
         }
 
-        s += "a shield that absorbs Damage equal to " + percentageChange * 100 + "% " +
-            "of your Defense times your ";
+        /// <summary>
+        /// Applies a Shield to all allies, absorbing DMG equal to 45% of Gepard's DEF plus 600 for 3 turn(s).
+        /// </summary>
+
+        s += percentageChange * 100 + "% of your ";
 
         switch (stat)
         {
             case ScalingStat.Health:
-                s += "Max Health";
+                s += Keywords.Short.MAX_HEALTH;
                 break;
             case ScalingStat.Attack:
-                s += "Attack";
+                s += Keywords.Short.ATTACK;
                 break;
         }
+
+        s += " as a <u>Shield</u>";
 
         return s + " " + DurationDescriptor(duration);
     }
