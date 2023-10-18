@@ -13,20 +13,29 @@ public class BaseAttackLeniency : BaseGameEffect
         PlayerCharacter t = target as PlayerCharacter;
         if (t) // This is a player
         {
-            t.attackLeniencyModifier += percentageChange;
+            t.ApplyAttackLeniencyModifier(percentageChange);
         }
         else // Enemies don't have Attack Leniency
         {
-            Debug.LogWarning("TODO: Enemies don't have Attack Leniency!");
+            Debug.LogError("TODO: Enemies don't have Attack Leniency!");
         }
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
+
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        ((PlayerCharacter)target).attackLeniencyModifier -= percentageChange;
+        PlayerCharacter t = target as PlayerCharacter;
+        if (t) // This is a player
+        {
+            t.ApplyAttackLeniencyModifier(-percentageChange);
+        }
+        else // Enemies don't have Attack Leniency
+        {
+            Debug.LogError("TODO: Enemies don't have Attack Leniency!");
+        }
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)

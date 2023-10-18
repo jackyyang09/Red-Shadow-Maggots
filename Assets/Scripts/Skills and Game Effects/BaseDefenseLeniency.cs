@@ -14,11 +14,11 @@ public class BaseDefenseLeniency : BaseGameEffect
         PlayerCharacter t = target as PlayerCharacter;
         if (t) // This is a player
         {
-            t.defenseLeniencyModifier += percentageChange;
+            t.ApplyDefenseLeniencyModifier(percentageChange);
         }
         else // Enemies don't have Defense Leniency
         {
-            Debug.LogWarning("TODO: Enemies don't have Defense Leniency!");
+            Debug.LogError("TODO: Enemies don't have Defense Leniency!");
         }
     }
 
@@ -28,7 +28,15 @@ public class BaseDefenseLeniency : BaseGameEffect
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        ((PlayerCharacter)target).defenseLeniencyModifier -= percentageChange;
+        PlayerCharacter t = target as PlayerCharacter;
+        if (t) // This is a player
+        {
+            t.ApplyDefenseLeniencyModifier(-percentageChange);
+        }
+        else // Enemies don't have Defense Leniency
+        {
+            Debug.LogError("TODO: Enemies don't have Defense Leniency!");
+        }
     }
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
