@@ -5,6 +5,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Target Focus Effect", menuName = "ScriptableObjects/Game Effects/Target Focus", order = 1)]
 public class BaseTargetFocus : BaseGameEffect
 {
+    public override bool IncludesExplainer => true;
+    public override string EffectName => "Taunt";
+    public override string EffectDescription =>
+        "Increases likelihood of being attacked.";
+
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var player = target as PlayerCharacter;
@@ -23,18 +28,19 @@ public class BaseTargetFocus : BaseGameEffect
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        string s = "Increases likelihood of ";
+        string s = "Apply <u>Taunt</u> ";
 
         switch (targetMode)
         {
             case TargetMode.OneAlly:
-                s += "an Ally ";
-                break;
             case TargetMode.OneEnemy:
-                s += "an Enemy ";
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += TargetModeDescriptor(targetMode);
                 break;
         }
-        return s + "being attacked " + DurationDescriptor(duration);
+
+        return s + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

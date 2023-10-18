@@ -52,12 +52,4 @@ public class ClearDebuffs : BaseGameEffect
     {
         return null;
     }
-
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-    }
-
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-    }
 }

@@ -35,12 +35,9 @@ public class BaseDefenseEffect : BaseGameEffect
             s += "Increase ";
 
         s += TargetModeDescriptor(targetMode);
+        s += Keywords.Short.DEFENSE + " by " + percentageChange * 100 + "% ";
 
-        s += "Defense by ";
-
-        s += percentageChange * 100;
-
-        return s + "% " + DurationDescriptor(duration);
+        return s + DurationDescriptor(duration);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

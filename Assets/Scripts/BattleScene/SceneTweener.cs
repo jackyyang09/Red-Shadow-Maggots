@@ -15,6 +15,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
     [Header("Skill Tween Props")]
     [SerializeField] float effectTickTime = 2;
     public float EffectTickTime => effectTickTime;
+    [SerializeField] float postEffectTickTime = 1;
+    public float PostEffectTickTime => postEffectTickTime;
 
     [SerializeField] float skillEffectApplyDelay = 0.5f;
     public float SkillEffectApplyDelay => skillEffectApplyDelay;
@@ -301,6 +303,8 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         }
 
         playerCam.m_LookAt = worldCenter;
+
+        yield return new WaitForSeconds(postCharacterTweenWaitTime);
 
         battleSystem.EndTurn();
     }

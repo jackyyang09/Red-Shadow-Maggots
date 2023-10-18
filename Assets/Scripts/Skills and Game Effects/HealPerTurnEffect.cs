@@ -19,6 +19,6 @@ public class HealPerTurnEffect : BaseHealEffect
     {
         var s = base.GetEffectDescription(targetMode, strength, customValues, duration);
 
-        return s + "per turn " + DurationDescriptor(duration);
+        return s + " every turn " + DurationDescriptor(duration);
     }
 }

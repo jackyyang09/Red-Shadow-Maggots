@@ -47,7 +47,7 @@ public abstract class BaseGameEffect : ScriptableObject
     /// <summary>
     /// Overrides default tick time if value is above -1
     /// </summary>
-    public float tickAnimationTime = -1;
+    public virtual float TickAnimationTime => 0;
 
     public GameObject particlePrefab;
     public GameObject tickPrefab;

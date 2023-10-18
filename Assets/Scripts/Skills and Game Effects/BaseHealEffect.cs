@@ -30,7 +30,8 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += "health equal to " + change + "% of your Max Health ";
+        s += Keywords.Short.HEALTH + " equal to " +
+            change + "% of your " + Keywords.Short.MAX_HEALTH;
 
         return s;
     }

@@ -602,6 +602,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             }
         }
 
+        bool delay = false;
         var effectKeys = effects.GetKeysCached();
         for (int i = 0; i < effectKeys.Length; i++)
         {
@@ -613,14 +614,21 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
             OnTickEffect?.Invoke(effectKeys[i]);
 
-            if (effectKeys[i].tickAnimationTime > -1)
+            if (effectKeys[i].TickAnimationTime > -1)
             {
-                yield return new WaitForSeconds(effectKeys[i].tickAnimationTime);
+                if (effectKeys[i].TickAnimationTime > 0) delay = true;
+                yield return new WaitForSeconds(effectKeys[i].TickAnimationTime);
             }
             else
             {
+                delay = true;
                 yield return new WaitForSeconds(sceneTweener.EffectTickTime);
             }
+        }
+
+        if (delay)
+        {
+            yield return new WaitForSeconds(sceneTweener.PostEffectTickTime);
         }
 
         OnFinishTickingEffects?.Invoke();
