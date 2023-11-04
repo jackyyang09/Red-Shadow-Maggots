@@ -100,10 +100,10 @@ public class QuickTimeHold : QuickTimeBase
         {
             case BattlePhases.PlayerTurn:
                 activePlayer = attacker as PlayerCharacter;
-                leniency = attacker.AttackLeniency;
+                leniency = attacker.AttackLeniencyModified;
                 break;
             case BattlePhases.EnemyTurn:
-                leniency = attacker.DefenseLeniency;
+                leniency = attacker.DefenseLeniencyModified;
                 break;
         }
 

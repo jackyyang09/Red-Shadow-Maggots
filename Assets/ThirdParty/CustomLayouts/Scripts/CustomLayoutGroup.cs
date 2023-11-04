@@ -31,7 +31,7 @@ public class CustomLayoutGroup : LayoutGroup
         Proportional
     }
 
-    enum LayoutDirection
+    public enum LayoutDirection
     {
         Horizontal,
         Vertical
@@ -47,14 +47,15 @@ public class CustomLayoutGroup : LayoutGroup
         "Proportional - Space relative to size of layout area is given to elements relative to their width/height value")]
     [SerializeField] LayoutMode mode;
     [SerializeField] LayoutDirection direction;
+    public LayoutDirection Direction => direction;
 
     [SerializeField] SpacingMode spacingMode = SpacingMode.Classic;
     [SerializeField] Vector2 spacing;
 
     List<CustomLayoutElement> children = new List<CustomLayoutElement>();
     Vector2[] childPositions;
-    Vector2[] childSizes;
 
+    // Cache this value
     Vector2 trueSizeDelta
     {
         get
@@ -66,6 +67,7 @@ public class CustomLayoutGroup : LayoutGroup
             return rect.size;
         }
     }
+    public Vector2 TrueSizeDelta { get; private set; }
     
     [ContextMenu(nameof(GetTrueSizeDelta))]
     void GetTrueSizeDelta()
@@ -73,8 +75,54 @@ public class CustomLayoutGroup : LayoutGroup
         Debug.Log(trueSizeDelta);
     }
 
+    public override void CalculateLayoutInputHorizontal()
+    {
+        Debug.Log(nameof(CalculateLayoutInputHorizontal));
+        FindChildren();
+
+        if (children.Count == 0) return;
+
+        float spaceX = 0;
+
+        float elementWidth = 1f / children.Count;
+
+        switch (direction)
+        {
+            case LayoutDirection.Horizontal:
+                for (int i = 0; i < children.Count; i++)
+                {
+                    switch (mode)
+                    {
+                        case LayoutMode.Uniform:
+                            childPositions[i].x = spaceX;
+                            children[i].WidthBudget = elementWidth * children[i].Width;
+                            Debug.Log(children[i].Width);
+                            //childSizes[i].x = elementWidth * children[i].Width;
+                            spaceX += elementWidth;
+                            break;
+                        case LayoutMode.Proportional:
+                            childPositions[i].x = spaceX;
+                            children[i].WidthBudget = children[i].Width;
+                            //childSizes[i].x = children[i].Width;
+                            spaceX += children[i].Width;
+                            break;
+                    }
+                }
+                break;
+            case LayoutDirection.Vertical:
+                for (int i = 0; i < children.Count; i++)
+                {
+                    children[i].WidthBudget = children[i].Width;
+                    //childSizes[i].x = children[i].Width;
+                }
+                break;
+        }
+    }
+
     public override void SetLayoutHorizontal()
     {
+        Debug.Log(nameof(SetLayoutHorizontal));
+        TrueSizeDelta = trueSizeDelta;
         for (int i = 0; i < children.Count; i++)
         {
             var rect = children[i].rectTransform;
@@ -90,18 +138,50 @@ public class CustomLayoutGroup : LayoutGroup
             rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = new Vector2(0, 1);
             rect.pivot = new Vector2(0, 1);
-            rect.anchoredPosition = Vector2.Scale(childPositions[i], trueSizeDelta);
-            rect.sizeDelta = Vector2.Scale(childSizes[i], trueSizeDelta);
+            rect.anchoredPosition = Vector2.Scale(childPositions[i], TrueSizeDelta);
+            //rect.sizeDelta = Vector2.Scale(childSizes[i], trueSizeDelta);
+            //var size = Vector2.Scale(childSizes[i], trueSize);
+            //Debug.Log(childSizes[i] + " " + trueSize + " " + size);
+            //children[i].preferredWidth = size.x;
+            //children[i].preferredHeight = size.y;
+        }
+    }
+
+    public override void CalculateLayoutInputVertical()
+    {
+        Debug.Log(nameof(CalculateLayoutInputVertical));
+        if (children.Count == 0) return;
+
+        switch (direction)
+        {
+            case LayoutDirection.Horizontal:
+                for (int i = 0; i < children.Count; i++)
+                {
+                    if (children[i].AspectCorrect)
+                    {
+                        float ar = children[i].AspectRatio.x / children[i].AspectRatio.y;
+
+                        children[i].HeightBudget = children[i].rectTransform.sizeDelta.x / ar;
+                        //childSizes[i].y = children[i].rectTransform.sizeDelta.x / ar;
+                    }
+                    else
+                    {
+                        children[i].HeightBudget = children[i].Height;
+                        //childSizes[i].y = children[i].Height;
+                    }
+                }
+                break;
         }
     }
 
     public override void SetLayoutVertical()
     {
+        Debug.Log(nameof(SetLayoutVertical));
         switch (direction)
         {
             case LayoutDirection.Vertical:
                 float spaceY = 0;
-                float elementHeight = trueSizeDelta.y / children.Count;
+                float elementHeight = TrueSizeDelta.y / children.Count;
                 for (int i = 0; i < children.Count; i++)
                 {
                     if (children[i].AspectCorrect)
@@ -109,8 +189,9 @@ public class CustomLayoutGroup : LayoutGroup
                         float ar = children[i].AspectRatio.x / children[i].AspectRatio.y;
 
                         childPositions[i].y = spaceY;
-                        childSizes[i].y = children[i].rectTransform.sizeDelta.x / ar;
-                        spaceY -= childSizes[i].y;
+                        children[i].HeightBudget = children[i].rectTransform.sizeDelta.x / ar;
+                        //childSizes[i].y = children[i].rectTransform.sizeDelta.x / ar;
+                        spaceY -= children[i].HeightBudget;
                     }
                     else
                     {
@@ -118,13 +199,14 @@ public class CustomLayoutGroup : LayoutGroup
                         {
                             case LayoutMode.Uniform:
                                 childPositions[i].y = spaceY;
-                                childSizes[i].y = elementHeight * children[i].Height;
+                                children[i].HeightBudget = elementHeight * children[i].Height;
+                                //childSizes[i].y = elementHeight * children[i].Height;
                                 spaceY -= elementHeight;
                                 break;
                             case LayoutMode.Proportional:
                                 childPositions[i].y = spaceY;
-                                childSizes[i].y = trueSizeDelta.y * children[i].Height;
-                                spaceY -= childSizes[i].y;
+                                children[i].HeightBudget = trueSizeDelta.y * children[i].Height;
+                                spaceY -= children[i].HeightBudget;
                                 break;
                         }
                     }
@@ -141,37 +223,45 @@ public class CustomLayoutGroup : LayoutGroup
             switch (direction)
             {
                 case LayoutDirection.Horizontal:
-                    rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, childPositions[i].y * trueSizeDelta.y);
+                    rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, childPositions[i].y * TrueSizeDelta.y);
 
-                    if (children[i].AspectCorrect)
-                    {
-                        rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y);
-                    }
-                    else
-                    {
-                        rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y * trueSizeDelta.y);
-                    }
+                    //if (children[i].AspectCorrect)
+                    //{
+                    //    children[i].preferredHeight = childSizes[i].y;
+                    //    Debug.Log(children[i].preferredHeight);
+                    //}
+                    //else
+                    //{
+                    //    children[i].preferredHeight = childSizes[i].y * trueSizeDelta.y;
+                    //    Debug.Log(children[i].preferredHeight);
+                    //}
 
                     switch (mode)
                     {
                         case LayoutMode.Uniform:
-                            width = trueSizeDelta.x / children.Count;
+                            width = TrueSizeDelta.x / children.Count;
                             break;
                         case LayoutMode.Proportional:
                             width = rect.sizeDelta.x;
                             break;
                     }
-                    height = trueSizeDelta.y;
+                    height = TrueSizeDelta.y;
                     break;
                 case LayoutDirection.Vertical:
                     if (children[i].AspectCorrect)
                     {
-                        rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y);
+                        //rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y);
+                        //children[i].preferredWidth = rect.sizeDelta.x;
+                        //children[i].preferredHeight = childSizes[i].y;
+
                         rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, childPositions[i].y);
                     }
                     else
                     {
-                        rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y);
+                        //rect.sizeDelta = new Vector2(rect.sizeDelta.x, childSizes[i].y);
+                        //children[i].preferredWidth = rect.sizeDelta.x;
+                        //children[i].preferredHeight = childSizes[i].y;
+
                         rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, childPositions[i].y);
                     }
 
@@ -201,77 +291,13 @@ public class CustomLayoutGroup : LayoutGroup
         {
             var t = transform.GetChild(i);
             if (!t.gameObject.activeSelf) continue;
-            CustomLayoutElement e;
-            if (transform.GetChild(i).TryGetComponent(out e))
+            if (transform.GetChild(i).TryGetComponent(out CustomLayoutElement e))
             {
+                e.ParentGroup = this;
                 children.Add(e);
             }
         }
         childPositions = new Vector2[children.Count];
-        childSizes = new Vector2[children.Count];
-    }
-
-    public override void CalculateLayoutInputHorizontal()
-    {
-        FindChildren();
-
-        if (children.Count == 0) return;
-
-        float spaceX = 0;
-
-        float elementWidth = 1f / children.Count;
-
-        switch (direction)
-        {
-            case LayoutDirection.Horizontal:
-                for (int i = 0; i < children.Count; i++)
-                {
-                    switch (mode)
-                    {
-                        case LayoutMode.Uniform:
-                            childPositions[i].x = spaceX;
-                            childSizes[i].x = elementWidth * children[i].Width;
-                            spaceX += elementWidth;
-                            break;
-                        case LayoutMode.Proportional:
-                            childPositions[i].x = spaceX;
-                            childSizes[i].x = children[i].Width;
-                            spaceX += childSizes[i].x;
-                            break;
-                    }
-                }
-                break;
-            case LayoutDirection.Vertical:
-                for (int i = 0; i < children.Count; i++)
-                {
-                    childSizes[i].x = children[i].Width;
-                }
-                break;
-        }
-    }
-
-    public override void CalculateLayoutInputVertical()
-    {
-        if (children.Count == 0) return;
-
-        switch (direction)
-        {
-            case LayoutDirection.Horizontal:
-                for (int i = 0; i < children.Count; i++)
-                {
-                    if (children[i].AspectCorrect)
-                    {
-                        float ar = children[i].AspectRatio.x / children[i].AspectRatio.y;
-
-                        childSizes[i].y = children[i].rectTransform.sizeDelta.x / ar;
-                    }
-                    else
-                    {
-                        childSizes[i].y = children[i].Height;
-                    }
-                }
-                break;
-        }
     }
 
     public void EvaluateAnchor(CustomLayoutElement element, float width, float height)
@@ -286,7 +312,7 @@ public class CustomLayoutGroup : LayoutGroup
                 pos = new Vector2(pos.x + width / 2 - size.x / 2, pos.y);
                 break;
             case TextAnchor.UpperRight:
-                pos = new Vector2(pos.x + width - size.x, pos.y);
+                pos = new Vector2(pos.x + width - size.x, pos.y);   
                 break;
             case TextAnchor.MiddleLeft:
                 pos = new Vector2(pos.x, pos.y - height / 2 + size.y / 2);
@@ -309,4 +335,11 @@ public class CustomLayoutGroup : LayoutGroup
         }
         element.rectTransform.anchoredPosition = pos;
     }
+
+#if UNITY_EDITOR
+    protected override void OnValidate()
+    {
+        LayoutRebuilder.MarkLayoutForRebuild(rectTransform);
+    }
+#endif
 }

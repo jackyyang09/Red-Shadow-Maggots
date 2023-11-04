@@ -46,11 +46,13 @@ public abstract class BaseCharacter : MonoBehaviour
     public float DefenseModified => Defense * DefenseModifier;
 
     float attackLeniencyModifier = 1;
-    public float AttackLeniency => characterReference.attackLeniency * attackLeniencyModifier;
+    public float AttackLeniency => characterReference.attackLeniency;
+    public float AttackLeniencyModified => AttackLeniency * attackLeniencyModifier;
     public void ApplyAttackLeniencyModifier(float mod) => attackLeniencyModifier += mod;
 
     float defenseLeniencyModifier = 1;
-    public float DefenseLeniency => characterReference.defenseLeniency * defenseLeniencyModifier;
+    public float DefenseLeniency => characterReference.defenseLeniency;
+    public float DefenseLeniencyModified => characterReference.defenseLeniency * defenseLeniencyModifier;
     public void ApplyDefenseLeniencyModifier(float mod) => defenseLeniencyModifier += mod;
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;

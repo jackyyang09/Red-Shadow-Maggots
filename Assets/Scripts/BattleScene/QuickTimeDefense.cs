@@ -46,6 +46,7 @@ public class QuickTimeDefense : QuickTimeBase
         animationEvents = new List<AnimationEvent>();
         attacks = 0;
 
+        totalLeniency = battleSystem.ActiveEnemy.AttackLeniencyModified;
         bool isAOE = false;
         for (int i = 0; i < events.Length; i++)
         {
@@ -139,18 +140,16 @@ public class QuickTimeDefense : QuickTimeBase
         float timeElapsed = Time.time - startTime;
         float timeDiff = Mathf.Abs(timeElapsed - attackLength);
 
-        float leniency = targetPlayers[0].DefenseLeniency;
-        for (int i = 1; i < targetPlayers.Count; i++) leniency += targetPlayers[i].DefenseLeniency;
-        leniency /= targetPlayers.Count;
-
-        float window = leniency;
+        totalLeniency = targetPlayers[0].DefenseLeniencyModified;
+        for (int i = 1; i < targetPlayers.Count; i++) totalLeniency += targetPlayers[i].DefenseLeniencyModified;
+        totalLeniency /= targetPlayers.Count;
 
         if (missed)
         {
             BaseCharacter.IncomingDamage.DamageNormalized = barMissValue;
             BaseCharacter.IncomingDamage.QTEResult = QTEResult.Late;
         }
-        else if (timeDiff <= window)
+        else if (timeDiff <= totalLeniency)
         {
             BaseCharacter.IncomingDamage.DamageNormalized = barSuccessValue;
             BaseCharacter.IncomingDamage.QTEResult = QTEResult.Perfect;
@@ -158,7 +157,7 @@ public class QuickTimeDefense : QuickTimeBase
         }
         else if (!missed)
         {
-            BaseCharacter.IncomingDamage.DamageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, window, timeDiff));
+            BaseCharacter.IncomingDamage.DamageNormalized = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, totalLeniency, timeDiff));
             BaseCharacter.IncomingDamage.QTEResult = QTEResult.Early;
         }
     }

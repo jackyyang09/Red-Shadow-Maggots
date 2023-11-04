@@ -22,7 +22,7 @@ public class DoorPoison : DamagePerTurnEffect
 
     System.Action damageDelegate;
 
-    public GameObject doorPrefab = null;
+    public GameObject doorPrefab;
 
     public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
@@ -33,19 +33,22 @@ public class DoorPoison : DamagePerTurnEffect
         switch (targetMode)
         {
             case TargetMode.Self:
-                s += "Lose ";
+                s += "Get ";
                 break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
-                s += "loses ";
+                s += "gets ";
                 break;
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += "lose ";
+                s += "get ";
                 break;
         }
 
-        s += (int)(change * 100) + "% Max Health every turn by getting hit by a door ";
+        //s += (int)(change * 100) + "% " + Keywords.Short.MAX_HEALTH + 
+        //    " every turn by getting hit by a door ";
+        s += "hit by a <u>Door</u> every turn, taking " + (int)(change * 100) + "% of your " +
+            Keywords.Short.ATTACK + " in damage ";
 
         return s + DurationDescriptor(duration);
     }

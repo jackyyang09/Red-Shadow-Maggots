@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4844cc75892397d49b6003873f335868, type: 3}
+  m_Name: Wazowski Soldier (Offense)
+  m_EditorClassIdentifier: 
+  characterName: Wazowski Soldier
+  sprite: {fileID: 21300000, guid: 31d17d2c3d3052c42980b5bd81bc93f2, type: 3}
+  headshotSprite: {fileID: 21300000, guid: 0c8e3d44c20ffce4ea28cd4944b35349, type: 3}
+  attackRange: {x: 411, y: 8237}
+  healthRange: {x: 588, y: 11762}
+  defenseRange: {x: 0.08272688, y: 0.16389257}
+  enemyHealthRange: {x: 588, y: 11762}
+  isBoss: 0
+  critChance: 0.01
+  critDamageMultiplier: 0.5
+  characterClass: 0
+  attackQteType: 0
+  turnsToCrit: 3
+  attackLeniency: 0.6
+  defenseLeniency: 0.1
+  skills:
+  - {fileID: 11400000, guid: a66e02357316cb518b235e2257918211, type: 2}
+  - {fileID: 11400000, guid: a4454cfe2e6c0f93fa3ec7df04938873, type: 2}
+  hasAltSkillAnimation: 0
+  superCritical: {fileID: 11400000, guid: 7914e47e02b4d174198916ac295bce90, type: 2}
+  superCriticalAnim: {fileID: 7400000, guid: 0a04879a77951b848a4d854a78286b53, type: 2}
+  isSuperCriticalAnAttack: 1
+  superCritRange: 0
+  tweenBackStyle: 2
+  spriteObject: {fileID: 0}
+  animator: {fileID: 0}
+  characterRig:
+    m_AssetGUID: 500724ddd224f424e8e91a7d493324a8
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  attackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: ec3b21aade82133478a7212cb6d018ae, type: 2}
+    attackRange: 0
+    isAOE: 0
+  enemyAttackAnimations:
+  - attackAnimation: {fileID: 7400000, guid: 50ffd7c6a8803b840b9159b57ad4ef9e, type: 2}
+    attackRange: 0
+    isAOE: 0
+  attackEffectPrefab: {fileID: 100000, guid: bc98890f6028f444eaa7789bde5e2eeb, type: 3}
+  projectileEffectPrefabs: []
+  extraEffectPrefabs: []
+  environmentAsset:
+    m_AssetGUID: 0ecbea84bce26544e986f16022a8d8c4
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  skyboxAsset:
+    m_AssetGUID: 1a22edd06f948fc44ba17ccd4e792450
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  voiceEntry: {fileID: 0}
+  voiceAttack: {fileID: 0}
+  voiceSelected: {fileID: 0}
+  voiceFirstSkill: {fileID: 0}
+  voiceSecondSkill: {fileID: 0}
+  voiceHurt: {fileID: 0}
+  voiceDeath: {fileID: 11400000, guid: 0372c74068f03c64b981c68a8fab98a9, type: 2}
+  voiceVictory: {fileID: 0}
+  weaponSound: {fileID: 11400000, guid: 917e942c61de0c046be774369a43a956, type: 2}
+  extraSounds:
+  - {fileID: 11400000, guid: 2110a472a739ab74b9a5dad0effea537, type: 2}
+  - {fileID: 11400000, guid: 29b6b8561ae76d645bd84a547b910deb, type: 2}
+  - {fileID: 11400000, guid: 1e40ce15f1c4036408946b806fb3967b, type: 2}

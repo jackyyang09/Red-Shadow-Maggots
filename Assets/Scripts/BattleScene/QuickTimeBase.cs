@@ -12,10 +12,9 @@ public abstract class QuickTimeBase : MonoBehaviour
         Late
     }
 
-    [SerializeField]
-    protected OptimizedCanvas canvas;
+    [SerializeField] protected OptimizedCanvas canvas;
 
-    protected PlayerCharacter activePlayer = null;
+    protected PlayerCharacter activePlayer;
 
     public abstract void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null);
 
@@ -24,6 +23,8 @@ public abstract class QuickTimeBase : MonoBehaviour
     public abstract void GetMultiplier();
 
     [SerializeField] protected float hideDelay = 0.5f;
+
+    protected float totalLeniency;
 
     public static bool AlwaysSucceed = false;
 

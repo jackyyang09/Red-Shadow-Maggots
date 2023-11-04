@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Irony.NetCore</id>
+    <version>1.0.11</version>
+    <authors>daxnet</authors>
+    <owners>daxnet</owners>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/daxnet/irony/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/daxnet/irony</projectUrl>
+    <description>Irony.NetCore is a .NET Core compatible version of the Irony framework initially developed and maintained by Roman Ivantsov. Irony is a development kit for implementing languages on .NET platform. In Irony the target language grammar is coded directly in c# using operator overloading to express grammar constructs. Irony's scanner and parser modules use the grammar encoded as c# class to control the parsing process.</description>
+    <tags>irony parser</tags>
+    <repository url="https://github.com/daxnet/irony/blob/master/LICENSE" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.2" />
+      <group targetFramework=".NETFramework4.6.1" />
+      <group targetFramework=".NETStandard1.6">
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.Emit.Lightweight" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.Extensions" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.TypeExtensions" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Runtime.Numerics" version="4.3.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.5.2, .NETFramework4.6.1" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5.2, .NETFramework4.6.1" />
+      <frameworkAssembly assemblyName="System.Numerics" targetFramework=".NETFramework4.5.2, .NETFramework4.6.1" />
+    </frameworkAssemblies>
+  </metadata>
+</package>

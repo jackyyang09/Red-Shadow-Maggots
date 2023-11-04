@@ -13691,6 +13691,10 @@ PrefabInstance:
       propertyPath: library
       value: 
       objectReference: {fileID: 11400000, guid: c327f635439dc62428c3b23bc76d45d6, type: 2}
+    - target: {fileID: 2133915684049951699, guid: a5622182eb5c80d4090797d80bbf7abc, type: 3}
+      propertyPath: listener
+      value: 
+      objectReference: {fileID: 2145123371}
     - target: {fileID: 4502563656087406104, guid: a5622182eb5c80d4090797d80bbf7abc, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -34527,13 +34531,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buffColour: {r: 0.6, g: 0.8, b: 1, a: 1}
   debuffColour: {r: 1, g: 0.25, b: 0.25, a: 1}
-  minimumHeight: 500
-  lineHeight: 120
-  characterCountPerLine: 0
   canvas: {fileID: 1917909572}
   nameText: {fileID: 1989679953}
   cooldownCount: {fileID: 1503362312}
   description: {fileID: 1293030518}
+  explainerParent: {fileID: 0}
+  effectExplainerPrefab: {fileID: 0}
 --- !u!224 &1917909578
 RectTransform:
   m_ObjectHideFlags: 0

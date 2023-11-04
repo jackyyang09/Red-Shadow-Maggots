@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>ClosedXML</id>
+    <version>0.102.1</version>
+    <authors>Jan Havlíček, Francois Botha, Aleksei Pankratev, Manuel de Leon, Amir Ghezelbash</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>nuget-logo.png</icon>
+    <projectUrl>https://github.com/ClosedXML/ClosedXML</projectUrl>
+    <description>See release notes https://github.com/ClosedXML/ClosedXML/releases/tag/0.102.1 ClosedXML is a .NET library for reading, manipulating and writing Excel 2007+ (.xlsx, .xlsm) files. It aims to provide an intuitive and user-friendly interface to dealing with the underlying OpenXML API.</description>
+    <releaseNotes>See https://github.com/ClosedXML/ClosedXML/releases/tag/0.102.1</releaseNotes>
+    <copyright>MIT</copyright>
+    <tags>Excel OpenXml xlsx</tags>
+    <repository type="git" url="https://github.com/ClosedXML/ClosedXML" commit="2d5af0ea59788da03b5c38c433e42ea2ebd38660" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="DocumentFormat.OpenXml" version="2.16.0" exclude="Build,Analyzers" />
+        <dependency id="ExcelNumberFormat" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.Fonts" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Buffers" version="4.5.1" exclude="Build,Analyzers" />
+        <dependency id="System.IO.Packaging" version="6.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Memory" version="4.5.4" exclude="Build,Analyzers" />
+        <dependency id="System.Net.Http" version="4.3.4" exclude="Build,Analyzers" />
+        <dependency id="System.Text.RegularExpressions" version="4.3.1" exclude="Build,Analyzers" />
+        <dependency id="XLParser" version="1.5.2" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="DocumentFormat.OpenXml" version="2.16.0" exclude="Build,Analyzers" />
+        <dependency id="ExcelNumberFormat" version="1.1.0" exclude="Build,Analyzers" />
+        <dependency id="SixLabors.Fonts" version="1.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.IO.Packaging" version="6.0.0" exclude="Build,Analyzers" />
+        <dependency id="System.Net.Http" version="4.3.4" exclude="Build,Analyzers" />
+        <dependency id="System.Text.RegularExpressions" version="4.3.1" exclude="Build,Analyzers" />
+        <dependency id="XLParser" version="1.5.2" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>
