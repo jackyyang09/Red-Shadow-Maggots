@@ -17,6 +17,7 @@ public class EffectProperties
 {
     public BaseGameEffect effect;
     public int effectDuration;
+    public int activationLimit;
     public TargetMode targetOverride;
     public EffectStrength strength;
     public float[] customValues = new float[] { 0 };
@@ -49,7 +50,7 @@ public class SkillObject : ScriptableObject
 
             var target = f.targetOverride == TargetMode.None ? targetMode : f.targetOverride;
 
-            d[i] += f.effect.GetEffectDescription(target, f.strength, f.customValues, f.effectDuration).ToString();
+            d[i] += f.effect.GetSkillDescription(target, f.strength, f.customValues, f.effectDuration).ToString();
         }
         return d;
     }
@@ -67,6 +68,7 @@ public class AppliedEffect
     public EffectStrength strength;
     public float[] customValues;
     public string description;
+    public float cachedValue;
 
     /// <summary>
     /// </summary>

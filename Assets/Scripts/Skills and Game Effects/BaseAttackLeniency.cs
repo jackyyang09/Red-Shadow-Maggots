@@ -38,7 +38,7 @@ public class BaseAttackLeniency : BaseGameEffect
         }
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 

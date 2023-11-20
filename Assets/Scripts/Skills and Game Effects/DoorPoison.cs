@@ -16,15 +16,15 @@ public class DoorPoison : DamagePerTurnEffect
     [SerializeField] float doorLifetime = 2;
 
     public override bool IncludesExplainer => true;
-    public override string EffectName => "Door";
-    public override string EffectDescription =>
+    public override string ExplainerName => "Door";
+    public override string ExplainerDescription =>
         "Every turn, get hit by a door and lose " + Keywords.Short.HEALTH + ".";
 
     System.Action damageDelegate;
 
     public GameObject doorPrefab;
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float change = (float)GetEffectStrength(strength, customValues);
 

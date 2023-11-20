@@ -15,9 +15,9 @@ public class HealPerTurnEffect : BaseHealEffect
         base.Activate(user, target, strength, customValues);
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
-        var s = base.GetEffectDescription(targetMode, strength, customValues, duration);
+        var s = base.GetSkillDescription(targetMode, strength, customValues, duration);
 
         return s + " every turn " + DurationDescriptor(duration);
     }

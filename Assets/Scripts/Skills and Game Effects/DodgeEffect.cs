@@ -15,7 +15,7 @@ public class DodgeEffect : BaseGameEffect
         target.IsDodging = false;
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         string d = "";
         if (targetMode == TargetMode.Self)

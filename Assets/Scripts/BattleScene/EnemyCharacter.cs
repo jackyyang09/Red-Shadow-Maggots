@@ -288,3 +288,12 @@ public class EnemyCharacter : BaseCharacter
         }
     }
 }
+
+public static class EnemyCharacterExtension
+{
+    public static bool IsEnemy(this BaseCharacter b, out EnemyCharacter enemy)
+    {
+        enemy = b as EnemyCharacter;
+        return enemy;
+    }
+}

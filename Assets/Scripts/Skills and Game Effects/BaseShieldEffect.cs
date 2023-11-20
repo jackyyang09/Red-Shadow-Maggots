@@ -14,12 +14,14 @@ public class BaseShieldEffect : BaseGameEffect
     [SerializeField] ScalingStat stat;
     [SerializeField] GameObject forceFieldPrefab;
 
+    public GameStatValue value;
+
     /// <summary>
     /// Applies a Shield to all allies, absorbing DMG equal to 45% of Gepard's DEF plus 600 for 3 turn(s).
     /// </summary>
     public override bool IncludesExplainer => true;
-    public override string EffectName => "Shield";
-    public override string EffectDescription =>
+    public override string ExplainerName => "Shield";
+    public override string ExplainerDescription =>
         "Takes " + Keywords.Short.DAMAGE + " in place of " + Keywords.Short.HEALTH + ". " +
         Keywords.Short.DAMAGE + " taken is reduced by " + Keywords.Short.DEFENSE + ".";
 
@@ -60,7 +62,7 @@ public class BaseShieldEffect : BaseGameEffect
         Destroy(forceFieldInstance.gameObject);
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 

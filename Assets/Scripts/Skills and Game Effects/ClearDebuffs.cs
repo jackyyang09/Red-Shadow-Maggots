@@ -23,7 +23,7 @@ public class ClearDebuffs : BaseGameEffect
         }
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         string desc = "Removes all debuffs from ";
         switch (targetMode)

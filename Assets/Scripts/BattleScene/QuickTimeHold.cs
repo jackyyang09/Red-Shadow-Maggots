@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Facade;
 
 public class QuickTimeHold : QuickTimeBase
 {
@@ -87,7 +88,7 @@ public class QuickTimeHold : QuickTimeBase
         JSAM.AudioManager.StopSound(chargeSound);
     }
 
-    public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> target = null)
+    public override void InitializeBar(BaseCharacter attacker)
     {
         tickRoutine = null;
         barLevel = 0;
@@ -95,7 +96,7 @@ public class QuickTimeHold : QuickTimeBase
         fillBar.color = Color.white;
         gaugeArrow.localEulerAngles = new Vector3(0, 0, gaugeRotations[0].x);
 
-        float leniency = 0;
+        float leniency = 0.5f;
         switch (BattleSystem.Instance.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
@@ -106,6 +107,10 @@ public class QuickTimeHold : QuickTimeBase
                 leniency = attacker.DefenseLeniencyModified;
                 break;
         }
+
+        var target = battleSystem.ActiveEnemy;
+        var targetLeniency = target.DefenseLeniencyModified;
+        totalLeniency = leniency - targetLeniency;
 
         var failZone = progressBar.rectTransform.sizeDelta.y * failZoneSize;
         targetBar.rectTransform.anchoredPosition = new Vector2(targetBar.rectTransform.anchoredPosition.x, -Mathf.Abs(failZone));

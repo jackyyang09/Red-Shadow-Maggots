@@ -36,7 +36,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
         target.TakeDamage(damageStruct);
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float change = (float)GetEffectStrength(strength, customValues);
 

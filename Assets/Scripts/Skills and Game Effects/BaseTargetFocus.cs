@@ -6,8 +6,8 @@ using UnityEngine;
 public class BaseTargetFocus : BaseGameEffect
 {
     public override bool IncludesExplainer => true;
-    public override string EffectName => "Taunt";
-    public override string EffectDescription =>
+    public override string ExplainerName => "Taunt";
+    public override string ExplainerDescription =>
         "Increases likelihood of being attacked.";
 
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -26,7 +26,7 @@ public class BaseTargetFocus : BaseGameEffect
     {
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         string s = "Apply <u>Taunt</u> ";
 

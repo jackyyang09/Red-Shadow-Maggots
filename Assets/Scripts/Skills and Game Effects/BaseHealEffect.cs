@@ -5,14 +5,18 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
 public class BaseHealEffect : BaseGameEffect
 {
+    public GameStatValue value;
+
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        var amount = (float)GetEffectStrength(strength, customValues) * user.MaxHealth;
+        var amount = value.SolveValue(strength, user, target);
+
+        //var amount = (float)GetEffectStrength(strength, customValues) * user.MaxHealth;
 
         target.Heal(amount);
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         var change = (int)((float)GetEffectStrength(strength, customValues) * 100);
 

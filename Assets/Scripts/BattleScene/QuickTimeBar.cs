@@ -65,23 +65,26 @@ public class QuickTimeBar : QuickTimeBase
         Invoke(nameof(Enable), barFillDelay);
     }
 
-    public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> target = null)
+    public override void InitializeBar(BaseCharacter attacker)
     {
         fillBar.fillAmount = 0;
         fillBar.color = Color.white;
 
         float targetLeniency = 0;
-        float leniency = 0;
+        float leniency = 0.5f; // Move base leniency somewhere else
 
         switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
                 activePlayer = attacker as PlayerCharacter;
 
-                for (int i = 0; i < target.Count; i++)
-                {
-                    targetLeniency += target[i].DefenseLeniencyModified;
-                }
+                var target = battleSystem.ActiveEnemy;
+                //for (int i = 0; i < target.Count; i++)
+                //{
+                //    if (!target[i]) continue;
+                //    targetLeniency += target[i].DefenseLeniencyModified;
+                //}
+                targetLeniency = target.DefenseLeniencyModified;
 
                 leniency = attacker.AttackLeniencyModified;
                 break;
@@ -92,8 +95,7 @@ public class QuickTimeBar : QuickTimeBase
                 break;
         }
 
-        // Weigh your leniency versus the enemy's
-        totalLeniency = ((1 - targetLeniency) + leniency) / 2f;
+        totalLeniency = leniency - targetLeniency;
 
         var failZone = progressBar.rectTransform.sizeDelta.x * failZoneSize;
         targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZone), targetBar.rectTransform.anchoredPosition.y);

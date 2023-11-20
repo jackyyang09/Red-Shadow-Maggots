@@ -290,3 +290,11 @@ public class PlayerCharacter : BaseCharacter
         base.HideSelectionPointer();
     }
 }
+
+public static class PlayerCharacterExtension
+{
+    public static bool IsPlayer(this BaseCharacter b)
+    {
+        return b as PlayerCharacter;
+    }
+}

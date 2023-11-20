@@ -37,8 +37,8 @@ public abstract class BaseGameEffect : ScriptableObject
     /// <summary>
     /// Only used if IncludesExplainer is true
     /// </summary>
-    [HideInInspector] public virtual string EffectName { get; }
-    [HideInInspector] public virtual string EffectDescription { get; }
+    [HideInInspector] public virtual string ExplainerName { get; }
+    [HideInInspector] public virtual string ExplainerDescription { get; }
 
     public EffectType effectType = EffectType.None;
 
@@ -93,7 +93,9 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public virtual object GetEffectStrength(EffectStrength strength, float[] customValues) { return null; }
 
-    public virtual string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration) { return ""; }
+    public virtual string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration) => "";
+
+    public virtual string GetEffectDescription(EffectStrength strength, float[] customValues) => "";
 
     protected string DurationDescriptor(int turns)
     {

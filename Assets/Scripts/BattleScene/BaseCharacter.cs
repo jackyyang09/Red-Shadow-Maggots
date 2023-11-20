@@ -55,6 +55,10 @@ public abstract class BaseCharacter : MonoBehaviour
     public float DefenseLeniencyModified => characterReference.defenseLeniency * defenseLeniencyModifier;
     public void ApplyDefenseLeniencyModifier(float mod) => defenseLeniencyModifier += mod;
 
+    float healInModifier = 1;
+    public float HealInModifier => healInModifier;
+    public void ApplyHealInModifier(float mod) => healInModifier += mod;
+
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;
 
     /// <summary>
@@ -681,6 +685,8 @@ public abstract class BaseCharacter : MonoBehaviour
         if (target.IsDead) return;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
         props.effect.Activate(caster, target, props.strength, props.customValues);
+        // TODO: Uncomment me
+        //newEffect.cachedValue = props.effect.Activate(caster, target, props.strength, props.customValues);
 
         EffectTextSpawner.Instance.SpawnEffectAt(props.effect, target.transform);
 
@@ -695,14 +701,8 @@ public abstract class BaseCharacter : MonoBehaviour
         newEffect.strength = props.strength;
         newEffect.customValues = props.customValues;
         newEffect.description =
-            props.effect.GetEffectDescription(TargetMode.Self, props.strength, props.customValues,
-                props.effectDuration);
-
-        int bracketIndex = newEffect.description.IndexOf("(");
-        if (bracketIndex > -1) // Remove the (X Turns) part of the description
-        {
-            newEffect.description = newEffect.description.Remove(bracketIndex);
-        }
+            props.effect.GetEffectDescription(props.strength, props.customValues);
+        
         target.ApplyEffect(newEffect);
     }
 
@@ -849,6 +849,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void Heal(float healthGain)
     {
+        healthGain *= HealInModifier;
         health = Mathf.Min(health + healthGain, maxHealth);
         onHeal?.Invoke();
         onSetHealth?.Invoke();
@@ -1010,6 +1011,24 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (health == 0 && CanDie)
         {
+            bool hasOnDeathEffect = false;
+
+            foreach (var item in AppliedEffects)
+            {
+                var deadEffect = item.Key as BaseOnDeathEffect;
+                if (!deadEffect) continue;
+                foreach (var e in item.Value)
+                {
+                    battleSystem.RegisterOnDeathEffect(e);
+                    hasOnDeathEffect = true;
+                }
+            }
+
+            // Don't die just yet
+            if (hasOnDeathEffect) return;
+
+            Die();
+
             if (rigAnim)
             {
                 //PlayDamageShakeEffect(damage.damageNormalized);
@@ -1021,8 +1040,6 @@ public abstract class BaseCharacter : MonoBehaviour
                 {
                     animHelper.EnableRagdollExplosion();
                 }
-
-                Die();
             }
             else
             {
@@ -1030,7 +1047,6 @@ public abstract class BaseCharacter : MonoBehaviour
                 {
                     PlayDamageShakeEffect(damage.DamageNormalized);
                     spriteAnim.Play("Death");
-                    Die();
                 }
             }
         }
@@ -1066,6 +1082,9 @@ public abstract class BaseCharacter : MonoBehaviour
     {
     }
 
+    /// <summary>
+    /// For spawning corpses
+    /// </summary>
     public virtual void DieSilently()
     {
         StartCoroutine(DeathRoutine());

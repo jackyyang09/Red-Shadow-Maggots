@@ -16,7 +16,7 @@ public abstract class QuickTimeBase : MonoBehaviour
 
     protected PlayerCharacter activePlayer;
 
-    public abstract void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null);
+    public abstract void InitializeBar(BaseCharacter attacker);
 
     public abstract void StartTicking();
 

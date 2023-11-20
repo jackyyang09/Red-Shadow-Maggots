@@ -24,7 +24,7 @@ public class QuickTimeDefense : QuickTimeBase
 
     bool missed = true;
 
-    public override void InitializeBar(BaseCharacter attacker, List<BaseCharacter> targets = null)
+    public override void InitializeBar(BaseCharacter attacker)
     {
     }
 

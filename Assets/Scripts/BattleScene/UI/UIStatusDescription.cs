@@ -19,7 +19,7 @@ public class UIStatusDescription : MonoBehaviour
     public void ApplyStatus(AppliedEffect effect)
     {
         effectIcon.sprite = effect.referenceEffect.effectIcon;
-        description.text = effect.description + "(" + effect.remainingTurns;
+        description.text = effect.description + " (" + effect.remainingTurns;
         description.text += " Turn";
         if (effect.remainingTurns > 1) description.text += "s";
         description.text += ")";

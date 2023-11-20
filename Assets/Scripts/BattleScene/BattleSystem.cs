@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
+using DocumentFormat.OpenXml.Office2016.Presentation.Command;
 
 public enum BattlePhases
 {
@@ -161,6 +162,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
 
     List<PlayerCharacter> deadMaggots = new List<PlayerCharacter>();
+    List<AppliedEffect> deathEffects = new List<AppliedEffect>();
+    public void RegisterOnDeathEffect(AppliedEffect a) => deathEffects.Add(a);
 
     public static System.Action[] OnStartPhase = new System.Action[(int)BattlePhases.Count];
     public static System.Action[] OnStartPhaseLate = new System.Action[(int)BattlePhases.Count];
@@ -509,6 +512,16 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
 
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
+        foreach (var effect in deathEffects)
+        {
+            var d = effect.referenceEffect as BaseOnDeathEffect;
+            d.OnDeath(effect.caster, effect.target, effect.strength, effect.customValues);
+
+            yield return new WaitForSeconds(sceneTweener.EffectTickTime);
+
+            // DIE
+        }
+        deathEffects.Clear();
 
         var activeCharacter = moveOrder[moveCount];
         var isPlayer = activeCharacter as PlayerCharacter;

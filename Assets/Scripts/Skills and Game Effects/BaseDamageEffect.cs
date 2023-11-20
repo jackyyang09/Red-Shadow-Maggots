@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Damage Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
 public class BaseDamageEffect : BaseGameEffect
 {
+    public GameStatValue value;
+
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         base.Activate(user, target, strength, customValues);
@@ -16,7 +18,7 @@ public class BaseDamageEffect : BaseGameEffect
         target.ConsumeHealth(damageStruct);
     }
 
-    public override string GetEffectDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
     {
         float change = (float)GetEffectStrength(strength, customValues);
 

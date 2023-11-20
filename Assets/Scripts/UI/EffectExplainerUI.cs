@@ -10,8 +10,8 @@ public class EffectExplainerUI : BaseGameUI
 
     public void InitializeWithEffect(BaseGameEffect effect)
     {
-        titleLabel.text = effect.EffectName;
-        descLabel.text = effect.EffectDescription;
+        titleLabel.text = effect.ExplainerName;
+        descLabel.text = effect.ExplainerDescription;
     }
 
     public override void ShowUI()
