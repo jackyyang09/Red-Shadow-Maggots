@@ -16,9 +16,9 @@ public class BaseHealEffect : BaseGameEffect
         target.Heal(amount);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        var change = (int)((float)GetEffectStrength(strength, customValues) * 100);
+        var change = (int)((float)GetEffectStrength(props.strength, props.customValues) * 100);
 
         string s = TargetModeDescriptor(targetMode);
 

@@ -38,9 +38,9 @@ public class BaseAttackLeniency : BaseGameEffect
         }
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -51,7 +51,7 @@ public class BaseAttackLeniency : BaseGameEffect
         else
             s += "increased";
 
-        return s + " by " + percentageChange * 100 + "% " + DurationDescriptor(duration);
+        return s + " by " + percentageChange * 100 + "% " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

@@ -15,12 +15,12 @@ public class DodgeEffect : BaseGameEffect
         target.IsDodging = false;
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
         string d = "";
         if (targetMode == TargetMode.Self)
         {
-            return "Avoids an attack " + DurationDescriptor(duration);;
+            return "Avoids an attack " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
         }
         else
         {
@@ -34,7 +34,7 @@ public class DodgeEffect : BaseGameEffect
                     break;
             }
         }
-        return d += " an attack " + DurationDescriptor(duration);;
+        return d += " an attack " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

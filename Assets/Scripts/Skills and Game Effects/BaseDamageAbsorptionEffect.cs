@@ -23,9 +23,9 @@ public class BaseDamageAbsorptionEffect : BaseGameEffect
         target.ApplyDamageAbsorptionModifier(-percentageChange);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -53,7 +53,7 @@ public class BaseDamageAbsorptionEffect : BaseGameEffect
             s += "% less ";
 
 
-        return s + "damage " + DurationDescriptor(duration);
+        return s + "damage " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

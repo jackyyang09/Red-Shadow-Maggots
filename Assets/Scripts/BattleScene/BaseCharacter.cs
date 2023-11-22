@@ -684,7 +684,6 @@ public abstract class BaseCharacter : MonoBehaviour
         if (!target) return;
         if (target.IsDead) return;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
-        props.effect.Activate(caster, target, props.strength, props.customValues);
         // TODO: Uncomment me
         //newEffect.cachedValue = props.effect.Activate(caster, target, props.strength, props.customValues);
 
@@ -698,6 +697,7 @@ public abstract class BaseCharacter : MonoBehaviour
         newEffect.target = target;
         newEffect.referenceEffect = props.effect;
         newEffect.remainingTurns = props.effectDuration;
+        newEffect.remainingActivations = props.activationLimit;
         newEffect.strength = props.strength;
         newEffect.customValues = props.customValues;
         newEffect.description =
@@ -784,7 +784,14 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         AppliedEffects[newEffect.referenceEffect].Add(newEffect);
+        newEffect.Apply();
         OnApplyGameEffect?.Invoke(newEffect);
+    }
+    
+    public void RemoveEffect(AppliedEffect effect)
+    {
+        AppliedEffects[effect.referenceEffect].Remove(effect);
+        OnRemoveGameEffectImmediate?.Invoke(effect);
     }
 
     public void RemoveAllEffectsOfType(BaseGameEffect effect, bool immediate = false)
@@ -1015,10 +1022,9 @@ public abstract class BaseCharacter : MonoBehaviour
 
             foreach (var item in AppliedEffects)
             {
-                var deadEffect = item.Key as BaseOnDeathEffect;
-                if (!deadEffect) continue;
                 foreach (var e in item.Value)
                 {
+                    if (!e.referenceEffect.activateOnDeath) continue;
                     battleSystem.RegisterOnDeathEffect(e);
                     hasOnDeathEffect = true;
                 }

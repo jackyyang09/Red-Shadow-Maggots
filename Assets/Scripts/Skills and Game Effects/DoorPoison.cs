@@ -24,9 +24,9 @@ public class DoorPoison : DamagePerTurnEffect
 
     public GameObject doorPrefab;
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(strength, customValues);
+        float change = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -50,7 +50,7 @@ public class DoorPoison : DamagePerTurnEffect
         s += "hit by a <u>Door</u> every turn, taking " + (int)(change * 100) + "% of your " +
             Keywords.Short.ATTACK + " in damage ";
 
-        return s + DurationDescriptor(duration);
+        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

@@ -18,7 +18,7 @@ public class ReviveEffect : BaseOnDeathEffect
         target.Heal(value.SolveValue(strength, user));
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
         var target = TargetModeDescriptor(targetMode);
 
@@ -37,7 +37,8 @@ public class ReviveEffect : BaseOnDeathEffect
 
         d += " that recovers " + Keywords.Short.HEALTH + " equal to ";
 
-        d += value.GetDescription(strength) + " ";
+        d += value.GetDescription(props.strength) + " " + 
+            DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return d;
     }

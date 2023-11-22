@@ -36,9 +36,9 @@ public class DamagePerTurnEffect : BaseDamageEffect
         target.TakeDamage(damageStruct);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(strength, customValues);
+        float change = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -59,6 +59,6 @@ public class DamagePerTurnEffect : BaseDamageEffect
 
         s += (int)(change * 100) + "% Max Health every turn ";
 
-        return s + DurationDescriptor(duration);
+        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 }

@@ -13,9 +13,9 @@ public class BaseAttackEffect : BaseGameEffect
         target.ApplyAttackModifier(-percentageChange);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 

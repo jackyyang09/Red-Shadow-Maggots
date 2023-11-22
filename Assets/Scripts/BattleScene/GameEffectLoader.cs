@@ -40,7 +40,7 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         ae.remainingTurns = effect.RemainingTurns;
         ae.strength = effect.Strength;
         ae.customValues = effect.CustomValues;
-        ae.description = ae.referenceEffect.GetSkillDescription(TargetMode.Self, ae.strength, ae.customValues, 0);
+        ae.description = ae.referenceEffect.GetSkillDescription(TargetMode.Self, new EffectProperties());
         return ae;
     }
 }

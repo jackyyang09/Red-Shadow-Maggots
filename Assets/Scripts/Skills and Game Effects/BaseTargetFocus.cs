@@ -26,7 +26,7 @@ public class BaseTargetFocus : BaseGameEffect
     {
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
         string s = "Apply <u>Taunt</u> ";
 
@@ -40,7 +40,7 @@ public class BaseTargetFocus : BaseGameEffect
                 break;
         }
 
-        return s + DurationDescriptor(duration);
+        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)

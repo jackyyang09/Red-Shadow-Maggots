@@ -22,9 +22,9 @@ public class PeePoison : DamagePerTurnEffect
         target.ConsumeHealth(damageStruct);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(strength, customValues);
+        float change = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -43,7 +43,7 @@ public class PeePoison : DamagePerTurnEffect
 
         s += "at " + (int)(change * 100) + "% strength ";
 
-        return s + DurationDescriptor(duration);
+        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)

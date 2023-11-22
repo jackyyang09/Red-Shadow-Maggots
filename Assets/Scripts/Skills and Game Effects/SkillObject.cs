@@ -50,55 +50,9 @@ public class SkillObject : ScriptableObject
 
             var target = f.targetOverride == TargetMode.None ? targetMode : f.targetOverride;
 
-            d[i] += f.effect.GetSkillDescription(target, f.strength, f.customValues, f.effectDuration).ToString();
+            d[i] += f.effect.GetSkillDescription(target, f).ToString();
         }
         return d;
-    }
-}
-
-/// <summary>
-/// An instance of a GameEffect to be attached to an instanced Character
-/// </summary>
-public class AppliedEffect
-{
-    public BaseCharacter caster;
-    public BaseCharacter target;
-    public BaseGameEffect referenceEffect;
-    public int remainingTurns;
-    public EffectStrength strength;
-    public float[] customValues;
-    public string description;
-    public float cachedValue;
-
-    /// <summary>
-    /// </summary>
-    /// <param name="target"></param>
-    /// <returns>Is effect still active?</returns>
-    public bool Tick()
-    {
-        remainingTurns--;
-        referenceEffect.Tick(caster, target, strength, customValues);
-        if (remainingTurns == 0)
-        {
-            referenceEffect.OnExpire(caster, target, strength, customValues);
-            return false;
-        }
-        return true;
-    }
-
-    /// <summary>
-    /// Unlike Tick, doesn't activate the effect when called
-    /// </summary>
-    /// <returns>Is effect still active?</returns>
-    public bool TickSilent()
-    {
-        remainingTurns--;
-        if (remainingTurns == 0)
-        {
-            referenceEffect.OnExpire(caster, target, strength, customValues);
-            return false;
-        }
-        return true;
     }
 }
 

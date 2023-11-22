@@ -1,5 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.AccessControl;
+using System.Security.Policy;
 using UnityEngine;
 
 public enum EffectType
@@ -41,6 +43,9 @@ public abstract class BaseGameEffect : ScriptableObject
     [HideInInspector] public virtual string ExplainerDescription { get; }
 
     public EffectType effectType = EffectType.None;
+
+    public bool activateOnApply = true;
+    public bool activateOnDeath;
 
     public bool canStack;
 
@@ -91,21 +96,29 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public virtual void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
 
+    public virtual void OnDeath(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
+
     public virtual object GetEffectStrength(EffectStrength strength, float[] customValues) { return null; }
 
-    public virtual string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration) => "";
+    public virtual string GetSkillDescription(TargetMode targetMode, EffectProperties props) => "";
 
     public virtual string GetEffectDescription(EffectStrength strength, float[] customValues) => "";
 
-    protected string DurationDescriptor(int turns)
+    protected string DurationAndActivationDescriptor(int turns, int activations)
     {
-        string s = "";
+        string s = "(";
+        if (activations > 0)
+        {
+            s += activations + " Time";
+            if (activations > 1) s += "s";
+        }
         if (turns > 0)
         {
-            s += "(" + turns + " Turn";
+            if (activations > 0) s += ", ";
+            s += turns + " Turn";
             if (turns > 1) s += "s";
-            s += ")";
         }
+        s += ")";
         return s;
     }
 
@@ -123,5 +136,87 @@ public abstract class BaseGameEffect : ScriptableObject
                 return "All Enemies ";
         }
         return "";
+    }
+}
+
+/// <summary>
+/// An instance of a GameEffect to be attached to an instanced Character
+/// </summary>
+public class AppliedEffect
+{
+    public BaseCharacter caster;
+    public BaseCharacter target;
+    public BaseGameEffect referenceEffect;
+    public int remainingTurns;
+    public int remainingActivations;
+    public EffectStrength strength;
+    public float[] customValues;
+    public string description;
+    public float cachedValue;
+
+    public void Apply()
+    {
+        if (referenceEffect.activateOnApply)
+        {
+            Activate();
+        }
+    }
+
+    public bool Activate()
+    {
+        referenceEffect.Activate(caster, target, strength, customValues);
+        if (remainingActivations > 0)
+        {
+            remainingActivations--;
+            if (remainingActivations == 0) return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// </summary>
+    /// <param name="target"></param>
+    /// <returns>Is effect still active?</returns>
+    public bool Tick()
+    {
+        remainingTurns--;
+        referenceEffect.Tick(caster, target, strength, customValues);
+        if (remainingTurns == 0)
+        {
+            referenceEffect.OnExpire(caster, target, strength, customValues);
+            return false;
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// Unlike Tick, doesn't activate the effect when called
+    /// </summary>
+    /// <returns>Is effect still active?</returns>
+    public bool TickSilent()
+    {
+        remainingTurns--;
+        if (remainingTurns == 0)
+        {
+            referenceEffect.OnExpire(caster, target, strength, customValues);
+            return false;
+        }
+        return true;
+    }
+
+    public void OnDeath()
+    {
+        referenceEffect.OnDeath(caster, target, strength, customValues);
+        if (referenceEffect.activateOnDeath)
+        {
+            if (remainingActivations > 0)
+            {
+                remainingActivations--;
+                if (remainingActivations == 0)
+                {
+                    target.RemoveEffect(this);
+                }
+            }
+        }
     }
 }

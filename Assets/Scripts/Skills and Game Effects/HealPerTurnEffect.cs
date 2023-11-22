@@ -15,10 +15,10 @@ public class HealPerTurnEffect : BaseHealEffect
         base.Activate(user, target, strength, customValues);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        var s = base.GetSkillDescription(targetMode, strength, customValues, duration);
+        var s = base.GetSkillDescription(targetMode, props);
 
-        return s + " every turn " + DurationDescriptor(duration);
+        return s + " every turn " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 }

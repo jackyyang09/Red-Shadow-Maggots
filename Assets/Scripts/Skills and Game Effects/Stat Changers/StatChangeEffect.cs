@@ -27,7 +27,7 @@ public class StatChangeEffect : BaseGameEffect
         base.OnExpire(user, target, strength, customValues);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
         string description = TargetModeDescriptor(targetMode);
 
@@ -42,7 +42,7 @@ public class StatChangeEffect : BaseGameEffect
             description += " decreased ";
         }
 
-        description += "by " + value.GetDescription(strength) + " " + DurationDescriptor(duration);
+        description += "by " + value.GetDescription(props.strength) + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return description;
     }

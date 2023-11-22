@@ -514,8 +514,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
         foreach (var effect in deathEffects)
         {
-            var d = effect.referenceEffect as BaseOnDeathEffect;
-            d.OnDeath(effect.caster, effect.target, effect.strength, effect.customValues);
+            effect.OnDeath();
 
             yield return new WaitForSeconds(sceneTweener.EffectTickTime);
 

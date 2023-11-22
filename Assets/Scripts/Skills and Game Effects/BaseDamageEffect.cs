@@ -18,9 +18,9 @@ public class BaseDamageEffect : BaseGameEffect
         target.ConsumeHealth(damageStruct);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectStrength strength, float[] customValues, int duration)
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(strength, customValues);
+        float change = (float)GetEffectStrength(props.strength, props.customValues);
 
         string s = TargetModeDescriptor(targetMode);
 
