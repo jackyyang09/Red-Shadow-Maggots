@@ -32,18 +32,18 @@ public class ForceFieldFX : MonoBehaviour
 
     public void Initialize(BaseCharacter character)
     {
-        character.onTakeDamage += OnTakeDamage;
+        character.OnTakeDamage += OnTakeDamage;
     }
 
     private void OnDisable()
     {
         if (character)
         {
-            character.onTakeDamage -= OnTakeDamage;
+            character.OnTakeDamage -= OnTakeDamage;
         }
     }
 
-    private void OnTakeDamage(float obj)
+    private void OnTakeDamage(float trueDamage, DamageStruct damage)
     {
         if (!mat) return;
         mat.SetFloat(alphaStrengthID, alphaRange.y);

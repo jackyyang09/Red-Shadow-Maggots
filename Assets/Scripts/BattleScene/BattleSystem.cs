@@ -2,10 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
-using DocumentFormat.OpenXml.Office2016.Presentation.Command;
 
 public enum BattlePhases
 {
@@ -49,6 +46,27 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     PlayerCharacter[] playerCharacters = new PlayerCharacter[4];
 
     public PlayerCharacter[] PlayerCharacters => playerCharacters;
+
+    List<PlayerCharacter> playerList;
+    public List<PlayerCharacter> PlayerList
+    {
+        get
+        {
+            if (playerList == null)
+            {
+                playerList = playerCharacters.Where(e => e != null).ToList();
+            }
+            return playerList;
+        }
+    }
+
+    public List<PlayerCharacter> LivingPlayers
+    {
+        get
+        {
+            return PlayerList.Where(e => !e.IsDead).ToList();
+        }
+    }
 
     public PlayerCharacter RandomPlayerCharacter
     {
@@ -97,6 +115,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
+
     public PlayerCharacter ActivePlayer
     {
         get
@@ -135,6 +154,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         get { return enemyTargets.enemy; }
     }
 
+    /// <summary>
+    /// The attack target for the current turn
+    /// </summary>
     public BaseCharacter OpposingCharacter
     {
         get
@@ -171,7 +193,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static System.Action OnEndTurn;
 
     public static System.Action OnTargetableCharactersChanged;
-    public static System.Action<BaseGameEffect> OnTickEffect;
     public static System.Action OnFinishTickingEffects;
 
     public static System.Action OnWaveClear;
@@ -333,6 +354,16 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
+    public void PeformAttack(BaseCharacter attacker, BaseCharacter defender)
+    {
+        if (attacker.Reference.attackEffectPrefab)
+        {
+            defender.SpawnEffectPrefab(attacker.Reference.attackEffectPrefab);
+        }
+
+        defender.TakeDamage();
+    }
+
     public void AttackTarget()
     {
         switch (currentPhase)
@@ -374,7 +405,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
                     enemies[i].TakeDamage();
                 }
-
                 break;
             case BattlePhases.EnemyTurn:
                 for (int i = 0; i < playerCharacters.Length; i++)
@@ -387,7 +417,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
                     playerCharacters[i].TakeDamage();
                 }
-
                 break;
         }
     }
@@ -497,6 +526,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void EndTurn()
     {
+        moveOrder[moveCount].OnEndTurn?.Invoke();
+        OnEndPhase[currentPhase.ToInt()]?.Invoke();
+
         IncrementMoveCount();
         ChangeBattlePhase();
     }
@@ -511,7 +543,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             enemyTargets.enemy.IncreaseChargeLevel();
         }
 
-        OnEndPhase[currentPhase.ToInt()]?.Invoke();
         foreach (var effect in deathEffects)
         {
             effect.OnDeath();
@@ -525,11 +556,13 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         var activeCharacter = moveOrder[moveCount];
         var isPlayer = activeCharacter as PlayerCharacter;
         var lastPhase = currentPhase;
+
+        yield return StartCoroutine(TickEffects(activeCharacter));
+
         if (isPlayer)
         {
             if (lastPhase == BattlePhases.EnemyTurn)
             {
-                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(enemyController.Enemies)));
                 gameManager.SaveBattleState();
                 OnEndTurn?.Invoke();
             }
@@ -546,7 +579,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (lastPhase != BattlePhases.EnemyTurn)
             {
-                yield return StartCoroutine(TickEffects(new List<BaseCharacter>(playerCharacters)));
                 enemyController.CalculateSkillUsage();
             }
 
@@ -561,6 +593,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         finishedTurn = false;
 
+        activeCharacter.OnStartTurn?.Invoke();
         switch (currentPhase)
         {
             case BattlePhases.Entry:
@@ -595,50 +628,20 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         yield return null;
     }
 
-    IEnumerator TickEffects(List<BaseCharacter> affectedCharacters)
+    IEnumerator TickEffects(BaseCharacter affectedCharacters)
     {
-        Dictionary<BaseGameEffect, List<BaseCharacter>> effects = new Dictionary<BaseGameEffect, List<BaseCharacter>>();
-        for (int i = 0; i < affectedCharacters.Count; i++)
+        float longestTime = -1;
+        foreach (var item in affectedCharacters.AppliedEffects)
         {
-            if (!affectedCharacters[i]) continue;
-            var characterFX = affectedCharacters[i].AppliedEffects;
-            var keys = characterFX.GetKeysCached();
-            for (int j = 0; j < keys.Length; j++)
+            if (item.referenceEffect.TickAnimationTime > longestTime)
             {
-                if (!effects.ContainsKey(keys[j]))
-                {
-                    effects.Add(keys[j], new List<BaseCharacter>());
-                }
-
-                effects[keys[j]].Add(affectedCharacters[i]);
+                longestTime = item.referenceEffect.TickAnimationTime;
             }
         }
 
-        bool delay = false;
-        var effectKeys = effects.GetKeysCached();
-        for (int i = 0; i < effectKeys.Length; i++)
-        {
-            var characters = effects[effectKeys[i]];
-            for (int j = 0; j < characters.Count; j++)
-            {
-                characters[j].TickEffect(effectKeys[i]);
-            }
+        yield return affectedCharacters.TickEffects(sceneTweener.EffectTickTime);
 
-            OnTickEffect?.Invoke(effectKeys[i]);
-
-            if (effectKeys[i].TickAnimationTime > -1)
-            {
-                if (effectKeys[i].TickAnimationTime > 0) delay = true;
-                yield return new WaitForSeconds(effectKeys[i].TickAnimationTime);
-            }
-            else
-            {
-                delay = true;
-                yield return new WaitForSeconds(sceneTweener.EffectTickTime);
-            }
-        }
-
-        if (delay)
+        if (longestTime > sceneTweener.EffectTickTime)
         {
             yield return new WaitForSeconds(sceneTweener.PostEffectTickTime);
         }
@@ -711,12 +714,13 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [IngameDebugConsole.ConsoleMethod(nameof(ShieldPlayers), "Provide Max Shield Effect to Players")]
     public static void ShieldPlayers()
     {
-        for (int i = 0; i < Instance.playerCharacters.Length; i++)
+        for (int i = 0; i < Instance.PlayerCharacters.Length; i++)
         {
+            if (!Instance.PlayerCharacters[i]) continue;
             Instance.playerCharacters[i].GiveShield(Instance.playerCharacters[i].MaxHealth);
         }
 
-        Debug.Log("Players damaged!");
+        Debug.Log("Maxxed Player's shields!");
     }
 
     [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]

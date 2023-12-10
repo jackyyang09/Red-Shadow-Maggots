@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
+using System;
 
 public class SimpleHealth : MonoBehaviour
 {
@@ -39,10 +40,10 @@ public class SimpleHealth : MonoBehaviour
         healthBar.material = new Material(_healthBarMaterial);
 
         baseCharacter = character;
-        baseCharacter.onTakeDamage += OnTakeDamage;
-        baseCharacter.onConsumeHealth += OnTakeDamage;
+        baseCharacter.OnTakeDamage += OnTakeDamage;
+        baseCharacter.onConsumeHealth += OnConsumeHealth;
         baseCharacter.onSetHealth += OnSetHealth;
-        baseCharacter.onHeal += OnHeal;
+        baseCharacter.OnHeal += OnHeal;
 
         //set "steps" property (there will be new sector for each 100 health points)
         healthBar.material.SetFloat("_Steps", character.MaxHealth / _healthSteps);
@@ -62,17 +63,22 @@ public class SimpleHealth : MonoBehaviour
     private void OnDisable()
     {
         if (!baseCharacter) return;
-        baseCharacter.onTakeDamage -= OnTakeDamage;
-        baseCharacter.onConsumeHealth -= OnTakeDamage;
+        baseCharacter.OnTakeDamage -= OnTakeDamage;
+        baseCharacter.onConsumeHealth -= OnConsumeHealth;
         baseCharacter.onSetHealth -= OnSetHealth;
-        baseCharacter.onHeal -= OnHeal;
+        baseCharacter.OnHeal -= OnHeal;
     }
 
     /// <summary>
     /// Handles the display of damage taken on the health bar and updates the health text.
     /// </summary>
-    /// <param name="damage">The amount of damage taken by the character.</param>
-    private void OnTakeDamage(float damage)
+    /// <param name="trueDamage">The amount of damage taken by the character.</param>
+    private void OnTakeDamage(float trueDamage, DamageStruct damage)
+    {
+        OnConsumeHealth(trueDamage);
+    }
+
+    private void OnConsumeHealth(float damage)
     {
         _displayDamagePercent = damage / baseCharacter.MaxHealth;
 

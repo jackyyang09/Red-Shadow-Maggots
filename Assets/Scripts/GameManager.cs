@@ -79,15 +79,10 @@ public class GameManager : BasicSingleton<GameManager>
                 p.Health = player.CurrentHealth;
                 p.Effects = new List<BattleState.SerializedEffect>();
 
-                BaseGameEffect[] keys = new BaseGameEffect[player.AppliedEffects.Keys.Count];
-                player.AppliedEffects.Keys.CopyTo(keys, 0);
-                for (int j = 0; j < keys.Length; j++)
+                foreach (var item in player.AppliedEffects)
                 {
-                    for (int l = 0; l < player.AppliedEffects[keys[j]].Count; l++)
-                    {
-                        var se = gameEffectLoader.SerializeGameEffect(player.AppliedEffects[keys[j]][l]);
-                        p.Effects.Add(se);
-                    }
+                    var se = gameEffectLoader.SerializeGameEffect(item);
+                    p.Effects.Add(se);
                 }
 
                 p.Cooldowns = new int[2];
@@ -111,15 +106,10 @@ public class GameManager : BasicSingleton<GameManager>
                 d.Crit = enemy.CritLevel;
                 d.Effects = new List<BattleState.SerializedEffect>();
 
-                BaseGameEffect[] keys = new BaseGameEffect[enemy.AppliedEffects.Keys.Count];
-                enemy.AppliedEffects.Keys.CopyTo(keys, 0);
-                for (int j = 0; j < keys.Length; j++)
+                foreach (var item in enemy.AppliedEffects)
                 {
-                    for (int l = 0; l < enemy.AppliedEffects[keys[j]].Count; l++)
-                    {
-                        var se = gameEffectLoader.SerializeGameEffect(enemy.AppliedEffects[keys[j]][l]);
-                        d.Effects.Add(se);
-                    }
+                    var se = gameEffectLoader.SerializeGameEffect(item);
+                    d.Effects.Add(se);
                 }
             }
 

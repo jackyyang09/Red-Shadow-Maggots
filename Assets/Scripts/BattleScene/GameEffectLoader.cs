@@ -7,6 +7,8 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
 {
     [SerializeField] List<BaseGameEffect> gameEffects = new List<BaseGameEffect>();
 
+    public int GetEffectIndex(BaseGameEffect e) => gameEffects.IndexOf(e);
+
     public BattleState.SerializedEffect SerializeGameEffect(AppliedEffect effect)
     {
         BattleState.SerializedEffect se = new BattleState.SerializedEffect();
@@ -15,7 +17,7 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         characters.AddRange(enemyController.EnemyList);
         se.Caster = characters.IndexOf(effect.caster);
 
-        se.EffectIndex = gameEffects.IndexOf(effect.referenceEffect);
+        se.EffectIndex = GetEffectIndex(effect.referenceEffect);
         if (se.EffectIndex == -1)
         {
             Debug.LogError(nameof(GameEffectLoader) + ": Serialization failed! Effect " +

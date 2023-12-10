@@ -37,6 +37,11 @@ public class DodgeEffect : BaseGameEffect
         return d += " an attack " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
+    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    {
+        return "Avoids an attack";
+    }
+
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)
     {
         return null;

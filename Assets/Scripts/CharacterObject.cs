@@ -34,7 +34,7 @@ public enum QTEType
 }
 
 [System.Serializable]
-public struct AttackStruct
+public class AttackStruct
 {
     public AnimationClip attackAnimation;
     public AttackRange attackRange;
@@ -42,29 +42,29 @@ public struct AttackStruct
 }
 
 #if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(AttackStruct))]
-public class AttackStructDrawer : PropertyDrawer
-{
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        var thirdRect = new Rect(position);
-        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0);
-        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.4f);
-        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
-        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.425f);
-        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.725f);
-        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
-        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.75f);
-        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
-        EditorGUI.LabelField(thirdRect, new GUIContent("Is AOE?"));
-        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
-        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 1f);
-        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("isAOE"), GUIContent.none);
-        EditorGUI.EndProperty();
-    }
-}
+//[CustomPropertyDrawer(typeof(AttackStruct))]
+//public class AttackStructDrawer : PropertyDrawer
+//{
+//    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+//    {
+//        EditorGUI.BeginProperty(position, label, property);
+//
+//        var thirdRect = new Rect(position);
+//        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0);
+//        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.4f);
+//        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackAnimation"), GUIContent.none);
+//        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.425f);
+//        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.725f);
+//        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("attackRange"), GUIContent.none);
+//        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.75f);
+//        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
+//        EditorGUI.LabelField(thirdRect, new GUIContent("Is AOE?"));
+//        thirdRect.xMin = Mathf.Lerp(position.xMin, position.xMax, 0.95f);
+//        thirdRect.xMax = Mathf.Lerp(position.xMin, position.xMax, 1f);
+//        EditorGUI.PropertyField(thirdRect, property.FindPropertyRelative("isAOE"), GUIContent.none);
+//        EditorGUI.EndProperty();
+//    }
+//}
 #endif
 
 [CreateAssetMenu(fileName = "New Character", menuName = "ScriptableObjects/Character", order = 1)]

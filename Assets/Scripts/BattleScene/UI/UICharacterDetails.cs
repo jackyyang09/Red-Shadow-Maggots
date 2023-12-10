@@ -70,14 +70,9 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
         }
 
         List<AppliedEffect> effects = new List<AppliedEffect>();
-        var keys = character.AppliedEffects.GetKeysCached();
-        for (int i = 0; i < keys.Length; i++)
+        foreach (var item in character.AppliedEffects)
         {
-            var list = character.AppliedEffects[keys[i]];
-            for (int j = 0; j < list.Count; j++)
-            {
-                effects.Add(list[j]);
-            }
+            effects.Add(item);
         }
 
         if (statusDescriptions.Count < effects.Count)

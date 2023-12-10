@@ -10,8 +10,6 @@ using static Facade;
 public class CharacterUI : BaseGameUI
 {
     [SerializeField] protected BaseCharacter designatedCharacter;
-    [SerializeField] protected List<AppliedEffect> effects = new List<AppliedEffect>();
-    List<int> indicesToRemove = new List<int>();
 
     [Header("Crit Charge Bars")] [SerializeField]
     GridLayoutGroup layoutGroup;
@@ -38,12 +36,15 @@ public class CharacterUI : BaseGameUI
     [SerializeField] protected RectTransform iconContainer;
     [SerializeField] protected GameObject playerCritCanvas;
     [SerializeField] protected GameObject enemyCritCanvas;
-    protected List<Image> iconImages = new List<Image>();
     [SerializeField] SimpleHealth health;
     [SerializeField] ShieldUI shield;
 
     PlayerCharacter player;
     EnemyCharacter enemy;
+
+    protected List<AppliedEffect> effects = new List<AppliedEffect>();
+    protected List<GameEffectIconUI> icons = new List<GameEffectIconUI>();
+    Dictionary<AppliedEffect, GameEffectIconUI> iconDictionary = new Dictionary<AppliedEffect, GameEffectIconUI>();
 
     public virtual void InitializeWithCharacter(BaseCharacter character)
     {
@@ -56,8 +57,8 @@ public class CharacterUI : BaseGameUI
         shield.InitializeWithCharacter(character);
 
         designatedCharacter.OnApplyGameEffect += AddEffectIcon;
-        designatedCharacter.OnRemoveGameEffect += QueueEffectIconRemoval;
-        designatedCharacter.OnRemoveGameEffectImmediate += RemoveEffectImmediately;
+        designatedCharacter.OnEffectStacksChanged += UpdateEffectStacks;
+        designatedCharacter.OnRemoveGameEffect += RemoveEffect;
         designatedCharacter.onDeath.AddListener(SelfDestruct);
 
         enemy = designatedCharacter as EnemyCharacter;
@@ -97,7 +98,6 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
         GlobalEvents.OnExitBattleCutscene += TryShowUI;
         UIManager.OnShowBattleUI += TryShowUI;
-        BattleSystem.OnFinishTickingEffects += RemoveEffects;
     }
 
     private void OnDisable()
@@ -105,8 +105,7 @@ public class CharacterUI : BaseGameUI
         if (designatedCharacter)
         {
             designatedCharacter.OnApplyGameEffect -= AddEffectIcon;
-            designatedCharacter.OnRemoveGameEffect -= QueueEffectIconRemoval;
-            designatedCharacter.OnRemoveGameEffectImmediate -= RemoveEffectImmediately;
+            designatedCharacter.OnRemoveGameEffect -= RemoveEffect;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);
         }
 
@@ -124,7 +123,6 @@ public class CharacterUI : BaseGameUI
         GlobalEvents.OnExitBattleCutscene -= TryShowUI;
         UIManager.OnAttackCommit -= UpdateUIState;
         UIManager.OnShowBattleUI -= TryShowUI;
-        BattleSystem.OnFinishTickingEffects -= RemoveEffects;
     }
 
     private void Update()
@@ -191,45 +189,47 @@ public class CharacterUI : BaseGameUI
 
     private void AddEffectIcon(AppliedEffect obj)
     {
-        effects.Add(obj);
-        UpdateEffectIcons();
+        if (iconDictionary.ContainsKey(obj))
+        {
+            if (obj.referenceEffect.canStack)
+            {
+                iconDictionary[obj].UpdateStackCount();
+            }
+        }
+        else
+        {
+            effects.Add(obj);
+            UpdateEffectIcons();
+        }
     }
 
-    private void QueueEffectIconRemoval(AppliedEffect obj)
+    private void UpdateEffectStacks(AppliedEffect effect)
+    {
+        iconDictionary[effect].UpdateStackCount();
+    }
+
+    private void RemoveEffect(AppliedEffect obj)
     {
         var index = effects.IndexOf(obj);
-        UpdateEffectIcons(index);
         effects.Remove(obj);
-    }
-
-    private void RemoveEffectImmediately(AppliedEffect obj)
-    {
-        QueueEffectIconRemoval(obj);
-        RemoveEffects();
+        iconDictionary.Remove(obj);
+        UpdateEffectIcons(index);
     }
 
     void UpdateEffectIcons(int index = -1)
     {
         if (index == -1)
         {
-            var newIcon = Instantiate(iconPrefab, iconContainer).GetComponent<Image>();
-            iconImages.Add(newIcon);
-            newIcon.sprite = effects[effects.Count - 1].referenceEffect.effectIcon;
+            var newIcon = Instantiate(iconPrefab, iconContainer).GetComponent<GameEffectIconUI>();
+            icons.Add(newIcon);
+            newIcon.InitializeWithEffect(effects.GetLast());
+            iconDictionary.Add(effects.GetLast(), newIcon);
         }
         else
         {
-            indicesToRemove.Add(index);
+            Destroy(icons[index].gameObject);
+            icons.RemoveAt(index);
         }
-    }
-
-    private void RemoveEffects()
-    {
-        for (int i = indicesToRemove.Count - 1; i > -1; i--)
-        {
-            Destroy(iconImages[indicesToRemove[i]].gameObject);
-            iconImages.RemoveAt(indicesToRemove[i]);
-        }
-        indicesToRemove.Clear();
     }
 
     void SelfDestruct()

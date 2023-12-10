@@ -13,7 +13,6 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnWaveClear += WaveClear;
         BattleSystem.OnFinalWaveClear += GameClear;
         BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] += PlayerLose;
-        BattleSystem.OnTickEffect += OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack += Attack;
         BaseCharacter.OnCharacterAttackBlocked += AttackBlocked;
@@ -35,7 +34,6 @@ public class VoiceResponseSystem : MonoBehaviour
         BattleSystem.OnWaveClear -= WaveClear;
         BattleSystem.OnFinalWaveClear -= GameClear;
         BattleSystem.OnStartPhase[BattlePhases.BattleLose.ToInt()] -= PlayerLose;
-        BattleSystem.OnTickEffect -= OnTickEffect;
 
         BaseCharacter.OnCharacterStartAttack -= Attack;
         BaseCharacter.OnCharacterAttackBlocked -= AttackBlocked;
@@ -122,11 +120,11 @@ public class VoiceResponseSystem : MonoBehaviour
         AudioManager.PlaySound(audio);
     }
 
-    private void WeaponHit(BaseCharacter character, DamageStruct damage)
+    private void WeaponHit(BaseCharacter character)
     {
         var audio = character.Reference.weaponSound;
         AudioManager.PlaySound(audio);
-        if (damage.IsCritical) AudioManager.PlaySound(BattleSceneSounds.HitCritical);
+        if (BaseCharacter.IncomingDamage.IsCritical) AudioManager.PlaySound(BattleSceneSounds.HitCritical);
     }
 
     private void CharacterDeath(BaseCharacter character)
@@ -144,10 +142,5 @@ public class VoiceResponseSystem : MonoBehaviour
     private void GameEffectApplied(BaseGameEffect obj)
     {
         AudioManager.PlaySound(obj.activationSound);
-    }
-
-    private void OnTickEffect(BaseGameEffect obj)
-    {
-        AudioManager.PlaySound(obj.tickSound);
     }
 }

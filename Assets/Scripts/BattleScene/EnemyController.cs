@@ -34,6 +34,14 @@ public class EnemyController : BasicSingleton<EnemyController>
         }
     }
 
+    public List<EnemyCharacter> LivingEnemies
+    {
+        get
+        {
+            return EnemyList.Where(e => !e.IsDead).ToList();
+        }
+    }
+
 #if UNITY_EDITOR
     [Header("Debug Options")] [SerializeField]
     bool disableSkillUsage;

@@ -53,12 +53,13 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
     {
         var billboard = Instantiate(missPrefab, transform.GetChild(0)).GetComponent<ViewportBillboard>();
         billboard.EnableWithSettings(cam, t);
-        Debug.Log(t.name);
 
-        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
+        DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime).SetEase(Ease.OutCubic);
         
         var billboardText = billboard.GetComponentInChildren<TMPro.TextMeshProUGUI>();
         billboardText.DOFade(0, textFadeTime).SetDelay(textFadeDelay);
+
+        Destroy(billboard.gameObject, textFadeDelay + numberLifetime + 0.5f);
     }
 
     public void SpawnEffectAt(BaseGameEffect effect, Transform trans)
@@ -72,8 +73,6 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
 
         var billboardText = billboard.GetComponentInChildren<TMPro.TextMeshProUGUI>();
         billboardText.text = effect.effectText;
-
-        billboard.GetComponentInChildren<UIElementCenterer>().Recenter();
 
         var lifeTime = sceneTweener.SkillEffectApplyDelay;
         var showTime = lifeTime * effectTextShowTime;

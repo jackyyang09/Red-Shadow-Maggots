@@ -14,12 +14,7 @@ public class PeePoison : DamagePerTurnEffect
 
     public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        DamageStruct damageStruct = new DamageStruct();
-        damageStruct.Percentage = 1;
-        damageStruct.TrueDamage = Mathf.Max((float)GetEffectStrength(strength, customValues) * target.CurrentHealth, 1);
-        damageStruct.Effectivity = DamageEffectivess.Normal;
-        damageStruct.QTEResult = QuickTimeBase.QTEResult.Early;
-        target.ConsumeHealth(damageStruct);
+        ConsumeHealth(target, strength, customValues);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

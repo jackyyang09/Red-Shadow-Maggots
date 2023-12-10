@@ -16,7 +16,7 @@ public class ShieldUI : MonoBehaviour
         baseCharacter = character;
 
         baseCharacter.OnShielded += OnShielded;
-        baseCharacter.onTakeDamage += OnTakeDamage;
+        baseCharacter.OnTakeDamage += OnTakeDamage;
 
         OnSetShield();
     }
@@ -25,7 +25,7 @@ public class ShieldUI : MonoBehaviour
     {
         if (!baseCharacter) return;
         baseCharacter.OnShielded -= OnShielded;
-        baseCharacter.onTakeDamage -= OnTakeDamage;
+        baseCharacter.OnTakeDamage -= OnTakeDamage;
     }
 
     private void OnSetShield()
@@ -38,7 +38,7 @@ public class ShieldUI : MonoBehaviour
         shieldBar.DOFillAmount(baseCharacter.ShieldPercent, barTween);
     }
 
-    private void OnTakeDamage(float damage)
+    private void OnTakeDamage(float trueDamage, DamageStruct damage)
     {
         shieldBar.DOFillAmount(baseCharacter.ShieldPercent, barTween);
     }

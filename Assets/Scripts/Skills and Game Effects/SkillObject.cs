@@ -18,6 +18,7 @@ public class EffectProperties
     public BaseGameEffect effect;
     public int effectDuration;
     public int activationLimit;
+    public int stacks;
     public TargetMode targetOverride;
     public EffectStrength strength;
     public float[] customValues = new float[] { 0 };

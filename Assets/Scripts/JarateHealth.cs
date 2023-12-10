@@ -34,7 +34,7 @@ public class JarateHealth : MonoBehaviour
         character = GetComponentInParent<BaseCharacter>();
         if (character)
         {
-            character.onTakeDamage += TweenLiquid;
+            character.OnTakeDamage += TweenLiquid;
         }
     }
 
@@ -42,12 +42,12 @@ public class JarateHealth : MonoBehaviour
     {
         if (character)
         {
-            character.onTakeDamage -= TweenLiquid;
+            character.OnTakeDamage -= TweenLiquid;
         }
     }
 
     [ContextMenu(nameof(TweenLiquid))]
-    private void TweenLiquid(float damage)
+    private void TweenLiquid(float trueDamage, DamageStruct damage)
     {
         liquidTransform.DOKill();
         float lerpValue = character.GetHealthPercent();

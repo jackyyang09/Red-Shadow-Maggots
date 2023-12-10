@@ -15,15 +15,15 @@ public class TotalDamageCounter : BasicSingleton<TotalDamageCounter>
     private void OnEnable()
     {
         BaseCharacter.OnCharacterReceivedDamage += AddDamage;
-        BattleSystem.OnEndPhase[(int)BattlePhases.PlayerTurn] += HideUI;
-        BattleSystem.OnEndPhase[(int)BattlePhases.EnemyTurn] += HideUI;
+        BattleSystem.OnStartPhase[(int)BattlePhases.PlayerTurn] += HideUI;
+        BattleSystem.OnStartPhase[(int)BattlePhases.EnemyTurn] += HideUI;
     }
 
     private void OnDisable()
     {
         BaseCharacter.OnCharacterReceivedDamage -= AddDamage;
-        BattleSystem.OnEndPhase[(int)BattlePhases.PlayerTurn] -= HideUI;
-        BattleSystem.OnEndPhase[(int)BattlePhases.EnemyTurn] -= HideUI;
+        BattleSystem.OnStartPhase[(int)BattlePhases.PlayerTurn] -= HideUI;
+        BattleSystem.OnStartPhase[(int)BattlePhases.EnemyTurn] -= HideUI;
     }
 
     void AddDamage(BaseCharacter character, DamageStruct damage)

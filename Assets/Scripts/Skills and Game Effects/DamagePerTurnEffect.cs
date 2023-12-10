@@ -11,16 +11,6 @@ public class DamagePerTurnEffect : BaseDamageEffect
     {
     }
 
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-        DamageStruct damageStruct = new DamageStruct();
-        damageStruct.Percentage = 1;
-        damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
-        damageStruct.Effectivity = DamageEffectivess.Normal;
-        damageStruct.QTEResult = QuickTimeBase.QTEResult.Early;
-        target.ConsumeHealth(damageStruct);
-    }
-
     public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
     {
         float damage = 0;

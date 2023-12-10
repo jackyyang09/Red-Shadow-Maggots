@@ -225,11 +225,40 @@ public class AnimationHelper : MonoBehaviour
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
-    public void DealDamage() => baseCharacter.DealDamage();
-    public void DealPercentage(float percentage = 1) => baseCharacter.DealDamage(percentage);
+    public void DealDamage() => DealPercentage();
+    public void DealPercentage(float percentage = 1)
+    {
+        BaseCharacter.IncomingDamage.Percentage = percentage;
 
-    public void DealAOEDamage() => baseCharacter.DealAOEDamage();
-    public void DealAOEPercentage(float percentage = 1) => baseCharacter.DealAOEDamage(percentage);
+        BaseCharacter.OnCharacterExecuteAttack?.Invoke(BaseCharacter);
+
+        baseCharacter.DealDamage(battleSystem.OpposingCharacter);
+    }
+
+    public void DealAOEDamage() => DealAOEPercentage();
+
+    public void DealAOEPercentage(float percentage = 1)
+    {
+        BaseCharacter.IncomingDamage.Percentage = percentage;
+        BaseCharacter.IncomingDamage.IsAOE = true;
+
+        var targets = new List<BaseCharacter>();
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            targets.AddRange(enemyController.LivingEnemies);
+        }
+        else if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
+        {
+            targets.AddRange(battleSystem.LivingPlayers);
+        }
+
+        BaseCharacter.OnCharacterExecuteAttack?.Invoke(BaseCharacter);
+
+        foreach (var character in targets)
+        {
+            baseCharacter.DealDamage(character);
+        }
+    }
 
     public void FinishAttack() => baseCharacter.FinishAttack();
 

@@ -202,7 +202,15 @@ public class PlayerCharacter : BaseCharacter
             {
                 case QTEType.SimpleBar:
                     if (IncomingDamage.IsSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-                    rigAnim.Play("Attack Execute");
+                    if (EnhancedBasicAttack)
+                    {
+                        rigAnim.SetInteger("Charge Level", 0);
+                        rigAnim.SetTrigger("Attack Execute");
+                    }
+                    else
+                    {
+                        rigAnim.Play("Attack Execute");
+                    }
                     break;
                 case QTEType.Hold:
                     if (IncomingDamage.QTEResult != QuickTimeBase.QTEResult.Perfect)

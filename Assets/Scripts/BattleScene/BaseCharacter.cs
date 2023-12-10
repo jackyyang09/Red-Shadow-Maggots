@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
@@ -78,7 +79,7 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] float critMultiplier = 3;
     [SerializeField] float critDamageModifier = 0;
 
-    public float CritDamageModified => critMultiplier + critDamageModifier;
+    public float CritDamageModified => 1 + critMultiplier + critDamageModifier;
 
     [SerializeField] protected Rarity rarity;
     public float RarityMultiplier => 1 + 0.5f * (int)rarity;
@@ -89,8 +90,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public bool CanDie = true;
 
-    [Header("Object References")] [SerializeField]
-    protected Animator spriteAnim;
+    // If true, plays Attack Level 1 rather than Attack Execute State
+    public bool EnhancedBasicAttack;
+
+    [Header("Object References")]
+    [SerializeField] protected Animator spriteAnim;
 
     [SerializeField] Transform effectRegion;
     public Transform EffectRegion => effectRegion;
@@ -109,12 +113,13 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected Renderer selectionCircle;
     [SerializeField] protected Vector2 selectionCircleScale = new Vector2(0.7f, 1f);
 
-    [SerializeField] AnimationHelper animHelper = null;
+    [SerializeField] AnimationHelper animHelper;
     public AnimationHelper AnimHelper => animHelper;
 
-    [SerializeField] protected GameObject canvasPrefab = null;
+    [SerializeField] protected GameObject canvasPrefab;
 
-    public Dictionary<BaseGameEffect, List<AppliedEffect>> AppliedEffects = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
+    public List<AppliedEffect> AppliedEffects = new List<AppliedEffect>();
+    public Dictionary<BaseGameEffect, List<AppliedEffect>> EffectDictionary = new Dictionary<BaseGameEffect, List<AppliedEffect>>();
 
     protected List<GameSkill> gameSkills = new List<GameSkill>();
     public List<GameSkill> Skills => gameSkills;
@@ -139,19 +144,38 @@ public abstract class BaseCharacter : MonoBehaviour
     public bool UsedSuperCritThisTurn => usedSuperCritThisTurn;
 
     public Action<AppliedEffect> OnApplyGameEffect;
+    public Action<AppliedEffect> OnEffectStacksChanged;
     public Action<AppliedEffect> OnRemoveGameEffect;
-    public Action<AppliedEffect> OnRemoveGameEffectImmediate;
 
-    public Action onHeal;
+    public Action OnStartTurn;
+    public Action OnEndTurn;
+    public Action OnBeginAttack;
+    /// <summary>
+    /// bool qteSuccess 
+    /// Value is flipped if it's the enemy's turn
+    /// </summary>
+    public Action<bool> OnExecuteAttack;
+    /// <summary>
+    /// 
+    /// Invoked when this character deals damage to an enemy. 
+    /// Can be invoked multiple times in one attack
+    /// </summary>
+    public Action<BaseCharacter> OnDealDamage;
+    public Action OnHeal;
     public Action OnShielded;
     public Action OnShieldBroken;
+
+    public Action OnSkillUsed;
 
     /// <summary>
     /// Only invoked when changing health through abnormal means
     /// </summary>
     public Action onSetHealth;
 
-    public Action<float> onTakeDamage;
+    /// <summary>
+    /// float trueDamage, DamageStruct damage
+    /// </summary>
+    public Action<float, DamageStruct> OnTakeDamage;
     public Action<float> onConsumeHealth;
 
     public Action OnCharacterCritChanceChanged;
@@ -174,7 +198,11 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter> OnCharacterDeath;
 
     public static Action<BaseCharacter> OnSelectCharacter;
-    public static Action<BaseCharacter, DamageStruct> OnCharacterExecuteAttack;
+    /// <summary>
+    /// BaseCharacter attacker, BaseCharacter defender
+    /// </summary>
+    public static Action<BaseCharacter, BaseCharacter> OnCharacterDealDamage;
+    public static Action<BaseCharacter> OnCharacterExecuteAttack;
     public static Action<BaseCharacter, float> OnCharacterCritChanceReduced;
 
     public static AttackStruct IncomingAttack;
@@ -369,20 +397,11 @@ public abstract class BaseCharacter : MonoBehaviour
         //}
     }
 
-    public void DealDamage(float percentage = 1)
+    public void DealDamage(BaseCharacter target)
     {
-        IncomingDamage.Percentage = percentage;
-        IncomingDamage.IsAOE = false;
-        BattleSystem.Instance.AttackTarget();
-        OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
-    }
-
-    public void DealAOEDamage(float percentage = 1)
-    {
-        IncomingDamage.Percentage = percentage;
-        IncomingDamage.IsAOE = true;
-        BattleSystem.Instance.AttackAOE();
-        OnCharacterExecuteAttack?.Invoke(this, IncomingDamage);
+        battleSystem.PeformAttack(this, target);
+        OnDealDamage?.Invoke(target);
+        OnCharacterDealDamage?.Invoke(this, target);
     }
 
     public virtual void BeginAttack(Transform target)
@@ -412,6 +431,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     sceneTweener.RangedTweenTo(CharacterMesh.transform, target);
                     break;
             }
+            OnBeginAttack?.Invoke();
         }
     }
 
@@ -466,13 +486,20 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void CalculateAttackDamage()
     {
         float finalCritChance = CritChanceModified;
+
+        bool qteSuccess = IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect;
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            if (IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect)
+            if (qteSuccess)
             {
                 finalCritChance += BattleSystem.QuickTimeCritModifier;
             }
+            OnExecuteAttack?.Invoke(qteSuccess);
+        }
+        else
+        {
+            OnExecuteAttack?.Invoke(!qteSuccess);
         }
 
         OnCharacterCritChanceChanged?.Invoke();
@@ -621,15 +648,18 @@ public abstract class BaseCharacter : MonoBehaviour
 
         if (!cancelSkill)
         {
-            switch (currentSkill.referenceSkill.targetMode)
+            if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
             {
-                case TargetMode.OneAlly:
-                    PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
-                    ui.ExitSkillTargetMode();
-                    break;
-                case TargetMode.OneEnemy:
-                    EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
-                    break;
+                switch (currentSkill.referenceSkill.targetMode)
+                {
+                    case TargetMode.OneAlly:
+                        PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
+                        ui.ExitSkillTargetMode();
+                        break;
+                    case TargetMode.OneEnemy:
+                        EnemyCharacter.OnSelectedEnemyCharacterChange -= AddSkillTarget;
+                        break;
+                }
             }
 
             SkillExecuteRoutine(skillUsed);
@@ -660,6 +690,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         OnCharacterActivateSkill?.Invoke(this, currentSkill);
+        OnSkillUsed?.Invoke();
         for (int i = 0; i < onSkillFoundTargets.Count; i++)
         {
             onSkillFoundTargets[i]();
@@ -698,6 +729,7 @@ public abstract class BaseCharacter : MonoBehaviour
         newEffect.referenceEffect = props.effect;
         newEffect.remainingTurns = props.effectDuration;
         newEffect.remainingActivations = props.activationLimit;
+        newEffect.stacks = props.stacks;
         newEffect.strength = props.strength;
         newEffect.customValues = props.customValues;
         newEffect.description =
@@ -774,41 +806,81 @@ public abstract class BaseCharacter : MonoBehaviour
         onFinishApplyingSkillEffects.Clear();
     }
 
+    [ContextMenu("Report Effects")]
+    void ReportEffects()
+    {
+        foreach (var item in AppliedEffects)
+        {
+            Debug.Log(item.referenceEffect.name);
+        }
+    }
+
     public void ApplyEffect(AppliedEffect newEffect)
     {
-        // TODO: Make some effects stack-able and some not
-        // if (newEffect.referenceEffect.canStack)
-        if (!AppliedEffects.ContainsKey(newEffect.referenceEffect))
+        if (!EffectDictionary.ContainsKey(newEffect.referenceEffect))
         {
-            AppliedEffects.Add(newEffect.referenceEffect, new List<AppliedEffect>());
+            EffectDictionary.Add(newEffect.referenceEffect, new List<AppliedEffect>());
         }
 
-        AppliedEffects[newEffect.referenceEffect].Add(newEffect);
+        if (newEffect.referenceEffect.canStack)
+        {
+            if (EffectDictionary[newEffect.referenceEffect].Count > 0)
+            {
+                EffectDictionary[newEffect.referenceEffect][0].stacks += newEffect.stacks;
+                newEffect = EffectDictionary[newEffect.referenceEffect][0];
+            }
+            else
+            {
+                AppliedEffects.Add(newEffect);
+                EffectDictionary[newEffect.referenceEffect].Add(newEffect);
+            }
+        }
+        else
+        {
+            AppliedEffects.Add(newEffect);
+            EffectDictionary[newEffect.referenceEffect].Add(newEffect);
+        }
+
         newEffect.Apply();
         OnApplyGameEffect?.Invoke(newEffect);
     }
     
-    public void RemoveEffect(AppliedEffect effect)
+    public void RemoveEffect(AppliedEffect effect, int stacks = 0)
     {
-        AppliedEffects[effect.referenceEffect].Remove(effect);
-        OnRemoveGameEffectImmediate?.Invoke(effect);
+        if (effect.referenceEffect.canStack)
+        {
+            var e = EffectDictionary[effect.referenceEffect][0];
+            e.stacks -= stacks;
+            if (e.stacks == 0)
+            {
+                AppliedEffects.Remove(effect);
+                EffectDictionary[effect.referenceEffect].Remove(effect);
+                OnRemoveGameEffect?.Invoke(effect);
+            }
+            else
+            {
+                OnEffectStacksChanged?.Invoke(effect);
+            }
+        }
+        else
+        {
+            AppliedEffects.Remove(effect);
+            EffectDictionary[effect.referenceEffect].Remove(effect);
+            OnRemoveGameEffect?.Invoke(effect);
+        }
     }
 
     public void RemoveAllEffectsOfType(BaseGameEffect effect, bool immediate = false)
     {
-        if (!AppliedEffects.ContainsKey(effect)) return;
+        var iterate = new List<AppliedEffect>(AppliedEffects);
 
-        for (int i = AppliedEffects[effect].Count - 1; i > -1; i--)
+        foreach (var item in iterate)
         {
-            if (immediate)
+            if (item.referenceEffect == effect)
             {
-                OnRemoveGameEffectImmediate?.Invoke(AppliedEffects[effect][i]);
+                AppliedEffects.Remove(item);
+                OnRemoveGameEffect?.Invoke(item);
             }
-            else
-            {
-                OnRemoveGameEffect?.Invoke(AppliedEffects[effect][i]);
-            }
-            AppliedEffects[effect].RemoveAt(i);
         }
     }
 
@@ -821,36 +893,24 @@ public abstract class BaseCharacter : MonoBehaviour
         }
     }
 
-    public void TickEffect(BaseGameEffect effect)
+    public IEnumerator TickEffects(float delay)
     {
-        // Make sure the effect destroys itself
-        if (effect.tickPrefab) Instantiate(effect.tickPrefab, transform);
-
-        if (AppliedEffects[effect].Count == 1)
+        var list = new List<AppliedEffect>(AppliedEffects);
+        foreach (var item in list)
         {
-            if (!AppliedEffects[effect][0].Tick()) // Check if still active after ticking
+            var e = item.referenceEffect;
+            // Make sure the effect destroys itself
+            if (e.tickPrefab) Instantiate(e.tickPrefab, transform);
+            if (e.tickSound) JSAM.AudioManager.PlaySound(e.tickSound);
+
+            if (!item.Tick()) // Check if still active after ticking
             {
                 // Remove the effect
-                OnRemoveGameEffect?.Invoke(AppliedEffects[effect][0]);
-                AppliedEffects[effect].RemoveAt(0);
-            }
-        }
-        else if (AppliedEffects[effect].Count > 1)
-        {
-            var newList = effect.TickMultiple(this, this, AppliedEffects[effect]);
-            var diff = AppliedEffects[effect].Except(newList).ToList();
-
-            for (int i = 0; i < diff.Count; i++)
-            {
-                OnRemoveGameEffect?.Invoke(diff.ElementAt(i));
+                AppliedEffects.Remove(item);
+                OnRemoveGameEffect?.Invoke(item);
             }
 
-            AppliedEffects[effect] = newList;
-        }
-
-        if (AppliedEffects[effect].Count == 0)
-        {
-            AppliedEffects.Remove(effect);
+            yield return new WaitForSeconds(delay < e.TickAnimationTime ? delay : e.TickAnimationTime);
         }
     }
 
@@ -858,7 +918,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         healthGain *= HealInModifier;
         health = Mathf.Min(health + healthGain, maxHealth);
-        onHeal?.Invoke();
+        OnHeal?.Invoke();
         onSetHealth?.Invoke();
         EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
     }
@@ -929,7 +989,7 @@ public abstract class BaseCharacter : MonoBehaviour
             if (IsDodging)
             {
                 damage.Evaded = true;
-                EffectTextSpawner.Instance.SpawnMissAt(transform.parent);
+                EffectTextSpawner.Instance.SpawnMissAt(transform);
                 return;
             }
 
@@ -994,11 +1054,11 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (blocked)
             {
-                rigAnim.Play("Block Reaction");
+                rigAnim.PlayInFixedTime("Block Reaction", 1, 0);
             }
             else if (trueDamage > 0)
             {
-                rigAnim.Play("Hit Reaction");
+                rigAnim.PlayInFixedTime("Hit Reaction", 1, 0);
             }
 
             if (damage.Source != null && !damage.IsAOE)
@@ -1008,7 +1068,7 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         OnCharacterAttackBlocked?.Invoke(this, blocked);
-        onTakeDamage?.Invoke(trueDamage);
+        OnTakeDamage?.Invoke(trueDamage, damage);
         OnCharacterReceivedDamage?.Invoke(this, damage);
 
         TryToDie(damage);
@@ -1022,12 +1082,9 @@ public abstract class BaseCharacter : MonoBehaviour
 
             foreach (var item in AppliedEffects)
             {
-                foreach (var e in item.Value)
-                {
-                    if (!e.referenceEffect.activateOnDeath) continue;
-                    battleSystem.RegisterOnDeathEffect(e);
-                    hasOnDeathEffect = true;
-                }
+                if (!item.referenceEffect.activateOnDeath) continue;
+                battleSystem.RegisterOnDeathEffect(item);
+                hasOnDeathEffect = true;
             }
 
             // Don't die just yet

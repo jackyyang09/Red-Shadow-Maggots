@@ -1,26 +1,18 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [CreateAssetMenu(fileName = "Clear Debuffs", menuName = "ScriptableObjects/Game Effects/Clear Debuffs", order = 1)]
 public class ClearDebuffs : BaseGameEffect
 {
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        List<BaseGameEffect> keys = new List<BaseGameEffect>();
+        var effects = target.AppliedEffects.Where(e => e.referenceEffect.effectType == EffectType.Debuff).ToList();
 
-        foreach (var effect in target.AppliedEffects)
-        {
-            if (effect.Key.effectType == EffectType.Debuff)
-            {
-                keys.Add(effect.Key);
-            }
-        }
+        if (effects.Count == 0) return;
 
-        for (int i = 0; i < keys.Count; i++)
-        {
-            target.RemoveAllEffectsOfType(keys[i]);
-        }
+        target.RemoveEffect(effects[0]);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

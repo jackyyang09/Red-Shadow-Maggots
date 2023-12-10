@@ -147,6 +147,7 @@ public class AppliedEffect
     public BaseCharacter caster;
     public BaseCharacter target;
     public BaseGameEffect referenceEffect;
+    public int stacks;
     public int remainingTurns;
     public int remainingActivations;
     public EffectStrength strength;
@@ -217,6 +218,19 @@ public class AppliedEffect
                     target.RemoveEffect(this);
                 }
             }
+        }
+    }
+
+    public class AppliedEffectComparer : IEqualityComparer<AppliedEffect>
+    {
+        public bool Equals(AppliedEffect x, AppliedEffect y)
+        {
+            return x.referenceEffect == y.referenceEffect;
+        }
+
+        public int GetHashCode(AppliedEffect obj)
+        {
+            return GameEffectLoader.Instance.GetEffectIndex(obj.referenceEffect);
         }
     }
 }

@@ -21,6 +21,7 @@ public class GameStatValue : ScriptableObject
     public BaseGameStat Stat;
     public TargetMode Target;
     public float[] Table;
+    public float GetStrength(EffectStrength strength) => Table[(int)strength - 1];
 
     private void Reset()
     {
@@ -63,7 +64,7 @@ public class GameStatValue : ScriptableObject
                 result += Stat.GetGameStat(t);
             }
 
-            result *= Table[(int)strength - 1];
+            result *= GetStrength(strength);
 
             result += Constant;
         }
@@ -75,7 +76,7 @@ public class GameStatValue : ScriptableObject
     {
         string description = "";
         
-        var v = Table[(int)strength - 1];
+        var v = GetStrength(strength);
 
         // Likely percentage
         if (Mathf.Abs(v) <= 1)

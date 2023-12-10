@@ -6,8 +6,8 @@ using DG.Tweening;
 
 public class OpenCasketFuneral : SuperCriticalEffect
 {
-    [SerializeField] Transform skeletonTransform = null;
-    [SerializeField] Renderer skeletonArms = null;
+    [SerializeField] Transform skeletonTransform;
+    [SerializeField] Renderer skeletonArms;
     int turnsPassed;
 
     private void OnDisable()

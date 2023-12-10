@@ -4387,6 +4387,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 72aa2d23d5eaec24f8a869dab9d6b07e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 9002645619405216300}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 72aa2d23d5eaec24f8a869dab9d6b07e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6842393039924167427}
     - targetCorrespondingSourceObject: {fileID: 8575776532874942019, guid: 72aa2d23d5eaec24f8a869dab9d6b07e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7769970048250579159}
@@ -5672,6 +5675,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6842393039924167427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7427864353487697321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e200f19362b6fbe488a4406bd842e3dc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stackRemovalOnFail: 2
+  stackRemovalOnSuccess: 0
+  supplies: {fileID: 11400000, guid: a75ba4273d8f39a4e84f2223d3d918a4, type: 2}
+  healRequirement: 1
+  healAmount: 0.01
+  critChanceRequirement: 10
+  critChanceModifier: 0.3
+  dodgeRequirement: 15
+  dodgeEffect: {fileID: 11400000, guid: 18d4744c72e773f4b93955f20fa87df9, type: 2}
 --- !u!4 &7605262338782965869 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 170902980700551317, guid: 72aa2d23d5eaec24f8a869dab9d6b07e, type: 3}

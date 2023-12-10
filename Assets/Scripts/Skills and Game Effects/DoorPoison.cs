@@ -6,6 +6,8 @@ using DG.Tweening;
 [CreateAssetMenu(fileName = "Door Poison", menuName = "ScriptableObjects/Game Effects/Door Poison", order = 1)]
 public class DoorPoison : DamagePerTurnEffect
 {
+    public override float TickAnimationTime => 2;
+
     [Header("Effect Properties")]
     [SerializeField] Vector3 spawnOffset = new Vector3(-1, 4, 3);
     [SerializeField] float throwTime = 0.25f;
@@ -20,14 +22,10 @@ public class DoorPoison : DamagePerTurnEffect
     public override string ExplainerDescription =>
         "Every turn, get hit by a door and lose " + Keywords.Short.HEALTH + ".";
 
-    System.Action damageDelegate;
-
     public GameObject doorPrefab;
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(props.strength, props.customValues);
-
         string s = TargetModeDescriptor(targetMode);
 
         switch (targetMode)
@@ -47,20 +45,20 @@ public class DoorPoison : DamagePerTurnEffect
 
         //s += (int)(change * 100) + "% " + Keywords.Short.MAX_HEALTH + 
         //    " every turn by getting hit by a door ";
-        s += "hit by a <u>Door</u> every turn, taking " + (int)(change * 100) + "% of your " +
-            Keywords.Short.ATTACK + " in damage ";
+        s += "hit by a <u>Door</u> every turn, taking " + value.GetDescription(props.strength) +
+            " in damage " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
-        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        return s;
     }
 
     public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        target.StartCoroutine(PlayEffect(target, () => base.Tick(user, target, strength, customValues)));
+        target.StartCoroutine(PlayEffect(target, () => DealDamage(target, strength, customValues)));
     }
 
     public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
     {
-        target.StartCoroutine(PlayEffect(target, () => base.TickCustom(user, target, values)));
+        //target.StartCoroutine(PlayEffect(target, () => DealDamage(target, strength, values)));
     }
 
     IEnumerator PlayEffect(BaseCharacter target, System.Action damageDelegate)
@@ -91,7 +89,13 @@ public class DoorPoison : DamagePerTurnEffect
             rigidbodies[i].transform.DOScale(0.01f, doorLifetime - doorShrinkDelay).SetDelay(doorShrinkDelay);
         }
         damageDelegate.Invoke();
-        
-        Destroy(door, doorLifetime);
+
+        yield return new WaitForSeconds(doorLifetime);
+
+        foreach (var item in rigidbodies)
+        {
+            item.transform.DOKill();
+        }
+        Destroy(door);
     }
 }

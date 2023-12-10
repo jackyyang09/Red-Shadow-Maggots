@@ -1,11 +1,32 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 [CreateAssetMenu(fileName = "New Damage Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
 public class BaseDamageEffect : BaseGameEffect
 {
     public GameStatValue value;
+
+    public virtual void DealDamage(BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+        DamageStruct damageStruct = new DamageStruct();
+        damageStruct.Percentage = 1;
+        damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+        damageStruct.Effectivity = DamageEffectivess.Normal;
+        damageStruct.QTEResult = QuickTimeBase.QTEResult.Early;
+        target.TakeDamage(damageStruct);
+    }
+
+    public virtual void ConsumeHealth(BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+        DamageStruct damageStruct = new DamageStruct();
+        damageStruct.Percentage = 1;
+        damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+        damageStruct.Effectivity = DamageEffectivess.Normal;
+        damageStruct.QTEResult = QuickTimeBase.QTEResult.Early;
+        target.ConsumeHealth(damageStruct);
+    }
 
     public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
