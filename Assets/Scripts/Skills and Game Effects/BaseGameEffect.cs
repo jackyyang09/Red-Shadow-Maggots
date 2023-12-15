@@ -153,6 +153,9 @@ public class AppliedEffect
     public EffectStrength strength;
     public float[] customValues;
     public string description;
+    /// <summary>
+    /// TODO: USE ME
+    /// </summary>
     public float cachedValue;
 
     public void Apply()

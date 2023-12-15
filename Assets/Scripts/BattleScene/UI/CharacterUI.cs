@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
 using static Facade;
+using MPUIKIT;
 
 public class CharacterUI : BaseGameUI
 {
@@ -36,6 +37,7 @@ public class CharacterUI : BaseGameUI
     [SerializeField] protected RectTransform iconContainer;
     [SerializeField] protected GameObject playerCritCanvas;
     [SerializeField] protected GameObject enemyCritCanvas;
+    [SerializeField] protected MPImage waitImage;
     [SerializeField] SimpleHealth health;
     [SerializeField] ShieldUI shield;
 
@@ -56,6 +58,7 @@ public class CharacterUI : BaseGameUI
         health.InitializeWithCharacter(character);
         shield.InitializeWithCharacter(character);
 
+        designatedCharacter.OnWaitChanged += OnWaitChanged;
         designatedCharacter.OnApplyGameEffect += AddEffectIcon;
         designatedCharacter.OnEffectStacksChanged += UpdateEffectStacks;
         designatedCharacter.OnRemoveGameEffect += RemoveEffect;
@@ -104,6 +107,7 @@ public class CharacterUI : BaseGameUI
     {
         if (designatedCharacter)
         {
+            designatedCharacter.OnWaitChanged -= OnWaitChanged;
             designatedCharacter.OnApplyGameEffect -= AddEffectIcon;
             designatedCharacter.OnRemoveGameEffect -= RemoveEffect;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);
@@ -145,6 +149,11 @@ public class CharacterUI : BaseGameUI
         {
             OptimizedCanvas.Hide();
         }
+    }
+
+    void OnWaitChanged()
+    {
+        waitImage.fillAmount = designatedCharacter.Wait;
     }
 
     private void UpdateEnemyCritCharge(int chargeLevel)

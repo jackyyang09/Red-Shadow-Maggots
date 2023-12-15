@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class PissUnicornPassive : BaseCharacterPassive
 {
+    [SerializeField] float maxAttackBuff = 1.5f;
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -40,6 +42,6 @@ public class PissUnicornPassive : BaseCharacterPassive
 
     void UpdateBerserkerState()
     {
-
+        //baseCharacter.
     }
 }

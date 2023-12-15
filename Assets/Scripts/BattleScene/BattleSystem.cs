@@ -109,12 +109,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         get
         {
-            List<BaseCharacter> list = new List<BaseCharacter>(playerCharacters);
-            list.AddRange(enemyController.Enemies);
+            List<BaseCharacter> list = new List<BaseCharacter>(PlayerList);
+            list.AddRange(enemyController.EnemyList);
             return list;
         }
     }
-
 
     public PlayerCharacter ActivePlayer
     {
@@ -176,6 +175,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     [SerializeField] TargetedCharacters enemyTargets = new TargetedCharacters();
 
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
+    public List<BaseCharacter> MoveOrder => moveOrder;
     int moveCount = 0;
     public int MoveCount => moveCount;
     public void SetMoveCount(int newCount) => moveCount = newCount;
@@ -191,6 +191,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static System.Action[] OnStartPhaseLate = new System.Action[(int)BattlePhases.Count];
     public static System.Action[] OnEndPhase = new System.Action[(int)BattlePhases.Count];
     public static System.Action OnEndTurn;
+    public static System.Action OnEndRound;
+
+    public static System.Action OnMoveOrderUpdated;
 
     public static System.Action OnTargetableCharactersChanged;
     public static System.Action OnFinishTickingEffects;
@@ -242,22 +245,24 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             gameManager.LoadBattleState();
         }
 
-        // Initialize turn order
-        for (int i = 0; i < playerCharacters.Length; i++)
+        // Initialize move order
+        foreach (var player in PlayerList)
         {
-            if (!playerCharacters[i]) continue;
-            yield return new WaitUntil(() => playerCharacters[i].Initialized);
-            if (playerCharacters[i].IsDead) continue;
-            moveOrder.Add(playerCharacters[i]);
+            yield return new WaitUntil(() => player.Initialized);
+            if (player.IsDead) continue;
+            player.IncrementWaitTimer();
+            moveOrder.Add(player);
         }
 
-        for (int i = 0; i < enemyController.Enemies.Length; i++)
+        foreach (var enemy in enemyController.EnemyList)
         {
-            if (!enemyController.Enemies[i]) continue;
-            yield return new WaitUntil(() => enemyController.Enemies[i].Initialized);
-            if (enemyController.Enemies[i].IsDead) continue;
-            moveOrder.Add(enemyController.Enemies[i]);
+            yield return new WaitUntil(() => enemy.Initialized);
+            if (enemy.IsDead) continue;
+            enemy.IncrementWaitTimer();
+            moveOrder.Add(enemy);
         }
+
+        UpdateMoveOrder();
 
         currentPhase = BattlePhases.Entry;
         sceneTweener.EnterBattle();
@@ -528,9 +533,27 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         moveOrder[moveCount].OnEndTurn?.Invoke();
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
+        moveOrder[moveCount].IncrementWaitTimer();
+        UpdateMoveOrder();
 
-        IncrementMoveCount();
+        //IncrementMoveCount();
         ChangeBattlePhase();
+    }
+
+    public void UpdateMoveOrder()
+    {
+        if (moveOrder[1].Wait >= 1) // Next character is also over-wait
+        {
+            foreach (var character in moveOrder)
+            {
+                character.ResetWait();
+                character.IncrementWaitTimer();
+            }
+            OnEndRound?.Invoke();
+        }
+
+        moveOrder = moveOrder.OrderBy(c => c.Wait).ThenByDescending(c => c.IsPlayer()).ToList();
+        OnMoveOrderUpdated?.Invoke();
     }
 
     public void IncrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
@@ -605,6 +628,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
                 break;
             case BattlePhases.EnemyTurn:
                 OnStartPhase[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
+                if (!OpposingCharacter) enemyController.ChooseAttackTarget();
                 enemyController.MakeYourMove();
                 OnStartPhaseLate[BattlePhases.EnemyTurn.ToInt()]?.Invoke();
                 break;

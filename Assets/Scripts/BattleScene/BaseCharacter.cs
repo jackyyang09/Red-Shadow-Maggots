@@ -2,12 +2,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using static Facade;
-using static Unity.Collections.AllocatorManager;
 
 public abstract class BaseCharacter : MonoBehaviour
 {
@@ -65,21 +62,32 @@ public abstract class BaseCharacter : MonoBehaviour
     /// <summary>
     /// The sum of the character's base crit chance and any modifiers before QTEs
     /// </summary>
-    public virtual float CritChanceModified
-    {
-        get { return critChance + critChanceModifier; }
-    }
+    public virtual float CritChanceModified => critChance + critChanceModifier;
 
-    [SerializeField] float critChanceModifier = 0;
+    float critChanceModifier = 0;
 
     public float CritChanceModifier => critChanceModifier;
 
     public abstract bool CanCrit { get; }
 
     [SerializeField] float critMultiplier = 3;
-    [SerializeField] float critDamageModifier = 0;
+    float critDamageModifier;
 
     public float CritDamageModified => 1 + critMultiplier + critDamageModifier;
+
+    [SerializeField] float waitTime = 0.5f;
+    float waitTimeModifier;
+    public float WaitTime => waitTime + waitTimeModifier;
+    float waitTimer;
+    public float Wait => waitTimer;
+    public void IncrementWaitTimer()
+    {
+        waitTimer += WaitTime;
+        OnWaitChanged?.Invoke();
+        OnCharacterWaitChanged?.Invoke(this);
+    }
+
+    public void ResetWait() => waitTimer = 0;
 
     [SerializeField] protected Rarity rarity;
     public float RarityMultiplier => 1 + 0.5f * (int)rarity;
@@ -167,6 +175,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public Action OnSkillUsed;
 
+    public Action OnWaitChanged;
+
     /// <summary>
     /// Only invoked when changing health through abnormal means
     /// </summary>
@@ -194,6 +204,8 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter, DamageStruct> OnCharacterConsumedHealth;
 
     public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
+
+    public static Action<BaseCharacter> OnCharacterWaitChanged;
 
     public static Action<BaseCharacter> OnCharacterDeath;
 
@@ -225,6 +237,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;
+        waitTime = characterReference.waitTime;
 
         Initialize();
 
@@ -238,6 +251,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (stateInfo != null)
         {
             health = stateInfo.Health;
+            waitTimer = stateInfo.WaitTimer;
             if (health == 0)
             {
                 DieSilently();

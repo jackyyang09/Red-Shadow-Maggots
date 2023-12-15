@@ -26,4 +26,14 @@ public static class Extensions
     {
         return System.Convert.ToInt32(b);
     }
+
+    /// <summary>
+    /// Multiplies by 100 and truncates to int
+    /// </summary>
+    /// <param name="f"></param>
+    /// <returns></returns>
+    public static int FormatPercentage(this float f)
+    {
+        return (int)(f * 100);
+    }
 }

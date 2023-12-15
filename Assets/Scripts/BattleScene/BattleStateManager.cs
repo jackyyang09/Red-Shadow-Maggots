@@ -19,6 +19,7 @@ public class BattleState
     public class State
     {
         public float Health;
+        public float WaitTimer;
         public List<SerializedEffect> Effects = new List<SerializedEffect>();
     }
 
@@ -44,7 +45,7 @@ public class BattleState
     public int RoomLevel = 1;
     public int SavedSeed;
     public int WaveCount = 0;
-    public int TurnCount;
+    public int RoundCount;
     public int MoveCount;
     public int SelectedEnemy;
     public bool[] UseSpecialCam;

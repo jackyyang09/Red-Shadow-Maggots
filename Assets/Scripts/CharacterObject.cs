@@ -74,7 +74,6 @@ public class CharacterObject : ScriptableObject
     public Sprite sprite;
     public Sprite headshotSprite;
 
-    [Header("Game Stats")]
     public const int MAX_LEVEL_PLAYER = 90;
     public const int MAX_LEVEL_ENEMY = 999;
 
@@ -135,11 +134,13 @@ public class CharacterObject : ScriptableObject
         return Mathf.FloorToInt(level);
     }
 
+    [Header("Game Stats")]
     [Range(0, 1)] public float critChance;
     public float critDamageMultiplier = 3;
     public CharacterClass characterClass;
     public QTEType attackQteType;
     public int turnsToCrit = 3;
+    [Range(0, 1)] public float waitTime = 0.5f;
 
     [Range(0, 1)] public float attackLeniency;
     /// <summary>

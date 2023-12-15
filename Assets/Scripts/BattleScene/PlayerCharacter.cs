@@ -20,7 +20,7 @@ public class PlayerCharacter : BaseCharacter
         get
         { 
             return base.CritChanceModified + canteenCharge +
-                System.Convert.ToInt32(IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect) * BattleSystem.QuickTimeCritModifier;
+                (IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect).ToInt() * BattleSystem.QuickTimeCritModifier;
         }
     }
 

@@ -66,7 +66,7 @@ public class UIManager : BasicSingleton<UIManager>
         SceneTweener.OnBattleTransition += UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
 
-        GameManager.OnTurnCountChanged += UpdateTurnCounter;
+        GameManager.OnRoundCountChanged += UpdateTurnCounter;
 
         OnAttackCommit += HideBattleUI;
 
@@ -86,7 +86,7 @@ public class UIManager : BasicSingleton<UIManager>
         SceneTweener.OnBattleTransition -= UpdateWaveCounter;
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
 
-        GameManager.OnTurnCountChanged -= UpdateTurnCounter;
+        GameManager.OnRoundCountChanged -= UpdateTurnCounter;
 
         OnAttackCommit -= HideBattleUI;
 
@@ -257,7 +257,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void UpdateTurnCounter()
     {
-        turnCounter.text = gameManager.TurnCount.ToString();
+        turnCounter.text = gameManager.RoundCount.ToString();
     }
 
     public void InitializeBossUIWithCharacter(BaseCharacter character)

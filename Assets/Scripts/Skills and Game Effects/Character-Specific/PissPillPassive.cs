@@ -65,7 +65,7 @@ public class PissPillPassive : BaseCharacterPassive
     {
         float rngValue;
 
-        rngValue = peeChances[System.Convert.ToInt32(qteSuccess)];
+        rngValue = peeChances[qteSuccess.ToInt()];
 
         if (Random.value > rngValue) return;
 

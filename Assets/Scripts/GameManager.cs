@@ -16,30 +16,30 @@ public class GameManager : BasicSingleton<GameManager>
         }
     }
 
-    int turnCount = 0;
-    public int TurnCount
+    int roundCount = 1;
+    public int RoundCount
     {
-        get { return turnCount; }
+        get { return roundCount; }
         set
         {
-            turnCount = value;
-            OnTurnCountChanged?.Invoke();
+            roundCount = value;
+            OnRoundCountChanged?.Invoke();
         }
     }
-    private void IncrementTurnCount() => TurnCount++;
+    private void IncrementRoundCount() => RoundCount++;
 
     [SerializeField] DevLocker.Utils.SceneReference mapScene;
 
-    public static System.Action OnTurnCountChanged;
+    public static System.Action OnRoundCountChanged;
 
     private void OnEnable()
     {
-        BattleSystem.OnEndTurn += IncrementTurnCount;
+        BattleSystem.OnEndRound += IncrementRoundCount;
     }
 
     private void OnDisable()
     {
-        BattleSystem.OnEndTurn -= IncrementTurnCount;
+        BattleSystem.OnEndRound -= IncrementRoundCount;
     }
 
     // Start is called before the first frame update
@@ -120,7 +120,7 @@ public class GameManager : BasicSingleton<GameManager>
         BattleData.EnemyStates = waveData;
 
         BattleData.StoredCharge = canteenSystem.AvailableCharge;
-        BattleData.TurnCount = gameManager.TurnCount;
+        BattleData.RoundCount = gameManager.RoundCount;
         BattleData.MoveCount = battleSystem.MoveCount;
         BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(battleSystem.ActiveEnemy);
 
@@ -129,7 +129,7 @@ public class GameManager : BasicSingleton<GameManager>
 
     public void LoadBattleState()
     {
-        gameManager.TurnCount = BattleData.TurnCount;
+        gameManager.RoundCount = BattleData.RoundCount;
         battleSystem.SetMoveCount(BattleData.MoveCount);
         canteenSystem.SetCanteenCharge(BattleData.StoredCharge);
         if (enemyController.Enemies[BattleData.SelectedEnemy].IsDead)
