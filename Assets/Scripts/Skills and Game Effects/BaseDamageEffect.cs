@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Rendering.PostProcessing;
+﻿using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Damage Effect", menuName = "ScriptableObjects/Game Effects/Take Damage", order = 1)]
 public class BaseDamageEffect : BaseGameEffect
@@ -28,15 +25,15 @@ public class BaseDamageEffect : BaseGameEffect
         target.ConsumeHealth(damageStruct);
     }
 
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
-        base.Activate(user, target, strength, customValues);
-
         DamageStruct damageStruct = new DamageStruct();
         damageStruct.Percentage = 1;
         damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
         damageStruct.Effectivity = DamageEffectivess.Normal;
         target.ConsumeHealth(damageStruct);
+
+        return base.Activate(user, target, strength, customValues);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

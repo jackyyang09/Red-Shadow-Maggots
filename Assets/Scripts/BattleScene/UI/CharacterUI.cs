@@ -58,7 +58,7 @@ public class CharacterUI : BaseGameUI
         health.InitializeWithCharacter(character);
         shield.InitializeWithCharacter(character);
 
-        designatedCharacter.OnWaitChanged += OnWaitChanged;
+        designatedCharacter.OnWaitTimeChanged += OnWaitChanged;
         designatedCharacter.OnApplyGameEffect += AddEffectIcon;
         designatedCharacter.OnEffectStacksChanged += UpdateEffectStacks;
         designatedCharacter.OnRemoveGameEffect += RemoveEffect;
@@ -107,7 +107,7 @@ public class CharacterUI : BaseGameUI
     {
         if (designatedCharacter)
         {
-            designatedCharacter.OnWaitChanged -= OnWaitChanged;
+            designatedCharacter.OnWaitTimeChanged -= OnWaitChanged;
             designatedCharacter.OnApplyGameEffect -= AddEffectIcon;
             designatedCharacter.OnRemoveGameEffect -= RemoveEffect;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);
@@ -153,7 +153,7 @@ public class CharacterUI : BaseGameUI
 
     void OnWaitChanged()
     {
-        waitImage.fillAmount = designatedCharacter.Wait;
+        waitImage.fillAmount = designatedCharacter.WaitTimer;
     }
 
     private void UpdateEnemyCritCharge(int chargeLevel)
@@ -198,9 +198,15 @@ public class CharacterUI : BaseGameUI
 
     private void AddEffectIcon(AppliedEffect obj)
     {
+        if (obj.remainingTurns == 0 && obj.remainingActivations == 0)
+        {
+            // Neither -1 or above 0? Likely a one-time effect
+            return;
+        }
+
         if (iconDictionary.ContainsKey(obj))
         {
-            if (obj.referenceEffect.canStack)
+            if (obj.HasStacks)
             {
                 iconDictionary[obj].UpdateStackCount();
             }

@@ -13,6 +13,14 @@ public class TurnOrderGraphic : MonoBehaviour
     Color[][] colours;
     Color[] panelColours;
 
+    [Header("Wait Changed")]
+    [SerializeField] Color fastColour;
+    [SerializeField] Color slowColour;
+    [SerializeField] float waitChangeDelay = 1;
+    [SerializeField] float waitChangeTime = 1   ;
+    [SerializeField] Ease waitChangeEase;
+    Color fillColour;
+
     [Header("On My Turn")]
     [SerializeField] float heightOffset;
     [SerializeField] float dialTweenTime;
@@ -37,11 +45,13 @@ public class TurnOrderGraphic : MonoBehaviour
     private void OnEnable()
     {
         colours = new Color[][] { enemyColour, playerColour };
+        fillColour = waitFill.color;
     }
 
     private void OnDisable()
     {
-        character.OnWaitChanged -= UpdateWait;
+        character.OnWaitTimeChanged -= UpdateWait;
+        character.OnWaitLimitChanged -= OnWaitLimitChanged;
         character.OnStartTurn -= OnStartTurn;
         character.OnEndTurn -= OnEndTurn;
 
@@ -60,13 +70,14 @@ public class TurnOrderGraphic : MonoBehaviour
         panelColours = colours[c.IsPlayer().ToInt()];
         background.color = panelColours[0];
 
-        ForceUpdateWait(character.Wait);
+        ForceUpdateWait(character.WaitTimer);
 
-        character.OnWaitChanged += UpdateWait;
+        character.OnWaitTimeChanged += UpdateWait;
+        character.OnWaitLimitChanged += OnWaitLimitChanged;
         character.OnStartTurn += OnStartTurn;
         character.OnEndTurn += OnEndTurn;
 
-        previousWait = character.Wait;
+        previousWait = character.WaitTimer;
 
         if (character.IsEnemy(out EnemyCharacter e))
         {
@@ -79,19 +90,19 @@ public class TurnOrderGraphic : MonoBehaviour
 
     private void UpdateWait()
     {
-        if (character.Wait >= 1)
+        if (character.IsOverWait)
         {
-            ForceUpdateWait(character.Wait);
+            ForceUpdateWait(character.WaitPercentage);
             //ForceUpdateWait(0);
         }
         else
         {
             DOTween.To(x => previousWait = x,
             previousWait,
-            character.Wait, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            character.WaitTimer, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
             {
-                waitLabel.text = previousWait.FormatPercentage().ToString();
-                waitFill.fillAmount = previousWait;
+                waitLabel.text = previousWait.FormatToDecimal() + "%";
+                waitFill.fillAmount = previousWait / character.WaitLimitModified;
             });
         }
     }
@@ -99,8 +110,8 @@ public class TurnOrderGraphic : MonoBehaviour
     void ForceUpdateWait(float wait)
     {
         previousWait = wait;
-        waitLabel.text = previousWait.FormatPercentage().ToString();
-        waitFill.fillAmount = previousWait;
+        waitLabel.text = previousWait.FormatToDecimal() + "%";
+        waitFill.fillAmount = previousWait / character.WaitLimitModified;
     }
 
     void OnStartTurn()
@@ -123,6 +134,21 @@ public class TurnOrderGraphic : MonoBehaviour
     void OnEndEnemyTurn()
     {
         OnSelectedEnemyCharacterChange(character as EnemyCharacter);
+    }
+    
+    void OnWaitLimitChanged()
+    {
+        if (Character.WaitLimitModified >= Character.WaitLimit)
+        {
+            waitFill.color = fastColour;
+        }
+        else
+        {
+            waitFill.color = slowColour;
+        }
+        waitFill.DOColor(fillColour, waitChangeTime).SetEase(waitChangeEase).SetDelay(waitChangeDelay);
+
+        waitFill.DOFillAmount(previousWait / character.WaitLimitModified, dialTweenTime).SetEase(dialEase);
     }
 
     void OnSelectedEnemyCharacterChange(EnemyCharacter e)

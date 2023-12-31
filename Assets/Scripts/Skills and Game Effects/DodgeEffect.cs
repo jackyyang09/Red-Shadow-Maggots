@@ -5,9 +5,12 @@ using UnityEngine;
 [CreateAssetMenu(fileName = nameof(DodgeEffect), menuName = "ScriptableObjects/Game Effects/Dodge Effect", order = 1)]
 public class DodgeEffect : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         target.IsDodging = true;
+        // TODO: Re-applying dodge effect should remove other dodge instances
+        Debug.LogWarning(nameof(DodgeEffect) + ": Re-applying dodge effect should remove other dodge instances?");
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -45,9 +48,5 @@ public class DodgeEffect : BaseGameEffect
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)
     {
         return null;
-    }
-
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
     }
 }

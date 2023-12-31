@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Crit Chance Effect", menuName = "ScriptableObjects/Game Effects/Crit Chance", order = 1)]
 public class BaseCritChanceBuff : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         EnemyCharacter enemy = target as EnemyCharacter;
         if (enemy)
@@ -19,6 +19,8 @@ public class BaseCritChanceBuff : BaseGameEffect
 
             target.ApplyCritChanceModifier(percentageChange);
         }
+
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

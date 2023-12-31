@@ -47,8 +47,6 @@ public abstract class BaseGameEffect : ScriptableObject
     public bool activateOnApply = true;
     public bool activateOnDeath;
 
-    public bool canStack;
-
     /// <summary>
     /// Overrides default tick time if value is above -1
     /// </summary>
@@ -61,15 +59,19 @@ public abstract class BaseGameEffect : ScriptableObject
     public JSAM.SoundFileObject tickSound;
 
     /// <summary>
-    /// Invoked immediately
+    /// 
     /// </summary>
-    /// <param name="targets"></param>
-    public virtual void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
+    /// <param name="user"></param>
+    /// <param name="target"></param>
+    /// <param name="strength"></param>
+    /// <param name="customValues"></param>
+    /// <returns>bool - False if Activation condition not met</returns>
+    public virtual bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) => true;
 
     /// <summary>
     /// Called on every turn after it's activation
     /// </summary>
-    public virtual void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) { }
+    public virtual void Tick(AppliedEffect effect) { }
 
     /// <summary>
     /// Stackable effects will implement this
@@ -104,24 +106,6 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public virtual string GetEffectDescription(EffectStrength strength, float[] customValues) => "";
 
-    protected string DurationAndActivationDescriptor(int turns, int activations)
-    {
-        string s = "(";
-        if (activations > 0)
-        {
-            s += activations + " Time";
-            if (activations > 1) s += "s";
-        }
-        if (turns > 0)
-        {
-            if (activations > 0) s += ", ";
-            s += turns + " Turn";
-            if (turns > 1) s += "s";
-        }
-        s += ")";
-        return s;
-    }
-
     protected string TargetModeDescriptor(TargetMode mode)
     {
         switch (mode)
@@ -137,6 +121,31 @@ public abstract class BaseGameEffect : ScriptableObject
         }
         return "";
     }
+
+    public static string DurationAndActivationDescriptor(int turns, int activations)
+    {
+        if (activations <= 0 && turns <= 0) return "";
+
+        string s = "(";
+        if (activations > 0)
+        {
+            s += activations + " Time";
+            if (activations > 1) s += "s";
+        }
+        if (turns > 0)
+        {
+            if (activations > 0) s += ", ";
+            s += turns + " Turn";
+            if (turns > 1) s += "s";
+        }
+        s += ")";
+        return s;
+    }
+}
+
+public interface IStackableEffect
+{
+    public void OnStacksChanged(AppliedEffect effect);
 }
 
 /// <summary>
@@ -147,7 +156,24 @@ public class AppliedEffect
     public BaseCharacter caster;
     public BaseCharacter target;
     public BaseGameEffect referenceEffect;
-    public int stacks;
+
+    IStackableEffect stackEffect;
+    public bool HasStacks => stackEffect != null;
+
+    int stacks;
+    public int Stacks
+    {
+        get => stacks;
+        set
+        {
+            if (value != stacks)
+            {
+                OnStacksChanged();
+            }
+            stacks = value;
+        }
+    }
+
     public int remainingTurns;
     public int remainingActivations;
     public EffectStrength strength;
@@ -156,7 +182,28 @@ public class AppliedEffect
     /// <summary>
     /// TODO: USE ME
     /// </summary>
-    public float cachedValue;
+    public List<float> cachedValue = new List<float>();
+
+    public AppliedEffect(BaseGameEffect effect)
+    {
+        referenceEffect = effect;
+        stackEffect = referenceEffect as IStackableEffect;
+    }
+
+    public AppliedEffect(BaseCharacter c, BaseCharacter t, EffectProperties props)
+    {
+        caster = c;
+        target = t;
+        referenceEffect = props.effect;
+        stackEffect = referenceEffect as IStackableEffect;
+
+        remainingTurns = props.effectDuration;
+        remainingActivations = props.activationLimit;
+        Stacks = props.stacks;
+        strength = props.strength;
+        customValues = props.customValues;
+        description = props.effect.GetEffectDescription(props.strength, props.customValues);
+    }
 
     public void Apply()
     {
@@ -184,7 +231,7 @@ public class AppliedEffect
     public bool Tick()
     {
         remainingTurns--;
-        referenceEffect.Tick(caster, target, strength, customValues);
+        referenceEffect.Tick(this);
         if (remainingTurns == 0)
         {
             referenceEffect.OnExpire(caster, target, strength, customValues);
@@ -206,6 +253,12 @@ public class AppliedEffect
             return false;
         }
         return true;
+    }
+
+    void OnStacksChanged()
+    {
+        var s = referenceEffect as IStackableEffect;
+        s.OnStacksChanged(this);
     }
 
     public void OnDeath()

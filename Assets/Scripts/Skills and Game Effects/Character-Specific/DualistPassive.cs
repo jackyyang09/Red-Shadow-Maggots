@@ -32,7 +32,7 @@ public class DualistPassive : BaseCharacterPassive
         if (baseCharacter.EffectDictionary.ContainsKey(stackEffect))
         {
             var eff = baseCharacter.EffectDictionary[stackEffect][0];
-            if (eff.stacks >= maxStacks)
+            if (eff.Stacks >= maxStacks)
             {
                 baseCharacter.RemoveEffect(eff, maxStacks);
                 ApplyEffect(specialEffect, 1);

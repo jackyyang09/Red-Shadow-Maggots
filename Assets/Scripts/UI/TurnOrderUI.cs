@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static Facade;
 
-public class TurnOrderUI : MonoBehaviour
+public class TurnOrderUI : BaseGameUI
 {
     [Header("Tween Settings")]
     [SerializeField] float tweenTime = 0.5f;
@@ -21,6 +21,16 @@ public class TurnOrderUI : MonoBehaviour
     [SerializeField] RoundChangeGraphic roundChangeGraphic;
     [SerializeField] Transform feather;
     [SerializeField] Transform weight;
+
+    public override void ShowUI()
+    {
+        optimizedCanvas.Show();
+    }
+
+    public override void HideUI()
+    {
+        optimizedCanvas.Hide();
+    }
 
     // Start is called before the first frame update
     IEnumerator Start()
@@ -43,7 +53,23 @@ public class TurnOrderUI : MonoBehaviour
         BattleSystem.OnMoveOrderUpdated += OnMoveOrderUpdated;
     }
 
+    private void OnEnable()
+    {
+        UIManager.OnEnterSkillTargetMode += HideUI;
+        UIManager.OnExitSkillTargetMode += ShowUI;
+        UIManager.OnShowBattleUI += ShowUI;
+        //UIManager.OnHideBattleUI += HideUI;
+    }
+
     private void OnDisable()
+    {
+        UIManager.OnEnterSkillTargetMode -= HideUI;
+        UIManager.OnExitSkillTargetMode -= ShowUI;
+        UIManager.OnShowBattleUI -= ShowUI;
+        //UIManager.OnHideBattleUI -= HideUI;
+    }
+
+    private void OnDestroy()
     {
         BattleSystem.OnMoveOrderUpdated -= OnMoveOrderUpdated;
     }
@@ -89,7 +115,7 @@ public class TurnOrderUI : MonoBehaviour
         bool anyoneOverwait = false;
         for (int i = 0; i < finalOrder.Count; i++)
         {
-            if (finalOrder[i].Character.Wait >= 1)
+            if (finalOrder[i].Character.IsOverWait)
             {
                 bool previouslyVisible = true;
                 anyoneOverwait = true;

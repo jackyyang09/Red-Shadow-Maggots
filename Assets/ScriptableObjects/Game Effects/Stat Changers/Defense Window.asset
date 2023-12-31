@@ -15,10 +15,13 @@ MonoBehaviour:
   effectIcon: {fileID: 21300000, guid: 9cb86e7f033d9c046930e4e94e79466b, type: 3}
   effectText: DEF WINDOW UP!
   effectType: 2
-  canStack: 1
+  activateOnApply: 1
+  activateOnDeath: 0
+  canStack: 0
   particlePrefab: {fileID: 4335457655553992257, guid: a097de64e3031d848816f5ae888f1986, type: 3}
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: d5d1da69a98cdae459683a52ce043646, type: 2}
   tickSound: {fileID: 0}
-  targetStat: {fileID: 11400000, guid: 380f7a98daa9db144b0fa16ba76791cf, type: 2}
-  value: {fileID: 11400000, guid: 673c3d4ba5b0b554b83993caafb56d31, type: 2}
+  stats:
+  - targetStat: {fileID: 11400000, guid: 380f7a98daa9db144b0fa16ba76791cf, type: 2}
+    value: {fileID: 11400000, guid: 673c3d4ba5b0b554b83993caafb56d31, type: 2}

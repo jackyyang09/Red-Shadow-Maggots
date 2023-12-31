@@ -6,18 +6,20 @@ using System.Linq;
 [CreateAssetMenu(fileName = "Clear Debuffs", menuName = "ScriptableObjects/Game Effects/Clear Debuffs", order = 1)]
 public class ClearDebuffs : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var effects = target.AppliedEffects.Where(e => e.referenceEffect.effectType == EffectType.Debuff).ToList();
 
-        if (effects.Count == 0) return;
+        if (effects.Count == 0) return false;
 
         target.RemoveEffect(effects[0]);
+
+        return true;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        string desc = "Removes all debuffs from ";
+        string desc = "Removes 1 Debuff from ";
         switch (targetMode)
         {
             case TargetMode.None:

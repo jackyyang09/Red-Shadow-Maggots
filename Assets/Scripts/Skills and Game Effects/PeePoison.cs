@@ -12,9 +12,9 @@ public class PeePoison : DamagePerTurnEffect
         "Urinate every turn, losing " + Keywords.Short.HEALTH + 
         " proportional to your " + Keywords.Short.CURRENT_HEALTH + ".";
 
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(AppliedEffect effect)
     {
-        ConsumeHealth(target, strength, customValues);
+        ConsumeHealth(effect.target, effect.strength, effect.customValues);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
@@ -32,7 +32,7 @@ public class PeePoison : DamagePerTurnEffect
             case TargetMode.OneEnemy:
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += " <u>Pee</u> ";
+                s += "<u>Pee</u> ";
                 break;
         }
 

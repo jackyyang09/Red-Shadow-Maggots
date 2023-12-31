@@ -531,6 +531,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void EndTurn()
     {
+        OnEndTurn?.Invoke();
         moveOrder[moveCount].OnEndTurn?.Invoke();
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
         moveOrder[moveCount].IncrementWaitTimer();
@@ -542,7 +543,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void UpdateMoveOrder()
     {
-        if (moveOrder[1].Wait >= 1) // Next character is also over-wait
+        if (moveOrder[1].IsOverWait) // Next character is also over-wait
         {
             foreach (var character in moveOrder)
             {
@@ -552,7 +553,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             OnEndRound?.Invoke();
         }
 
-        moveOrder = moveOrder.OrderBy(c => c.Wait).ThenByDescending(c => c.IsPlayer()).ToList();
+        moveOrder = moveOrder.OrderBy(c => c.WaitTimer).ThenByDescending(c => c.IsPlayer()).ToList();
         OnMoveOrderUpdated?.Invoke();
     }
 
@@ -587,7 +588,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (lastPhase == BattlePhases.EnemyTurn)
             {
                 gameManager.SaveBattleState();
-                OnEndTurn?.Invoke();
             }
 
             currentPhase = BattlePhases.PlayerTurn;

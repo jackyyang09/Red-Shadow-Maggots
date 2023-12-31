@@ -92,12 +92,42 @@ public class PissPillPassive : BaseCharacterPassive
         if (beneficiaries.Contains(attacker)) return;
         if (beneficiaries.Contains(defender)) return;
 
+        // Trigger only when attacking an enemy with Peed
+        if (!defender.EffectDictionary.ContainsKey(peeEffect)) return;
+
+        List<BaseCharacter> allies = null;
+
         if (baseCharacter.IsPlayer() && battleSystem.CurrentPhase != BattlePhases.PlayerTurn) return;
-        if (!baseCharacter.IsPlayer() && battleSystem.CurrentPhase != BattlePhases.EnemyTurn) return;
+        if (baseCharacter.IsPlayer())
+        {
+            if (battleSystem.CurrentPhase != BattlePhases.PlayerTurn) return;
+            else
+            {
+                allies = battleSystem.LivingPlayers.Except(new List<BaseCharacter>() { attacker }).ToList();
+            }
+        }
+
+        if (!baseCharacter.IsPlayer())
+        {
+            if (battleSystem.CurrentPhase != BattlePhases.EnemyTurn) return;
+            else
+            {
+                allies = enemyController.LivingEnemies.Except(new List<BaseCharacter>() { attacker }).ToList();
+            }
+        }
 
         if (attacker.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff))
         {
             clearDebuffEffect.Activate(baseCharacter, attacker, EffectStrength.Medium, new float[0]);
+        }
+        else
+        {
+            allies.RemoveAll(a => !a.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff));
+            if (allies.Count > 0)
+            {
+                var randomAlly = allies[Random.Range(0, allies.Count)];
+                clearDebuffEffect.Activate(baseCharacter, randomAlly, EffectStrength.Medium, new float[0]);
+            }
         }
 
         beneficiaries.Add(attacker);

@@ -51,9 +51,9 @@ public class DoorPoison : DamagePerTurnEffect
         return s;
     }
 
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(AppliedEffect effect)
     {
-        target.StartCoroutine(PlayEffect(target, () => DealDamage(target, strength, customValues)));
+        effect.target.StartCoroutine(PlayEffect(effect.target, () => DealDamage(effect.target, effect.strength, effect.customValues)));
     }
 
     public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)

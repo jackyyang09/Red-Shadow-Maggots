@@ -5,20 +5,25 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Attack Leniency Buff", menuName = "ScriptableObjects/Game Effects/Attack Leniency", order = 1)]
 public class BaseAttackLeniency : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
+
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        PlayerCharacter t = target as PlayerCharacter;
-        if (t) // This is a player
-        {
-            t.ApplyAttackLeniencyModifier(percentageChange);
-        }
-        else // Enemies don't have Attack Leniency
-        {
-            Debug.LogError("TODO: Enemies don't have Attack Leniency!");
-        }
+        target.ApplyAttackLeniencyModifier(percentageChange);
+
+        //PlayerCharacter t = target as PlayerCharacter;
+        //if (t) // This is a player
+        //{
+        //    t.ApplyAttackLeniencyModifier(percentageChange);
+        //}
+        //else // Enemies don't have Attack Leniency
+        //{
+        //    Debug.LogError("TODO: Enemies don't have Attack Leniency!");
+        //}
+
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

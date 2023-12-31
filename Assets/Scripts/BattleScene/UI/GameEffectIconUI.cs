@@ -14,12 +14,12 @@ public class GameEffectIconUI : MonoBehaviour
     {
         effect = e;
         image.sprite = effect.referenceEffect.effectIcon;
-        stackLabel.enabled = effect.referenceEffect.canStack;
+        stackLabel.enabled = effect.HasStacks;
         UpdateStackCount();
     }
 
     public void UpdateStackCount()
     {
-        stackLabel.text = effect.stacks.ToString();
+        stackLabel.text = effect.Stacks.ToString();
     }
 }

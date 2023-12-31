@@ -7,10 +7,6 @@ public class DamagePerTurnEffect : BaseDamageEffect
 {
     public override float TickAnimationTime => -1f;
 
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-    }
-
     public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
     {
         float damage = 0;

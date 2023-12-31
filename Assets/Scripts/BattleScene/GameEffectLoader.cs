@@ -31,14 +31,13 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
 
     public AppliedEffect DeserializeEffect(BattleState.SerializedEffect effect, BaseCharacter target)
     {
-        AppliedEffect ae = new AppliedEffect();
+        AppliedEffect ae = new AppliedEffect(gameEffects[effect.EffectIndex]);
 
         var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
         characters.AddRange(enemyController.EnemyList);
-        ae.caster = characters[effect.Caster];
 
+        ae.caster = characters[effect.Caster];
         ae.target = target;
-        ae.referenceEffect = gameEffects[effect.EffectIndex];
         ae.remainingTurns = effect.RemainingTurns;
         ae.strength = effect.Strength;
         ae.customValues = effect.CustomValues;

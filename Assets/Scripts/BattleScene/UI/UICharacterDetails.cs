@@ -1,26 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 {
-    [SerializeField] Color positiveModifier = Color.yellow;
-    [SerializeField] Color negativeModifier = Color.red;
-
-    [SerializeField] TMPro.TextMeshProUGUI nameText;
-    [SerializeField] TMPro.TextMeshProUGUI levelText;
-    [SerializeField] UnityEngine.UI.Image portrait;
-    [SerializeField] TMPro.TextMeshProUGUI health;
-    [SerializeField] TMPro.TextMeshProUGUI attack;
-    [SerializeField] TMPro.TextMeshProUGUI critChance;
+    [SerializeField] TextMeshProUGUI nameText;
+    [SerializeField] TextMeshProUGUI levelText;
+    [SerializeField] Image portrait;
+    [SerializeField] TextMeshProUGUI health;
+    [SerializeField] TextMeshProUGUI attack;
+    [SerializeField] TextMeshProUGUI critChance;
     [SerializeField] GameObject descriptionPrefab;
-    [SerializeField] List<UIStatusDescription> statusDescriptions;
     [SerializeField] RectTransform contentRect;
+    [SerializeField] StatRenderer[] statRenderers;
 
     [SerializeField] OptimizedCanvas canvas;
 
     [SerializeField] JSAM.SoundFileObject panelOpenSound;
     [SerializeField] JSAM.SoundFileObject panelCloseSound;
+
+    List<UIStatusDescription> statusDescriptions = new List<UIStatusDescription>();
 
     private void OnEnable()
     {
@@ -47,26 +48,9 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 
         portrait.sprite = character.Reference.headshotSprite;
 
-        int modifiedAttack = (int)(character.AttackModified - character.Attack);
-        attack.text = (character.AttackModified).ToString();
-        if (character.AttackModifier > 0)
+        foreach (var stat in statRenderers)
         {
-            attack.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(positiveModifier) + ">(+" + modifiedAttack + ")</color>";
-        }
-        else if (character.AttackModifier < 0)
-        {
-            attack.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(negativeModifier) + ">(" + modifiedAttack + ")</color>";
-        }
-
-        int modifiedCritChance = (int)(Mathf.Clamp01(character.CritChanceModifier) * 100);
-        critChance.text = (character.Reference.critChance * 100 + modifiedCritChance).ToString() + "%";
-        if (character.CritChanceModifier > 0)
-        {
-            critChance.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(positiveModifier) + ">(+" + modifiedCritChance + "%)</color>";
-        }
-        else if (character.CritChanceModifier < 0)
-        {
-            critChance.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(negativeModifier) + ">(" + modifiedCritChance + "%)</color>";
+            stat.UpdateStat(character);
         }
 
         List<AppliedEffect> effects = new List<AppliedEffect>();
@@ -88,8 +72,6 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
         {
             statusDescriptions[i].ApplyStatus(effects[i]);
         }
-
-        contentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, character.AppliedEffects.Count * 100);
 
         for (int i = effects.Count; i < statusDescriptions.Count; i++)
         {

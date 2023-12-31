@@ -7,13 +7,15 @@ public class BaseHealEffect : BaseGameEffect
 {
     public GameStatValue value;
 
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var amount = value.SolveValue(strength, user, target);
 
         //var amount = (float)GetEffectStrength(strength, customValues) * user.MaxHealth;
 
         target.Heal(amount);
+
+        return true;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

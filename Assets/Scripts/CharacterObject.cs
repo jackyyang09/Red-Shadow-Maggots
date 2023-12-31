@@ -140,7 +140,9 @@ public class CharacterObject : ScriptableObject
     public CharacterClass characterClass;
     public QTEType attackQteType;
     public int turnsToCrit = 3;
-    [Range(0, 1)] public float waitTime = 0.5f;
+    [UnityEngine.Serialization.FormerlySerializedAs("waitTime")]
+    [Range(0, 1)] public float wait = 0.5f;
+    public float waitLimit = 1;
 
     [Range(0, 1)] public float attackLeniency;
     /// <summary>

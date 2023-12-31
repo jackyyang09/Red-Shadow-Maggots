@@ -13,17 +13,18 @@ public abstract class BaseCharacterPassive : MonoBehaviour
 
     protected virtual void ApplyEffect(BaseGameEffect e, int s)
     {
+        if (s == 0) return;
         EffectProperties props = new EffectProperties() { effect = e, effectDuration = -1, stacks = s };
-        BaseCharacter.ApplyEffectToCharacter(props, null, baseCharacter);
+        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, baseCharacter);
     }
 
     protected virtual void ApplyEffect(EffectProperties props)
     {
-        BaseCharacter.ApplyEffectToCharacter(props, null, baseCharacter);
+        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, baseCharacter);
     }
 
     protected virtual void ApplyEffectToCharacter(BaseCharacter character, EffectProperties props)
     {
-        BaseCharacter.ApplyEffectToCharacter(props, null, character);
+        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, character);
     }
 }

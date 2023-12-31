@@ -28,12 +28,19 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Multiplies by 100 and truncates to int
+    /// Thanks ChatGPT
     /// </summary>
     /// <param name="f"></param>
     /// <returns></returns>
-    public static int FormatPercentage(this float f)
+    public static string FormatPercentage(this float f)
     {
-        return (int)(f * 100);
+        f *= 100f;
+        decimal d = (decimal)f;
+        return d.ToString() + "%"; // Adjust the number of # symbols as needed
+    }
+
+    public static string FormatToDecimal(this float f)
+    {
+        return Mathf.FloorToInt(f * 100f).ToString();
     }
 }

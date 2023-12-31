@@ -27,29 +27,31 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected float damageAbsorption = 1;
 
-    float attackModifier = 1;
+    float attackModifier;
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     public float AttackModifier => attackModifier;
+    public float AttackModified => Attack + attackModifier;
     public float Attack => characterReference.GetAttack(currentLevel);
-    public float AttackModified => Attack * attackModifier;
 
-    float defenseModifier = 1;
+    float defenseModifier;
     public float Defense => characterReference.GetDefense(currentLevel);
     /// <summary>
     /// Additive modifier from skills
     /// </summary>
     public float DefenseModifier => defenseModifier;
-    public float DefenseModified => Defense * DefenseModifier;
+    public float DefenseModified => Defense + DefenseModifier;
 
     float attackLeniencyModifier = 1;
     public float AttackLeniency => characterReference.attackLeniency;
+    public float AttackLeniencyModifier => attackLeniencyModifier;
     public float AttackLeniencyModified => AttackLeniency * attackLeniencyModifier;
     public void ApplyAttackLeniencyModifier(float mod) => attackLeniencyModifier += mod;
 
     float defenseLeniencyModifier = 1;
     public float DefenseLeniency => characterReference.defenseLeniency;
+    public float DefenseLeniencyModifier => defenseLeniencyModifier;
     public float DefenseLeniencyModified => characterReference.defenseLeniency * defenseLeniencyModifier;
     public void ApplyDefenseLeniencyModifier(float mod) => defenseLeniencyModifier += mod;
 
@@ -73,19 +75,31 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] float critMultiplier = 3;
     float critDamageModifier;
 
+    public float CritDamageModifier => critDamageModifier;
     public float CritDamageModified => 1 + critMultiplier + critDamageModifier;
 
-    [SerializeField] float waitTime = 0.5f;
-    float waitTimeModifier;
-    public float WaitTime => waitTime + waitTimeModifier;
+    [SerializeField] float wait = 0.5f;
+    public float Wait => wait;
+    float waitModifier;
+    public float WaitModifier => waitModifier;
+    public float WaitModified => wait + waitModifier;
     float waitTimer;
-    public float Wait => waitTimer;
+    public float WaitTimer => waitTimer;
     public void IncrementWaitTimer()
     {
-        waitTimer += WaitTime;
-        OnWaitChanged?.Invoke();
+        waitTimer += WaitModified;
+        OnWaitTimeChanged?.Invoke();
         OnCharacterWaitChanged?.Invoke(this);
     }
+
+    [SerializeField] float waitLimit = 1;
+    public float WaitLimit => waitLimit;
+    float waitLimitModifier;
+    public float WaitLimitModifier => waitLimitModifier;
+    public float WaitLimitModified => waitLimit + waitLimitModifier;
+
+    public float WaitPercentage => WaitTimer / WaitLimitModified;
+    public bool IsOverWait => WaitPercentage >= 1;
 
     public void ResetWait() => waitTimer = 0;
 
@@ -176,6 +190,8 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action OnSkillUsed;
 
     public Action OnWaitChanged;
+    public Action OnWaitTimeChanged;
+    public Action OnWaitLimitChanged;
 
     /// <summary>
     /// Only invoked when changing health through abnormal means
@@ -204,6 +220,9 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter, DamageStruct> OnCharacterConsumedHealth;
 
     public static Action<BaseCharacter, GameSkill> OnCharacterActivateSkill;
+
+    public static Action<BaseCharacter, AppliedEffect> OnAppliedEffect;
+    public static Action<BaseCharacter, AppliedEffect> OnRemoveEffect;
 
     public static Action<BaseCharacter> OnCharacterWaitChanged;
 
@@ -237,7 +256,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
         critChance = characterReference.critChance;
         critMultiplier = characterReference.critDamageMultiplier;
-        waitTime = characterReference.waitTime;
+        wait = characterReference.wait;
+        waitLimit = characterReference.waitLimit;
 
         Initialize();
 
@@ -326,7 +346,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit += HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += OnStartPlayerTurn;
-        BattleSystem.OnEndTurn += CooldownSkills;
+        OnEndTurn += CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -335,7 +355,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         UIManager.OnAttackCommit -= HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= OnStartPlayerTurn;
-        BattleSystem.OnEndTurn -= CooldownSkills;
+        OnEndTurn -= CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
@@ -734,22 +754,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
         EffectTextSpawner.Instance.SpawnEffectAt(props.effect, target.transform);
 
-        if (props.effectDuration == 0) return;
-
-        AppliedEffect newEffect = new AppliedEffect();
-
-        newEffect.caster = caster;
-        newEffect.target = target;
-        newEffect.referenceEffect = props.effect;
-        newEffect.remainingTurns = props.effectDuration;
-        newEffect.remainingActivations = props.activationLimit;
-        newEffect.stacks = props.stacks;
-        newEffect.strength = props.strength;
-        newEffect.customValues = props.customValues;
-        newEffect.description =
-            props.effect.GetEffectDescription(props.strength, props.customValues);
+        AppliedEffect newEffect = new AppliedEffect(caster, target, props);
         
         target.ApplyEffect(newEffect);
+
+        OnAppliedEffect?.Invoke(target, newEffect);
     }
 
     IEnumerator ActivateSkill()
@@ -831,17 +840,26 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ApplyEffect(AppliedEffect newEffect)
     {
-        if (!EffectDictionary.ContainsKey(newEffect.referenceEffect))
+        // Skip if this is just a one-time effect
+        if (newEffect.remainingTurns != 0 || newEffect.remainingActivations != 0)
         {
-            EffectDictionary.Add(newEffect.referenceEffect, new List<AppliedEffect>());
-        }
-
-        if (newEffect.referenceEffect.canStack)
-        {
-            if (EffectDictionary[newEffect.referenceEffect].Count > 0)
+            if (!EffectDictionary.ContainsKey(newEffect.referenceEffect))
             {
-                EffectDictionary[newEffect.referenceEffect][0].stacks += newEffect.stacks;
-                newEffect = EffectDictionary[newEffect.referenceEffect][0];
+                EffectDictionary.Add(newEffect.referenceEffect, new List<AppliedEffect>());
+            }
+
+            if (newEffect.HasStacks)
+            {
+                if (EffectDictionary[newEffect.referenceEffect].Count > 0)
+                {
+                    EffectDictionary[newEffect.referenceEffect][0].Stacks += newEffect.Stacks;
+                    newEffect = EffectDictionary[newEffect.referenceEffect][0];
+                }
+                else
+                {
+                    AppliedEffects.Add(newEffect);
+                    EffectDictionary[newEffect.referenceEffect].Add(newEffect);
+                }
             }
             else
             {
@@ -849,23 +867,18 @@ public abstract class BaseCharacter : MonoBehaviour
                 EffectDictionary[newEffect.referenceEffect].Add(newEffect);
             }
         }
-        else
-        {
-            AppliedEffects.Add(newEffect);
-            EffectDictionary[newEffect.referenceEffect].Add(newEffect);
-        }
-
+        
         newEffect.Apply();
         OnApplyGameEffect?.Invoke(newEffect);
     }
     
     public void RemoveEffect(AppliedEffect effect, int stacks = 0)
     {
-        if (effect.referenceEffect.canStack)
+        if (effect.HasStacks)
         {
             var e = EffectDictionary[effect.referenceEffect][0];
-            e.stacks -= stacks;
-            if (e.stacks == 0)
+            e.Stacks -= stacks;
+            if (e.Stacks <= 0)
             {
                 AppliedEffects.Remove(effect);
                 EffectDictionary[effect.referenceEffect].Remove(effect);
@@ -882,6 +895,7 @@ public abstract class BaseCharacter : MonoBehaviour
             EffectDictionary[effect.referenceEffect].Remove(effect);
             OnRemoveGameEffect?.Invoke(effect);
         }
+        OnRemoveEffect?.Invoke(this, effect);
     }
 
     public void RemoveAllEffectsOfType(BaseGameEffect effect, bool immediate = false)
@@ -894,6 +908,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 AppliedEffects.Remove(item);
                 OnRemoveGameEffect?.Invoke(item);
+                OnRemoveEffect?.Invoke(this, item);
             }
         }
     }
@@ -973,6 +988,18 @@ public abstract class BaseCharacter : MonoBehaviour
     public void ApplyCritDamageModifier(float modifier)
     {
         critDamageModifier += modifier;
+    }
+
+    public void ApplyWaitModifier(float modifier)
+    {
+        waitModifier += modifier;
+        OnWaitChanged?.Invoke();
+    }
+
+    public void ApplyWaitLimitModifier(float modifier)
+    {
+        waitLimitModifier += modifier;
+        OnWaitLimitChanged?.Invoke();
     }
 
     public virtual void TakeDamage()

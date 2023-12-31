@@ -5,13 +5,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Attack Buff", menuName = "ScriptableObjects/Game Effects/Attack Damage", order = 1)]
 public class BaseAttackBuff : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
         target.ApplyAttackModifier(percentageChange);
+
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

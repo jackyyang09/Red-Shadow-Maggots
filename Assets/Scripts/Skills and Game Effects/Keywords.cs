@@ -4,6 +4,23 @@ using UnityEngine;
 
 public static class Keywords
 {
+    public enum StatEnum
+    {
+        Attack,
+        AttackWindow,
+        CurrentHealth,
+        CritChance,
+        CritDamage,
+        Defense,
+        DefenseWindow,
+        Health,
+        HealReceived,
+        MaxHealth,
+        Wait,
+        WaitLimit,
+        WaitTimer
+    }
+
     public static class Short
     {
         public static string ATTACK = "ATK";
@@ -17,5 +34,8 @@ public static class Keywords
         public static string HEALTH = "HP";
         public static string HEAL_RECEIVED = "HEALING";
         public static string MAX_HEALTH = "MAX HP";
+        public static string WAIT = "WAIT";
+        public static string WAIT_LIMIT = "WAIT LIMIT";
+        public static string WAIT_TIMER = "WAIT TIMER";
     }
 }

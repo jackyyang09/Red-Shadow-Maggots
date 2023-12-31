@@ -5,14 +5,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal Per Turn", order = 1)]
 public class HealPerTurnEffect : BaseHealEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void Tick(AppliedEffect effect)
     {
-    }
-
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-        base.Tick(user, target, strength, customValues);
-        base.Activate(user, target, strength, customValues);
+        base.Tick(effect);
+        base.Activate(effect.caster, effect.target, effect.strength, effect.customValues);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

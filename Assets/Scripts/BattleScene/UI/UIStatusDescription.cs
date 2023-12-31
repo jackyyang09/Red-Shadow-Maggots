@@ -1,38 +1,38 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIStatusDescription : MonoBehaviour
 {
     [SerializeField] OptimizedCanvas canvas;
 
-    [SerializeField] UnityEngine.UI.Image effectIcon;
+    [SerializeField] Image effectIcon;
     [SerializeField] TMPro.TextMeshProUGUI description;
-
-    private void OnValidate()
-    {
-        if (canvas == null) canvas = GetComponent<OptimizedCanvas>();
-        if (effectIcon == null) effectIcon = GetComponentInChildren<UnityEngine.UI.Image>();
-        if (description == null) description = GetComponentInChildren<TMPro.TextMeshProUGUI>();
-    }
 
     public void ApplyStatus(AppliedEffect effect)
     {
         effectIcon.sprite = effect.referenceEffect.effectIcon;
-        description.text = effect.description + " (";
-        if (effect.remainingActivations > 0)
-        {
-            description.text += effect.remainingActivations + " Time";
-            if (effect.remainingActivations > 1) description.text += "s";
-        }
-        if (effect.remainingTurns > 0)
-        {
-            if (effect.remainingActivations > 0) description.text += ", ";
-            description.text += effect.remainingTurns + " Turn";
-            if (effect.remainingTurns > 1) description.text += "s";
-        }
-        description.text += ")";
+        
+        description.text = effect.description + " " + 
+                BaseGameEffect.DurationAndActivationDescriptor(effect.remainingTurns, effect.remainingActivations);
+
         canvas.Show();
+
+        StartCoroutine(DelayedRebuild());
+    }
+
+    /// <summary>
+    /// Changing the description label takes too long and ruins layout. 
+    /// A rebuild is necessary at this stage
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator DelayedRebuild()
+    {
+        yield return null;
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+        LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
     }
 
     public void Hide()

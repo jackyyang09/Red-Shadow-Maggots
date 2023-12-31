@@ -15,10 +15,13 @@ MonoBehaviour:
   effectIcon: {fileID: 21300000, guid: dccb97d67e7ceba4faf1731e8f84798c, type: 3}
   effectText: HP RECEIVED UP!
   effectType: 2
-  canStack: 1
+  activateOnApply: 1
+  activateOnDeath: 0
+  canStack: 0
   particlePrefab: {fileID: 4335457655553992257, guid: a097de64e3031d848816f5ae888f1986, type: 3}
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: d5d1da69a98cdae459683a52ce043646, type: 2}
   tickSound: {fileID: 0}
-  targetStat: {fileID: 11400000, guid: a3ada18b79efb0d438887510a2ff9619, type: 2}
-  value: {fileID: 11400000, guid: 171e7a0a852f013488baf6e405143516, type: 2}
+  stats:
+  - targetStat: {fileID: 11400000, guid: a3ada18b79efb0d438887510a2ff9619, type: 2}
+    value: {fileID: 11400000, guid: 171e7a0a852f013488baf6e405143516, type: 2}

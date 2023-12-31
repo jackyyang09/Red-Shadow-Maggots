@@ -10,10 +10,11 @@ public class BaseTargetFocus : BaseGameEffect
     public override string ExplainerDescription =>
         "Increases likelihood of being attacked.";
 
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         var player = target as PlayerCharacter;
         BattleSystem.Instance.ApplyTargetFocus(player);
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -22,13 +23,9 @@ public class BaseTargetFocus : BaseGameEffect
         BattleSystem.Instance.RemoveTargetFocus(player);
     }
 
-    public override void Tick(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
-    {
-    }
-
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        string s = "Apply <u>Taunt</u> ";
+        string s = "Apply <u>Taunt</u> to ";
 
         switch (targetMode)
         {

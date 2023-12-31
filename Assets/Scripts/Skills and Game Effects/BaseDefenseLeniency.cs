@@ -5,21 +5,25 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Defense Leniency Buff", menuName = "ScriptableObjects/Game Effects/Defense Leniency", order = 1)]
 public class BaseDefenseLeniency : BaseGameEffect
 {
-    public override void Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {
         float percentageChange = (float)GetEffectStrength(strength, customValues);
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        PlayerCharacter t = target as PlayerCharacter;
-        if (t) // This is a player
-        {
-            t.ApplyDefenseLeniencyModifier(percentageChange);
-        }
-        else // Enemies don't have Defense Leniency
-        {
-            Debug.LogError("TODO: Enemies don't have Defense Leniency!");
-        }
+        target.ApplyDefenseLeniencyModifier(percentageChange);
+
+        //PlayerCharacter t = target as PlayerCharacter;
+        //if (t) // This is a player
+        //{
+        //    t.ApplyDefenseLeniencyModifier(percentageChange);
+        //}
+        //else // Enemies don't have Defense Leniency
+        //{
+        //    Debug.LogError("TODO: Enemies don't have Defense Leniency!");
+        //}
+
+        return true;
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
