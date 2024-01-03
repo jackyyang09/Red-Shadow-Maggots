@@ -17,4 +17,12 @@ public class HealPerTurnEffect : BaseHealEffect
 
         return s + " every turn " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
+
+    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    {
+        var s = "Recovers " + Keywords.Short.HEALTH + 
+            " equal to " + value.GetDescription(strength);
+
+        return s;
+    }
 }

@@ -12,6 +12,8 @@ public class PeePoison : DamagePerTurnEffect
         "Urinate every turn, losing " + Keywords.Short.HEALTH + 
         " proportional to your " + Keywords.Short.CURRENT_HEALTH + ".";
 
+    public override float TickAnimationTime => 0.5f;
+
     public override void Tick(AppliedEffect effect)
     {
         ConsumeHealth(effect.target, effect.strength, effect.customValues);

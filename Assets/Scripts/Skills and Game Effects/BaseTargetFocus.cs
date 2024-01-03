@@ -40,6 +40,11 @@ public class BaseTargetFocus : BaseGameEffect
         return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
+    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    {
+        return ExplainerDescription;
+    }
+
     public override object GetEffectStrength(EffectStrength strength, float[] customValues)
     {
         return null;
