@@ -12,6 +12,9 @@ public abstract class QuickTimeBase : MonoBehaviour
         Late
     }
 
+    [SerializeField] protected float maxLeniency = 2;
+    [SerializeField] protected float baseLeniency = 1;
+
     [SerializeField] protected OptimizedCanvas canvas;
 
     protected PlayerCharacter activePlayer;

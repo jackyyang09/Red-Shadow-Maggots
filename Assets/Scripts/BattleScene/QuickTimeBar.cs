@@ -12,8 +12,6 @@ public class QuickTimeBar : QuickTimeBase
     [SerializeField] Image fillBar;
     [SerializeField] Image targetBar;
 
-    [SerializeField] float maxLeniency = 1.5f;
-
     [SerializeField] float failZoneSize = 0.1f;
 
     [SerializeField] Gradient barGradient = null;
@@ -95,7 +93,8 @@ public class QuickTimeBar : QuickTimeBase
                 break;
         }
 
-        totalLeniency = leniency - targetLeniency;
+        totalLeniency = baseLeniency + (leniency - targetLeniency);
+        Debug.Log(totalLeniency);
 
         var failZone = progressBar.rectTransform.sizeDelta.x * failZoneSize;
         targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZone), targetBar.rectTransform.anchoredPosition.y);

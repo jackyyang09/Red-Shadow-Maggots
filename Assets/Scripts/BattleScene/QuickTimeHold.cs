@@ -7,8 +7,6 @@ using static Facade;
 
 public class QuickTimeHold : QuickTimeBase
 {
-    [SerializeField] float maxLeniency = 1.5f;
-
     [SerializeField] protected float failZoneSize = 0.1f;
 
     [SerializeField] Gradient[] barGradient;
