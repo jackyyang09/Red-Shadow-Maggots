@@ -553,7 +553,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             OnEndRound?.Invoke();
         }
 
-        moveOrder = moveOrder.OrderBy(c => c.WaitTimer).ThenByDescending(c => c.IsPlayer()).ToList();
+        moveOrder = moveOrder.OrderBy(c => c.WaitPercentage).ThenByDescending(c => c.IsPlayer()).ToList();
         OnMoveOrderUpdated?.Invoke();
     }
 

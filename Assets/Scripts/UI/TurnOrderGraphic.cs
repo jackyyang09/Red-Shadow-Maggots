@@ -99,7 +99,7 @@ public class TurnOrderGraphic : MonoBehaviour
         {
             DOTween.To(x => previousWait = x,
             previousWait,
-            character.WaitTimer, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            character.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
             {
                 waitLabel.text = previousWait.FormatToDecimal() + "%";
                 waitFill.fillAmount = previousWait / character.WaitLimitModified;

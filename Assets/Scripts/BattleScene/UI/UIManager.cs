@@ -43,7 +43,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     public bool CharacterPanelOpen { get; private set; }
 
-    public static bool CanSelectPlayer = true;
+    public static bool CanSelectCharacter = true;
     /// <summary>
     /// Can't we use a UI ray-cast blocker for this?
     /// </summary>
@@ -94,11 +94,6 @@ public class UIManager : BasicSingleton<UIManager>
         _skillManagerUI.HideDetails -= HideSkillDetails;
     }
 
-    void PlayButtonSound()
-    {
-        JSAM.AudioManager.PlaySound(BattleSceneSounds.UIClick);
-    }
-
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)
     {
         switch (battleSystem.CurrentPhase)
@@ -118,7 +113,7 @@ public class UIManager : BasicSingleton<UIManager>
     {
         if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
         attackButton.Show();
-        CanSelectPlayer = true;
+        CanSelectCharacter = true;
 
         UpdateSkillGraphic(battleSystem.ActivePlayer);
 
@@ -128,18 +123,17 @@ public class UIManager : BasicSingleton<UIManager>
     public void HideBattleUI()
     {
         attackButton.Hide();
-        CanSelectPlayer = false;
+        CanSelectCharacter = false;
 
         _skillManagerUI.HideAllButtons();
 
         OnHideBattleUI?.Invoke();
     }
 
-    public void OpenCharacterPanel(PlayerCharacter character)
+    public void OpenCharacterPanel(BaseCharacter character)
     {
         CharacterPanelOpen = true;
         characterDetailsPanel.DisplayWithCharacter(character);
-        PlayButtonSound();
     }
 
     public void CloseCharacterPanel()

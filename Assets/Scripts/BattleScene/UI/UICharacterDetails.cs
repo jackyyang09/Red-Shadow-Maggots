@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using static Facade;
 
 public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 {
+    [SerializeField] float characterHoldTime = 0.75f;
+    float fingerHoldTimer;
+
     [SerializeField] TextMeshProUGUI nameText;
     [SerializeField] TextMeshProUGUI levelText;
     [SerializeField] Image portrait;
@@ -25,6 +29,9 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 
     private void OnEnable()
     {
+        BaseCharacter.OnMouseDragUpdate += OnMouseDragUpdate;
+        BaseCharacter.OnMouseDragStop += OnMouseDragStop;
+
         canvas.onCanvasShow.AddListener(PanelOpenSound);
         canvas.onCanvasHide.AddListener(PanelCloseSound);
     }
@@ -34,8 +41,31 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 
     private void OnDisable()
     {
+        BaseCharacter.OnMouseDragUpdate -= OnMouseDragUpdate;
+        BaseCharacter.OnMouseDragStop -= OnMouseDragStop;
+
         canvas.onCanvasShow.RemoveListener(PanelOpenSound);
         canvas.onCanvasHide.RemoveListener(PanelCloseSound);
+    }
+
+    private void OnMouseDragUpdate(BaseCharacter c)
+    {
+        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
+        if (!UIManager.CanSelectCharacter) return;
+        if (!ui.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
+        {
+            fingerHoldTimer += Time.deltaTime;
+            if (fingerHoldTimer >= characterHoldTime)
+            {
+                ui.OpenCharacterPanel(c);
+                fingerHoldTimer = 0;
+            }
+        }
+    }
+
+    void OnMouseDragStop(BaseCharacter c)
+    {
+        fingerHoldTimer = 0;
     }
 
     public void DisplayWithCharacter(BaseCharacter character)

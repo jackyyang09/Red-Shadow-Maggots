@@ -211,7 +211,7 @@ public class EnemyCharacter : BaseCharacter
 
     private void OnMouseDown()
     {
-        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectPlayer)
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectCharacter)
         {
             battleSystem.TrySetActiveEnemy(this);
         }

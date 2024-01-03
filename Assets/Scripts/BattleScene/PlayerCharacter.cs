@@ -8,9 +8,6 @@ using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
-    const float FINGER_HOLD_TIME = 0.75f;
-    float fingerHoldTimer = 0;
-
     float canteenCharge;
 
     const float SPECIAL_ATTACK_DELAY = 0.35f;
@@ -116,26 +113,6 @@ public class PlayerCharacter : BaseCharacter
             OnSelectPlayer?.Invoke(this);
             return;
         }
-    }
-
-    private void OnMouseDrag()
-    {
-        if (playerControlManager.CurrentMode >= PlayerControlMode.InCutscene) return;
-        if (!UIManager.CanSelectPlayer) return;
-        if (!ui.CharacterPanelOpen && !UIManager.SelectingAllyForSkill)
-        {
-            fingerHoldTimer += Time.deltaTime;
-            if (fingerHoldTimer >= FINGER_HOLD_TIME)
-            {
-                ui.OpenCharacterPanel(this);
-                fingerHoldTimer = 0;
-            }
-        }
-    }
-
-    private void OnMouseUp()
-    {
-        fingerHoldTimer = 0;
     }
 
     public virtual void InitiateDefense()

@@ -178,13 +178,13 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttackWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = (1 - character.AttackLeniencyModifier).FormatPercentage();
+        var modifier = character.AttackLeniencyModifier.FormatPercentage();
         valueLabel.text = character.AttackLeniencyModified.FormatPercentage();
-        if (character.AttackLeniencyModifier > 1)
+        if (character.AttackLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
         }
-        else if (character.AttackLeniencyModifier < 1)
+        else if (character.AttackLeniencyModifier < 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
         }
@@ -199,13 +199,13 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderDefenseWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = (1 - character.DefenseLeniencyModifier).FormatPercentage();
+        var modifier = character.DefenseLeniencyModifier.FormatPercentage();
         valueLabel.text = character.DefenseLeniencyModified.FormatPercentage();
-        if (character.DefenseLeniencyModifier > 1)
+        if (character.DefenseLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
         }
-        else if (character.DefenseLeniencyModifier < 1)
+        else if (character.DefenseLeniencyModifier < 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
         }

@@ -43,16 +43,16 @@ public abstract class BaseCharacter : MonoBehaviour
     public float DefenseModifier => defenseModifier;
     public float DefenseModified => Defense + DefenseModifier;
 
-    float attackLeniencyModifier = 1;
+    float attackLeniencyModifier;
     public float AttackLeniency => characterReference.attackLeniency;
     public float AttackLeniencyModifier => attackLeniencyModifier;
-    public float AttackLeniencyModified => AttackLeniency * attackLeniencyModifier;
+    public float AttackLeniencyModified => AttackLeniency + attackLeniencyModifier;
     public void ApplyAttackLeniencyModifier(float mod) => attackLeniencyModifier += mod;
 
-    float defenseLeniencyModifier = 1;
+    float defenseLeniencyModifier;
     public float DefenseLeniency => characterReference.defenseLeniency;
     public float DefenseLeniencyModifier => defenseLeniencyModifier;
-    public float DefenseLeniencyModified => characterReference.defenseLeniency * defenseLeniencyModifier;
+    public float DefenseLeniencyModified => characterReference.defenseLeniency + defenseLeniencyModifier;
     public void ApplyDefenseLeniencyModifier(float mod) => defenseLeniencyModifier += mod;
 
     float healInModifier = 1;
@@ -229,6 +229,9 @@ public abstract class BaseCharacter : MonoBehaviour
     public static Action<BaseCharacter> OnCharacterDeath;
 
     public static Action<BaseCharacter> OnSelectCharacter;
+    public static Action<BaseCharacter> OnMouseDragUpdate;
+    public static Action<BaseCharacter> OnMouseDragStop;
+
     /// <summary>
     /// BaseCharacter attacker, BaseCharacter defender
     /// </summary>
@@ -358,6 +361,16 @@ public abstract class BaseCharacter : MonoBehaviour
         OnEndTurn -= CooldownSkills;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
+    }
+
+    protected virtual void OnMouseDrag()
+    {
+        OnMouseDragUpdate?.Invoke(this);
+    }
+
+    protected virtual void OnMouseUp()
+    {
+        OnMouseDragStop?.Invoke(this);
     }
 
     public abstract void ShowCharacterUI();
