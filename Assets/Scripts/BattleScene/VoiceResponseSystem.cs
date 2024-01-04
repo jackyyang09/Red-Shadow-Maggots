@@ -81,13 +81,13 @@ public class VoiceResponseSystem : MonoBehaviour
 
     public void WaveClear()
     {
-        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
+        var audio = BattleSystem.Instance.RandomLivingPlayer.Reference.voiceVictory;
         AudioManager.PlaySound(audio);
     }
 
     public void GameClear()
     {
-        var audio = BattleSystem.Instance.RandomPlayerCharacter.Reference.voiceVictory;
+        var audio = BattleSystem.Instance.RandomLivingPlayer.Reference.voiceVictory;
         AudioManager.PlaySound(BattleSceneSounds.PlayerVictory);
         AudioManager.StopMusicIfPlaying(AudioManager.MainMusic);
         DOVirtual.DelayedCall(2, new TweenCallback(() =>

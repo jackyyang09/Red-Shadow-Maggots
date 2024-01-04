@@ -95,7 +95,7 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void ChooseAttackTarget()
     {
-        battleSystem.SetEnemyAttackTarget(BattleSystem.Instance.RandomPlayerCharacter);
+        battleSystem.SetEnemyAttackTarget(BattleSystem.Instance.RandomLivingPlayer);
         OnChangedAttackTargets?.Invoke();
     }
 

@@ -46,7 +46,6 @@ public class BattleState
     public int SavedSeed;
     public int WaveCount = 0;
     public int RoundCount;
-    public int MoveCount;
     public int SelectedEnemy;
     public bool[] UseSpecialCam;
     public bool BattleWon;

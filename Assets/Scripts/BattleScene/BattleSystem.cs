@@ -68,7 +68,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    public PlayerCharacter RandomPlayerCharacter
+    public PlayerCharacter RandomLivingPlayer
     {
         get
         {
@@ -81,21 +81,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    public bool PlayersAlive
-    {
-        get
-        {
-            for (int i = 0; i < playerCharacters.Length; i++)
-            {
-                if (playerCharacters[i])
-                {
-                    if (!playerCharacters[i].IsDead) return true;
-                }
-            }
-
-            return false;
-        }
-    }
+    public bool PlayersAlive => LivingPlayers.Count > 0;
 
     public List<BaseCharacter> AllCharacters
     {
@@ -168,9 +154,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
     public List<BaseCharacter> MoveOrder => moveOrder;
-    int moveCount = 0;
-    public int MoveCount => moveCount;
-    public void SetMoveCount(int newCount) => moveCount = newCount;
 
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
@@ -314,7 +297,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void OnAnyPlayerDeath()
     {
         SwitchTargets();
-        DecrementMoveCount();
+        if (PlayersAlive) enemyController.ChooseAttackTarget();
     }
 
     /// <summary>
@@ -336,15 +319,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             if (PlayersAlive)
             {
                 playerTargets.player.ForceDeselect();
-                for (int i = 0; i < playerCharacters.Length; i++)
-                {
-                    if (!playerCharacters[i].IsDead)
-                    {
-                        playerCharacters[i].ForceSelect();
-                        playerTargets.player = playerCharacters[i];
-                        break;
-                    }
-                }
+
+                var p = RandomLivingPlayer;
+
+                p.ForceSelect();
+                playerTargets.player = p;
 
                 enemyTargets.player = playerTargets.player;
             }
@@ -524,12 +503,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void EndTurn()
     {
         OnEndTurn?.Invoke();
-        moveOrder[moveCount].OnEndTurn?.Invoke();
+        moveOrder[0].OnEndTurn?.Invoke();
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
-        moveOrder[moveCount].IncrementWaitTimer();
+        moveOrder[0].IncrementWaitTimer();
         UpdateMoveOrder();
 
-        //IncrementMoveCount();
         ChangeBattlePhase();
     }
 
@@ -549,9 +527,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         OnMoveOrderUpdated?.Invoke();
     }
 
-    public void IncrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount + 1, moveOrder.Count);
-    public void DecrementMoveCount() => moveCount = (int)Mathf.Repeat(moveCount - 1, moveOrder.Count);
-
     public IEnumerator ChangePhaseRoutine()
     {
         if (CurrentPhase == BattlePhases.EnemyTurn)
@@ -569,7 +544,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
         deathEffects.Clear();
 
-        var activeCharacter = moveOrder[moveCount];
+        var activeCharacter = moveOrder[0];
         var isPlayer = activeCharacter as PlayerCharacter;
         var lastPhase = currentPhase;
 
@@ -674,7 +649,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     private void OnCharacterDeath(BaseCharacter obj)
     {
         moveOrder.Remove(obj);
-        moveCount = (int)Mathf.Repeat(moveCount, moveOrder.Count);
     }
 
     public void ApplyTargetFocus(PlayerCharacter player)

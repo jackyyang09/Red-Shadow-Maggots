@@ -121,7 +121,6 @@ public class GameManager : BasicSingleton<GameManager>
 
         BattleData.StoredCharge = canteenSystem.AvailableCharge;
         BattleData.RoundCount = gameManager.RoundCount;
-        BattleData.MoveCount = battleSystem.MoveCount;
         BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(battleSystem.ActiveEnemy);
 
         battleStateManager.SaveData();
@@ -130,7 +129,6 @@ public class GameManager : BasicSingleton<GameManager>
     public void LoadBattleState()
     {
         gameManager.RoundCount = BattleData.RoundCount;
-        battleSystem.SetMoveCount(BattleData.MoveCount);
         canteenSystem.SetCanteenCharge(BattleData.StoredCharge);
         if (enemyController.Enemies[BattleData.SelectedEnemy].IsDead)
         {
