@@ -1,6 +1,7 @@
 using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,6 +22,8 @@ public class TurnOrderUI : BaseGameUI
     [SerializeField] RoundChangeGraphic roundChangeGraphic;
     [SerializeField] Transform feather;
     [SerializeField] Transform weight;
+
+    Dictionary<BaseCharacter, TurnOrderGraphic> characterToGraphic = new Dictionary<BaseCharacter, TurnOrderGraphic>();
 
     public override void ShowUI()
     {
@@ -43,6 +46,7 @@ public class TurnOrderUI : BaseGameUI
             var g = Instantiate(profilePrefab, layoutRoot).GetComponent<TurnOrderGraphic>();
             g.InitializeWithCharacter(characters[i]);
             graphics.Add(g);
+            characterToGraphic.Add(characters[i], g);
         }
 
         UpdateGraphicsHierarchy(GetReorderedGraphics());
@@ -59,6 +63,8 @@ public class TurnOrderUI : BaseGameUI
         UIManager.OnExitSkillTargetMode += ShowUI;
         UIManager.OnShowBattleUI += ShowUI;
         //UIManager.OnHideBattleUI += HideUI;
+
+        BaseCharacter.OnCharacterDeath += OnCharacterDeath;
     }
 
     private void OnDisable()
@@ -67,11 +73,19 @@ public class TurnOrderUI : BaseGameUI
         UIManager.OnExitSkillTargetMode -= ShowUI;
         UIManager.OnShowBattleUI -= ShowUI;
         //UIManager.OnHideBattleUI -= HideUI;
+
+        BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
     }
 
     private void OnDestroy()
     {
         BattleSystem.OnMoveOrderUpdated -= OnMoveOrderUpdated;
+    }
+
+    void OnCharacterDeath(BaseCharacter b)
+    {
+        characterToGraphic[b].gameObject.SetActive(false);
+        graphics.Remove(characterToGraphic[b]);
     }
 
     void UpdateGraphicsHierarchy(List<TurnOrderGraphic> newOrder)
@@ -176,6 +190,7 @@ public class TurnOrderUI : BaseGameUI
         for (int i = 0; i < graphics.Count; i++)
         {
             var index = finalOrder.IndexOf(graphics[i]);
+            if (index == -1) continue;
             var dest = graphicsTransforms[index].anchoredPosition.x;
             graphics[i].GetRectTransform().DOAnchorPosX(dest, tweenTime).SetEase(easeType);
             //Debug.Log(graphics[i].Character.Reference.characterName + " moving to " + graphicsTransforms[index] + " at " + dest);
