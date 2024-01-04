@@ -7,22 +7,27 @@ public class EarthBenderSpyEffect : MultiStatChangeEffect, IStackableEffect
 {
     public void OnStacksChanged(AppliedEffect effect)
     {
-        if (effect.cachedValue.Count > 0)
+        for (int i = 0; i < effect.cachedValue.Count; i++)
         {
-            for (int i = 0; i < effect.cachedValue.Count; i++)
-            {
-                stats[i].targetStat.SetGameStat(effect.target, -effect.cachedValue[i]);
-            }
+            stats[i].targetStat.SetGameStat(effect.target, -effect.cachedValue[i]);
         }
 
-        foreach (var stat in stats)
-        {
-            var amount = stat.value * effect.Stacks;
+        effect.cachedValue.Clear();
 
-            stat.targetStat.SetGameStat(effect.target, amount);
+        for (int i = 0; i < stats.Count; i++)
+        {
+            var amount = stats[i].value * effect.Stacks;
+
+            stats[i].targetStat.SetGameStat(effect.target, amount);
 
             effect.cachedValue.Add(amount);
         }
+    }
+
+    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    {
+        base.OnExpire(user, target, strength, customValues);
+        Debug.Log("WTF???");
     }
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)

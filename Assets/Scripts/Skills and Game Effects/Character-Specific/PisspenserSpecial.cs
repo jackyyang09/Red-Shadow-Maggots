@@ -70,13 +70,13 @@ public class PisspenserSpecial : BaseGameEffect, IStackableEffect
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
         string d = "Each stack " +
-            "increases " + Keywords.Short.ATTACK + " by " + attackIncrease.FormatPercentage() +
-            " and " + Keywords.Short.DEFENSE + " by " + defenseIncrease.FormatPercentage() +
+            "increases " + RSMConstants.Keywords.Short.ATTACK + " by " + attackIncrease.FormatPercentage() +
+            " and " + RSMConstants.Keywords.Short.DEFENSE + " by " + defenseIncrease.FormatPercentage() +
             " for " + TargetModeDescriptor(TargetMode.AllAllies).TrimEnd() + ". " +
             "Every turn, " + TargetModeDescriptor(TargetMode.AllAllies) + "recover " + 
-            Keywords.Short.HEALTH + " equal to " + healMultiplier.FormatPercentage() + " of their " +
-            Keywords.Short.MAX_HEALTH + " and receive a Shield with a strength of " + 
-            shieldMultiplier.FormatPercentage() + " of their " + Keywords.Short.MAX_HEALTH + ".";
+            RSMConstants.Keywords.Short.HEALTH + " equal to " + healMultiplier.FormatPercentage() + " of their " +
+            RSMConstants.Keywords.Short.MAX_HEALTH + " and receive a Shield with a strength of " + 
+            shieldMultiplier.FormatPercentage() + " of their " + RSMConstants.Keywords.Short.MAX_HEALTH + ".";
 
         return d;
     }

@@ -15,6 +15,18 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
     [SerializeField] EffectStrength statusStrength;
     [SerializeField] EarthBenderSpyEffect statusEffect;
 
+    bool HasStacks
+    {
+        get
+        {
+            if (baseCharacter.EffectDictionary.ContainsKey(statusEffect))
+            {
+                return baseCharacter.EffectDictionary[statusEffect].Count > 0;
+            }
+            return false;
+        }
+    }
+
     bool qteSuccess;
 
     protected override void OnEnable()
@@ -41,6 +53,10 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
         {
             qteSuccess = true;
         }
+        else
+        {
+            DecreaseStack();
+        }
     }
 
     void OnDealDamage(BaseCharacter character)
@@ -60,16 +76,28 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
         {
             qteSuccess = true;
         }
+        else RemoveEffect();
+    }
+
+    void DecreaseStack()
+    {
+        if (!HasStacks) return;
+        var ae = baseCharacter.EffectDictionary[statusEffect][0];
+        baseCharacter.RemoveEffect(ae, 1);
+    }
+
+    void RemoveEffect()
+    {
+        if (!HasStacks) return;
+        var ae = baseCharacter.EffectDictionary[statusEffect][0];
+        baseCharacter.RemoveEffect(ae, ae.Stacks);
     }
 
     void OnEndTurn()
     {
         if (!qteSuccess) return;
 
-        if (!baseCharacter.EffectDictionary.ContainsKey(statusEffect))
-        {
-            ApplyEffect(statusEffect, 1);
-        }
+        ApplyEffect(statusEffect, 1);
 
         qteSuccess = false;
     }

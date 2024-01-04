@@ -36,8 +36,8 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += Keywords.Short.HEALTH + " equal to " +
-            change + "% of your " + Keywords.Short.MAX_HEALTH;
+        s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
+            change + "% of your " + RSMConstants.Keywords.Short.MAX_HEALTH;
 
         return s;
     }

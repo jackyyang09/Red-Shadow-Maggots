@@ -37,7 +37,7 @@ public class BaseDefenseEffect : BaseGameEffect
             s += "Increase ";
 
         s += TargetModeDescriptor(targetMode);
-        s += Keywords.Short.DEFENSE + " by " + percentageChange * 100 + "% ";
+        s += RSMConstants.Keywords.Short.DEFENSE + " by " + percentageChange * 100 + "% ";
 
         return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }

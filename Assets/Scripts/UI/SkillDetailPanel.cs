@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RSMConstants;
 
 public class SkillDetailPanel : MonoBehaviour
 {
-    [SerializeField] Color buffColour = new Color(0.6f, 0.8f, 1);
-    [SerializeField] Color debuffColour = new Color(1, 0.25f, 0.25f);
     string buffColourText, debuffColourText;
 
     [SerializeField] OptimizedCanvas canvas;
@@ -21,8 +20,8 @@ public class SkillDetailPanel : MonoBehaviour
 
     private void Start()
     {
-        buffColourText = ColorUtility.ToHtmlStringRGB(buffColour);
-        debuffColourText = ColorUtility.ToHtmlStringRGB(debuffColour);
+        buffColourText = ColorUtility.ToHtmlStringRGB(Colours.Buff);
+        debuffColourText = ColorUtility.ToHtmlStringRGB(Colours.Debuff);
     }
 
     private void OnEnable()

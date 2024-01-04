@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DEF", menuName = "ScriptableObjects/Game Stats/DEF", order = 1)]
 public class DefenseStat : BaseGameStat
 {
-    public override string Name => Keywords.Short.DEFENSE;
+    public override string Name => RSMConstants.Keywords.Short.DEFENSE;
 
     public override void SetGameStat(BaseCharacter target, float value)
     {

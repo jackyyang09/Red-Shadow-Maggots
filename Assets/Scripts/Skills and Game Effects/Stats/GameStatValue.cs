@@ -16,6 +16,7 @@ public class GameStatValue : ScriptableObject
         AllEnemies
     }
 
+    public bool DontShowAsPercentage = false;
     public float Constant;
     public GameStatValue Value;
     public BaseGameStat Stat;
@@ -80,12 +81,13 @@ public class GameStatValue : ScriptableObject
     {
         string description = "";
         
-        var v = GetStrength(strength);
+        var v = Mathf.Abs(GetStrength(strength));
 
         // Likely percentage
-        if (Mathf.Abs(v) <= 1)
+        if (v <= 1)
         {
-            description = v * 100 + "%";
+            description = (v * 100).ToString();
+            if (!DontShowAsPercentage) description += "%";
         }
 
         if (Stat)

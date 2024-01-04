@@ -168,9 +168,9 @@ public class AppliedEffect
         {
             if (value != stacks)
             {
+                stacks = value;
                 OnStacksChanged();
             }
-            stacks = value;
         }
     }
 
@@ -199,7 +199,8 @@ public class AppliedEffect
 
         remainingTurns = props.effectDuration;
         remainingActivations = props.activationLimit;
-        Stacks = props.stacks;
+        // Internal variable rather than Property is used to prevent invokation of event
+        stacks = props.stacks;
         strength = props.strength;
         customValues = props.customValues;
         description = props.effect.GetEffectDescription(props.strength, props.customValues);
@@ -211,6 +212,8 @@ public class AppliedEffect
         {
             Activate();
         }
+
+        if (HasStacks) OnStacksChanged();
     }
 
     public bool Activate()

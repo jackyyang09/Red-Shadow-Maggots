@@ -22,8 +22,8 @@ public class BaseShieldEffect : BaseGameEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Shield";
     public override string ExplainerDescription =>
-        "Takes " + Keywords.Short.DAMAGE + " in place of " + Keywords.Short.HEALTH + ". " +
-        Keywords.Short.DAMAGE + " taken is reduced by " + Keywords.Short.DEFENSE + ".";
+        "Takes " + RSMConstants.Keywords.Short.DAMAGE + " in place of " + RSMConstants.Keywords.Short.HEALTH + ". " +
+        RSMConstants.Keywords.Short.DAMAGE + " taken is reduced by " + RSMConstants.Keywords.Short.DEFENSE + ".";
 
     BaseCharacter targetCharacter;
     ForceFieldFX forceFieldInstance;
@@ -95,10 +95,10 @@ public class BaseShieldEffect : BaseGameEffect
         switch (stat)
         {
             case ScalingStat.Health:
-                s += Keywords.Short.MAX_HEALTH;
+                s += RSMConstants.Keywords.Short.MAX_HEALTH;
                 break;
             case ScalingStat.Attack:
-                s += Keywords.Short.ATTACK;
+                s += RSMConstants.Keywords.Short.ATTACK;
                 break;
         }
 

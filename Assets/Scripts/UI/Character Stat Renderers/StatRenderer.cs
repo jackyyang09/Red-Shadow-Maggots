@@ -2,10 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using RSMConstants;
 
 public class StatRenderer : MonoBehaviour
 {
-    [SerializeField] Keywords.StatEnum targetStat;
+    [SerializeField] StatEnum targetStat;
     [SerializeField] Color positiveModifier;
     [SerializeField] Color negativeModifier;
     [SerializeField] TextMeshProUGUI nameLabel;
@@ -22,47 +23,47 @@ public class StatRenderer : MonoBehaviour
     {
         switch (targetStat)
         {
-            case Keywords.StatEnum.Attack:
+            case StatEnum.Attack:
                 stateDelegate = RenderAttack;
                 inBattleDelegate = RenderAttack;
                 break;
-            case Keywords.StatEnum.AttackWindow:
+            case StatEnum.AttackWindow:
                 stateDelegate = RenderAttackWindow;
                 inBattleDelegate = RenderAttackWindow;
                 break;
-            case Keywords.StatEnum.CurrentHealth:
+            case StatEnum.CurrentHealth:
                 break;
-            case Keywords.StatEnum.CritChance:
+            case StatEnum.CritChance:
                 stateDelegate = RenderCritRate;
                 inBattleDelegate = RenderCritRate;
                 break;
-            case Keywords.StatEnum.CritDamage:
+            case StatEnum.CritDamage:
                 stateDelegate = RenderCritDamage;
                 inBattleDelegate = RenderCritDamage;
                 break;
-            case Keywords.StatEnum.Defense:
+            case StatEnum.Defense:
                 stateDelegate = RenderDefense;
                 inBattleDelegate = RenderDefense;
                 break;
-            case Keywords.StatEnum.DefenseWindow:
+            case StatEnum.DefenseWindow:
                 stateDelegate = RenderDefenseWindow;
                 inBattleDelegate = RenderDefenseWindow;
                 break;
-            case Keywords.StatEnum.Health:
+            case StatEnum.Health:
                 break;
-            case Keywords.StatEnum.HealReceived:
+            case StatEnum.HealReceived:
                 break;
-            case Keywords.StatEnum.MaxHealth:
+            case StatEnum.MaxHealth:
                 break;
-            case Keywords.StatEnum.Wait:
+            case StatEnum.Wait:
                 stateDelegate = RenderWait;
                 inBattleDelegate = RenderWait;
                 break;
-            case Keywords.StatEnum.WaitLimit:
+            case StatEnum.WaitLimit:
                 stateDelegate = RenderWaitLimit;
                 inBattleDelegate = RenderWaitLimit;
                 break;
-            case Keywords.StatEnum.WaitTimer:
+            case StatEnum.WaitTimer:
                 break;
         }
     }
@@ -178,8 +179,8 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttackWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = character.AttackLeniencyModifier.FormatPercentage();
-        valueLabel.text = character.AttackLeniencyModified.FormatPercentage();
+        var modifier = character.AttackLeniencyModifier.FormatToDecimal() + "%";
+        valueLabel.text = character.AttackLeniencyModified.FormatToDecimal() + "%";
         if (character.AttackLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
@@ -199,8 +200,8 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderDefenseWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = character.DefenseLeniencyModifier.FormatPercentage();
-        valueLabel.text = character.DefenseLeniencyModified.FormatPercentage();
+        var modifier = character.DefenseLeniencyModifier.FormatToDecimal() + "%";
+        valueLabel.text = character.DefenseLeniencyModified.FormatToDecimal() + "%";
         if (character.DefenseLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
@@ -224,11 +225,11 @@ public class StatRenderer : MonoBehaviour
         valueLabel.text = character.WaitModified.FormatToDecimal();
         if (character.WaitModifier > 0)
         {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(+" + modifier + ")</color>";
         }
         else if (character.WaitModifier < 0)
         {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(" + modifier + ")</color>";
         }
     }
     #endregion

@@ -9,8 +9,8 @@ public class PeePoison : DamagePerTurnEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Peed";
     public override string ExplainerDescription => 
-        "Urinate every turn, losing " + Keywords.Short.HEALTH + 
-        " proportional to your " + Keywords.Short.CURRENT_HEALTH + ".";
+        "Urinate every turn, losing " + RSMConstants.Keywords.Short.HEALTH + 
+        " proportional to your " + RSMConstants.Keywords.Short.CURRENT_HEALTH + ".";
 
     public override float TickAnimationTime => 0.5f;
 
@@ -45,7 +45,7 @@ public class PeePoison : DamagePerTurnEffect
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
-        var d = "Urinate every turn, losing " + Keywords.Short.HEALTH +
+        var d = "Urinate every turn, losing " + RSMConstants.Keywords.Short.HEALTH +
             " equal to " + value.GetDescription(strength);
         return d;
     }

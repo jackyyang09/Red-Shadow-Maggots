@@ -74,16 +74,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (priorityPlayers.Count > 0) return priorityPlayers[0];
 
-            List<PlayerCharacter> p = new List<PlayerCharacter>();
-            for (int i = 0; i < playerCharacters.Length; i++)
-            {
-                if (PlayerCharacters[i])
-                {
-                    if (!PlayerCharacters[i].IsDead) p.Add(PlayerCharacters[i]);
-                }
-            }
+            List<PlayerCharacter> p = LivingPlayers;
 
-            if (p.Count == 0) return null;
             battleStateManager.InitializeRandom();
             return p[Random.Range(0, p.Count)];
         }
@@ -708,63 +700,4 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         priorityEnemies.Remove(enemy);
         OnTargetableCharactersChanged?.Invoke();
     }
-
-    #region Debug Hacks
-
-    [IngameDebugConsole.ConsoleMethod(nameof(MaxPlayerCrit), "Set player characters crit chance to 100%")]
-    public static void MaxPlayerCrit()
-    {
-        for (int i = 0; i < Instance.playerCharacters.Length; i++)
-        {
-            if (!Instance.playerCharacters[i]) continue;
-            Instance.playerCharacters[i].ApplyCritChanceModifier(1);
-        }
-
-        Debug.Log("Crit rate maxed!");
-    }
-
-    [IngameDebugConsole.ConsoleMethod(nameof(AddPlayerCrit),
-        "Set player characters crit chance to a number from 0 to 1")]
-    public static void AddPlayerCrit(float value)
-    {
-        for (int i = 0; i < Instance.playerCharacters.Length; i++)
-        {
-            Instance.playerCharacters[i].ApplyCritChanceModifier(value);
-        }
-
-        Debug.Log("Added " + value + "% to player crit rate to!");
-    }
-
-    [IngameDebugConsole.ConsoleMethod(nameof(ShieldPlayers), "Provide Max Shield Effect to Players")]
-    public static void ShieldPlayers()
-    {
-        for (int i = 0; i < Instance.PlayerCharacters.Length; i++)
-        {
-            if (!Instance.PlayerCharacters[i]) continue;
-            Instance.playerCharacters[i].GiveShield(Instance.playerCharacters[i].MaxHealth);
-        }
-
-        Debug.Log("Maxxed Player's shields!");
-    }
-
-    [IngameDebugConsole.ConsoleMethod(nameof(CripplePlayers), "Instantly hurt players, leaving them at 1 health")]
-    public static void CripplePlayers()
-    {
-        for (int i = 0; i < Instance.PlayerCharacters.Length; i++)
-        {
-            if (!Instance.PlayerCharacters[i]) continue;
-            BaseCharacter.IncomingDamage.TrueDamage = Instance.playerCharacters[i].CurrentHealth - 1;
-            Instance.playerCharacters[i].TakeDamage();
-        }
-
-        Debug.Log("Players damaged!");
-    }
-
-    [IngameDebugConsole.ConsoleMethod(nameof(SetTimeScale), "Changes the standard game speed")]
-    public void SetTimeScale(float value)
-    {
-        Time.timeScale = value;
-    }
-
-    #endregion
 }

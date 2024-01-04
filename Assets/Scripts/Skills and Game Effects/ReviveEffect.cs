@@ -8,8 +8,8 @@ public class ReviveEffect : BaseOnDeathEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Revive";
     public override string ExplainerDescription =>
-        "When " + Keywords.Short.HEALTH + " reaches 0, " +
-        "prevents death and regain " + Keywords.Short.HEALTH + ".";
+        "When " + RSMConstants.Keywords.Short.HEALTH + " reaches 0, " +
+        "prevents death and regain " + RSMConstants.Keywords.Short.HEALTH + ".";
 
     public GameStatValue value;
 
@@ -35,7 +35,7 @@ public class ReviveEffect : BaseOnDeathEffect
 
         d += "<u>" + ExplainerName + "</u> status";
 
-        d += " that recovers " + Keywords.Short.HEALTH + " equal to ";
+        d += " that recovers " + RSMConstants.Keywords.Short.HEALTH + " equal to ";
 
         d += value.GetDescription(props.strength) + " " + 
             DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);

@@ -20,7 +20,7 @@ public class DoorPoison : DamagePerTurnEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Door";
     public override string ExplainerDescription =>
-        "Every turn, get hit by a door and lose " + Keywords.Short.HEALTH + ".";
+        "Every turn, get hit by a door and lose " + RSMConstants.Keywords.Short.HEALTH + ".";
 
     public GameObject doorPrefab;
 

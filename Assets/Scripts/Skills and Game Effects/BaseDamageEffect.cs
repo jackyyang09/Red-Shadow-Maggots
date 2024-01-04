@@ -57,7 +57,7 @@ public class BaseDamageEffect : BaseGameEffect
                 break;
         }
 
-        s += Keywords.Short.HEALTH + " equal to " + change * 100 + "% of your " + Keywords.Short.MAX_HEALTH;
+        s += RSMConstants.Keywords.Short.HEALTH + " equal to " + change * 100 + "% of your " + RSMConstants.Keywords.Short.MAX_HEALTH;
 
         return s;
     }

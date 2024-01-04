@@ -46,8 +46,8 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
     {
         string d = "Gain effects depending on stack count:\n" +
             "<indent=2.5%>" +
-            "-<indent=5%>(Stacks >= 1) For each stack, heal " + Keywords.Short.HEALTH + " equal to " +
-            healAmount.FormatPercentage() + " of your " + Keywords.Short.MAX_HEALTH + ".</indent>\n" +
+            "-<indent=5%>(Stacks >= 1) For each stack, heal " + RSMConstants.Keywords.Short.HEALTH + " equal to " +
+            healAmount.FormatPercentage() + " of your " + RSMConstants.Keywords.Short.MAX_HEALTH + ".</indent>\n" +
             "-<indent=5%>(Stacks >= 10) Gain " + critChanceModifier.FormatPercentage() + " Crit Chance.</indent>\n" +
             "-<indent=5%>(Stacks >= 15) Every turn, apply Dodge (1 Time, 1 Turn).</indent>";
 

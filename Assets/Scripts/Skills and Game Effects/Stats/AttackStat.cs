@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "ATK", menuName = "ScriptableObjects/Game Stats/ATK", order = 1)]
 public class AttackStat : BaseGameStat
 {
-    public override string Name => Keywords.Short.ATTACK;
+    public override string Name => RSMConstants.Keywords.Short.ATTACK;
 
     public override void SetGameStat(BaseCharacter target, float value)
     {

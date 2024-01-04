@@ -538,10 +538,6 @@ public abstract class BaseCharacter : MonoBehaviour
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            if (qteSuccess)
-            {
-                finalCritChance += BattleSystem.QuickTimeCritModifier;
-            }
             OnExecuteAttack?.Invoke(qteSuccess);
         }
         else
@@ -961,7 +957,6 @@ public abstract class BaseCharacter : MonoBehaviour
         healthGain *= HealInModifier;
         health = Mathf.Min(health + healthGain, maxHealth);
         OnHeal?.Invoke();
-        onSetHealth?.Invoke();
         EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
     }
 
@@ -988,14 +983,8 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ApplyCritChanceModifier(float modifier)
     {
-        critChanceModifier += Mathf.Max(modifier, 0);
+        critChanceModifier += modifier;
         OnCharacterCritChanceChanged?.Invoke();
-    }
-
-    public void RemoveCritChanceModifier(float modifier)
-    {
-        critChanceModifier -= Mathf.Max(modifier, 0);
-        OnCharacterCritChanceReduced?.Invoke(this, modifier);
     }
 
     public void ApplyCritDamageModifier(float modifier)
@@ -1028,7 +1017,7 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         float trueDamage = CalculateDefenseDamage(damage.TrueDamage);
 
-        health = Mathf.Clamp(health - trueDamage, 1, maxHealth);
+        health = Mathf.Max(1, health - trueDamage);
 
         onConsumeHealth?.Invoke(trueDamage);
         OnCharacterConsumedHealth?.Invoke(this, damage);
@@ -1080,7 +1069,7 @@ public abstract class BaseCharacter : MonoBehaviour
             }
         }
 
-        health = Mathf.Clamp(health - trueDamage, 0, maxHealth);
+        health = Mathf.Max(0, health - trueDamage);
         damage.TrueDamage = trueDamage;
         damage.ShieldedDamage = shieldedDamage;
 
@@ -1238,5 +1227,17 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (characterReference.characterRig.IsValid())
             characterReference.characterRig.ReleaseAsset();
+    }
+
+    [IngameDebugConsole.ConsoleMethod(nameof(BuddhaMode), "Gives all Characters an absurd amount of health")]
+    public static void BuddhaMode()
+    {
+        foreach (var item in battleSystem.AllCharacters)
+        {
+            item.health += 999999;
+            item.onSetHealth?.Invoke();
+        }
+
+        Debug.Log("Superhealed all Characters!");
     }
 }

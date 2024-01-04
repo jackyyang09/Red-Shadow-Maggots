@@ -28,7 +28,7 @@ public class BaseCritChanceBuff : BaseGameEffect
         float percentageChange = (float)GetEffectStrength(strength, customValues);
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.RemoveCritChanceModifier(percentageChange);
+        target.ApplyCritChanceModifier(-percentageChange);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
