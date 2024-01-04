@@ -45,7 +45,6 @@ public class CombatCheats : MonoBehaviour
     {
         foreach (var item in battleSystem.PlayerList)
         {
-            item.GiveShield(item.MaxHealth);
             BaseCharacter.IncomingDamage.TrueDamage = item.CurrentHealth - 1;
             item.TakeDamage();
         }
