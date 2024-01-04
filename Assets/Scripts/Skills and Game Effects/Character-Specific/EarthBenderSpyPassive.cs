@@ -76,7 +76,10 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
         {
             qteSuccess = true;
         }
-        else RemoveEffect();
+        else if (damage.Source) // Damage must be from an Attack
+        {
+            RemoveEffect();
+        }
     }
 
     void DecreaseStack()
