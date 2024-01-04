@@ -17,7 +17,7 @@ public class TurnOrderGraphic : MonoBehaviour
     [SerializeField] Color fastColour;
     [SerializeField] Color slowColour;
     [SerializeField] float waitChangeDelay = 1;
-    [SerializeField] float waitChangeTime = 1   ;
+    [SerializeField] float waitChangeTime = 1;
     [SerializeField] Ease waitChangeEase;
     Color fillColour;
 
@@ -148,7 +148,13 @@ public class TurnOrderGraphic : MonoBehaviour
         }
         waitFill.DOColor(fillColour, waitChangeTime).SetEase(waitChangeEase).SetDelay(waitChangeDelay);
 
-        waitFill.DOFillAmount(previousWait / character.WaitLimitModified, dialTweenTime).SetEase(dialEase);
+        DOTween.To(x => previousWait = x,
+            previousWait,
+            character.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            {
+                waitLabel.text = previousWait.FormatToDecimal() + "%";
+                waitFill.fillAmount = previousWait / character.WaitLimitModified;
+            });
     }
 
     void OnSelectedEnemyCharacterChange(EnemyCharacter e)
