@@ -81,6 +81,7 @@ namespace RSMConstants
             public const string DEFENSE = "DEF";
             public const string DEFENSE_WINDOW = "DEF WINDOW";
             public const string DAMAGE = "DMG";
+            public const string DAMAGE_ABSORPTION = "DMG ABSORPTION";
             public const string HEALTH = "HP";
             public const string HEAL_RECEIVED = "HEALING";
             public const string MAX_HEALTH = "MAX HP";

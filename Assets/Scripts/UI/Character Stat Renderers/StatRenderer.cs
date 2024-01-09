@@ -360,7 +360,7 @@ public class StatRenderer : MonoBehaviour
     #region Wait Percent
     public static void RenderWaitPercent(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        valueLabel.text = character.WaitPercentage.FormatPercentage();
+        valueLabel.text = character.WaitPercentage.FormatToDecimal();
     }
     #endregion
 }

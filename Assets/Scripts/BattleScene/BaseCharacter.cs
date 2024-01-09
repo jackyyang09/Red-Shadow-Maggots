@@ -26,7 +26,8 @@ public abstract class BaseCharacter : MonoBehaviour
     public float CurrentShield => shield;
     public float ShieldPercent => shield / maxHealth;
 
-    protected float damageAbsorption = 1;
+    protected float damageAbsorptionModifier = 0;
+    public float DamageAbsorptionModifier => damageAbsorptionModifier;
 
     float attackModifier;
     /// <summary>
@@ -562,7 +563,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual float CalculateDefenseDamage(float damage)
     {
-        return Mathf.Max(1, damage * damageAbsorption);
+        return Mathf.Max(1, damage * (1 + damageAbsorptionModifier));
     }
 
     public virtual void UseSkill(GameSkill skill)
@@ -982,7 +983,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ApplyDamageAbsorptionModifier(float modifier)
     {
-        damageAbsorption += modifier;
+        damageAbsorptionModifier += modifier;
     }
 
     public void ApplyCritChanceModifier(float modifier)
@@ -1044,6 +1045,7 @@ public abstract class BaseCharacter : MonoBehaviour
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.Effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
+            // Apply Damage Formula
             damage.TrueDamage = damage.DamageNormalized *
                             damage.Source.AttackModified *
                             damage.Percentage *
