@@ -10,6 +10,7 @@ public class UIStatusDescription : MonoBehaviour
 
     [SerializeField] Image effectIcon;
     [SerializeField] TMPro.TextMeshProUGUI description;
+    [SerializeField] TMPro.TextMeshProUGUI stackLabel;
 
     public void ApplyStatus(AppliedEffect effect)
     {
@@ -32,6 +33,9 @@ public class UIStatusDescription : MonoBehaviour
         }
         description.text = effect.description + " " + 
                 BaseGameEffect.DurationAndActivationDescriptor(effect.remainingTurns, effect.remainingActivations);
+
+        stackLabel.enabled = effect.HasStacks;
+        stackLabel.text = effect.Stacks.ToString();
 
         canvas.Show();
 
