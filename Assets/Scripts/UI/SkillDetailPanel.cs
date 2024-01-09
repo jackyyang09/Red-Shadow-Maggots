@@ -18,6 +18,9 @@ public class SkillDetailPanel : MonoBehaviour
     [SerializeField] GameObject effectExplainerPrefab;
     List<EffectExplainerUI> explainers = new List<EffectExplainerUI>();
 
+    [SerializeField] JSAM.SoundFileObject uiPanelOpen;
+    [SerializeField] JSAM.SoundFileObject uiPanelClose;
+
     private void Start()
     {
         buffColourText = ColorUtility.ToHtmlStringRGB(Colours.Buff);
@@ -36,8 +39,8 @@ public class SkillDetailPanel : MonoBehaviour
         canvas.onCanvasHide.RemoveListener(PanelCloseSound);
     }
 
-    void PanelOpenSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelOpen);
-    void PanelCloseSound() => JSAM.AudioManager.PlaySound(BattleSceneSounds.UIPanelClose);
+    void PanelOpenSound() => JSAM.AudioManager.PlaySound(uiPanelOpen);
+    void PanelCloseSound() => JSAM.AudioManager.PlaySound(uiPanelClose);
 
     public void HidePanel()
     {

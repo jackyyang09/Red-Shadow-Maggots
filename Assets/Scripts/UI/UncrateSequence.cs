@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using RSMConstants;
 using static Facade;
 
 public class UncrateSequence : BasicSingleton<UncrateSequence>

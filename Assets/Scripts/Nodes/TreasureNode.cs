@@ -61,7 +61,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
             characters.Add(op.Result);
             gachaSystem.TryAddLoadedMaggot(op);
 
-            cardHolders[i].SetCharacterAndRarity(characters[i], Rarity.Common);
+            cardHolders[i].SetCharacterAndRarity(characters[i], RSMConstants.Rarity.Common);
 
             maggots[i] = new PlayerSave.MaggotState();
             maggots[i].GUID = maggot.AssetGUID;
@@ -92,12 +92,17 @@ public class TreasureNode : BasicSingleton<TreasureNode>
     Vector3[] positionBackups = new Vector3[3];
     Vector3[] eulerBackups = new Vector3[3];
 
-    private void OnCardClicked(CharacterCardHolder obj)
+    private void OnCardClicked(CharacterCardHolder holder)
     {
         if (!activeCard)
         {
-            activeCard = obj;
-            StartCoroutine(CardExamineRoutine(obj));
+            activeCard = holder;
+            //StartCoroutine(CardExamineRoutine(obj));
+
+            int index = cardHolders.IndexOf(holder);
+            characterPreview.UpdateCanvasProperties(holder.Character, maggots[index], RSMConstants.Rarity.Common);
+            characterPreview.OptimizedCanvas.Show();
+            ShowcaseSystem.Instance.ShowcaseCharacter(holder.Character);
         }
     }
 
@@ -122,9 +127,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         holder.transform.DOMove(handTransformTween[1].position, tweenTime);
         holder.transform.eulerAngles = new Vector3(0, 90, 60);
 
-        characterSidebar.UpdateStats(maggots[index], holder.Character);
-        characterSidebar.Canvas.Show();
-        characterPreview.UpdateCanvasProperties(holder.Character, Rarity.Common);
+        characterPreview.UpdateCanvasProperties(holder.Character, maggots[index], RSMConstants.Rarity.Common);
         characterPreview.OptimizedCanvas.Show();
     }
 
@@ -137,7 +140,7 @@ public class TreasureNode : BasicSingleton<TreasureNode>
         var state = maggots[cardHolders.IndexOf(activeCard)];
         playerDataManager.AddNewMaggot(state);
         
-        uncrateSequence.UncrateCharacter(activeCard.Character, Rarity.Common, ReturnToMapScreen);
+        uncrateSequence.UncrateCharacter(activeCard.Character, RSMConstants.Rarity.Common, ReturnToMapScreen);
         characterPreview.OptimizedCanvas.Hide();
         ShowcaseSystem.Instance.HideShowcase();
         mapManager.SaveMap();
@@ -156,17 +159,17 @@ public class TreasureNode : BasicSingleton<TreasureNode>
 
         ShowcaseSystem.Instance.HideShowcase();
         characterPreview.OptimizedCanvas.Hide();
-        obj.transform.DOMove(handTransformTween[0].position, tweenTime);
+        //obj.transform.DOMove(handTransformTween[0].position, tweenTime);
 
-        yield return new WaitForSeconds(tweenTime);
+        //yield return new WaitForSeconds(tweenTime);
 
-        obj.transform.DOMove(positionBackups[index], tweenTime);
-        obj.transform.eulerAngles = eulerBackups[index];
+        //obj.transform.DOMove(positionBackups[index], tweenTime);
+        //obj.transform.eulerAngles = eulerBackups[index];
         //obj.transform.eulerAngles = new Vector3(0, 90, 60);
 
         yield return new WaitForSeconds(tweenTime);
 
-        cardRigidbodies[index].isKinematic = false;
+        //cardRigidbodies[index].isKinematic = false;
 
         activeCard = null;
     }

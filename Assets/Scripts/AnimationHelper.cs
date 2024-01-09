@@ -33,8 +33,11 @@ public class AnimationHelper : MonoBehaviour
     [Header("Object References")]
     [SerializeField] Animator anim = null;
 
-    [SerializeField] Cinemachine.CinemachineVirtualCamera vCam = null;
-    [SerializeField] Cinemachine.CinemachineImpulseSource impulse = null;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera vCam;
+    [SerializeField] Cinemachine.CinemachineImpulseSource impulse;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera detailsCam;
+    public void ShowDetailsCam() => detailsCam.enabled = true;
+    public void HideDetailsCam() => detailsCam.enabled = false;
 
     [SerializeField] CritGlowEffect[] critEffects = null;
 

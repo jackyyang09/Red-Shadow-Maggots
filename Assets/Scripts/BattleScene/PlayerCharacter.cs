@@ -23,6 +23,7 @@ public class PlayerCharacter : BaseCharacter
 
     public override bool CanCrit => CritChanceModified >= 1;
 
+    public Action OnSetActivePlayer;
     public static Action<PlayerCharacter> OnSelectPlayer;
     public static Action<PlayerCharacter> OnSelectedPlayerCharacterChange;
     public static Action<PlayerCharacter> OnPlayerQTEAttack;
@@ -93,17 +94,6 @@ public class PlayerCharacter : BaseCharacter
     public void UpdateSelectedStatus(PlayerCharacter newSelection)
     {
         bool isSelected = newSelection == this;
-        selectionCircle.enabled = isSelected;
-    }
-
-    public void ForceSelect()
-    {
-        selectionCircle.enabled = true;
-    }
-
-    public void ForceDeselect()
-    {
-        selectionCircle.enabled = false;
     }
 
     private void OnMouseDown()
@@ -237,11 +227,6 @@ public class PlayerCharacter : BaseCharacter
         selectionCircle.enabled = isSelected;
     }
 
-    public override void HideCharacterUI()
-    {
-        selectionCircle.enabled = false;
-    }
-
     public override void Die()
     {
         base.Die();
@@ -268,11 +253,6 @@ public class PlayerCharacter : BaseCharacter
 
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         //anim.SetTrigger("Death");
-    }
-
-    public override void HideSelectionPointer()
-    {
-        base.HideSelectionPointer();
     }
 }
 

@@ -204,11 +204,6 @@ public class EnemyCharacter : BaseCharacter
         selectionCircle.enabled = isSelected;
     }
 
-    public override void HideCharacterUI()
-    {
-        selectionCircle.enabled = false;
-    }
-
     private void OnMouseDown()
     {
         if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn && UIManager.CanSelectCharacter)
@@ -277,15 +272,7 @@ public class EnemyCharacter : BaseCharacter
 
     public void ForceHideSelectionPointer()
     {
-        base.HideSelectionPointer();
-    }
-
-    public override void HideSelectionPointer()
-    {
-        if (battleSystem.ActiveEnemy != this)
-        {
-            base.HideSelectionPointer();
-        }
+        HideSelectionPointer();
     }
 }
 

@@ -318,11 +318,11 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             if (PlayersAlive)
             {
-                playerTargets.player.ForceDeselect();
+                playerTargets.player.HideSelectionPointer();
 
                 var p = RandomLivingPlayer;
 
-                p.ForceSelect();
+                p.ShowSelectionCircle();
                 playerTargets.player = p;
 
                 enemyTargets.player = playerTargets.player;

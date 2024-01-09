@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using RSMConstants;
 using static Facade;
 
 public abstract class BaseCharacter : MonoBehaviour
@@ -375,7 +376,10 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public abstract void ShowCharacterUI();
 
-    public abstract void HideCharacterUI();
+    public virtual void HideCharacterUI()
+    {
+        selectionCircle.enabled = false;
+    }
 
     // Update is called once per frame
     void Update()

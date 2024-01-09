@@ -50,32 +50,77 @@ public class StatRenderer : MonoBehaviour
                 inBattleDelegate = RenderDefenseWindow;
                 break;
             case StatEnum.Health:
+                inBattleDelegate = RenderHealth;
                 break;
             case StatEnum.HealReceived:
                 break;
+            case StatEnum.Level:
+                stateDelegate = RenderLevel;
+                inBattleDelegate = RenderLevel;
+                break;
             case StatEnum.MaxHealth:
+                stateDelegate = RenderMaxHealth;
+                inBattleDelegate = RenderMaxHealth;
+                break;
+            case StatEnum.Name:
+                stateDelegate = RenderName;
+                inBattleDelegate = RenderName;
+                break;
+            case StatEnum.Shield:
+                inBattleDelegate = RenderShield;
                 break;
             case StatEnum.Wait:
                 stateDelegate = RenderWait;
                 inBattleDelegate = RenderWait;
                 break;
+            case StatEnum.WaitFull:
+                inBattleDelegate = RenderWaitFull;
+                break;
             case StatEnum.WaitLimit:
                 stateDelegate = RenderWaitLimit;
                 inBattleDelegate = RenderWaitLimit;
+                break;
+            case StatEnum.WaitPercent:
+                inBattleDelegate = RenderWaitPercent;
                 break;
             case StatEnum.WaitTimer:
                 break;
         }
     }
 
-    public void UpdateStat(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
+    public virtual void UpdateStat(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
     {
         stateDelegate?.Invoke(state, character, isEnemy, valueLabel);
     }
 
-    public void UpdateStat(BaseCharacter character)
+    public virtual void UpdateStat(BaseCharacter character)
     {
         inBattleDelegate?.Invoke(character, positiveModifier, negativeModifier, nameLabel, valueLabel);
+    }
+
+    /// <summary>
+    /// Changing the description label takes too long and ruins layout. 
+    /// A rebuild is necessary at this stage
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator DelayedRebuild()
+    {
+        yield return null;
+
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+        UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
+    }
+
+    [ContextMenu(nameof(Test))]
+    void Test()
+    {
+        UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(valueLabel.transform.parent.GetRectTransform());
+    }
+
+    [ContextMenu(nameof(Test2))]
+    void Test2()
+    {
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(valueLabel.transform.parent.GetRectTransform());
     }
 
     #region Attack
@@ -99,6 +144,27 @@ public class StatRenderer : MonoBehaviour
     }
     #endregion
 
+    #region Attack Window
+    public static void RenderAttackWindow(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = character.defenseLeniency.FormatPercentage();
+    }
+
+    public static void RenderAttackWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        var modifier = character.AttackLeniencyModifier.FormatToDecimal() + "%";
+        valueLabel.text = character.AttackLeniencyModified.FormatToDecimal() + "%";
+        if (character.AttackLeniencyModifier > 0)
+        {
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
+        }
+        else if (character.AttackLeniencyModifier < 0)
+        {
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
+        }
+    }
+    #endregion
+
     #region Defense
     public static void RenderDefense(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
     {
@@ -116,6 +182,27 @@ public class StatRenderer : MonoBehaviour
         else if (character.DefenseModifier < 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + defenseModifier + ")</color>";
+        }
+    }
+    #endregion
+
+    #region Defense Window
+    public static void RenderDefenseWindow(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = character.defenseLeniency.FormatPercentage();
+    }
+
+    public static void RenderDefenseWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        var modifier = character.DefenseLeniencyModifier.FormatToDecimal() + "%";
+        valueLabel.text = character.DefenseLeniencyModified.FormatToDecimal() + "%";
+        if (character.DefenseLeniencyModifier > 0)
+        {
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
+        }
+        else if (character.DefenseLeniencyModifier < 0)
+        {
+            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
         }
     }
     #endregion
@@ -162,6 +249,28 @@ public class StatRenderer : MonoBehaviour
     }
     #endregion
 
+    #region Health
+    public static void RenderHealth(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = Mathf.CeilToInt(character.CurrentHealth) + "/" + character.MaxHealth;
+    }
+    #endregion
+
+    #region Level
+    public static void RenderLevel(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = "Lvl. " + character.GetLevelFromExp(state.Exp);
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(valueLabel.transform.parent.GetRectTransform());
+    }
+
+    public static void RenderLevel(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = "Lvl. " + character.CurrentLevel;
+        UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(valueLabel.transform.parent.GetRectTransform());
+    }
+    #endregion
+
+    #region Max Health
     public static void RenderMaxHealth(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
     {
         valueLabel.text = character.GetMaxHealth(character.GetLevelFromExp(state.Exp), isEnemy).ToString();
@@ -169,47 +278,33 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderMaxHealth(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-    }
-
-    #region Attack Window
-    public static void RenderAttackWindow(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
-    {
-        valueLabel.text = character.defenseLeniency.FormatPercentage();
-    }
-
-    public static void RenderAttackWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
-    {
-        var modifier = character.AttackLeniencyModifier.FormatToDecimal() + "%";
-        valueLabel.text = character.AttackLeniencyModified.FormatToDecimal() + "%";
-        if (character.AttackLeniencyModifier > 0)
-        {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
-        }
-        else if (character.AttackLeniencyModifier < 0)
-        {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
-        }
+        valueLabel.text = character.MaxHealth.ToString();
     }
     #endregion
 
-    #region Defense Window
-    public static void RenderDefenseWindow(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
+    #region Name
+    public static void RenderName(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
     {
-        valueLabel.text = character.defenseLeniency.FormatPercentage();
+        valueLabel.text = character.characterName;
+        UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(valueLabel.transform.parent.GetRectTransform());
     }
 
-    public static void RenderDefenseWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    public static void RenderName(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = character.DefenseLeniencyModifier.FormatToDecimal() + "%";
-        valueLabel.text = character.DefenseLeniencyModified.FormatToDecimal() + "%";
-        if (character.DefenseLeniencyModifier > 0)
-        {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
-        }
-        else if (character.DefenseLeniencyModifier < 0)
-        {
-            valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
-        }
+        valueLabel.text = character.Reference.characterName;
+        UnityEngine.UI.LayoutRebuilder.MarkLayoutForRebuild(valueLabel.transform.parent.GetRectTransform());
+    }
+    #endregion
+
+    #region Shield
+    public static void RenderShield(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
+    {
+        //valueLabel.text = character.GetMaxHealth(character.GetLevelFromExp(state.Exp), isEnemy).ToString();
+    }
+
+    public static void RenderShield(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = Mathf.FloorToInt(character.CurrentShield).ToString();
     }
     #endregion
 
@@ -234,6 +329,13 @@ public class StatRenderer : MonoBehaviour
     }
     #endregion
 
+    #region Wait Full
+    public static void RenderWaitFull(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = character.WaitModified.FormatToDecimal() + "/" + character.WaitLimitModified.FormatToDecimal();
+    }
+    #endregion
+
     #region Wait Limit
     public static void RenderWaitLimit(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel)
     {
@@ -252,6 +354,13 @@ public class StatRenderer : MonoBehaviour
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
         }
+    }
+    #endregion
+
+    #region Wait Percent
+    public static void RenderWaitPercent(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = character.WaitPercentage.FormatPercentage();
     }
     #endregion
 }

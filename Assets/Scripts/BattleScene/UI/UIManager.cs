@@ -12,10 +12,9 @@ public class UIManager : BasicSingleton<UIManager>
         get { return viewPortBillboardCanvas; }
     }
 
-    [Header("Battle System")] [SerializeField]
-    OptimizedButton attackButton;
+    [Header("Battle System")]
+    [SerializeField] OptimizedButton attackButton;
 
-    [SerializeField] UICharacterDetails characterDetailsPanel;
     [SerializeField] QuickTimeBar offenseBar;
     public QuickTimeBar OffenseBar => offenseBar;
     [SerializeField] QuickTimeDefense defenseBar;
@@ -24,6 +23,7 @@ public class UIManager : BasicSingleton<UIManager>
     //[SerializeField] TMPro.TextMeshProUGUI gameSpeedText;
     [SerializeField] CharacterUI bossUI;
 
+    [SerializeField] CanvasGroup waveTurnCG;
     [SerializeField] TMPro.TextMeshProUGUI waveCounter;
     [SerializeField] TMPro.TextMeshProUGUI turnCounter;
 
@@ -36,9 +36,9 @@ public class UIManager : BasicSingleton<UIManager>
 
     [SerializeField] private SkillManagerUI _skillManagerUI;
 
-    [Header("System Objects")] [SerializeField]
-    OptimizedCanvas winCanvas;
-
+    [Header("System Objects")]
+    [SerializeField] OptimizedButton settingsButton;
+    [SerializeField] OptimizedCanvas winCanvas;
     [SerializeField] OptimizedCanvas loseCanvas;
 
     public bool CharacterPanelOpen { get; private set; }
@@ -54,6 +54,8 @@ public class UIManager : BasicSingleton<UIManager>
     public static Action OnAttackCommit;
     public static Action OnEnterSkillTargetMode;
     public static Action OnExitSkillTargetMode;
+    public static Action OnCharacterStatUIOpened;
+    public static Action OnCharacterStatUIClosed;
 
     private void OnEnable()
     {
@@ -67,6 +69,8 @@ public class UIManager : BasicSingleton<UIManager>
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
 
         GameManager.OnRoundCountChanged += UpdateTurnCounter;
+
+        CharacterPreviewUI.Instance.OnHide += OnCloseCharacterPanel;
 
         OnAttackCommit += HideBattleUI;
 
@@ -87,6 +91,8 @@ public class UIManager : BasicSingleton<UIManager>
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
 
         GameManager.OnRoundCountChanged -= UpdateTurnCounter;
+
+        CharacterPreviewUI.Instance.OnHide -= OnCloseCharacterPanel;
 
         OnAttackCommit -= HideBattleUI;
 
@@ -133,13 +139,22 @@ public class UIManager : BasicSingleton<UIManager>
     public void OpenCharacterPanel(BaseCharacter character)
     {
         CharacterPanelOpen = true;
-        characterDetailsPanel.DisplayWithCharacter(character);
+        //UICharacterDetails.Instance.DisplayWithCharacter(character);
+        CharacterPreviewUI.Instance.DisplayWithCharacter(character);
+        UICharacterDetails.Instance.DisplayWithCharacter(character);
+        HideBattleUI();
+        settingsButton.Hide();
+        waveTurnCG.alpha = 0;
+        OnCharacterStatUIOpened?.Invoke();
     }
 
-    public void CloseCharacterPanel()
+    public void OnCloseCharacterPanel()
     {
         CharacterPanelOpen = false;
-        characterDetailsPanel.Hide();
+        ShowBattleUI();
+        settingsButton.Show();
+        waveTurnCG.alpha = 1;
+        OnCharacterStatUIClosed?.Invoke();
     }
 
     private void UpdateSkillGraphic(PlayerCharacter obj)

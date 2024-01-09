@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using DG.Tweening;
+using RSMConstants;
 
 public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
 {
@@ -14,44 +15,39 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         public Sprite icon;
     }
 
-    [System.Serializable]
-    public struct RarityTitleAndColor
-    {
-        public string title;
-        public Color color;
-    }
-
     [SerializeField] ClassTitleAndSprite[] classTuples;
-    [SerializeField] RarityTitleAndColor[] rarityTuples;
 
     [Header("Object References")]
 
     [SerializeField] OptimizedCanvas canvas;
-    public OptimizedCanvas OptimizedCanvas { get { return canvas; } }
-    public bool IsVisible
-    {
-        get { return canvas.IsVisible; }
-    }
+    public OptimizedCanvas OptimizedCanvas => canvas;
+    public bool IsVisible => canvas.IsVisible;
+
+    [SerializeField] StatRenderer[] statRenderers;
+
+    [SerializeField] Button[] buttons;
+    [SerializeField] OptimizedCanvas[] panels;
+    int activePanel = -1;
 
     [SerializeField] SkillDetailPanel skillPanel;
 
-    [SerializeField] TextMeshProUGUI rarityText;
-    [SerializeField] TextMeshProUGUI classText;
     [SerializeField] SkillButtonUI skillButton1;
     [SerializeField] SkillButtonUI skillButton2;
 
-    [SerializeField] TextMeshProUGUI healthText;
-    [SerializeField] TextMeshProUGUI attackText;
-    [SerializeField] TextMeshProUGUI critRateText;
-    [SerializeField] TextMeshProUGUI critDamageText;
-    [SerializeField] TextMeshProUGUI attackWindowText;
-    [SerializeField] TextMeshProUGUI defenseWindowText;
+    BaseCharacter previewedCharacter;
+    CharacterObject previewedCharacterReference;
 
-    CharacterObject previewingCharacter;
+    public System.Action OnShow;
+    public System.Action OnHide;
+
+    private void Start()
+    {
+        SetActivePanel(0);
+    }
 
     private void OnEnable()
     {
-        //PartyManager.OnSelectCharacter += BeginCharacterPreview;
+
     }
 
     private void OnDisable()
@@ -59,18 +55,58 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         
     }
 
-    public void UpdateCanvasProperties(CharacterObject character, Rarity rarity)
+    public void DisplayWithCharacter(BaseCharacter character)
     {
-        previewingCharacter = character;
-
-        if (rarityText)
+        if (previewedCharacter)
         {
-            rarityText.text = rarityTuples[(int)rarity].title;
-            rarityText.color = rarityTuples[(int)rarity].color;
+            previewedCharacter.AnimHelper.HideDetailsCam();
+            OnHide -= previewedCharacter.AnimHelper.HideDetailsCam;
         }
+
+        previewedCharacter = character;
+        previewedCharacterReference = character.Reference;
+
+        //if (rarityText)
+        //{
+        //    rarityText.text = rarity.ToTitle();
+        //    rarityText.color = rarity.ToColour();
+        //}
+
+        //int classIndex = (int)character.characterClass;
+        //if (classText) classText.text = classTuples[classIndex].title;
+
+        GameSkill newSkill = new GameSkill();
+        newSkill.InitWithSkill(previewedCharacterReference.skills[0]);
+        skillButton1.UpdateStatus(newSkill);
+        newSkill.InitWithSkill(previewedCharacterReference.skills[1]);
+        skillButton2.UpdateStatus(newSkill);
+
+        foreach (var item in statRenderers)
+        {
+            item.UpdateStat(character);
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetRectTransform());
+
+        previewedCharacter.AnimHelper.ShowDetailsCam();
+        OnHide += previewedCharacter.AnimHelper.HideDetailsCam;
+
+        OptimizedCanvas.Show();
+        OnShow?.Invoke();
+    }
+
+    public void UpdateCanvasProperties(CharacterObject character, PlayerSave.MaggotState state, Rarity rarity)
+    {
+        previewedCharacterReference = character;
+
+        //if (rarityText)
+        //{
+        //    rarityText.text = rarity.ToTitle();
+        //    rarityText.color = rarity.ToColour();
+        //}
         
-        int classIndex = (int)character.characterClass;
-        if (classText) classText.text = classTuples[classIndex].title;
+        //int classIndex = (int)character.characterClass;
+        //if (classText) classText.text = classTuples[classIndex].title;
 
         GameSkill newSkill = new GameSkill();
         newSkill.InitWithSkill(character.skills[0]);
@@ -78,30 +114,44 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         newSkill.InitWithSkill(character.skills[1]);
         skillButton2.UpdateStatus(newSkill);
 
-        healthText.text = Mathf.RoundToInt(character.GetMaxHealth(1, false)).ToString();
-        attackText.text = Mathf.RoundToInt(character.GetAttack(1)).ToString();
-        critRateText.text = (character.critChance * 100).ToString() + "%";
-        critDamageText.text = (character.critDamageMultiplier * 100).ToString() + "%";
-        attackWindowText.text = character.attackLeniency.ToString();
-        defenseWindowText.text = character.defenseLeniency.ToString();
+        foreach (var item in statRenderers)
+        {
+            item.UpdateStat(state, character, false);
+        }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(this.GetRectTransform());
+        canvas.Show();
+        OnShow?.Invoke();
+    }
+
+    public void SetActivePanel(int id)
+    {
+        if (activePanel == id) return;
+
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            buttons[i].image.color = Colours.Button;
+            panels[i].Hide();
+        }
+
+        activePanel = id;
+
+        buttons[activePanel].image.color = Colours.ButtonSelected;
+        panels[activePanel].Show();
     }
 
     public void ShowSkillDetailsWithID(int id)
     {
         GameSkill newSkill = new GameSkill();
-        newSkill.InitWithSkill(previewingCharacter.skills[id]);
+        newSkill.InitWithSkill(previewedCharacterReference.skills[id]);
         skillPanel.ShowWithDetails(newSkill);
-    }
-
-    public void ShowcaseCharacter()
-    {
-        ShowcaseSystem.Instance.ShowcaseCharacter(previewingCharacter);
     }
 
     public void HideUI()
     {
         canvas.Hide();
         skillPanel.HidePanel();
+        OnHide?.Invoke();
     }
 
     bool cardLoadMode = false;

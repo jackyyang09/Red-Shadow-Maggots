@@ -300,9 +300,9 @@ namespace TF2Ls.FaceFlex
 
 #if UNITY_EDITOR
             EditorUtility.ClearProgressBar();
-#endif
             if (!previewingMesh) Undo.RecordObject(this, "Changed Mesh Preview State");
             previewingMesh = true;
+#endif
 
             renderer.sharedMesh = meshClone;
         }

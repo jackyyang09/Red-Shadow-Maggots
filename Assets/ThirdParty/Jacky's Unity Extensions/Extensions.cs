@@ -16,6 +16,11 @@ public static class Extensions
         return mono.transform as RectTransform;
     }
 
+    public static RectTransform GetRectTransform(this Transform t)
+    {
+        return t as RectTransform;
+    }
+
     public static T GetLast<T>(this List<T> list)
     {
         if (list.Count == 0) return default(T);

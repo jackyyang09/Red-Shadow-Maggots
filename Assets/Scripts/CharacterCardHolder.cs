@@ -2,24 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RSMConstants;
 
 public class CharacterCardHolder : MonoBehaviour
 {
-    [SerializeField] CharacterObject characterData = null;
-    public CharacterObject Character
-    {
-        get { return characterData; }
-    }
+    [SerializeField] CharacterObject characterData;
+    public CharacterObject Character => characterData;
 
     [SerializeField] Rarity rarity;
-    public Rarity Rarity
-    {
-        get { return rarity; }
-    }
+    public Rarity Rarity => rarity;
 
     [Header("Object References")]
-    [SerializeField] Cinemachine.CinemachineVirtualCamera cam = null;
-    [SerializeField] TMPro.TextMeshProUGUI nameText = null;
+    [SerializeField] Cinemachine.CinemachineVirtualCamera cam;
+    [SerializeField] TMPro.TextMeshProUGUI nameText;
 
     [Header("Stats References")]
     [SerializeField] OptimizedCanvas statsCanvas;
@@ -30,21 +25,21 @@ public class CharacterCardHolder : MonoBehaviour
     [SerializeField] Image healthFill;
 
     [Header("Sprite References")]
-    [SerializeField] Transform spriteHolder = null;
-    [SerializeField] SpriteRenderer sprite = null;
-    [SerializeField] Image[] classIcons = null;
+    [SerializeField] Transform spriteHolder;
+    [SerializeField] SpriteRenderer sprite;
+    [SerializeField] Image[] classIcons;
 
     [Header("Rarity References")]
-    [SerializeField] Material[] rarityMat = null;
-    [SerializeField] Sprite[] rarityBackground = null;
-    [SerializeField] Sprite[] rarityBorder = null;
-    [SerializeField] Image[] stars = null;
-    [SerializeField] Sprite[] classEmblemIcons = null;
-    [SerializeField] Image classEmblem = null;
-    [SerializeField] MeshRenderer cardMesh = null;
-    [SerializeField] SpriteRenderer cardBorder = null;
-    [SerializeField] SpriteRenderer cardBackground = null;
-    [SerializeField] MeshRenderer backgroundRenderer = null;
+    [SerializeField] Material[] rarityMat;
+    [SerializeField] Sprite[] rarityBackground;
+    [SerializeField] Sprite[] rarityBorder;
+    [SerializeField] Image[] stars;
+    [SerializeField] Sprite[] classEmblemIcons;
+    [SerializeField] Image classEmblem;
+    [SerializeField] MeshRenderer cardMesh;
+    [SerializeField] SpriteRenderer cardBorder;
+    [SerializeField] SpriteRenderer cardBackground;
+    [SerializeField] MeshRenderer backgroundRenderer;
 
     Animator spriteAnim;
 

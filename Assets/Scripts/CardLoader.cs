@@ -4,6 +4,7 @@ using UnityEngine;
 using B83.Win32;
 using System.Runtime.InteropServices;
 using System;
+using RSMConstants;
 
 [Serializable]
 public struct CharacterCard

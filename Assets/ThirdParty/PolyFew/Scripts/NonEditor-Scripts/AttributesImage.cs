@@ -1,8 +1,6 @@
 using UnityEngine;
-#if UNITY_2020_3_OR_NEWER
+#if UNITY_EDITOR
 using UnityEditor.AssetImporters;
-#elif UNITY_EDITOR
-using UnityEditor.Experimental.AssetImporters;
 #endif
 
 #if UNITY_EDITOR

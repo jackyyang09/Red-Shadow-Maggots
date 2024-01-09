@@ -9,6 +9,7 @@ public abstract class BaseCharacterPassive : MonoBehaviour
     protected virtual void OnEnable()
     {
         baseCharacter = GetComponentInParent<BaseCharacter>();
+        if (!baseCharacter) enabled = false;
     }
 
     protected virtual void ApplyEffect(BaseGameEffect e, int s)

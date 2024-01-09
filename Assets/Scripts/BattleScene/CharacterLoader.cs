@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using RSMConstants;
 using static Facade;
 
 public class CharacterLoader : BasicSingleton<CharacterLoader>

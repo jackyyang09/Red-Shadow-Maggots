@@ -3,17 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using RSMConstants;
 using static Facade;
-
-public enum Rarity
-{
-    Common,
-    Uncommon,
-    Rare,
-    SuperRare,
-    UltraRare,
-    Count
-}
 
 public class GachaSystem : BasicSingleton<GachaSystem>
 {

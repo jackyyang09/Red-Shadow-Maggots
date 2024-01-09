@@ -98,9 +98,11 @@ public class CharacterUI : BaseGameUI
 
     private void OnEnable()
     {
-        GlobalEvents.OnEnterBattleCutscene += OptimizedCanvas.Hide;
+        GlobalEvents.OnEnterBattleCutscene += HideUI;
         GlobalEvents.OnExitBattleCutscene += TryShowUI;
-        UIManager.OnShowBattleUI += TryShowUI;
+        UIManager.OnShowBattleUI += TryShowUIDelayed;
+        UIManager.OnCharacterStatUIOpened += HideUI;
+        UIManager.OnCharacterStatUIClosed += TryShowUIDelayed;
     }
 
     private void OnDisable()
@@ -123,10 +125,12 @@ public class CharacterUI : BaseGameUI
             player.OnCharacterCritChanceChanged -= UpdatePlayerCritCharge;
         }
 
-        GlobalEvents.OnEnterBattleCutscene -= OptimizedCanvas.Hide;
+        GlobalEvents.OnEnterBattleCutscene -= HideUI;
         GlobalEvents.OnExitBattleCutscene -= TryShowUI;
         UIManager.OnAttackCommit -= UpdateUIState;
-        UIManager.OnShowBattleUI -= TryShowUI;
+        UIManager.OnShowBattleUI -= TryShowUIDelayed;
+        UIManager.OnCharacterStatUIOpened -= HideUI;
+        UIManager.OnCharacterStatUIClosed -= TryShowUIDelayed;
     }
 
     private void Update()
@@ -258,6 +262,21 @@ public class CharacterUI : BaseGameUI
         {
             OptimizedCanvas.Show();
         }
+    }
+
+    /// <summary>
+    /// CharacterUI takes a frame to re-adjust if the camera moved significantly 
+    /// such as when opening the in-battle status screen
+    /// </summary>
+    void TryShowUIDelayed()
+    {
+        StartCoroutine(TryShowUIDelayedRoutine());
+    }
+
+    IEnumerator TryShowUIDelayedRoutine()
+    {
+        yield return null;
+        TryShowUI();
     }
 
     public override void ShowUI()

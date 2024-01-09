@@ -4,28 +4,27 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using static Facade;
+using System.Linq;
 
 public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 {
     [SerializeField] float characterHoldTime = 0.75f;
     float fingerHoldTimer;
 
-    [SerializeField] TextMeshProUGUI nameText;
-    [SerializeField] TextMeshProUGUI levelText;
-    [SerializeField] Image portrait;
-    [SerializeField] TextMeshProUGUI health;
-    [SerializeField] TextMeshProUGUI attack;
-    [SerializeField] TextMeshProUGUI critChance;
     [SerializeField] GameObject descriptionPrefab;
     [SerializeField] RectTransform contentRect;
-    [SerializeField] StatRenderer[] statRenderers;
 
     [SerializeField] OptimizedCanvas canvas;
 
     [SerializeField] JSAM.SoundFileObject panelOpenSound;
     [SerializeField] JSAM.SoundFileObject panelCloseSound;
 
+    [SerializeField] CharacterHeadButton[] headButtons;
+
     List<UIStatusDescription> statusDescriptions = new List<UIStatusDescription>();
+
+    BaseCharacter focusedCharacter;
+    List<BaseCharacter> allyCharacters;
 
     private void OnEnable()
     {
@@ -70,21 +69,49 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
 
     public void DisplayWithCharacter(BaseCharacter character)
     {
-        nameText.text = character.Reference.characterName;
+        focusedCharacter = character;
 
-        levelText.text = "Level " + character.CurrentLevel;
+        UpdateEffectDescriptions();
 
-        health.text = character.CurrentHealth + "/" + character.MaxHealth;
-
-        portrait.sprite = character.Reference.headshotSprite;
-
-        foreach (var stat in statRenderers)
+        if (character.IsPlayer())
         {
-            stat.UpdateStat(character);
+            allyCharacters = battleSystem.PlayerList.ToList<BaseCharacter>();
+        }
+        else
+        {
+            allyCharacters = enemyController.EnemyList.ToList<BaseCharacter>();
         }
 
+        int i;
+        for (i = 0; i < allyCharacters.Count; i++)
+        {
+            headButtons[i].InitializeWithCharacter(allyCharacters[i], allyCharacters[i] == character);
+        }
+
+        for (; i < headButtons.Length; i++)
+        {
+            headButtons[i].gameObject.SetActive(false);
+        }
+    }
+
+    public void TrySelectCharacter(BaseCharacter character)
+    {
+        if (focusedCharacter == character) return;
+
+        focusedCharacter = character;
+        CharacterPreviewUI.Instance.DisplayWithCharacter(focusedCharacter);
+        UpdateEffectDescriptions();
+
+        for (int i = 0; i < allyCharacters.Count; i++)
+        {
+            headButtons[i].SetSelected(allyCharacters[i] == character);
+        }
+    }
+
+    void UpdateEffectDescriptions()
+    {
         List<AppliedEffect> effects = new List<AppliedEffect>();
-        foreach (var item in character.AppliedEffects)
+        foreach (var item in focusedCharacter.AppliedEffects)
         {
             effects.Add(item);
         }
@@ -107,12 +134,10 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
         {
             statusDescriptions[i].Hide();
         }
-
-        canvas.Show();
     }
 
     public void Hide()
     {
-        canvas.Hide();
+        //canvas.Hide();
     }
 }

@@ -133,7 +133,6 @@ public class ShowcaseSystem : BasicSingleton<ShowcaseSystem>
         screenEffects.ShowLoadingIcon(0);
         screenEffects.BlackOut(ScreenEffects.EffectType.Partial);
 
-        characterSidebar.Canvas.Show();
         showcaseCam.enabled = true;
 
         yield return new WaitUntil(() => loadedEnvironment && loadedSkybox && loadedRig);

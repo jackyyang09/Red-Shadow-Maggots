@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
 public class BaseHealEffect : BaseGameEffect
 {
-    protected GameStatValue value;
+    [SerializeField] protected GameStatValue value;
 
     public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
     {

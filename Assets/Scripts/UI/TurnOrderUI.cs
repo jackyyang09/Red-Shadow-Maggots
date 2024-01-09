@@ -64,6 +64,9 @@ public class TurnOrderUI : BaseGameUI
         UIManager.OnShowBattleUI += ShowUI;
         //UIManager.OnHideBattleUI += HideUI;
 
+        CharacterPreviewUI.Instance.OnShow += HideUI;
+        CharacterPreviewUI.Instance.OnHide += ShowUI;
+
         BaseCharacter.OnCharacterDeath += OnCharacterDeath;
     }
 
@@ -73,6 +76,9 @@ public class TurnOrderUI : BaseGameUI
         UIManager.OnExitSkillTargetMode -= ShowUI;
         UIManager.OnShowBattleUI -= ShowUI;
         //UIManager.OnHideBattleUI -= HideUI;
+
+        CharacterPreviewUI.Instance.OnShow -= HideUI;
+        CharacterPreviewUI.Instance.OnHide -= ShowUI;
 
         BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
     }

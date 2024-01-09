@@ -1,7 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Security.AccessControl;
-using System.Security.Policy;
 using UnityEngine;
 
 public enum EffectType

@@ -7,7 +7,6 @@
     public static CardListUI cardListUI => CardListUI.Instance;
     public static MaggotUpgradeUI maggotUpgradeUI => MaggotUpgradeUI.Instance;
     public static CharacterPreviewUI characterPreview => CharacterPreviewUI.Instance;
-    public static CharacterSidebar characterSidebar => CharacterSidebar.Instance;
     public static Map.ScrollNonUI mapScroller => Map.ScrollNonUI.Instance;
     public static Map.MapManager mapManager => Map.MapManager.Instance;
     public static PartySetupUI partySetup => PartySetupUI.Instance;
