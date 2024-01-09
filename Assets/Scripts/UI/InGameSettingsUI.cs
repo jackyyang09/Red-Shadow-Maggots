@@ -7,17 +7,18 @@ using static Facade;
 
 public class InGameSettingsUI : BaseGameUI
 {
-    [SerializeField] OptimizedCanvas[] uiCanvases = null;
+    [SerializeField] OptimizedCanvas[] uiCanvases;
 
     [Header("Graphics")]
-    [SerializeField] Slider qualitySlider = null;
-    [SerializeField] Toggle postProcessingToggle = null;
-    [SerializeField] Toggle antiAliasingToggle = null;
+    [SerializeField] Slider qualitySlider;
+    [SerializeField] Toggle postProcessingToggle;
+    [SerializeField] Toggle antiAliasingToggle;
 
     [Header("Volume")]
-    [SerializeField] Slider masterSlider = null;
-    [SerializeField] Slider musicSlider = null;
-    [SerializeField] Slider soundSlider = null;
+    [SerializeField] Slider masterSlider;
+    [SerializeField] Slider musicSlider;
+    [SerializeField] Slider soundSlider;
+    [SerializeField] Slider voiceSlider;
 
     private void OnEnable()
     {
@@ -53,7 +54,8 @@ public class InGameSettingsUI : BaseGameUI
     {
         for (int i = 0; i < uiCanvases.Length; i++)
         {
-            uiCanvases[i].SetActive(i == ignoreIndex);
+            //uiCanvases[i].SetActive(i == ignoreIndex);
+            uiCanvases[i].gameObject.SetActive(i == ignoreIndex);
         }
     }
 
@@ -88,11 +90,13 @@ public class InGameSettingsUI : BaseGameUI
     void UpdateMaster(float vol) => masterSlider.value = vol;
     void UpdateMusic(float vol) => musicSlider.value = vol;
     void UpdateSound(float vol) => soundSlider.value = vol;
+    void UpdateVoice(float vol) => voiceSlider.value = vol;
 
     void UpdateVolumeSliders()
     {
         UpdateMaster(AudioManager.MasterVolume);
         UpdateMusic(AudioManager.MusicVolume);
         UpdateSound(AudioManager.SoundVolume);
+        UpdateVoice(AudioManager.VoiceVolume);
     }
 }
