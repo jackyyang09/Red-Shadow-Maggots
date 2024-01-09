@@ -48,8 +48,8 @@ public class PisspenserPassive : BaseCharacterPassive
             }
             else
             {
-                //ApplyEffect(upgradeEffect, peesApplied);
-                ApplyEffect(upgradeEffect, 30);
+                ApplyEffect(upgradeEffect, peesApplied);
+                //ApplyEffect(upgradeEffect, 30);
             }
         }
     }
