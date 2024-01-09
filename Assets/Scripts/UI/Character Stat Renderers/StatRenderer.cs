@@ -131,7 +131,7 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttack(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var attackModifier = character.AttackModifier;
+        var attackModifier = character.AttackModifier.FormatToDecimal();
         valueLabel.text = Mathf.FloorToInt(character.AttackModified).ToString();
         if (character.AttackModifier > 0)
         {
@@ -173,7 +173,7 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderDefense(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var defenseModifier = character.DefenseModifier;
+        var defenseModifier = character.DefenseModifier.FormatToDecimal();
         valueLabel.text = character.DefenseModified.FormatToDecimal() + "%";
         if (character.DefenseModifier > 0)
         {
@@ -360,7 +360,7 @@ public class StatRenderer : MonoBehaviour
     #region Wait Percent
     public static void RenderWaitPercent(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        valueLabel.text = character.WaitPercentage.FormatToDecimal();
+        valueLabel.text = character.WaitPercentage.FormatToDecimal() + "%";
     }
     #endregion
 }
