@@ -170,7 +170,14 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         }
         else
         {
-            enemies[index] = SpawnEnemy(obj.Result, spawnPos, BattleData.RoomLevel, state);
+            if (gachaSystem.LegacyMode)
+            {
+                enemies[index] = SpawnEnemy(obj.Result, spawnPos, 5, state);
+            }
+            else
+            {
+                enemies[index] = SpawnEnemy(obj.Result, spawnPos, BattleData.RoomLevel, state);
+            }
         }
 
         yield return new WaitUntil(() => enemies[index]);
