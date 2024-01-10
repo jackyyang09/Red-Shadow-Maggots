@@ -131,13 +131,13 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttack(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var attackModifier = character.AttackModifier.FormatToDecimal();
+        var attackModifier = Mathf.FloorToInt(character.AttackModifier);
         valueLabel.text = Mathf.FloorToInt(character.AttackModified).ToString();
-        if (character.AttackModifier > 0)
+        if (attackModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + attackModifier + ")</color>";
         }
-        else if (character.AttackModifier < 0)
+        else if (attackModifier < 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + attackModifier + ")</color>";
         }
