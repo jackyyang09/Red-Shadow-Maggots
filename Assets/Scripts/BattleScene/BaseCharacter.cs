@@ -100,7 +100,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public float WaitLimitModifier => waitLimitModifier;
     public float WaitLimitModified => waitLimit + waitLimitModifier;
 
-    public float WaitPercentage => WaitTimer / WaitLimitModified;
+    public float WaitPercentage => Mathf.Min(1, WaitTimer / WaitLimitModified);
     public bool IsOverWait => WaitPercentage >= 1;
 
     public void ResetWait() => waitTimer = 0;
