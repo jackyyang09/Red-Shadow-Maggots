@@ -70,7 +70,7 @@ public class TurnOrderGraphic : MonoBehaviour
         panelColours = colours[c.IsPlayer().ToInt()];
         background.color = panelColours[0];
 
-        ForceUpdateWait(character.WaitTimer);
+        ForceUpdateWait();
 
         character.OnWaitTimeChanged += UpdateWait;
         character.OnWaitLimitChanged += OnWaitLimitChanged;
@@ -92,7 +92,7 @@ public class TurnOrderGraphic : MonoBehaviour
     {
         if (character.IsOverWait)
         {
-            ForceUpdateWait(character.WaitPercentage);
+            ForceUpdateWait();
             //ForceUpdateWait(0);
         }
         else
@@ -107,11 +107,11 @@ public class TurnOrderGraphic : MonoBehaviour
         }
     }
 
-    void ForceUpdateWait(float wait)
+    void ForceUpdateWait()
     {
-        previousWait = wait;
-        waitLabel.text = previousWait.FormatToDecimal() + "%";
-        waitFill.fillAmount = previousWait / character.WaitLimitModified;
+        previousWait = character.Wait;
+        waitLabel.text = character.WaitPercentage.FormatToDecimal() + "%";
+        waitFill.fillAmount = character.WaitPercentage;
     }
 
     void OnStartTurn()
