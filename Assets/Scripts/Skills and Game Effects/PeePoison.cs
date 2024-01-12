@@ -46,7 +46,7 @@ public class PeePoison : DamagePerTurnEffect
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
         var d = "Urinate every turn, losing " + RSMConstants.Keywords.Short.HEALTH +
-            " equal to " + value.GetDescription(strength);
+            " equal to " + value.GetDescription(strength, value.Stat);
         return d;
     }
 

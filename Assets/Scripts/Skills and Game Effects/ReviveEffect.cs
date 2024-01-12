@@ -37,7 +37,7 @@ public class ReviveEffect : BaseOnDeathEffect
 
         d += " that recovers " + RSMConstants.Keywords.Short.HEALTH + " equal to ";
 
-        d += value.GetDescription(props.strength) + " " + 
+        d += value.GetDescription(props.strength, value.Stat) + " " + 
             DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return d;
@@ -45,6 +45,6 @@ public class ReviveEffect : BaseOnDeathEffect
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
-        return ExplainerDescription.Trim('.') + " equal to " + value.GetDescription(strength);
+        return ExplainerDescription.Trim('.') + " equal to " + value.GetDescription(strength, value.Stat);
     }
 }

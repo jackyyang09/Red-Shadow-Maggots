@@ -24,7 +24,7 @@ public class DoorPoison : DamagePerTurnEffect
 
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
-        return ExplainerDescription.Split('.')[0] + " equal to " + value.GetDescription(strength);
+        return ExplainerDescription.Split('.')[0] + " equal to " + value.GetDescription(strength, value.Stat);
     }
 
     public GameObject doorPrefab;
@@ -50,7 +50,7 @@ public class DoorPoison : DamagePerTurnEffect
 
         //s += (int)(change * 100) + "% " + Keywords.Short.MAX_HEALTH + 
         //    " every turn by getting hit by a door ";
-        s += "hit by a <u>Door</u> every turn, taking " + value.GetDescription(props.strength) +
+        s += "hit by a <u>Door</u> every turn, taking " + value.GetDescription(props.strength, value.Stat) +
             " in damage " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return s;

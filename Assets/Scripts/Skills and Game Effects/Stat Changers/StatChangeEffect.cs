@@ -61,7 +61,7 @@ public class StatChangeEffect : BaseGameEffect
                 description += " decreased ";
             }
 
-            description += "by " + stats[i].value.GetDescription(props.strength) + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+            description += "by " + stats[i].value.GetDescription(props.strength, stats[i].value.Stat) + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
         }
 
         return description;
@@ -89,7 +89,7 @@ public class StatChangeEffect : BaseGameEffect
                 description += " decreased ";
             }
 
-            description += "by " + stats[i].value.GetDescription(strength);
+            description += "by " + stats[i].value.GetDescription(strength, stats[i].value.Stat);
         }
 
         return description;

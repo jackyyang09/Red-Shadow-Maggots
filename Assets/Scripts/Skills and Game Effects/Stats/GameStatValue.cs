@@ -1,6 +1,5 @@
-    using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using System.Linq;
 using static Facade;
@@ -77,7 +76,7 @@ public class GameStatValue : ScriptableObject
         return result;
     }
 
-    public string GetDescription(EffectStrength strength)
+    public string GetDescription(EffectStrength strength, BaseGameStat affectedStat)
     {
         string description = "";
         
@@ -90,24 +89,27 @@ public class GameStatValue : ScriptableObject
             if (!DontShowAsPercentage) description += "%";
         }
 
-        if (Stat)
+        if (affectedStat != Stat)
         {
-            description += " of";
-            switch (Target)
+            if (Stat)
             {
-                case TargetMode.None:
-                case TargetMode.Self:
-                    description += " the Caster's ";
-                    break;
-                case TargetMode.OneAlly:
-                case TargetMode.OneEnemy:
-                case TargetMode.AllAllies:
-                case TargetMode.AllEnemies:
-                    description += " your ";
-                    break;
-            }
+                description += " of";
+                switch (Target)
+                {
+                    case TargetMode.None:
+                    case TargetMode.Self:
+                        description += " the Caster's ";
+                        break;
+                    case TargetMode.OneAlly:
+                    case TargetMode.OneEnemy:
+                    case TargetMode.AllAllies:
+                    case TargetMode.AllEnemies:
+                        description += " your ";
+                        break;
+                }
 
-            description += Stat.Name;
+                description += Stat.Name;
+            }
         }
 
         if (Constant > 0)

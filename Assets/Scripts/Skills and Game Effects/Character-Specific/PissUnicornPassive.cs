@@ -53,7 +53,7 @@ public class PissUnicornPassive : BaseCharacterPassive
 
     void UpdateBerserkerState()
     {
-        if (lastMod != 0) baseCharacter.ApplyAttackModifier(lastMod);
+        if (lastMod != 0) baseCharacter.ApplyAttackModifier(-lastMod);
         lastMod = (1 - baseCharacter.GetHealthPercent()) * maxAttackBuff;
         baseCharacter.ApplyAttackModifier(lastMod * baseCharacter.Attack);
     }

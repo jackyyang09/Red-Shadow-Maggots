@@ -21,7 +21,7 @@ public class HealPerTurnEffect : BaseHealEffect
     public override string GetEffectDescription(EffectStrength strength, float[] customValues)
     {
         var s = "Recovers " + RSMConstants.Keywords.Short.HEALTH + 
-            " equal to " + value.GetDescription(strength);
+            " equal to " + value.GetDescription(strength, value.Stat);
 
         return s;
     }
