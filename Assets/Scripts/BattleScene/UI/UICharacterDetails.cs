@@ -134,6 +134,8 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
         {
             statusDescriptions[i].Hide();
         }
+
+        gameObject.RefreshLayoutGroupsImmediateAndRecursive(transform);
     }
 
     public void Hide()

@@ -39,7 +39,7 @@ public class UIStatusDescription : MonoBehaviour
 
         canvas.Show();
 
-        StartCoroutine(DelayedRebuild());
+        //StartCoroutine(DelayedRebuild());
     }
 
     /// <summary>

@@ -131,7 +131,6 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttack(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        Debug.Log(character.AttackModifier);
         var attackModifier = Mathf.FloorToInt(character.AttackModifier);
         valueLabel.text = Mathf.FloorToInt(character.AttackModified).ToString();
         if (attackModifier > 0)

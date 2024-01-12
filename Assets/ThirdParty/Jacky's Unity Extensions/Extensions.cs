@@ -47,4 +47,17 @@ public static class Extensions
     {
         return Mathf.FloorToInt(f * 100f).ToString();
     }
+
+    /// <summary>
+    /// https://forum.unity.com/threads/layoutgroup-does-not-refresh-in-its-current-frame.458446/
+    /// "I am going to become the joker" - Tomsterk
+    /// </summary>
+    /// <param name="root"></param>
+    public static void RefreshLayoutGroupsImmediateAndRecursive(this GameObject g, Transform root)
+    {
+        foreach (var layoutGroup in root.GetComponentsInChildren<UnityEngine.UI.LayoutGroup>())
+        {
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(layoutGroup.GetRectTransform());
+        }
+    }
 }
