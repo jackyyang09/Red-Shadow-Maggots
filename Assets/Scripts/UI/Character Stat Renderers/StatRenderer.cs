@@ -6,11 +6,11 @@ using RSMConstants;
 
 public class StatRenderer : MonoBehaviour
 {
-    [SerializeField] StatEnum targetStat;
-    [SerializeField] Color positiveModifier;
-    [SerializeField] Color negativeModifier;
-    [SerializeField] TextMeshProUGUI nameLabel;
-    [SerializeField] TextMeshProUGUI valueLabel;
+    [SerializeField] protected StatEnum targetStat;
+    [SerializeField] protected Color positiveModifier;
+    [SerializeField] protected Color negativeModifier;
+    [SerializeField] protected TextMeshProUGUI nameLabel;
+    [SerializeField] protected TextMeshProUGUI valueLabel;
 
     delegate void StateDelegate(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy, TextMeshProUGUI valueLabel);
     StateDelegate stateDelegate;
@@ -131,6 +131,7 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttack(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
+        Debug.Log(character.AttackModifier);
         var attackModifier = Mathf.FloorToInt(character.AttackModifier);
         valueLabel.text = Mathf.FloorToInt(character.AttackModified).ToString();
         if (attackModifier > 0)
@@ -152,8 +153,8 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderAttackWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = character.AttackLeniencyModifier.FormatToDecimal() + "%";
-        valueLabel.text = character.AttackLeniencyModified.FormatToDecimal() + "%";
+        var modifier = character.AttackLeniencyModifier.FormatPercentage();
+        valueLabel.text = character.AttackLeniencyModified.FormatPercentage();
         if (character.AttackLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
@@ -173,8 +174,8 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderDefense(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var defenseModifier = character.DefenseModifier.FormatToDecimal();
-        valueLabel.text = character.DefenseModified.FormatToDecimal() + "%";
+        var defenseModifier = character.DefenseModifier.FormatPercentage();
+        valueLabel.text = character.DefenseModified.FormatPercentage();
         if (character.DefenseModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + defenseModifier + ")</color>";
@@ -194,8 +195,8 @@ public class StatRenderer : MonoBehaviour
 
     public static void RenderDefenseWindow(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        var modifier = character.DefenseLeniencyModifier.FormatToDecimal() + "%";
-        valueLabel.text = character.DefenseLeniencyModified.FormatToDecimal() + "%";
+        var modifier = character.DefenseLeniencyModifier.FormatPercentage();
+        valueLabel.text = character.DefenseLeniencyModified.FormatPercentage();
         if (character.DefenseLeniencyModifier > 0)
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(pColor) + ">(+" + modifier + ")</color>";
@@ -332,7 +333,7 @@ public class StatRenderer : MonoBehaviour
     #region Wait Full
     public static void RenderWaitFull(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        valueLabel.text = character.WaitModified.FormatToDecimal() + "/" + character.WaitLimitModified.FormatToDecimal();
+        valueLabel.text = character.Wait.FormatToDecimal() + "/" + character.WaitLimitModified.FormatToDecimal();
     }
     #endregion
 

@@ -40,8 +40,7 @@ public static class Extensions
     public static string FormatPercentage(this float f)
     {
         f *= 100f;
-        decimal d = (decimal)f;
-        return d.ToString() + "%"; // Adjust the number of # symbols as needed
+        return f.ToString("0.0") + "%"; // Adjust the number of # symbols as needed
     }
 
     public static string FormatToDecimal(this float f)
