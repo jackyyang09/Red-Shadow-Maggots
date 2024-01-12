@@ -10,21 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
-  m_Name: Offensive 1
+  m_Name: Ding Dong Dash
   m_EditorClassIdentifier: 
-  skillName: Offensive 1
+  skillName: Ding Dong Dash
   skillDescription: []
-  sprite: {fileID: 21300000, guid: a8f04f365338f90499b0163d5a97bc64, type: 3}
-  targetMode: 2
-  skillCooldown: 5
+  sprite: {fileID: 21300000, guid: a622bc4b4e0a18ae0b1af9ec405ad7aa, type: 3}
+  targetMode: 5
+  skillCooldown: 6
   gameEffects:
-  - effect: {fileID: 11400000, guid: 9780907339177e2479ecd4b0df0a595d, type: 2}
-    effectDuration: 3
-    targetOverride: 0
+  - effect: {fileID: 11400000, guid: 18d4744c72e773f4b93955f20fa87df9, type: 2}
+    effectDuration: 1
+    activationLimit: 0
+    stacks: 0
+    targetOverride: 5
     strength: 3
     customValues: []
-  - effect: {fileID: 11400000, guid: c89b508f30462ea4d8b2cf209be40559, type: 2}
+  - effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
     effectDuration: 3
-    targetOverride: 5
+    activationLimit: 0
+    stacks: 0
+    targetOverride: 0
     strength: 3
     customValues: []
