@@ -513,7 +513,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void UpdateMoveOrder()
     {
-        if (moveOrder[1].IsOverWait) // Next character is also over-wait
+        if (!moveOrder.Any(c => !c.IsOverWait)) // If everyone is OverWait
         {
             foreach (var character in moveOrder)
             {
