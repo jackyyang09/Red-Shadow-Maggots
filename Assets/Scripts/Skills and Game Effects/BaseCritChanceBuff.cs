@@ -5,19 +5,19 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Crit Chance Effect", menuName = "ScriptableObjects/Game Effects/Crit Chance", order = 1)]
 public class BaseCritChanceBuff : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        EnemyCharacter enemy = target as EnemyCharacter;
+        EnemyCharacter enemy = effect.target as EnemyCharacter;
         if (enemy)
         {
             enemy.DecreaseChargeLevel();
         }
         else
         {
-            float percentageChange = (float)GetEffectStrength(strength, customValues);
+            float percentageChange = (float)GetEffectStrength(effect.strength, effect.customValues);
             if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-            target.ApplyCritChanceModifier(percentageChange);
+            effect.target.ApplyCritChanceModifier(percentageChange);
         }
 
         return true;

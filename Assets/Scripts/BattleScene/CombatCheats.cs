@@ -34,7 +34,7 @@ public class CombatCheats : MonoBehaviour
     {
         foreach (var item in battleSystem.PlayerList)
         {
-            item.GiveShield(item.MaxHealth);
+            item.GiveShield(item.MaxHealth, null);
         }
 
         Debug.Log("Maxxed Player's shields!");

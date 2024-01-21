@@ -5,14 +5,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Defense Effect", menuName = "ScriptableObjects/Game Effects/Defense", order = 1)]
 public class BaseDefenseEffect : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
-
-        if (effectType == EffectType.Debuff) percentageChange *= -1;
-
-        target.ApplyDefenseModifier(percentageChange);
-
+        Debug.LogWarning("This effect is deprecated");
+        //float percentageChange = (float)GetEffectStrength(strength, customValues);
+        //
+        //if (effectType == EffectType.Debuff) percentageChange *= -1;
+        //
+        //target.ApplyDefenseModifier(percentageChange);
+        //
         return true;
     }
 

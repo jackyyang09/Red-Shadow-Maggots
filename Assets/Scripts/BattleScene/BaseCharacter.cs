@@ -22,9 +22,20 @@ public abstract class BaseCharacter : MonoBehaviour
     [SerializeField] protected float maxHealth;
     public float MaxHealth => maxHealth;
 
-    protected float shield;
-    public float CurrentShield => shield;
-    public float ShieldPercent => shield / maxHealth;
+    List<StatModifier> shieldMods = new List<StatModifier>();
+    public float CurrentShield
+    {
+        get
+        {
+            var m = 0f;
+            foreach (var item in shieldMods)
+            {
+                m += item.Value;
+            }
+            return m;
+        }
+    }
+    public float ShieldPercent => CurrentShield / maxHealth;
 
     protected float damageAbsorptionModifier = 0;
     public float DamageAbsorptionModifier => damageAbsorptionModifier;
@@ -34,8 +45,21 @@ public abstract class BaseCharacter : MonoBehaviour
     /// Additive modifier from skills
     /// </summary>
     public float AttackModifier => attackModifier;
+    //public float AttackModifier
+    //{
+    //    get
+    //    {
+    //        var m = 0f;
+    //        foreach (var item in attackMods)
+    //        {
+    //            item.
+    //        }
+    //        return m;
+    //    }
+    //}
     public float AttackModified => Attack + attackModifier;
     public float Attack => characterReference.GetAttack(currentLevel);
+    //public List<BaseStatModifier> attackMods = new List<BaseStatModifier>();
 
     float defenseModifier;
     public float Defense => characterReference.GetDefense(currentLevel);
@@ -965,9 +989,9 @@ public abstract class BaseCharacter : MonoBehaviour
         EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
     }
 
-    public virtual void GiveShield(float shieldGain)
+    public virtual void GiveShield(float shieldGain, AppliedEffect effect)
     {
-        shield = Mathf.Min(shield + shieldGain, maxHealth);
+        shieldMods.Add(new StatModifier(shieldGain, effect));
         OnShielded?.Invoke();
     }
 
@@ -1057,22 +1081,27 @@ public abstract class BaseCharacter : MonoBehaviour
         float trueDamage = CalculateDefenseDamage(damage.TrueDamage);
         float shieldedDamage = 0;
 
-        if (shield > 0)
+        if (CurrentShield > 0)
         {
-            // Convert Shield health into raw health
-            var shielding = shield / (1 - DefenseModified);
-            if (shielding >= trueDamage)
+            float remainder = trueDamage;
+            while (shieldMods.Count > 0 && remainder > 0)
             {
-                shield -= trueDamage * (1 - DefenseModified);
-                shieldedDamage = trueDamage;
-                trueDamage = 0;
+                var s = shieldMods.GetLast();
+                if (s.Value >= remainder)
+                {
+                    s.Deduct(trueDamage);
+                    remainder = 0;
+                    shieldedDamage = trueDamage;
+                }
+                else
+                {
+                    shieldedDamage += s.Value;
+                    remainder -= s.Value;
+                    shieldMods.Remove(s);
+                    RemoveEffect(s.ParentEffect);
+                }
             }
-            else
-            {
-                shieldedDamage = shield;
-                shield = 0;
-                trueDamage -= shielding;
-            }
+            trueDamage = remainder;
         }
 
         health = Mathf.Max(0, health - trueDamage);

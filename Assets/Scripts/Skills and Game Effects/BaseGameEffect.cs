@@ -59,12 +59,8 @@ public abstract class BaseGameEffect : ScriptableObject
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="user"></param>
-    /// <param name="target"></param>
-    /// <param name="strength"></param>
-    /// <param name="customValues"></param>
     /// <returns>bool - False if Activation condition not met</returns>
-    public virtual bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues) => true;
+    public virtual bool Activate(AppliedEffect effect) => true;
 
     /// <summary>
     /// Called on every turn after it's activation
@@ -216,7 +212,7 @@ public class AppliedEffect
 
     public bool Activate()
     {
-        referenceEffect.Activate(caster, target, strength, customValues);
+        referenceEffect.Activate(this);
         if (remainingActivations > 0)
         {
             remainingActivations--;

@@ -5,9 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = nameof(DodgeEffect), menuName = "ScriptableObjects/Game Effects/Dodge Effect", order = 1)]
 public class DodgeEffect : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        target.IsDodging = true;
+        effect.target.IsDodging = true;
         // TODO: Re-applying dodge effect should remove other dodge instances
         Debug.LogWarning(nameof(DodgeEffect) + ": Re-applying dodge effect should remove other dodge instances?");
         return true;

@@ -116,9 +116,11 @@ public class PissPillPassive : BaseCharacterPassive
             }
         }
 
+        EffectProperties props = new EffectProperties();
+        props.effect = clearDebuffEffect;
         if (attacker.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff))
         {
-            clearDebuffEffect.Activate(baseCharacter, attacker, EffectStrength.Medium, new float[0]);
+            clearDebuffEffect.Activate(new AppliedEffect(baseCharacter, attacker, props));
         }
         else
         {
@@ -126,7 +128,7 @@ public class PissPillPassive : BaseCharacterPassive
             if (allies.Count > 0)
             {
                 var randomAlly = allies[Random.Range(0, allies.Count)];
-                clearDebuffEffect.Activate(baseCharacter, randomAlly, EffectStrength.Medium, new float[0]);
+                clearDebuffEffect.Activate(new AppliedEffect(baseCharacter, randomAlly, props));
             }
         }
 

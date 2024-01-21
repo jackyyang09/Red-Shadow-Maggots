@@ -5,13 +5,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Damage Absorption Effect", menuName = "ScriptableObjects/Game Effects/Damage Absorption", order = 1)]
 public class BaseDamageAbsorptionEffect : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = (float)GetEffectStrength(effect.strength, effect.customValues);
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyDamageAbsorptionModifier(percentageChange);
+        effect.target.ApplyDamageAbsorptionModifier(percentageChange);
 
         return true;
     }

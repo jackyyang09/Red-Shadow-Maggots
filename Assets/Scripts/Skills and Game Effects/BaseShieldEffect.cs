@@ -22,32 +22,36 @@ public class BaseShieldEffect : BaseGameEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Shield";
     public override string ExplainerDescription =>
-        "Takes " + RSMConstants.Keywords.Short.DAMAGE + " in place of " + RSMConstants.Keywords.Short.HEALTH + ". " +
-        RSMConstants.Keywords.Short.DAMAGE + " taken is reduced by " + RSMConstants.Keywords.Short.DEFENSE + ".";
+        "Takes " + RSMConstants.Keywords.Short.DAMAGE + " in place of " + RSMConstants.Keywords.Short.HEALTH + ". ";
+        //RSMConstants.Keywords.Short.DAMAGE + " taken is reduced by " + RSMConstants.Keywords.Short.DEFENSE + ".";
 
     BaseCharacter targetCharacter;
     ForceFieldFX forceFieldInstance;
 
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = value.GetStrength(effect.strength);
+        var target = effect.target;
 
         switch (stat)
         {
             case ScalingStat.Health:
-                target.GiveShield(user.MaxHealth * percentageChange);
+                target.GiveShield(effect.caster.MaxHealth * percentageChange, effect);
                 break;
             case ScalingStat.Attack:
-                target.GiveShield(user.AttackModified * percentageChange);
+                target.GiveShield(effect.caster.AttackModified * percentageChange, effect);
                 break;
         }
 
         targetCharacter = target;
 
-        forceFieldInstance = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
-        forceFieldInstance.Initialize(target);
+        if (effect.target.ShieldPercent == 0)
+        {
+            forceFieldInstance = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
+            forceFieldInstance.Initialize(target);
 
-        target.OnShieldBroken += OnShieldBroken;
+            target.OnShieldBroken += OnShieldBroken;
+        }
 
         return true;
     }
@@ -60,13 +64,18 @@ public class BaseShieldEffect : BaseGameEffect
 
     void OnShieldBroken()
     {
-        targetCharacter.RemoveAllEffectsOfType(this, true);
+        targetCharacter.OnShieldBroken -= OnShieldBroken;
         Destroy(forceFieldInstance.gameObject);
+    }
+
+    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    {
+        return ExplainerDescription;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float percentageChange = (float)GetEffectStrength(props.strength, props.customValues);
+        float percentageChange = value.GetStrength(props.strength);
 
         string s = TargetModeDescriptor(targetMode);
 
@@ -86,10 +95,6 @@ public class BaseShieldEffect : BaseGameEffect
                 break;
         }
 
-        /// <summary>
-        /// Applies a Shield to all allies, absorbing DMG equal to 45% of Gepard's DEF plus 600 for 3 turn(s).
-        /// </summary>
-
         s += percentageChange * 100 + "% of your ";
 
         switch (stat)
@@ -105,25 +110,5 @@ public class BaseShieldEffect : BaseGameEffect
         s += " as a <u>Shield</u>";
 
         return s + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                return customValues[0];
-            case EffectStrength.Weak:
-                return 0.5f;
-            case EffectStrength.Small:
-                return 0.75f;
-            case EffectStrength.Medium:
-                return 1f;
-            case EffectStrength.Large:
-                return 1.5f;
-            case EffectStrength.EX:
-                return 2f;
-        }
-        return 0;
     }
 }

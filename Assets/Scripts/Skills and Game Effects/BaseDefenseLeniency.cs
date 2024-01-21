@@ -5,14 +5,16 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Defense Leniency Buff", menuName = "ScriptableObjects/Game Effects/Defense Leniency", order = 1)]
 public class BaseDefenseLeniency : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        Debug.LogWarning("This effect is deprecated");
 
-        if (effectType == EffectType.Debuff) percentageChange *= -1;
-
-        target.ApplyDefenseLeniencyModifier(percentageChange);
-
+        //float percentageChange = (float)GetEffectStrength(strength, customValues);
+        //
+        //if (effectType == EffectType.Debuff) percentageChange *= -1;
+        //
+        //target.ApplyDefenseLeniencyModifier(percentageChange);
+        //
         //PlayerCharacter t = target as PlayerCharacter;
         //if (t) // This is a player
         //{

@@ -15,16 +15,16 @@ public class StatChangeEffect : BaseGameEffect
     [Header("Stat Change Properties")]
     [SerializeField] protected List<StatChangePair> stats;
 
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
         foreach (var stat in stats)
         {
-            var amount = stat.value.SolveValue(strength, user, target);
+            var amount = stat.value.SolveValue(effect.strength, effect.caster, effect.target);
 
-            stat.targetStat.SetGameStat(target, amount);
+            stat.targetStat.SetGameStat(effect.target, amount);
         }
         
-        return base.Activate(user, target, strength, customValues);
+        return base.Activate(effect);
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

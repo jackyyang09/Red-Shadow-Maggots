@@ -5,13 +5,13 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Attack Leniency Buff", menuName = "ScriptableObjects/Game Effects/Attack Leniency", order = 1)]
 public class BaseAttackLeniency : BaseGameEffect
 {
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = (float)GetEffectStrength(strength, customValues);
+        float percentageChange = (float)GetEffectStrength(effect.strength, effect.customValues);
 
         if (effectType == EffectType.Debuff) percentageChange *= -1;
 
-        target.ApplyAttackLeniencyModifier(percentageChange);
+        effect.target.ApplyAttackLeniencyModifier(percentageChange);
 
         //PlayerCharacter t = target as PlayerCharacter;
         //if (t) // This is a player

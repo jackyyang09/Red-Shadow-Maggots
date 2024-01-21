@@ -8,7 +8,7 @@ public class HealPerTurnEffect : BaseHealEffect
     public override void Tick(AppliedEffect effect)
     {
         base.Tick(effect);
-        base.Activate(effect.caster, effect.target, effect.strength, effect.customValues);
+        base.Activate(effect);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

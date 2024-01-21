@@ -16,11 +16,11 @@ public class PisspenserSpecial : BaseGameEffect, IStackableEffect
     delegate List<BaseCharacter> AllyDelegate();
     AllyDelegate getAllies;
 
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        target.OnStartTurn += OnStartTurn;
+        effect.target.OnStartTurn += OnStartTurn;
 
-        if (target.IsPlayer())
+        if (effect.target.IsPlayer())
         {
             getAllies = () => BattleSystem.Instance.LivingPlayers.ToList<BaseCharacter>();
         }
@@ -29,7 +29,7 @@ public class PisspenserSpecial : BaseGameEffect, IStackableEffect
             getAllies = () => EnemyController.Instance.LivingEnemies.ToList<BaseCharacter>();
         }
 
-        return base.Activate(user, target, strength, customValues);
+        return base.Activate(effect);
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
@@ -46,7 +46,9 @@ public class PisspenserSpecial : BaseGameEffect, IStackableEffect
         foreach (var ally in allies)
         {
             ally.Heal(ally.MaxHealth * healMultiplier);
-            ally.GiveShield(ally.MaxHealth * shieldMultiplier);
+            Debug.LogWarning(nameof(PisspenserSpecial) +
+                ": Shields should be doled out through an application of a basic effect");
+            ally.GiveShield(ally.MaxHealth * shieldMultiplier, null);
         }
     }
 

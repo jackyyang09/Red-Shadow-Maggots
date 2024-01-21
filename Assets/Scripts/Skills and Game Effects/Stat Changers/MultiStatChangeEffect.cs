@@ -13,14 +13,14 @@ public class MultiStatChangeEffect : BaseGameEffect
 
     [SerializeField] protected List<StatChangePair> stats = new List<StatChangePair>();
 
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
         foreach (var stat in stats)
         {
-            stat.targetStat.SetGameStat(target, stat.value);
+            stat.targetStat.SetGameStat(effect.target, stat.value);
         }
 
-        return base.Activate(user, target, strength, customValues);
+        return base.Activate(effect);
     }
 
     public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)

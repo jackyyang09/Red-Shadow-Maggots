@@ -25,15 +25,15 @@ public class BaseDamageEffect : BaseGameEffect
         target.ConsumeHealth(damageStruct);
     }
 
-    public override bool Activate(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
         DamageStruct damageStruct = new DamageStruct();
         damageStruct.Percentage = 1;
-        damageStruct.TrueDamage = (float)GetEffectStrength(strength, customValues) * target.MaxHealth;
+        damageStruct.TrueDamage = (float)GetEffectStrength(effect.strength, effect.customValues) * effect.target.MaxHealth;
         damageStruct.Effectivity = DamageEffectivess.Normal;
-        target.ConsumeHealth(damageStruct);
+        effect.target.ConsumeHealth(damageStruct);
 
-        return base.Activate(user, target, strength, customValues);
+        return base.Activate(effect);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
