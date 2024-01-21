@@ -13,6 +13,6 @@ public class SuperCritArmsGuy : SuperCriticalEffect
     {
         BaseCharacter.IncomingDamage.QTEResult = QuickTimeBase.QTEResult.Perfect;
         BaseCharacter.IncomingDamage.ChargeLevel = 3;
-        BaseCharacter.IncomingDamage.DamageNormalized = 1.5f;
+        BaseCharacter.IncomingDamage.QTEValue = 1.5f;
     }
 }

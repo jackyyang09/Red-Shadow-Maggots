@@ -28,7 +28,7 @@ public struct DamageStruct
     /// <summary>
     /// QuickTime value
     /// </summary>
-    public float DamageNormalized;
+    public float QTEValue;
 
     /// <summary>
     /// Amount of damage to deal relative to attack stat

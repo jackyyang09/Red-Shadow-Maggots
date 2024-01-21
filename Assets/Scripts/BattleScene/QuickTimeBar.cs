@@ -94,7 +94,6 @@ public class QuickTimeBar : QuickTimeBase
         }
 
         totalLeniency = baseLeniency + (leniency - targetLeniency);
-        Debug.Log(totalLeniency);
 
         var failZone = progressBar.rectTransform.sizeDelta.x * failZoneSize;
         targetBar.rectTransform.anchoredPosition = new Vector2(-Mathf.Abs(failZone), targetBar.rectTransform.anchoredPosition.y);
@@ -113,7 +112,7 @@ public class QuickTimeBar : QuickTimeBase
         var dmg = BaseCharacter.IncomingDamage;
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            dmg.DamageNormalized = barSuccessValue;
+            dmg.QTEValue = barSuccessValue;
             dmg.DamageType = DamageType.Heavy;
             dmg.QTEResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
@@ -121,13 +120,13 @@ public class QuickTimeBar : QuickTimeBase
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            dmg.DamageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.QTEValue = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
             dmg.DamageType = DamageType.Medium;
             dmg.QTEResult = QTEResult.Early;
         }
         else
         {
-            dmg.DamageNormalized = barMissValue;
+            dmg.QTEValue = barMissValue;
             dmg.DamageType = DamageType.Light;
             dmg.QTEResult = QTEResult.Late;
         }

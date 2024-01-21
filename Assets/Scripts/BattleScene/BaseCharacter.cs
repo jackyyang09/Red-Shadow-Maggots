@@ -432,7 +432,7 @@ public abstract class BaseCharacter : MonoBehaviour
         GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
 
-        IncomingDamage.DamageNormalized = 1;
+        IncomingDamage.QTEValue = 1;
         IncomingDamage.IsCritical = true;
         IncomingDamage.IsSuperCritical = true;
         IncomingDamage.CritDamageModifier = CritDamageModified;
@@ -583,11 +583,6 @@ public abstract class BaseCharacter : MonoBehaviour
         }
 
         IncomingDamage.CritDamageModifier = CritDamageModified;
-    }
-
-    public virtual float CalculateDefenseDamage(float damage)
-    {
-        return Mathf.Max(1, damage * (1 + damageAbsorptionModifier));
     }
 
     public virtual void UseSkill(GameSkill skill)
@@ -1044,11 +1039,9 @@ public abstract class BaseCharacter : MonoBehaviour
     /// <param name="damage"></param>
     public virtual void ConsumeHealth(DamageStruct damage)
     {
-        float trueDamage = CalculateDefenseDamage(damage.TrueDamage);
+        health = Mathf.Max(1, health - damage.TrueDamage);
 
-        health = Mathf.Max(1, health - trueDamage);
-
-        onConsumeHealth?.Invoke(trueDamage);
+        onConsumeHealth?.Invoke(damage.TrueDamage);
         OnCharacterConsumedHealth?.Invoke(this, damage);
     }
 
@@ -1069,16 +1062,15 @@ public abstract class BaseCharacter : MonoBehaviour
             float effectiveness = DamageTriangle.GetEffectiveness(attackerClass, myClass);
             damage.Effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
-            // Apply Damage Formula
-            damage.TrueDamage = damage.DamageNormalized *
-                            damage.Source.AttackModified *
-                            damage.Percentage *
-                            effectiveness;
+            // TARGET ATK * DMG PERCENT * EFFECTIVENESS * (1 - QTE * TARGET DEF)
+            damage.TrueDamage = damage.Source.AttackModified * damage.Percentage * effectiveness;
         }
 
         if (damage.IsCritical) damage.TrueDamage *= damage.CritDamageModifier;
 
-        float trueDamage = CalculateDefenseDamage(damage.TrueDamage);
+        var def = (1 - damage.QTEValue * DefenseModified) * (1 + damageAbsorptionModifier);
+
+        float trueDamage = Mathf.Max(1, damage.TrueDamage * def);
         float shieldedDamage = 0;
 
         if (CurrentShield > 0)
@@ -1186,7 +1178,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 if (!damage.IsCritical)
                 {
-                    PlayDamageShakeEffect(damage.DamageNormalized);
+                    PlayDamageShakeEffect(damage.QTEValue);
                     spriteAnim.Play("Death");
                 }
             }

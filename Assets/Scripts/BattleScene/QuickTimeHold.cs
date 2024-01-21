@@ -158,7 +158,7 @@ public class QuickTimeHold : QuickTimeBase
 
         if (fillBar.fillAmount >= targetMin && fillBar.fillAmount <= targetMax)
         {
-            dmg.DamageNormalized = barSuccessValues[barLevel];
+            dmg.QTEValue = barSuccessValues[barLevel];
             dmg.DamageType = DamageType.Heavy;
             dmg.QTEResult = QTEResult.Perfect;
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn) GlobalEvents.OnPlayerQuickTimeAttackSuccess?.Invoke();
@@ -166,13 +166,13 @@ public class QuickTimeHold : QuickTimeBase
         }
         else if (fillBar.fillAmount < targetMin)
         {
-            dmg.DamageNormalized = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
+            dmg.QTEValue = Mathf.InverseLerp(barMinValue, targetMin, fillBar.fillAmount);
             dmg.DamageType = DamageType.Medium;
             dmg.QTEResult = QTEResult.Early;
         }
         else
         {
-            dmg.DamageNormalized = barMissValue;
+            dmg.QTEValue = barMissValue;
             dmg.DamageType = DamageType.Light;
             dmg.QTEResult = QTEResult.Late;
         }
@@ -186,7 +186,7 @@ public class QuickTimeHold : QuickTimeBase
         if (AlwaysSucceed)
         {
             dmg.BarFill = fillBar.fillAmount;
-            dmg.DamageNormalized = barSuccessValues[barLevel];
+            dmg.QTEValue = barSuccessValues[barLevel];
             dmg.DamageType = DamageType.Heavy;
             dmg.QTEResult = QTEResult.Perfect;
             dmg.ChargeLevel = 2;
