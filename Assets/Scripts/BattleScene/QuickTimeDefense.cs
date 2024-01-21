@@ -144,22 +144,29 @@ public class QuickTimeDefense : QuickTimeBase
         for (int i = 1; i < targetPlayers.Count; i++) totalLeniency += targetPlayers[i].DefenseLeniencyModified;
         totalLeniency /= targetPlayers.Count;
 
+        var dmg = BaseCharacter.IncomingDamage;
+
         if (missed)
         {
-            BaseCharacter.IncomingDamage.QTEValue = barMissValue;
-            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Late;
+            dmg.QTEValue = barMissValue;
+            dmg.QTEResult = QTEResult.Late;
         }
         else if (timeDiff <= totalLeniency)
         {
-            BaseCharacter.IncomingDamage.QTEValue = barSuccessValue;
-            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Perfect;
+            dmg.QTEValue = barSuccessValue;
+            dmg.QTEResult = QTEResult.Perfect;
             GlobalEvents.OnPlayerQuickTimeBlockSuccess?.Invoke();
         }
         else if (!missed)
         {
-            BaseCharacter.IncomingDamage.QTEValue = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, totalLeniency, timeDiff));
-            BaseCharacter.IncomingDamage.QTEResult = QTEResult.Early;
+            dmg.QTEValue = Mathf.Lerp(barMinValue, barSuccessValue, Mathf.InverseLerp(0, totalLeniency, timeDiff));
+            dmg.QTEResult = QTEResult.Early;
         }
+
+        dmg.QTEEnemy = dmg.QTEValue;
+        dmg.QTEPlayer = 1 - dmg.QTEEnemy;
+
+        BaseCharacter.IncomingDamage = dmg;
     }
 
     public override void StartTicking()

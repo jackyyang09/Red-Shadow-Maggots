@@ -159,6 +159,31 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
+    protected override void HandleCrits()
+    {
+        float finalCritChance = CritChanceModified;
+
+        bool qteSuccess = IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect;
+        // Add an additional crit chance factor on successful attack QTE
+        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            OnExecuteAttack?.Invoke(qteSuccess);
+        }
+        else
+        {
+            OnExecuteAttack?.Invoke(!qteSuccess);
+        }
+
+        OnCharacterCritChanceChanged?.Invoke();
+        IncomingDamage.IsCritical = UnityEngine.Random.value < finalCritChance;
+        if (IncomingDamage.IsCritical)
+        {
+            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
+        }
+
+        base.HandleCrits();
+    }
+
     public override void ExecuteAttack()
     {
         base.ExecuteAttack();
@@ -207,6 +232,17 @@ public class PlayerCharacter : BaseCharacter
     {
         rigAnim.SetInteger("Charge Level", IncomingDamage.ChargeLevel);
         rigAnim.SetTrigger("Attack Execute");
+    }
+
+    public override float CalculateAttack(DamageStruct damage, float effectiveness)
+    {
+        Debug.Log(damage.QTEPlayer);
+        return AttackModified * damage.Percentage * effectiveness * damage.QTEPlayer;
+    }
+
+    public override float CalculateDefense(DamageStruct damage)
+    {
+        return (1 - damage.QTEPlayer * DefenseModified) * (1 + damageAbsorptionModifier);
     }
 
     public void ApplyCanteenEffect(float critCharge)

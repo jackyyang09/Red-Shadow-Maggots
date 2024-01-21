@@ -137,6 +137,9 @@ public class QuickTimeBar : QuickTimeBase
             dmg.DamageType = (DamageType)Mathf.Abs((int)BaseCharacter.IncomingDamage.DamageType);
         }
 
+        dmg.QTEPlayer = dmg.QTEValue;
+        dmg.QTEEnemy = 1 - dmg.QTEPlayer;
+
         dmg.BarFill = fillBar.fillAmount;
         BaseCharacter.IncomingDamage = dmg;
     }

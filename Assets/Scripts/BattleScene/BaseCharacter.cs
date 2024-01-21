@@ -439,43 +439,26 @@ public abstract class BaseCharacter : MonoBehaviour
         animHelper.EnableCrits();
     }
 
+    protected virtual void HandleCrits()
+    {
+        if (IncomingDamage.IsCritical)
+        {
+            animHelper.EnableCrits();
+        }
+
+        IncomingDamage.CritDamageModifier = CritDamageModified;
+    }
+
     public virtual void ExecuteAttack()
     {
-        CalculateAttackDamage();
+        HandleCrits();
 
         QuickTimeBase.OnExecuteAnyQuickTime -= ExecuteAttack;
-
-        //if (rigAnim)
-        //{
-        //    switch (Reference.attackQteType)
-        //    {
-        //        case QTEType.SimpleBar:
-        //            if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-        //            rigAnim.Play("Attack Execute");
-        //            break;
-        //        case QTEType.Hold:
-        //            if (damage.qteResult != QuickTimeBase.QTEResult.Perfect)
-        //            {
-        //                rigAnim.SetInteger("Charge Level", 0);
-        //            }
-        //            else
-        //            {
-        //                rigAnim.SetInteger("Charge Level", damage.chargeLevel);
-        //            }
-        //            if (damage.isSuperCritical) rigAnim.SetInteger("Charge Level", 4);
-        //            rigAnim.SetTrigger("Attack Execute");
-        //            break;
-        //    }
-        //}
-        //else
-        //{
-        //    spriteAnim.Play("Attack Execute");
-        //}
     }
 
     public void DealDamage(BaseCharacter target)
     {
-        battleSystem.PeformAttack(this, target);
+        battleSystem.PerformAttack(this, target);
         OnDealDamage?.Invoke(target);
         OnCharacterDealDamage?.Invoke(this, target);
     }
@@ -557,32 +540,6 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             rigAnim.SetTrigger("Jump Back");
         }
-    }
-
-    public virtual void CalculateAttackDamage()
-    {
-        float finalCritChance = CritChanceModified;
-
-        bool qteSuccess = IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect;
-        // Add an additional crit chance factor on successful attack QTE
-        if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
-        {
-            OnExecuteAttack?.Invoke(qteSuccess);
-        }
-        else
-        {
-            OnExecuteAttack?.Invoke(!qteSuccess);
-        }
-
-        OnCharacterCritChanceChanged?.Invoke();
-        IncomingDamage.IsCritical = UnityEngine.Random.value < finalCritChance;
-        if (IncomingDamage.IsCritical)
-        {
-            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
-            animHelper.EnableCrits();
-        }
-
-        IncomingDamage.CritDamageModifier = CritDamageModified;
     }
 
     public virtual void UseSkill(GameSkill skill)
@@ -1045,6 +1002,9 @@ public abstract class BaseCharacter : MonoBehaviour
         OnCharacterConsumedHealth?.Invoke(this, damage);
     }
 
+    public abstract float CalculateAttack(DamageStruct damage, float effectiveness);
+    public abstract float CalculateDefense(DamageStruct damage);
+
     public virtual void TakeDamage(DamageStruct damage)
     {
         var myClass = characterReference.characterClass;
@@ -1063,14 +1023,15 @@ public abstract class BaseCharacter : MonoBehaviour
             damage.Effectivity = DamageTriangle.EffectiveFloatToEnum(effectiveness);
 
             // TARGET ATK * DMG PERCENT * EFFECTIVENESS * (1 - QTE * TARGET DEF)
-            damage.TrueDamage = damage.Source.AttackModified * damage.Percentage * effectiveness;
+            damage.TrueDamage = damage.Source.CalculateAttack(damage, effectiveness);
         }
 
         if (damage.IsCritical) damage.TrueDamage *= damage.CritDamageModifier;
 
-        var def = (1 - damage.QTEValue * DefenseModified) * (1 + damageAbsorptionModifier);
+        var def = CalculateDefense(damage);
 
         float trueDamage = Mathf.Max(1, damage.TrueDamage * def);
+
         float shieldedDamage = 0;
 
         if (CurrentShield > 0)
@@ -1090,7 +1051,14 @@ public abstract class BaseCharacter : MonoBehaviour
                     shieldedDamage += s.Value;
                     remainder -= s.Value;
                     shieldMods.Remove(s);
-                    RemoveEffect(s.ParentEffect);
+                    if (s.ParentEffect != null)
+                    {
+                        RemoveEffect(s.ParentEffect);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Shield parent effect shouldn't be null");
+                    }
                 }
             }
             trueDamage = remainder;
@@ -1232,7 +1200,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public float GetHealthPercent()
     {
-        return health / maxHealth;
+        return Mathf.Min(1, health / maxHealth);
     }
 
     public void ShowSelectionCircle()

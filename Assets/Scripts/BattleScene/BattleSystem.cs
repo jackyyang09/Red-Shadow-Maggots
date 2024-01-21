@@ -330,7 +330,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    public void PeformAttack(BaseCharacter attacker, BaseCharacter defender)
+    public void PerformAttack(BaseCharacter attacker, BaseCharacter defender)
     {
         if (attacker.Reference.attackEffectPrefab)
         {

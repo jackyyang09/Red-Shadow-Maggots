@@ -218,17 +218,20 @@ public class EnemyCharacter : BaseCharacter
         base.UseSkill(skill);
     }
 
-    public override void ExecuteAttack()
+    protected override void HandleCrits()
     {
-        CalculateAttackDamage();
-
         if (CanCrit)
         {
             IncomingDamage.IsSuperCritical = true;
             IncomingDamage.IsCritical = true;
         }
 
-        QuickTimeBase.OnExecuteAnyQuickTime -= ExecuteAttack;
+        base.HandleCrits();
+    }
+
+    public override void ExecuteAttack()
+    {
+        base.ExecuteAttack();
 
         if (rigAnim)
         {
@@ -239,6 +242,16 @@ public class EnemyCharacter : BaseCharacter
         {
             spriteAnim.Play("Attack Execute");
         }
+    }
+
+    public override float CalculateAttack(DamageStruct damage, float effectiveness)
+    {
+        return AttackModified * damage.Percentage * effectiveness * damage.QTEEnemy;
+    }
+
+    public override float CalculateDefense(DamageStruct damage)
+    {
+        return (1 - damage.QTEEnemy * DefenseModified) * (1 + damageAbsorptionModifier);
     }
 
     public override void Die()

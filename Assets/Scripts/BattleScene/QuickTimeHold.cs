@@ -198,6 +198,10 @@ public class QuickTimeHold : QuickTimeBase
             dmg.BarFill = fillBar.fillAmount;
             dmg.ChargeLevel = barLevel;
         }
+
+        dmg.QTEPlayer = dmg.QTEValue;
+        dmg.QTEEnemy = 1 - dmg.QTEValue;
+
         BaseCharacter.IncomingDamage = dmg;
     }
 }

@@ -29,6 +29,8 @@ public struct DamageStruct
     /// QuickTime value
     /// </summary>
     public float QTEValue;
+    public float QTEPlayer;
+    public float QTEEnemy;
 
     /// <summary>
     /// Amount of damage to deal relative to attack stat
