@@ -236,7 +236,6 @@ public class PlayerCharacter : BaseCharacter
 
     public override float CalculateAttack(DamageStruct damage, float effectiveness)
     {
-        Debug.Log(damage.QTEPlayer);
         return AttackModified * damage.Percentage * effectiveness * damage.QTEPlayer;
     }
 

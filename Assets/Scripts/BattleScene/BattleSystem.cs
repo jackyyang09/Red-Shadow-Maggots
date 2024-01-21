@@ -121,15 +121,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
     }
 
-    public PlayerCharacter EnemyAttackTarget
-    {
-        get { return enemyTargets.player; }
-    }
-
-    public EnemyCharacter EnemyAttacker
-    {
-        get { return enemyTargets.enemy; }
-    }
+    public EnemyCharacter PlayerAttackTarget => playerTargets.enemy;
+    public PlayerCharacter EnemyAttackTarget => enemyTargets.player;
+    public EnemyCharacter EnemyAttacker => enemyTargets.enemy;
 
     /// <summary>
     /// The attack target for the current turn

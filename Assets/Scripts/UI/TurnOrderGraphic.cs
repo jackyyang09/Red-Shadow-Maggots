@@ -27,7 +27,6 @@ public class TurnOrderGraphic : MonoBehaviour
     [SerializeField] Ease dialEase;
 
     [Header("Selected Enemy Ease")]
-    [SerializeField] float outlineWidth = 1;
     [SerializeField] float flashTweenTime = 1;
     [SerializeField] Ease flashTweenEase;
 
@@ -35,6 +34,7 @@ public class TurnOrderGraphic : MonoBehaviour
     [SerializeField] RectTransform parent;
     [SerializeField] Image image;
     [SerializeField] MPImage background;
+    [SerializeField] MPImage stroke;
     [SerializeField] TextMeshProUGUI waitLabel;
     [SerializeField] Image waitFill;
 
@@ -81,7 +81,7 @@ public class TurnOrderGraphic : MonoBehaviour
 
         if (character.IsEnemy(out EnemyCharacter e))
         {
-            OnSelectedEnemyCharacterChange(e);
+            OnSelectedEnemyCharacterChange(BattleSystem.Instance.PlayerAttackTarget);
             EnemyCharacter.OnSelectedEnemyCharacterChange += OnSelectedEnemyCharacterChange;
             e.OnStartTurn += OnStartEnemyTurn;
             e.OnEndTurn += OnEndEnemyTurn;
@@ -159,16 +159,16 @@ public class TurnOrderGraphic : MonoBehaviour
 
     void OnSelectedEnemyCharacterChange(EnemyCharacter e)
     {
-        if (e != character)
+        stroke.enabled = e == character;
+        if (!stroke.enabled)
         {
             DOTween.Kill(GetInstanceID());
             background.OutlineWidth = 0;
         }
         else
         {
-            background.OutlineWidth = outlineWidth;
-            background.OutlineColor = Color.white;
-            DOTween.To(() => background.OutlineColor, x => background.OutlineColor = x, Color.gray, flashTweenTime)
+            stroke.color = Color.white;
+            DOTween.To(() => stroke.color, x => stroke.color = x, Color.gray, flashTweenTime)
                 .SetLoops(-1, LoopType.Yoyo)
                 .SetId(GetInstanceID());
         }
