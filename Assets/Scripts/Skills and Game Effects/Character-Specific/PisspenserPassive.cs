@@ -58,11 +58,18 @@ public class PisspenserPassive : BaseCharacterPassive
     {
         if (trueDamage > 0)
         {
-            var props = new EffectProperties();
-            props.effectDuration = -1;
-            props.effect = glitchEffect;
+            if (IsGlitched)
+            {
+                baseCharacter.RemoveEffect(baseCharacter.EffectDictionary[glitchEffect][0]);
+            }
+            else
+            {
+                var props = new EffectProperties();
+                props.effectDuration = -1;
+                props.effect = glitchEffect;
 
-            ApplyEffect(props);
+                ApplyEffect(props);
+            }
         }
     }
 

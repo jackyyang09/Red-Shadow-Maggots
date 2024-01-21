@@ -883,6 +883,10 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             AppliedEffects.Remove(effect);
             EffectDictionary[effect.referenceEffect].Remove(effect);
+            if (EffectDictionary[effect.referenceEffect].Count == 0)
+            {
+                EffectDictionary.Remove(effect.referenceEffect);
+            }
             OnRemoveGameEffect?.Invoke(effect);
         }
         OnRemoveEffect?.Invoke(this, effect);
