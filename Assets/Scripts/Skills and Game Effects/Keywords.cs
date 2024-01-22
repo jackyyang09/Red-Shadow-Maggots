@@ -23,7 +23,7 @@ namespace RSMConstants
         WaitFull,
         WaitLimit,
         WaitPercent,
-        WaitTimer,
+        WaitTime,
     }
 
     public enum Rarity

@@ -83,7 +83,8 @@ public class StatRenderer : MonoBehaviour
             case StatEnum.WaitPercent:
                 inBattleDelegate = RenderWaitPercent;
                 break;
-            case StatEnum.WaitTimer:
+            case StatEnum.WaitTime:
+                inBattleDelegate = RenderWaitTimer;
                 break;
         }
     }
@@ -332,7 +333,7 @@ public class StatRenderer : MonoBehaviour
     #region Wait Full
     public static void RenderWaitFull(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
     {
-        valueLabel.text = character.Wait.FormatToDecimal() + "/" + character.WaitLimitModified.FormatToDecimal();
+        valueLabel.text = character.WaitTimer.FormatToDecimal() + "/" + character.WaitLimitModified.FormatToDecimal();
     }
     #endregion
 
@@ -354,6 +355,13 @@ public class StatRenderer : MonoBehaviour
         {
             valueLabel.text += " <color=#" + ColorUtility.ToHtmlStringRGBA(nColor) + ">(" + modifier + ")</color>";
         }
+    }
+    #endregion
+
+    #region Wait Timer
+    public static void RenderWaitTimer(BaseCharacter character, Color pColor, Color nColor, TextMeshProUGUI nameLabel, TextMeshProUGUI valueLabel)
+    {
+        valueLabel.text = character.WaitTimer.FormatToDecimal();
     }
     #endregion
 

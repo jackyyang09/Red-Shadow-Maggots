@@ -1,10 +1,10 @@
 ﻿using DG.Tweening;
+using RSMConstants;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using RSMConstants;
 using static Facade;
 
 public abstract class BaseCharacter : MonoBehaviour
