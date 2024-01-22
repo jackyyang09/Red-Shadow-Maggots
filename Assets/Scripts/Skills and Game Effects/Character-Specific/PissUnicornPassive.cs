@@ -14,10 +14,8 @@ public class PissUnicornPassive : BaseCharacterPassive
 
     bool SeeingYellow => baseCharacter.EffectDictionary.ContainsKey(yellowState);
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
-
         baseCharacter.OnHeal += OnHeal;
         baseCharacter.OnTakeDamage += OnTakeDamage;
         baseCharacter.onConsumeHealth += OnConsumeHealth;
@@ -27,7 +25,7 @@ public class PissUnicornPassive : BaseCharacterPassive
         UpdateBerserkerState();
     }
 
-    private void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnHeal -= OnHeal;
         baseCharacter.OnTakeDamage -= OnTakeDamage;

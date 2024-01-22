@@ -10,16 +10,15 @@ public class DualistPassive : BaseCharacterPassive
     [SerializeField] DeadeyeStack stackEffect;
     [SerializeField] DeadeyeSpecial specialEffect;
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
         baseCharacter.OnBeginAttack += AddStack;
         baseCharacter.OnExecuteAttack += OnExecuteAttack;
         // TODO: Add stacks at end of turn so the effect is visible
         baseCharacter.OnStartTurn += OnStartTurn;
     }
 
-    private void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnBeginAttack -= AddStack;
         baseCharacter.OnExecuteAttack -= OnExecuteAttack;

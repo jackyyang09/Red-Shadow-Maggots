@@ -17,17 +17,15 @@ public class PisspenserPassive : BaseCharacterPassive
     bool HasUpgrades => baseCharacter.EffectDictionary.ContainsKey(upgradeEffect);
     AppliedEffect UpgradeEffect => baseCharacter.EffectDictionary[upgradeEffect][0];
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
-
         baseCharacter.OnStartTurn += OnStartTurn;
         baseCharacter.OnTakeDamage += OnTakeDamage;
         BaseCharacter.OnAppliedEffect += OnAppliedEffect;
         BaseCharacter.OnRemoveEffect += OnRemoveEffect;
     }
 
-    private void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnStartTurn -= OnStartTurn;
         baseCharacter.OnTakeDamage -= OnTakeDamage;

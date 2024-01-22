@@ -10,16 +10,14 @@ public class BushmanPassive : BaseCharacterPassive
     bool HasStacks => baseCharacter.EffectDictionary.ContainsKey(supplies);
     AppliedEffect SuppliesEffect => baseCharacter.EffectDictionary[supplies][0];
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
-
         baseCharacter.OnSkillUsed += AddStack;
         baseCharacter.OnTakeDamage += OnTakeDamage;
         baseCharacter.OnEndTurn += OnEndTurn;
     }
 
-    protected void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnSkillUsed -= AddStack;
         baseCharacter.OnTakeDamage -= OnTakeDamage;

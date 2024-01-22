@@ -29,17 +29,15 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
 
     bool qteSuccess;
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
-
         baseCharacter.OnExecuteAttack += OnExecuteAttack;
         baseCharacter.OnDealDamage += OnDealDamage;
         baseCharacter.OnTakeDamage += OnTakeDamage;
         BattleSystem.OnEndTurn += OnEndTurn;
     }
 
-    private void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnExecuteAttack -= OnExecuteAttack;
         baseCharacter.OnDealDamage -= OnDealDamage;

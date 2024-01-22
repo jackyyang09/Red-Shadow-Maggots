@@ -20,10 +20,8 @@ public class PissPillPassive : BaseCharacterPassive
 
     List<BaseCharacter> beneficiaries = new List<BaseCharacter>();
 
-    protected override void OnEnable()
+    protected override void Init()
     {
-        base.OnEnable();
-
         peeChances = new float[] { peeChance, peeChanceGreater };
 
         baseCharacter.OnExecuteAttack += OnExecuteAttack;
@@ -45,7 +43,7 @@ public class PissPillPassive : BaseCharacterPassive
         beneficiaries.Clear();
     }
 
-    private void OnDisable()
+    protected override void Cleanup()
     {
         baseCharacter.OnExecuteAttack -= OnExecuteAttack;
 
