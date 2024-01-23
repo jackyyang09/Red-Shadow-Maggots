@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using static Facade;
@@ -100,6 +101,18 @@ public class UIManager : BasicSingleton<UIManager>
         _skillManagerUI.HideDetails -= HideSkillDetails;
     }
 
+    private IEnumerator Start()
+    {
+        yield return new WaitUntil(() => BattleSystem.Initialized);
+
+        switch (battleSystem.CurrentPhase)
+        {
+            case BattlePhases.PlayerTurn:
+                ShowBattleUI();
+                break;
+        }
+    }
+
     private void OnCharacterFinishSuperCritical(BaseCharacter obj)
     {
         switch (battleSystem.CurrentPhase)
@@ -117,7 +130,6 @@ public class UIManager : BasicSingleton<UIManager>
 
     public void ShowBattleUI()
     {
-        if (BattleSystem.Instance.CurrentPhase != BattlePhases.PlayerTurn) return;
         attackButton.Show();
         CanSelectCharacter = true;
 

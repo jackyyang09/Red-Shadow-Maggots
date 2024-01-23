@@ -63,7 +63,7 @@ public class TurnOrderGraphic : MonoBehaviour
         }
     }
 
-    public void InitializeWithCharacter(BaseCharacter c)
+    public void InitializeWithCharacter(BaseCharacter c, bool myTurn = false)
     {
         character = c;
         image.sprite = c.Reference.headshotSprite;
@@ -81,11 +81,16 @@ public class TurnOrderGraphic : MonoBehaviour
 
         if (character.IsEnemy(out EnemyCharacter e))
         {
-            OnSelectedEnemyCharacterChange(BattleSystem.Instance.PlayerAttackTarget);
+            if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
+            {
+                OnSelectedEnemyCharacterChange(BattleSystem.Instance.PlayerAttackTarget);
+            }
             EnemyCharacter.OnSelectedEnemyCharacterChange += OnSelectedEnemyCharacterChange;
             e.OnStartTurn += OnStartEnemyTurn;
             e.OnEndTurn += OnEndEnemyTurn;
         }
+
+        if (myTurn) OnStartTurn();
     }
 
     private void UpdateWait()

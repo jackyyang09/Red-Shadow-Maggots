@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 using static Facade;
 
@@ -41,7 +42,8 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         ae.remainingTurns = effect.RemainingTurns;
         ae.strength = effect.Strength;
         ae.customValues = effect.CustomValues;
-        ae.description = ae.referenceEffect.GetSkillDescription(TargetMode.Self, new EffectProperties());
+        ae.description = ae.referenceEffect.GetEffectDescription(ae.strength, ae.customValues);
+
         return ae;
     }
 }

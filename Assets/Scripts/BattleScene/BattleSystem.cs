@@ -177,7 +177,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyPlayerDeath += OnAnyPlayerDeath;
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
 
-        SceneTweener.OnBattleEntered += ChangeBattlePhase;
         SkillManagerUI.OnSkillActivated += ActivateSkill;
 
         BaseCharacter.OnCharacterDeath += OnCharacterDeath;
@@ -188,7 +187,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyPlayerDeath -= OnAnyPlayerDeath;
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
 
-        SceneTweener.OnBattleEntered -= ChangeBattlePhase;
         SkillManagerUI.OnSkillActivated -= ActivateSkill;
 
         BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
@@ -212,6 +210,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
             characterLoader.LoadAllPlayerCharacters();
             yield return new WaitUntil(() => characterLoader.PlayersLoaded && characterLoader.EnemiesLoaded);
             gameManager.LoadBattleState();
+            currentPhase = BattlePhases.PlayerTurn;
         }
 
         // Initialize move order
@@ -219,7 +218,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             yield return new WaitUntil(() => player.Initialized);
             if (player.IsDead) continue;
-            player.IncrementWaitTimer();
             moveOrder.Add(player);
         }
 
@@ -227,13 +225,23 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             yield return new WaitUntil(() => enemy.Initialized);
             if (enemy.IsDead) continue;
-            enemy.IncrementWaitTimer();
             moveOrder.Add(enemy);
         }
 
-        UpdateMoveOrder();
+        UpdateMoveOrder(moveOrder.Any(e => e.WaitTimer == 0));
 
-        currentPhase = BattlePhases.Entry;
+        if (moveOrder[0].IsPlayer())
+        {
+            currentPhase = BattlePhases.PlayerTurn;
+            playerTargets.player = moveOrder[0] as PlayerCharacter;
+            playerTargets.player.ShowSelectionCircle();
+            playerTargets.enemy.ShowSelectionCircle();
+        }
+        else
+        {
+            currentPhase = BattlePhases.Entry;
+            ChangeBattlePhase();
+        }
         sceneTweener.EnterBattle();
 
         Initialized = true;
@@ -505,9 +513,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         ChangeBattlePhase();
     }
 
-    public void UpdateMoveOrder()
+    public void UpdateMoveOrder(bool firstTime = false)
     {
-        if (!moveOrder.Any(c => !c.IsOverWait)) // If everyone is OverWait
+        if (!moveOrder.Any(c => !c.IsOverWait) || firstTime) // If everyone is OverWait or battle just began
         {
             foreach (var character in moveOrder)
             {

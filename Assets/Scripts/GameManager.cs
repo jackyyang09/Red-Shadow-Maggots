@@ -16,7 +16,7 @@ public class GameManager : BasicSingleton<GameManager>
         }
     }
 
-    int roundCount = 1;
+    int roundCount = 0;
     public int RoundCount
     {
         get { return roundCount; }
@@ -77,6 +77,7 @@ public class GameManager : BasicSingleton<GameManager>
                 p = new BattleState.PlayerState();
                 p.Index = BattleData.PlayerStates[i].Index;
                 p.Health = player.CurrentHealth;
+                p.WaitTimer = player.Wait;
                 p.Effects = new List<BattleState.SerializedEffect>();
 
                 foreach (var item in player.AppliedEffects)
@@ -104,6 +105,7 @@ public class GameManager : BasicSingleton<GameManager>
                 d = new BattleState.EnemyState();
                 d.Health = enemy.CurrentHealth;
                 d.Crit = enemy.CritLevel;
+                d.WaitTimer = enemy.Wait;
                 d.Effects = new List<BattleState.SerializedEffect>();
 
                 foreach (var item in enemy.AppliedEffects)

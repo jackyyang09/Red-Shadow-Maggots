@@ -44,7 +44,7 @@ public class TurnOrderUI : BaseGameUI
         for (int i = 0; i < characters.Count; i++)
         {
             var g = Instantiate(profilePrefab, layoutRoot).GetComponent<TurnOrderGraphic>();
-            g.InitializeWithCharacter(characters[i]);
+            g.InitializeWithCharacter(characters[i], battleSystem.MoveOrder[0] == characters[i]);
             graphics.Add(g);
             characterToGraphic.Add(characters[i], g);
         }
