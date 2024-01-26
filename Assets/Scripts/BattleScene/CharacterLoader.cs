@@ -35,6 +35,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         float partySize = PlayerData.Party.Where(t => t > -1).Count();
         float increment = 1f / (partySize + 1);
 
+        int j = 0;
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {
             if (PlayerData.Party[i] == -1)
@@ -42,13 +43,14 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
                 continue;
             }
 
-            float percentage = increment * (i + 1);
+            float percentage = increment * (j + 1);
 
             var spawnPos = GetPlayerSpawns(percentage);
             var guid = PlayerData.MaggotStates[PlayerData.Party[i]].GUID;
             var opHandle = Addressables.LoadAssetAsync<CharacterObject>(guid);
-            StartCoroutine(LoadCharacter(i, spawnPos, opHandle));
+            StartCoroutine(LoadCharacter(i, j, spawnPos, opHandle));
             playerHandleToIndex.Add(opHandle);
+            j++;
         }
     }
 
@@ -66,23 +68,22 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         }
     }
 
-    IEnumerator LoadCharacter(int index, Vector3 spawnPos, AsyncOperationHandle<CharacterObject> obj)
+    IEnumerator LoadCharacter(int partyIndex, int playerIndex, Vector3 spawnPos, AsyncOperationHandle<CharacterObject> obj)
     {
         yield return obj;
 
-        var mState = PlayerData.MaggotStates[PlayerData.Party[index]];
+        var mState = PlayerData.MaggotStates[PlayerData.Party[partyIndex]];
         var characterObject = obj.Result;
-        var pState = BattleData.PlayerStates.Count > 0 ? BattleData.PlayerStates[index] : null;
+        var pState = BattleData.PlayerStates.Count > 0 ? BattleData.PlayerStates[playerIndex] : null;
         var level = characterObject.GetLevelFromExp(mState.Exp);
 
-        var character = characterLoader.SpawnCharacterWithRarity(index, characterObject, spawnPos, Rarity.Common, level, pState);
-
+        var character = characterLoader.SpawnCharacterWithRarity(partyIndex, characterObject, spawnPos, Rarity.Common, level, pState);
         yield return new WaitUntil(() => character.Initialized);
         playersLoaded++;
     }
 
-    public PlayerCharacter SpawnCharacterWithRarity(int index, CharacterObject character, Vector3 spawnPos, Rarity rarity, int level = 1,
-    BattleState.PlayerState stateInfo = null)
+    public PlayerCharacter SpawnCharacterWithRarity(int index, CharacterObject character, Vector3 spawnPos, Rarity rarity, int level = 1, 
+        BattleState.PlayerState stateInfo = null)
     {
         int playerCount = battleSystem.PlayerCharacters.Count(item => item != null);
 
@@ -95,23 +96,24 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
 
     public void ApplyPlayerSavedEffects()
     {
+        var players = battleSystem.PlayerList;
         for (int i = 0; i < BattleData.PlayerStates.Count; i++)
         {
             var state = BattleData.PlayerStates[i];
             if (state == null) continue;
-
-            battleSystem.PlayerCharacters[i].InitializeAppliedEffects(state);
+            players[i].InitializeAppliedEffects(state);
         }   
     }
 
     public void ApplyEnemySavedEffects()
     {
+        var enemies = enemyController.EnemyList;
         for (int i = 0; i < BattleData.EnemyStates.Count; i++)
         {
             var state = BattleData.EnemyStates[i];
             if (state == null) continue;
 
-            enemyController.EnemyList[i].InitializeAppliedEffects(state);
+            enemies[i].InitializeAppliedEffects(state);
         }
     }
 

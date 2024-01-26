@@ -176,7 +176,7 @@ public class AppliedEffect
     /// <summary>
     /// TODO: USE ME
     /// </summary>
-    public List<float> cachedValue = new List<float>();
+    public List<float> cachedValues = new List<float>();
 
     public AppliedEffect(BaseGameEffect effect)
     {

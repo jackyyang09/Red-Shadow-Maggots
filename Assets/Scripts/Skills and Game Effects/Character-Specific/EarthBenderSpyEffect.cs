@@ -7,12 +7,12 @@ public class EarthBenderSpyEffect : MultiStatChangeEffect, IStackableEffect
 {
     public void OnStacksChanged(AppliedEffect effect)
     {
-        for (int i = 0; i < effect.cachedValue.Count; i++)
+        for (int i = 0; i < effect.cachedValues.Count; i++)
         {
-            stats[i].targetStat.SetGameStat(effect.target, -effect.cachedValue[i]);
+            stats[i].targetStat.SetGameStat(effect.target, -effect.cachedValues[i]);
         }
 
-        effect.cachedValue.Clear();
+        effect.cachedValues.Clear();
 
         for (int i = 0; i < stats.Count; i++)
         {
@@ -20,7 +20,7 @@ public class EarthBenderSpyEffect : MultiStatChangeEffect, IStackableEffect
 
             stats[i].targetStat.SetGameStat(effect.target, amount);
 
-            effect.cachedValue.Add(amount);
+            effect.cachedValues.Add(amount);
         }
     }
 

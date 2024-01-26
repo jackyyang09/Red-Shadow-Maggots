@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "New Stat Changer", menuName = "ScriptableObjects/Game Effects/Stat Changer", order = 1)]
 public class StatChangeEffect : BaseGameEffect
@@ -17,11 +18,25 @@ public class StatChangeEffect : BaseGameEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        foreach (var stat in stats)
+        if (effect.cachedValues.Count == 0)
         {
-            var amount = stat.value.SolveValue(effect.strength, effect.caster, effect.target);
+            foreach (var stat in stats)
+            {
+                var amount = stat.value.SolveValue(effect.strength, effect.caster, effect.target);
 
-            stat.targetStat.SetGameStat(effect.target, amount);
+                stat.targetStat.SetGameStat(effect.target, amount);
+
+                effect.cachedValues.Add(amount);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < stats.Count; i++)
+            {
+                var amount = effect.cachedValues[i];
+
+                stats[i].targetStat.SetGameStat(effect.target, amount);
+            }
         }
         
         return base.Activate(effect);

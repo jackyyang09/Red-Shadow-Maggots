@@ -58,19 +58,19 @@ public class PisspenserSpecial : BaseGameEffect, IStackableEffect
 
         foreach (var ally in allies)
         {
-            if (effect.cachedValue.Count > 0)
+            if (effect.cachedValues.Count > 0)
             {
-                ally.ApplyAttackModifier(effect.cachedValue[0]);
-                ally.ApplyDefenseModifier(effect.cachedValue[1]);
+                ally.ApplyAttackModifier(effect.cachedValues[0]);
+                ally.ApplyDefenseModifier(effect.cachedValues[1]);
             }
 
             var amount = ally.Attack * attackIncrease * effect.Stacks;
             ally.ApplyAttackModifier(amount);
-            effect.cachedValue.Add(amount);
+            effect.cachedValues.Add(amount);
 
             amount = defenseIncrease * effect.Stacks;
             ally.ApplyDefenseModifier(amount);
-            effect.cachedValue.Add(amount);
+            effect.cachedValues.Add(amount);
         }
     }
 

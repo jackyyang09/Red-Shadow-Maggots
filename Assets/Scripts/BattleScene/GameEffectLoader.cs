@@ -26,6 +26,7 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         }
         se.RemainingTurns = effect.remainingTurns;
         se.Strength = effect.strength;
+        se.CachedValues = effect.cachedValues;
         se.CustomValues = effect.customValues;
         return se;
     }
@@ -41,6 +42,7 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         ae.target = target;
         ae.remainingTurns = effect.RemainingTurns;
         ae.strength = effect.Strength;
+        ae.cachedValues = effect.CachedValues;
         ae.customValues = effect.CustomValues;
         ae.description = ae.referenceEffect.GetEffectDescription(ae.strength, ae.customValues);
 

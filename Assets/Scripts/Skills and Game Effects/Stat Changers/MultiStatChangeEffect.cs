@@ -15,9 +15,21 @@ public class MultiStatChangeEffect : BaseGameEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        foreach (var stat in stats)
+        if (effect.cachedValues.Count == 0)
         {
-            stat.targetStat.SetGameStat(effect.target, stat.value);
+            foreach (var stat in stats)
+            {
+                stat.targetStat.SetGameStat(effect.target, stat.value);
+                effect.cachedValues.Add(stat.value);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < stats.Count; i++)
+            {
+                var amount = effect.cachedValues[i];
+                stats[i].targetStat.SetGameStat(effect.target, amount);
+            }
         }
 
         return base.Activate(effect);

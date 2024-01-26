@@ -14,6 +14,7 @@ public class BattleState
         public int RemainingTurns;
         public EffectStrength Strength;
         public float[] CustomValues;
+        public List<float> CachedValues;
     }
 
     public class State

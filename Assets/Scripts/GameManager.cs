@@ -68,17 +68,20 @@ public class GameManager : BasicSingleton<GameManager>
         var seed = (int)System.DateTime.Now.Ticks;
         BattleData.SavedSeed = seed;
 
-        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
+        var playerList = battleSystem.PlayerList;
+        for (int i = 0; i < playerList.Count; i++)
         {
             BattleState.PlayerState p = null;
-            var player = battleSystem.PlayerCharacters[i];
+            var player = playerList[i];
             if (player)
             {
-                p = new BattleState.PlayerState();
-                p.Index = BattleData.PlayerStates[i].Index;
-                p.Health = player.CurrentHealth;
-                p.WaitTimer = player.Wait;
-                p.Effects = new List<BattleState.SerializedEffect>();
+                p = new BattleState.PlayerState
+                {
+                    Index = BattleData.PlayerStates[i].Index,
+                    Health = player.CurrentHealth,
+                    WaitTimer = player.Wait,
+                    Effects = new List<BattleState.SerializedEffect>()
+                };
 
                 foreach (var item in player.AppliedEffects)
                 {
@@ -96,17 +99,20 @@ public class GameManager : BasicSingleton<GameManager>
             partyData.Add(p);
         }
 
-        for (int i = 0; i < enemyController.Enemies.Length; i++)
+        var enemies = enemyController.EnemyList;
+        for (int i = 0; i < enemies.Count; i++)
         {
             BattleState.EnemyState d = null;
             var enemy = enemyController.Enemies[i];
             if (enemy)
             {
-                d = new BattleState.EnemyState();
-                d.Health = enemy.CurrentHealth;
-                d.Crit = enemy.CritLevel;
-                d.WaitTimer = enemy.Wait;
-                d.Effects = new List<BattleState.SerializedEffect>();
+                d = new BattleState.EnemyState
+                {
+                    Health = enemy.CurrentHealth,
+                    Crit = enemy.CritLevel,
+                    WaitTimer = enemy.Wait,
+                    Effects = new List<BattleState.SerializedEffect>()
+                };
 
                 foreach (var item in enemy.AppliedEffects)
                 {

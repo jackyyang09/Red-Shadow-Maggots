@@ -33,16 +33,6 @@ public class BaseShieldEffect : BaseGameEffect
         float percentageChange = value.GetStrength(effect.strength);
         var target = effect.target;
 
-        switch (stat)
-        {
-            case ScalingStat.Health:
-                target.GiveShield(effect.caster.MaxHealth * percentageChange, effect);
-                break;
-            case ScalingStat.Attack:
-                target.GiveShield(effect.caster.AttackModified * percentageChange, effect);
-                break;
-        }
-
         targetCharacter = target;
 
         if (effect.target.ShieldPercent == 0)
@@ -51,6 +41,27 @@ public class BaseShieldEffect : BaseGameEffect
             forceFieldInstance.Initialize(target);
 
             target.OnShieldBroken += OnShieldBroken;
+        }
+
+        if (effect.cachedValues.Count > 0)
+        {
+            target.GiveShield(effect.cachedValues[0], effect);
+        }
+        else
+        {
+            float value = 0;
+            switch (stat)
+            {
+                case ScalingStat.Health:
+                    value = effect.caster.MaxHealth * percentageChange;
+                    break;
+                case ScalingStat.Attack:
+                    value = effect.caster.AttackModified * percentageChange;
+                    break;
+            }
+
+            target.GiveShield(value, effect);
+            effect.cachedValues.Add(value);
         }
 
         return true;
