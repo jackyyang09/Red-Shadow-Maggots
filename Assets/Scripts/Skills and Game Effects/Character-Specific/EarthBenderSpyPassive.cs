@@ -70,12 +70,21 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
 
     void OnTakeDamage(float trueDamage, DamageStruct damage)
     {
-        if (damage.QTEResult == QuickTimeBase.QTEResult.Perfect)
+        var qte = damage.QTEResult;
+
+        switch (BattleSystem.Instance.CurrentPhase)
         {
-            qteSuccess = true;
+            case BattlePhases.PlayerTurn:
+                qteSuccess = !baseCharacter.IsPlayer() && qte != QuickTimeBase.QTEResult.Perfect;
+                break;
+            case BattlePhases.EnemyTurn:
+                qteSuccess = baseCharacter.IsPlayer() && qte == QuickTimeBase.QTEResult.Perfect;
+                break;
         }
-        else if (damage.Source) // Damage must be from an Attack
+
+        if (!qteSuccess && damage.Source)
         {
+            // Damage must be from an Attack
             RemoveEffect();
         }
     }
