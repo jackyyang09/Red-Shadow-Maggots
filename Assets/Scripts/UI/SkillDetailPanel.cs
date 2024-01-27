@@ -54,11 +54,6 @@ public class SkillDetailPanel : MonoBehaviour
 
     public void ShowWithDetails(GameSkill skill)
     {
-        StartCoroutine(ShowRoutine(skill));
-    }
-
-    IEnumerator ShowRoutine(GameSkill skill)
-    {
         nameText.text = skill.referenceSkill.skillName;
         cooldownCount.text = skill.referenceSkill.skillCooldown.ToString() + " Turn Cooldown";
         description.text = "";
@@ -112,18 +107,13 @@ public class SkillDetailPanel : MonoBehaviour
             explainers[j].HideUI();
         }
 
-        yield return null;
-
-        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
-        LayoutRebuilder.ForceRebuildLayoutImmediate(explainerParent);
-
-        yield return null;
-
         canvas.Show();
 
         foreach (var item in canvases)
         {
             item.Show();
         }
+
+        gameObject.RefreshLayoutGroupsImmediateAndRecursive(explainerParent.transform.root);
     }
 }
