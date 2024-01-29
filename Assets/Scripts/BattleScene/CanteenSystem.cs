@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DocumentFormat.OpenXml.Spreadsheet;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,18 +7,24 @@ using static Facade;
 
 public class CanteenSystem : BasicSingleton<CanteenSystem>
 {
+    public class Canteen
+    {
+        public PlayerCharacter target;
+    }
+    List<Canteen> canteens = new List<Canteen>();
+
     [SerializeField] float chargePerCanteen = 0.25f;
     public float ChargePerCanteen => chargePerCanteen;
     [SerializeField] int maxCanteens = 12;
 
-    public float StoredCharge { get { return storedCharge; } }
-    public float AvailableCharge { get { return storedCharge - grabbedCharge - borrowedCharge; } }
+    public float StoredCharge => storedCharge;
+    public float AvailableCharge => storedCharge - grabbedCharge - borrowedCharge;
     float storedCharge;
 
     float grabbedCharge;
-    public float GrabbedCharge { get { return grabbedCharge; } }
+    public float GrabbedCharge => grabbedCharge;
     float borrowedCharge;
-    public float BorrowedCharge { get { return borrowedCharge; } }
+    public float BorrowedCharge => borrowedCharge;
 
     public static Action OnAvailableChargeChanged;
     public static Action OnStoredChargeChanged;
@@ -65,10 +72,25 @@ public class CanteenSystem : BasicSingleton<CanteenSystem>
 
     public void BorrowCritCharge(PlayerCharacter character)
     {
+        canteens.Add(new Canteen { target = character });
         character.ApplyCanteenEffect(grabbedCharge);
         borrowedCharge += grabbedCharge;
         grabbedCharge = 0;
         OnChargeBorrowed?.Invoke();
+    }
+
+    public void CancelCanteenUse()
+    {
+        foreach (var item in canteens)
+        {
+            item.target.ApplyCanteenEffect(-ChargePerCanteen);
+        }
+
+        borrowedCharge -= ChargePerCanteen * canteens.Count;
+        canteens.Clear();
+
+        OnChargeBorrowed?.Invoke();
+        OnAvailableChargeChanged?.Invoke();
     }
 
     private void ResetBonusFlag()

@@ -27,15 +27,16 @@ public class CanteenUI : BaseGameUI
     Vector2 filledOrigin;
 
     [Header("Object References")] [SerializeField]
-    Canvas viewportBillboardCanvas = null;
+    Canvas viewportBillboardCanvas;
 
-    [SerializeField] TextMeshProUGUI canteenChargeText = null;
-    [SerializeField] TextMeshProUGUI canteenCountText = null;
-    [SerializeField] RectTransform canteen = null;
-    [SerializeField] Image canteenFill = null;
-    [SerializeField] Image filledIcon = null;
-    [SerializeField] GameObject[] canteenIcons = null;
-    [SerializeField] Renderer canteenRenderer = null;
+    [SerializeField] TextMeshProUGUI canteenChargeText;
+    [SerializeField] TextMeshProUGUI canteenCountText;
+    [SerializeField] RectTransform canteen;
+    [SerializeField] Image canteenFill;
+    [SerializeField] Image filledIcon;
+    [SerializeField] GameObject[] canteenIcons;
+    [SerializeField] Renderer canteenRenderer;
+    [SerializeField] OptimizedButton cancelButton;
 
     Transform canteenMesh
     {
@@ -62,6 +63,8 @@ public class CanteenUI : BaseGameUI
         queueUpdate = true;
         UpdateUI();
         UpdateCanteenCount();
+
+        cancelButton.Hide();
     }
 
     private void OnDisable()
@@ -243,9 +246,12 @@ public class CanteenUI : BaseGameUI
             {
                 if (info.rigidbody.TryGetComponent(out character))
                 {
-                    canteenSystem.BorrowCritCharge(character);
-                    success = true;
-                    AudioManager.PlaySound(BattleSceneSounds.CanteenUse);
+                    if (character.CritChanceModified <= 1)
+                    {
+                        canteenSystem.BorrowCritCharge(character);
+                        success = true;
+                        AudioManager.PlaySound(BattleSceneSounds.CanteenUse);
+                    }
                 }
             }
         }
@@ -254,6 +260,10 @@ public class CanteenUI : BaseGameUI
         {
             canteenSystem.ReleaseCritCharge();
             AudioManager.PlaySound(BattleSceneSounds.CanteenDrop);
+        }
+        else
+        {
+            cancelButton.Show();
         }
 
         canteenRenderer.enabled = false;
@@ -283,5 +293,12 @@ public class CanteenUI : BaseGameUI
         previousCharge = canteenSystem.AvailableCharge;
 
         UpdateCanteenCount();
+    }
+
+    public void CancelCanteenUse()
+    {
+        canteenSystem.CancelCanteenUse();
+        UpdateCanteenCount();
+        cancelButton.Hide();
     }
 }
