@@ -284,7 +284,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void BeginPlayerAttack()
     {
-        playerTargets.player.BeginAttack(playerTargets.enemy.transform);
+        playerTargets.player.BeginAttack(playerTargets.enemy);
         //switch (playerTargets.player.Reference.range)
         //{
         //    case AttackRange.CloseRange:
@@ -586,6 +586,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         finishedTurn = false;
 
         activeCharacter.OnStartTurn?.Invoke();
+        activeCharacter.OnStartTurnLate?.Invoke();
         switch (currentPhase)
         {
             case BattlePhases.Entry:

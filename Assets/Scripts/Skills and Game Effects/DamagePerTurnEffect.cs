@@ -7,43 +7,19 @@ public class DamagePerTurnEffect : BaseDamageEffect
 {
     public override float TickAnimationTime => -1f;
 
-    public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
+    public override bool Activate(AppliedEffect effect)
     {
-        float damage = 0;
-        for (int i = 0; i < values.Count; i++)
+        if (effect.cachedValues.Count == 0)
         {
-            damage += (float)values[i] * target.MaxHealth;
+            effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.caster));
         }
 
-        DamageStruct damageStruct = new DamageStruct();
-        damageStruct.Percentage = 1;
-        damageStruct.TrueDamage = damage;
-        damageStruct.Effectivity = DamageEffectivess.Normal;
-        target.TakeDamage(damageStruct);
+        return base.Activate(effect);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(props.strength, props.customValues);
-
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.Self:
-                s += "Lose ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-                s += " loses ";
-                break;
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += " lose ";
-                break;
-        }
-
-        s += (int)(change * 100) + "% Max Health every turn ";
+        var s = base.GetSkillDescription(targetMode, props);
 
         return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }

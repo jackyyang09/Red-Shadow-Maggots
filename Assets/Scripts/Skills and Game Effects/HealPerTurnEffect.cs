@@ -15,14 +15,13 @@ public class HealPerTurnEffect : BaseHealEffect
     {
         var s = base.GetSkillDescription(targetMode, props);
 
-        return s + " every turn " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        return s + "every turn " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
-        var s = "Recovers " + RSMConstants.Keywords.Short.HEALTH + 
-            " equal to " + value.GetDescription(strength, value.Stat);
+        var s = "Recovers " + Mathf.FloorToInt(effect.cachedValues[0]) + " " + RSMConstants.Keywords.Short.HEALTH + " ";
 
-        return s;
+        return s + "every turn";
     }
 }

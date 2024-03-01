@@ -12,7 +12,7 @@ public class ClearDebuffs : BaseGameEffect
 
         if (effects.Count == 0) return false;
 
-        effect.target.RemoveEffect(effects[0]);
+        effects[0].Remove();
 
         return true;
     }
@@ -40,10 +40,5 @@ public class ClearDebuffs : BaseGameEffect
                 break;
         }
         return desc;
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        return null;
     }
 }

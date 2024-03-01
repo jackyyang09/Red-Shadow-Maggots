@@ -1,21 +1,20 @@
-using DocumentFormat.OpenXml.Drawing;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class PisspenserPassive : BaseCharacterPassive
 {
     [Header("Upgrades")]
-    [SerializeField] PisspenserSpecial upgradeEffect;
-    [SerializeField] PisspenserGlitch glitchEffect;
+    [SerializeField] EffectProperties upgradeProps;
+    [SerializeField] EffectProperties glitchProps;
 
     [SerializeField] PeePoison peeEffect;
 
     int peesApplied = 0;
 
-    bool IsGlitched => baseCharacter.EffectDictionary.ContainsKey(glitchEffect);
-    bool HasUpgrades => baseCharacter.EffectDictionary.ContainsKey(upgradeEffect);
-    AppliedEffect UpgradeEffect => baseCharacter.EffectDictionary[upgradeEffect][0];
+    bool IsGlitched => baseCharacter.EffectDictionary.ContainsKey(glitchProps.effect);
+    AppliedEffect UpgradeEffect => baseCharacter.EffectDictionary[upgradeProps.effect][0];
 
     protected override void Init()
     {
@@ -39,14 +38,17 @@ public class PisspenserPassive : BaseCharacterPassive
         {
             if (IsGlitched)
             {
-                if (HasUpgrades)
+                if (HasStacks(upgradeProps.effect))
                 {
                     baseCharacter.RemoveEffect(UpgradeEffect, peesApplied);
                 }
             }
             else
             {
-                ApplyEffect(upgradeEffect, peesApplied);
+                var props = upgradeProps.Copy();
+                props.stacks = peesApplied;
+                ApplyEffect(props);
+                //BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, allies.ToArray());
                 //ApplyEffect(upgradeEffect, 30);
             }
         }
@@ -58,15 +60,11 @@ public class PisspenserPassive : BaseCharacterPassive
         {
             if (IsGlitched)
             {
-                baseCharacter.RemoveEffect(baseCharacter.EffectDictionary[glitchEffect][0]);
+                RemoveEffect(glitchProps.effect);
             }
             else
             {
-                var props = new EffectProperties();
-                props.effectDuration = -1;
-                props.effect = glitchEffect;
-
-                ApplyEffect(props);
+                ApplyEffect(glitchProps);
             }
         }
     }

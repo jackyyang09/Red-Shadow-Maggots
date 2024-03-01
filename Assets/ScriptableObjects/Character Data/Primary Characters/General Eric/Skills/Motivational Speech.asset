@@ -12,26 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Motivational Speech
   m_EditorClassIdentifier: 
-  skillName: Motivational Speech
-  skillDescription:
-  - +2000hp to an Ally
-  - +15% Defence Window to Team (3 Turns)
+  abilityName: Motivational Speech
   sprite: {fileID: 21300000, guid: c23ae1f499574cb41bc59b76544207ef, type: 3}
   targetMode: 3
-  skillCooldown: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: c89b508f30462ea4d8b2cf209be40559, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 5
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 4f1e08f41e5298843878353fc5cf3f32, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 5
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 67c52861f26cce143bd870ef2731de2d, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 5

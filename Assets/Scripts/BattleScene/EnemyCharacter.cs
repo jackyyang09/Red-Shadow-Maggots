@@ -131,7 +131,7 @@ public class EnemyCharacter : BaseCharacter
         usedSkillThisTurn = false;
     }
 
-    public override void BeginAttack(Transform target)
+    public override void BeginAttack(BaseCharacter target)
     {
         if (!CanCrit)
         {

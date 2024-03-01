@@ -32,6 +32,38 @@ PrefabInstance:
       propertyPath: m_LocalScale.z
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: glitchProps.effect
+      value: 
+      objectReference: {fileID: 11400000, guid: 7673dcbe67e58304e81a7470fb901d60, type: 2}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: glitchProps.effectDuration
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectDuration
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectValues.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectValues.Array.data[0].multiplier
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectValues.Array.data[1].multiplier
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectValues.Array.data[2].multiplier
+      value: 0.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524599101109039509, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      propertyPath: upgradeProps.effectValues.Array.data[3].multiplier
+      value: 0.05
+      objectReference: {fileID: 0}
     - target: {fileID: 8990396954260051626, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
       propertyPath: m_Size.x
       value: 1.0925412
@@ -107,5 +139,25 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8990396954678549858, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6063537178122834909}
   m_SourcePrefab: {fileID: 100100000, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+--- !u!1 &105689772000125713 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8990396954678549858, guid: ed983ab55c932c14da8b3191cbaf18e6, type: 3}
+  m_PrefabInstance: {fileID: 9057638440353136243}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6063537178122834909
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 105689772000125713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d922c9c173254943b1995919bdc522f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

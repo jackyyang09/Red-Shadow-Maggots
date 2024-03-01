@@ -49,6 +49,21 @@ public static class Extensions
     }
 
     /// <summary>
+    /// Thanks ChatGPT!
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+    public static string FirstCharToLower(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        char[] chars = input.ToCharArray();
+        chars[0] = char.ToLower(chars[0]);
+        return new string(chars);
+    }
+
+    /// <summary>
     /// https://forum.unity.com/threads/layoutgroup-does-not-refresh-in-its-current-frame.458446/
     /// "I am going to become the joker" - Tomsterk
     /// </summary>

@@ -27,13 +27,13 @@ public class SkillNameUI : BaseGameUI
     private void ShowSkillName(BaseCharacter arg1, GameSkill arg2)
     {
         skillTypeText.text = "Skill";
-        ShowPanel(arg2.referenceSkill.skillName);
+        ShowPanel(arg2.ReferenceSkill.abilityName);
     }
 
     private void ShowSuperCritName(BaseCharacter obj)
     {
         skillTypeText.text = "Super Critical";
-        ShowPanel(obj.Reference.superCritical.skillName);
+        ShowPanel(obj.Reference.superCritical.abilityName);
     }
 
     void ShowPanel(string skillName)

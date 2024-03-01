@@ -6,13 +6,13 @@ public class PissUnicornPassive : BaseCharacterPassive
 {
     [SerializeField] float maxAttackBuff = 1.5f;
     [SerializeField] PeePoison peeEffect;
-    [SerializeField] PissUnicornSpecial yellowState;
+    [SerializeField] EffectProperties madnessProps;
 
     float lastMod = 0;
 
     List<BaseCharacter> peedCharacters = new List<BaseCharacter>();
 
-    bool SeeingYellow => baseCharacter.EffectDictionary.ContainsKey(yellowState);
+    bool SeeingYellow => baseCharacter.EffectDictionary.ContainsKey(madnessProps.effect);
 
     protected override void Init()
     {
@@ -64,7 +64,7 @@ public class PissUnicornPassive : BaseCharacterPassive
 
         if (!SeeingYellow)
         {
-            ApplyEffect(yellowState, 0);
+            ApplyEffect(madnessProps);
         }
     }
 
@@ -77,7 +77,7 @@ public class PissUnicornPassive : BaseCharacterPassive
             peedCharacters.Remove(character);
             if (peedCharacters.Count == 0 && SeeingYellow)
             {
-                var e = baseCharacter.EffectDictionary[yellowState][0];
+                var e = baseCharacter.EffectDictionary[madnessProps.effect][0];
                 baseCharacter.RemoveEffect(e);
             }
         }

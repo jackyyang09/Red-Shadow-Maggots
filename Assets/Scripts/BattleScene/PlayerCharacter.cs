@@ -127,7 +127,7 @@ public class PlayerCharacter : BaseCharacter
         }
     }
 
-    public override void BeginAttack(Transform target)
+    public override void BeginAttack(BaseCharacter target)
     {
         IncomingAttack = Reference.attackAnimations[0];
 
@@ -164,6 +164,14 @@ public class PlayerCharacter : BaseCharacter
         float finalCritChance = CritChanceModified;
 
         bool qteSuccess = IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect;
+
+        OnCharacterCritChanceChanged?.Invoke();
+        IncomingDamage.IsCritical = UnityEngine.Random.value < finalCritChance;
+        if (IncomingDamage.IsCritical)
+        {
+            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
+        }
+
         // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
@@ -172,13 +180,6 @@ public class PlayerCharacter : BaseCharacter
         else
         {
             OnExecuteAttack?.Invoke(!qteSuccess);
-        }
-
-        OnCharacterCritChanceChanged?.Invoke();
-        IncomingDamage.IsCritical = UnityEngine.Random.value < finalCritChance;
-        if (IncomingDamage.IsCritical)
-        {
-            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
         }
 
         base.HandleCrits();

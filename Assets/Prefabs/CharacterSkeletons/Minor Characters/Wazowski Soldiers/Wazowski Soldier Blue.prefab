@@ -79,5 +79,29 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 608798706258811696, guid: 6d80fb704f4d96a48ba1e8093c2cfde8, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4780196322051653500}
   m_SourcePrefab: {fileID: 100100000, guid: 6d80fb704f4d96a48ba1e8093c2cfde8, type: 3}
+--- !u!1 &1234659341653050922 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 608798706258811696, guid: 6d80fb704f4d96a48ba1e8093c2cfde8, type: 3}
+  m_PrefabInstance: {fileID: 1824106367302966554}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4780196322051653500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234659341653050922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e0d4daedaeff1046816278fbcd4ea4a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doorEffect: {fileID: 11400000, guid: 9780907339177e2479ecd4b0df0a595d, type: 2}
+  doorDuration: 2
+  shieldEffect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
+  hpPercent: 0.15

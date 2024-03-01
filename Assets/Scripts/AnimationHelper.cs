@@ -186,6 +186,7 @@ public class AnimationHelper : MonoBehaviour
     public void EndSuperCritical()
     {
         HideVirtualCamera();
+        ExitCutscene();
     }
 
     public void ShowVirtualCamera() => vCam.enabled = true;

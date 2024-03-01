@@ -9,36 +9,77 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Script: {fileID: 11500000, guid: 4bb6f183406fef34383a205fbc65307a, type: 3}
   m_Name: Over the Tipping Point
   m_EditorClassIdentifier: 
-  skillName: Over the Tipping Point
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
-  sprite: {fileID: 21300000, guid: d96571a688f4bbc4d8d0343a140a6f9f, type: 3}
-  targetMode: 5
-  skillCooldown: 5
+  abilityName: Over the Tipping Point
+  sprite: {fileID: 0}
+  targetMode: 0
   gameEffects:
-  - effect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
-    effectDuration: 3
-    activationLimit: 0
-    stacks: 0
-    targetOverride: 0
-    strength: 2
-    customValues: []
   - effect: {fileID: 11400000, guid: 85c409515799cfd429504859ea9e2607, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 1
     activationLimit: 0
     stacks: 0
-    targetOverride: 0
-    strength: 3
-    customValues: []
+    maxStacks: -1
+    targetOverride: 5
   - effect: {fileID: 11400000, guid: 85c409515799cfd429504859ea9e2607, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
-    targetOverride: 0
-    strength: 3
-    customValues: []
+    maxStacks: -1
+    targetOverride: 5
+  - effect: {fileID: 11400000, guid: da546b01a80cd7c4882c0f89903de460, type: 2}
+    values:
+    - 0.2
+    effectValues:
+    - multiplier: 0.2
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 5
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 5
+  - effect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
+    values:
+    - 0.05
+    effectValues:
+    - multiplier: 0.05
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 2
+  damageScaledStat: {fileID: 0}
+  damageEffects:
+  - effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
+    values:
+    - 6
+    effectValues:
+    - multiplier: 6
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
+    targetOverride: 2

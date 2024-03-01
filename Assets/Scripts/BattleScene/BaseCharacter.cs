@@ -141,6 +141,9 @@ public abstract class BaseCharacter : MonoBehaviour
     // If true, plays Attack Level 1 rather than Attack Execute State
     public bool EnhancedBasicAttack;
 
+    List<AppliedEffect>[] effectMask = new List<AppliedEffect>[Enum.GetNames(typeof(EffectType)).Length];
+    public void ApplyEffectMask(EffectType t, AppliedEffect effect) => effectMask[(int)t].Add(effect);
+
     [Header("Object References")]
     [SerializeField] protected Animator spriteAnim;
 
@@ -196,8 +199,15 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action<AppliedEffect> OnRemoveGameEffect;
 
     public Action OnStartTurn;
+    /// <summary>
+    /// Happens immediately after OnStartTurn 
+    /// Useful for GameEffects that are only applied in OnStartTurn 
+    /// but don't immediately after activation
+    /// </summary>
+    public Action OnStartTurnLate;
     public Action OnEndTurn;
-    public Action OnBeginAttack;
+    public Action OnBeginSuperCrit;
+    public Action<BaseCharacter> OnBeginAttack;
     /// <summary>
     /// bool qteSuccess 
     /// Value is flipped if it's the enemy's turn
@@ -371,6 +381,14 @@ public abstract class BaseCharacter : MonoBehaviour
         initialized = true;
     }
 
+    private void Awake()
+    {
+        for (int i = 0; i < effectMask.Length; i++)
+        {
+            effectMask[i] = new List<AppliedEffect>();
+        }
+    }
+
     protected virtual void OnEnable()
     {
         UIManager.OnAttackCommit += HideCharacterUI;
@@ -429,7 +447,6 @@ public abstract class BaseCharacter : MonoBehaviour
             rigAnim.Play("Super Critical");
         }
 
-        GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
         usedSuperCritThisTurn = true;
 
         IncomingDamage.QTEValue = 1;
@@ -437,6 +454,9 @@ public abstract class BaseCharacter : MonoBehaviour
         IncomingDamage.IsSuperCritical = true;
         IncomingDamage.CritDamageModifier = CritDamageModified;
         animHelper.EnableCrits();
+
+        OnBeginSuperCrit?.Invoke();
+        GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
     }
 
     protected virtual void HandleCrits()
@@ -463,18 +483,19 @@ public abstract class BaseCharacter : MonoBehaviour
         OnCharacterDealDamage?.Invoke(this, target);
     }
 
-    public virtual void BeginAttack(Transform target)
+    public virtual void BeginAttack(BaseCharacter target)
     {
         IncomingDamage = new DamageStruct();
         IncomingDamage.Percentage = 1;
         IncomingDamage.Source = this;
 
+        var targetTransform = target.transform;
         if (CanCrit && !usedSuperCritThisTurn)
         {
             switch (Reference.superCritRange)
             {
                 case AttackRange.CloseRange:
-                    sceneTweener.MeleeMoveTo(transform, target);
+                    sceneTweener.MeleeMoveTo(transform, targetTransform);
                     break;
             }
             UseSuperCritical();
@@ -484,13 +505,13 @@ public abstract class BaseCharacter : MonoBehaviour
             switch (IncomingAttack.attackRange)
             {
                 case AttackRange.CloseRange:
-                    sceneTweener.MeleeTweenTo(transform, target);
+                    sceneTweener.MeleeTweenTo(transform, targetTransform);
                     break;
                 case AttackRange.LongRange:
-                    sceneTweener.RangedTweenTo(CharacterMesh.transform, target);
+                    sceneTweener.RangedTweenTo(CharacterMesh.transform, targetTransform);
                     break;
             }
-            OnBeginAttack?.Invoke();
+            OnBeginAttack?.Invoke(target);
         }
     }
 
@@ -532,6 +553,11 @@ public abstract class BaseCharacter : MonoBehaviour
         animHelper.DisableCrits();
 
         battleSystem.FinishTurn();
+    }
+
+    public void ReturnToIdle()
+    {
+        rigAnim.Play("Idle", 1, 0);
     }
 
     public void PlayReturnAnimation()
@@ -576,7 +602,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         targets.Clear();
 
-        switch (currentSkill.referenceSkill.targetMode)
+        switch (currentSkill.ReferenceSkill.targetMode)
         {
             case TargetMode.None:
             case TargetMode.Self:
@@ -653,7 +679,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (cancelSkill)
             {
-                switch (currentSkill.referenceSkill.targetMode)
+                switch (currentSkill.ReferenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
                         PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
@@ -674,7 +700,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
             {
-                switch (currentSkill.referenceSkill.targetMode)
+                switch (currentSkill.ReferenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
                         PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
@@ -738,26 +764,33 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (!target) return;
         if (target.IsDead) return;
-        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, target.transform);
+        ApplyEffectToCharacter(props, caster, new[] { target });
+    }
+
+    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter[] targets)
+    {
+        if (targets == null) return;
+        if (targets.Length == 0) return;
+        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, targets[0].transform);
         // TODO: Uncomment me
         //newEffect.cachedValue = props.effect.Activate(caster, target, props.strength, props.customValues);
 
-        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, target.transform);
+        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, targets[0].transform);
 
-        AppliedEffect newEffect = new AppliedEffect(caster, target, props);
-        
-        target.ApplyEffect(newEffect);
+        AppliedEffect newEffect = new AppliedEffect(caster, targets, props);
 
-        OnAppliedEffect?.Invoke(target, newEffect);
+        targets[0].ApplyEffect(newEffect);
+
+        OnAppliedEffect?.Invoke(targets[0], newEffect);
     }
 
     IEnumerator ActivateSkill()
     {
         currentSkill.BeginCooldown();
 
-        for (int i = 0; i < currentSkill.referenceSkill.gameEffects.Length; i++)
+        for (int i = 0; i < currentSkill.ReferenceSkill.gameEffects.Length; i++)
         {
-            EffectProperties effect = currentSkill.referenceSkill.gameEffects[i];
+            EffectProperties effect = currentSkill.ReferenceSkill.gameEffects[i];
             switch (effect.targetOverride)
             {
                 case TargetMode.None:
@@ -765,7 +798,11 @@ public abstract class BaseCharacter : MonoBehaviour
                     {
                         ApplyEffectToCharacter(effect, this, targets[j]);
                     }
-
+                    break;
+                case TargetMode.OneAlly:
+                case TargetMode.OneEnemy:
+                    Debug.LogError("TargetMode: " + TargetMode.OneAlly + " and " + TargetMode.OneEnemy +
+                        " should not be used as overrides!");
                     break;
                 case TargetMode.AllAllies:
                     switch (battleSystem.CurrentPhase)
@@ -819,17 +856,25 @@ public abstract class BaseCharacter : MonoBehaviour
         onFinishApplyingSkillEffects.Clear();
     }
 
-    [ContextMenu("Report Effects")]
-    void ReportEffects()
-    {
-        foreach (var item in AppliedEffects)
-        {
-            Debug.Log(item.referenceEffect.name);
-        }
-    }
-
     public void ApplyEffect(AppliedEffect newEffect)
     {
+        if (effectMask[(int)newEffect.referenceEffect.effectType].Count > 0)
+        {
+            var mask = effectMask[(int)newEffect.referenceEffect.effectType];
+            var e = mask.GetLast();
+            if (!e.Activate())
+            {
+                // Remove all instances of this effect in-case it masks other effects
+                foreach (var em in effectMask)
+                {
+                    em.Remove(e);
+                }
+            }
+            return;
+        }
+
+        bool apply = true;
+
         // Skip if this is just a one-time effect
         if (newEffect.remainingTurns != 0 || newEffect.remainingActivations != 0)
         {
@@ -844,6 +889,7 @@ public abstract class BaseCharacter : MonoBehaviour
                 {
                     EffectDictionary[newEffect.referenceEffect][0].Stacks += newEffect.Stacks;
                     newEffect = EffectDictionary[newEffect.referenceEffect][0];
+                    apply = false;
                 }
                 else
                 {
@@ -858,7 +904,10 @@ public abstract class BaseCharacter : MonoBehaviour
             }
         }
         
-        newEffect.Apply();
+        if (apply)
+        {
+            newEffect.Apply();
+        }
         OnApplyGameEffect?.Invoke(newEffect);
     }
     
@@ -872,6 +921,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 AppliedEffects.Remove(effect);
                 EffectDictionary[effect.referenceEffect].Remove(effect);
+                effect.OnExpire();
                 OnRemoveGameEffect?.Invoke(effect);
             }
             else
@@ -887,6 +937,7 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 EffectDictionary.Remove(effect.referenceEffect);
             }
+            effect.OnExpire();
             OnRemoveGameEffect?.Invoke(effect);
         }
         OnRemoveEffect?.Invoke(this, effect);
@@ -926,12 +977,7 @@ public abstract class BaseCharacter : MonoBehaviour
             if (e.tickPrefab) Instantiate(e.tickPrefab, transform);
             if (e.tickSound) JSAM.AudioManager.PlaySound(e.tickSound);
 
-            if (!item.Tick()) // Check if still active after ticking
-            {
-                // Remove the effect
-                AppliedEffects.Remove(item);
-                OnRemoveGameEffect?.Invoke(item);
-            }
+            item.Tick();
 
             yield return new WaitForSeconds(delay < e.TickAnimationTime ? delay : e.TickAnimationTime);
         }
@@ -940,7 +986,7 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void Heal(float healthGain)
     {
         healthGain *= HealInModifier;
-        health = Mathf.Min(health + healthGain, maxHealth);
+        health += healthGain;
         OnHeal?.Invoke();
         EffectTextSpawner.Instance.SpawnHealNumberAt(healthGain, transform);
     }
@@ -1057,7 +1103,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     shieldMods.Remove(s);
                     if (s.ParentEffect != null)
                     {
-                        RemoveEffect(s.ParentEffect);
+                        s.ParentEffect.Remove();
                     }
                     else
                     {
@@ -1226,6 +1272,15 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         if (characterReference.characterRig.IsValid())
             characterReference.characterRig.ReleaseAsset();
+    }
+
+    [ContextMenu("Report Effects")]
+    void ReportEffects()
+    {
+        foreach (var item in AppliedEffects)
+        {
+            Debug.Log(item.referenceEffect.name);
+        }
     }
 
     [IngameDebugConsole.ConsoleMethod(nameof(BuddhaMode), "Gives all Characters an absurd amount of health")]

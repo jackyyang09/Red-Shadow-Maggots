@@ -181,7 +181,7 @@ PrefabInstance:
     - target: {fileID: 6893020664900747610, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: m_Controller
       value: 
-      objectReference: {fileID: 22100000, guid: 7d6df63aedbf7424ea52995894c10b1c, type: 2}
+      objectReference: {fileID: 22100000, guid: 1e6254d873f350b4aa053ace9b33ef72, type: 2}
     - target: {fileID: 6893020664900747612, guid: e96445fd04248e447b138931f4914599, type: 3}
       propertyPath: colliders.Array.size
       value: 1
@@ -275,6 +275,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 6696063441794746642}
+    - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 6344138534941371113}
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
 --- !u!1 &1589842857519330936 stripped
@@ -282,6 +285,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
   m_PrefabInstance: {fileID: 5312185297188402982}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6696063441794746642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589842857519330936}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d922c9c173254943b1995919bdc522f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &6344138534941371113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296,7 +311,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxAttackBuff: 1.5
   peeEffect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
-  yellowState: {fileID: 11400000, guid: 139c446c95fb1194a9644ac9e9631d5b, type: 2}
+  madnessProps:
+    effect: {fileID: 11400000, guid: cfa86856d411e4e4b847893a3a5298ea, type: 2}
+    values:
+    - 0.2
+    effectValues:
+    - multiplier: 0.2
+      flat: 0
+      flatType: 0
+      deltaType: 1
+    effectDuration: -1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
 --- !u!4 &1589842857519330939 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}

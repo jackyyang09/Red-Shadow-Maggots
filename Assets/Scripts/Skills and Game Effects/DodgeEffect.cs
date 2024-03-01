@@ -13,9 +13,9 @@ public class DodgeEffect : BaseGameEffect
         return true;
     }
 
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(AppliedEffect effect)
     {
-        target.IsDodging = false;
+        effect.target.IsDodging = false;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
@@ -40,13 +40,8 @@ public class DodgeEffect : BaseGameEffect
         return d += " an attack " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         return "Avoids an attack";
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        return null;
     }
 }

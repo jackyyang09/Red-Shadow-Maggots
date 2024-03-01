@@ -26,22 +26,22 @@ public class TargetFocus : BaseGameEffect
         return true;
     }
 
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(AppliedEffect effect)
     {
-        if (user.IsEnemy(out EnemyCharacter e))
+        if (effect.target.IsEnemy(out EnemyCharacter e))
         {
             Debug.LogWarning("TARGET FOCUS ON THE ENEMY HASN'T BEEN IMPLEMENTED YET");
         }
         else
         {
-            var player = target as PlayerCharacter;
+            var player = effect.target as PlayerCharacter;
             BattleSystem.Instance.RemoveTargetFocus(player);
         }
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        string s = "Apply <u>Taunt</u> to ";
+        string s = "Apply <u>Taunt</u>";
 
         switch (targetMode)
         {
@@ -49,20 +49,15 @@ public class TargetFocus : BaseGameEffect
             case TargetMode.OneEnemy:
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += TargetModeDescriptor(targetMode);
+                s += " to " + TargetModeDescriptor(targetMode);
                 break;
         }
 
         return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         return ExplainerDescription;
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        return null;
     }
 }

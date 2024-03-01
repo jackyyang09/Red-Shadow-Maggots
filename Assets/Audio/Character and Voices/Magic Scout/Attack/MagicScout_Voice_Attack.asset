@@ -12,31 +12,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d15ae218647a2d4f85e14306846c10c, type: 3}
   m_Name: MagicScout_Voice_Attack
   m_EditorClassIdentifier: 
-  file: {fileID: 8300000, guid: 3cd6b6ef9a2e4b844926c14b7840fe65, type: 3}
+  safeName: MagicScout_Voice_Attack
+  presetDescription: 
   files:
   - {fileID: 8300000, guid: 3cd6b6ef9a2e4b844926c14b7840fe65, type: 3}
   - {fileID: 8300000, guid: 82d5151704e6fbc418a40d592705388d, type: 3}
   - {fileID: 8300000, guid: 24c85d6815811034d836a1fe66d1198b, type: 3}
-  useLibrary: 1
-  neverRepeat: 1
-  lastClipIndex: -1
-  category: Voice
+  loopStart: 0
+  loopEnd: 0
+  bpm: 120
   relativeVolume: 1
   spatialize: 0
   maxDistance: 0
   priority: 64
   startingPitch: 1
   pitchShift: 0
-  playReversed: 0
+  loopMode: 0
   delay: 0
   ignoreTimeScale: 0
-  fadeMode: 0
+  maxPlayingInstances: 10
+  channelOverride: 0
+  mixerGroupOverride: {fileID: 0}
+  fadeInOut: 0
   fadeInDuration: 0
   fadeOutDuration: 0
   bypassEffects: 0
   bypassListenerEffects: 0
   bypassReverbZones: 0
-  safeName: MagicScout_Voice_Attack
   chorusFilter:
     enabled: 0
     dryMix: 0
@@ -80,3 +82,5 @@ MonoBehaviour:
     lFReference: 0
     diffusion: 0
     density: 0
+  neverRepeat: 1
+  lastClipIndex: -1

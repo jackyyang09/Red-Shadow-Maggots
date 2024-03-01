@@ -9,6 +9,7 @@ public class UIStatusDescription : MonoBehaviour
     [SerializeField] OptimizedCanvas canvas;
 
     [SerializeField] Image effectIcon;
+    [SerializeField] TMPro.TextMeshProUGUI nameLabel;
     [SerializeField] TMPro.TextMeshProUGUI description;
     [SerializeField] TMPro.TextMeshProUGUI stackLabel;
 
@@ -31,7 +32,9 @@ public class UIStatusDescription : MonoBehaviour
                 description.color = Colours.Debuff;
                 break;
         }
-        description.text = effect.description + " " + 
+
+        nameLabel.text = effect.referenceEffect.effectName;
+        description.text = effect.description.Trim() + " " +
                 BaseGameEffect.DurationAndActivationDescriptor(effect.remainingTurns, effect.remainingActivations);
 
         stackLabel.enabled = effect.HasStacks;

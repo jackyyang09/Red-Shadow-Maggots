@@ -51,10 +51,10 @@ public class DualistPassive : BaseCharacterPassive
     private void OnExecuteAttack(bool qteSuccess)
     {
         if (!qteSuccess) return;
-        AddStack();
+        AddStack(null);
     }
 
-    private void AddStack()
+    private void AddStack(BaseCharacter target)
     {
         ApplyEffect(stackEffect, 1);
     }

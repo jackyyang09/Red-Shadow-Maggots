@@ -12,8 +12,7 @@ public class BattleState
         public TargetMode TargetMode;
         public int EffectIndex;
         public int RemainingTurns;
-        public EffectStrength Strength;
-        public float[] CustomValues;
+        public EffectProperties.EffectValue[] Values;
         public List<float> CachedValues;
     }
 

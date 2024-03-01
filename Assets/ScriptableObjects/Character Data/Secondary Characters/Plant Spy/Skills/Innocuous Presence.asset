@@ -12,26 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Innocuous Presence
   m_EditorClassIdentifier: 
-  skillName: Innocuous Presence
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Innocuous Presence
   sprite: {fileID: 21300000, guid: 4f4de83d620451648953182526b8a666, type: 3}
-  targetMode: 1
-  skillCooldown: 6
+  targetMode: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: 4f1e08f41e5298843878353fc5cf3f32, type: 2}
+  - effect: {fileID: 11400000, guid: 85c409515799cfd429504859ea9e2607, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0.3
+      flat: 0
+      flatType: 1
+      deltaType: 1
     effectDuration: 3
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 3

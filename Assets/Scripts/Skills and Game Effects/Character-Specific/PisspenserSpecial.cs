@@ -1,89 +1,104 @@
-using DocumentFormat.OpenXml.Office.CustomXsn;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEngine;
+using static Facade;
 
 [CreateAssetMenu(fileName = "Pisspenser Upgrade", menuName = "ScriptableObjects/Character-Specific/Piss/Pisspenser Upgrade", order = 1)]
-public class PisspenserSpecial : BaseGameEffect, IStackableEffect
+public class PisspenserSpecial : MultiStatStackEffect
 {
-    [SerializeField] float attackIncrease = 0.01f;
-    [SerializeField] float defenseIncrease = 0.01f;
-    [SerializeField] float healMultiplier = 0.01f;
-    [SerializeField] float shieldMultiplier = 0.01f;
+    public override string ExplainerName => "Upgrade";
 
-    delegate List<BaseCharacter> AllyDelegate();
-    AllyDelegate getAllies;
+    [SerializeField] EffectProperties healEffect;
+    [SerializeField] EffectProperties shieldEffect;
 
     public override bool Activate(AppliedEffect effect)
     {
-        effect.target.OnStartTurn += OnStartTurn;
+        effect.customCallbacks = new System.Action[1];
+        effect.customCallbacks[0] = () => OnSpecialCallback(effect);
+        effect.target.OnStartTurnLate += effect.customCallbacks[0];
 
         if (effect.target.IsPlayer())
         {
-            getAllies = () => BattleSystem.Instance.LivingPlayers.ToList<BaseCharacter>();
+            effect.extraTargets = battleSystem.PlayerList.ConvertAll(e => (BaseCharacter)e);
         }
         else
         {
-            getAllies = () => EnemyController.Instance.LivingEnemies.ToList<BaseCharacter>();
+            effect.extraTargets = enemyController.EnemyList.ConvertAll(e => (BaseCharacter)e);
         }
+        effect.extraTargets.Remove(effect.target);
 
-        return base.Activate(effect);
+        return true;
     }
 
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(AppliedEffect effect)
     {
-        target.OnStartTurn += OnStartTurn;
+        effect.target.OnStartTurnLate -= effect.customCallbacks[0];
 
-        base.OnExpire(user, target, strength, customValues);
+        base.OnExpire(effect);
     }
 
-    void OnStartTurn()
+    public override void OnSpecialCallback(AppliedEffect effect)
     {
-        var allies = getAllies();
+        base.OnSpecialCallback(effect);
 
-        foreach (var ally in allies)
+        var targets = new List<BaseCharacter>{ effect.target };
+        targets.AddRange(effect.extraTargets);
+
+        foreach (var ally in targets)
         {
-            ally.Heal(ally.MaxHealth * healMultiplier);
-            Debug.LogWarning(nameof(PisspenserSpecial) +
-                ": Shields should be doled out through an application of a basic effect");
-            ally.GiveShield(ally.MaxHealth * shieldMultiplier, null);
+            var props = healEffect.Copy();
+            props.effectValues = new[] { effect.values[2] * effect.Stacks };
+            BaseCharacter.ApplyEffectToCharacter(props, effect.caster, ally);
+
+            props = shieldEffect.Copy();
+            props.effectValues = new[] { effect.values[3] * effect.Stacks };
+            BaseCharacter.ApplyEffectToCharacter(props, effect.caster, ally);
         }
     }
 
-    public void OnStacksChanged(AppliedEffect effect)
+    public new void OnStacksChanged(AppliedEffect effect)
     {
-        var allies = getAllies();
+        var targets = new List<BaseCharacter> { effect.target };
+        targets.AddRange(effect.extraTargets);
 
-        foreach (var ally in allies)
+        foreach (var ally in targets)
         {
-            if (effect.cachedValues.Count > 0)
+            for (int i = 2; i < effect.cachedValues.Count; i++)
             {
-                ally.ApplyAttackModifier(effect.cachedValues[0]);
-                ally.ApplyDefenseModifier(effect.cachedValues[1]);
+                stats[i].SetGameStat(ally, -effect.cachedValues[i]);
             }
+        }
 
-            var amount = ally.Attack * attackIncrease * effect.Stacks;
-            ally.ApplyAttackModifier(amount);
-            effect.cachedValues.Add(amount);
+        effect.cachedValues.Clear();
 
-            amount = defenseIncrease * effect.Stacks;
-            ally.ApplyDefenseModifier(amount);
-            effect.cachedValues.Add(amount);
+        foreach (var ally in targets)
+        {
+            for (int i = 0; i < stats.Length; i++)
+            {
+                var amount = GetValue(stats[i], effect.values[i + 2], ally) * effect.Stacks;
+
+                stats[i].SetGameStat(ally, amount);
+
+                effect.cachedValues.Add(amount);
+            }
         }
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
-        string d = "Each stack " +
-            "increases " + RSMConstants.Keywords.Short.ATTACK + " by " + attackIncrease.FormatPercentage() +
-            " and " + RSMConstants.Keywords.Short.DEFENSE + " by " + defenseIncrease.FormatPercentage() +
+        string d = "For each stack: Increase " + 
+            RSMConstants.Keywords.Short.ATTACK + " by " + 
+            effect.values[0].multiplier.FormatPercentage() +
+            " and " + RSMConstants.Keywords.Short.DEFENSE + " by " + 
+            effect.values[1].multiplier.FormatPercentage() +
             " for " + TargetModeDescriptor(TargetMode.AllAllies).TrimEnd() + ". " +
-            "Every turn, " + TargetModeDescriptor(TargetMode.AllAllies) + "recover " + 
-            RSMConstants.Keywords.Short.HEALTH + " equal to " + healMultiplier.FormatPercentage() + " of their " +
-            RSMConstants.Keywords.Short.MAX_HEALTH + " and receive a Shield with a strength of " + 
-            shieldMultiplier.FormatPercentage() + " of their " + RSMConstants.Keywords.Short.MAX_HEALTH + ".";
+            "At the start of your turn, " + TargetModeDescriptor(TargetMode.AllAllies) + "recover " + 
+            RSMConstants.Keywords.Short.HEALTH + " equal to " + 
+            effect.values[2].multiplier.FormatPercentage() + " of your " +
+            RSMConstants.Keywords.Short.MAX_HEALTH + 
+            " and receive a Shield with a strength of " + 
+            effect.values[3].multiplier.FormatPercentage() + " of your " + 
+            RSMConstants.Keywords.Short.MAX_HEALTH + ".";
 
         return d;
     }

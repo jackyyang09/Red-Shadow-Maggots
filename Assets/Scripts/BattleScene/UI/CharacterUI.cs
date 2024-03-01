@@ -230,6 +230,11 @@ public class CharacterUI : BaseGameUI
     private void RemoveEffect(AppliedEffect obj)
     {
         var index = effects.IndexOf(obj);
+        if (index == -1)
+        {
+            Debug.Log("HUH??");
+            Debug.Break();
+        }
         effects.Remove(obj);
         iconDictionary.Remove(obj);
         UpdateEffectIcons(index);

@@ -12,33 +12,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Bomb has been Planted
   m_EditorClassIdentifier: 
-  skillName: Bomb has been Planted!
-  skillDescription:
-  - -50% Attack Window to Team (1 Turn)
-  - -30% Attack to Team (1 Turn)
-  - +50% Crit Damage to Team (2 Turns)
-  - +15% Crit Rate to Team (2 Turns)
+  abilityName: Bomb has been Planted!
   sprite: {fileID: 21300000, guid: 365e298174a138641a98ab9f014bd7bd, type: 3}
   targetMode: 3
-  skillCooldown: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: 201137323f285fa42a49d7b4a8380df0, type: 2}
-    effectDuration: 1
-    targetOverride: 0
-    strength: 5
-    customValues: []
   - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 4
-    customValues: []
   - effect: {fileID: 0}
-    effectDuration: 2
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 5
-    customValues: []
-  - effect: {fileID: 11400000, guid: 578987be117f497428b3dc25ca4eaeb4, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 2
-    customValues: []
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  coolDown: 5

@@ -4,6 +4,9 @@ using UnityEngine;
 using System.Linq;
 using static Facade;
 
+/// <summary>
+/// Deprecated
+/// </summary>
 [CreateAssetMenu(fileName = "New Value", menuName = "ScriptableObjects/Game Stats/Value", order = 1)]
 public class GameStatValue : ScriptableObject
 {
@@ -17,26 +20,14 @@ public class GameStatValue : ScriptableObject
 
     public bool DontShowAsPercentage = false;
     public float Constant;
-    public GameStatValue Value;
     public BaseGameStat Stat;
     public TargetMode Target;
-    public float[] Table;
-    public float GetStrength(EffectStrength strength) => Table[(int)strength - 1];
 
-    private void Reset()
-    {
-        Table = new float[(int)EffectStrength.EX];
-    }
-
-    public float SolveValue(EffectStrength strength, BaseCharacter caster = null, BaseCharacter target = null)
+    public float SolveValue(float value, BaseCharacter caster = null, BaseCharacter target = null)
     {
         float result = 0;
 
-        if (Value)
-        {
-
-        }
-        else if (Stat)
+        if (Stat)
         {
             List<BaseCharacter> targets = new List<BaseCharacter>();
             switch (Target)
@@ -64,59 +55,59 @@ public class GameStatValue : ScriptableObject
                 result += Stat.GetGameStat(t);
             }
 
-            result *= GetStrength(strength);
+            result *= value;
 
             result += Constant;
         }
         else
         {
-            result = GetStrength(strength);
+            result = value;
         }
 
         return result;
     }
 
-    public string GetDescription(EffectStrength strength, BaseGameStat affectedStat)
-    {
-        string description = "";
-        
-        var v = Mathf.Abs(GetStrength(strength));
-
-        // Likely percentage
-        if (v <= 1)
-        {
-            description = (v * 100).ToString();
-            if (!DontShowAsPercentage) description += "%";
-        }
-
-        if (affectedStat != Stat)
-        {
-            if (Stat)
-            {
-                description += " of";
-                switch (Target)
-                {
-                    case TargetMode.None:
-                    case TargetMode.Self:
-                        description += " the Caster's ";
-                        break;
-                    case TargetMode.OneAlly:
-                    case TargetMode.OneEnemy:
-                    case TargetMode.AllAllies:
-                    case TargetMode.AllEnemies:
-                        description += " your ";
-                        break;
-                }
-
-                description += Stat.Name;
-            }
-        }
-
-        if (Constant > 0)
-        {
-            description += " plus " + Constant;
-        }
-
-        return description;
-    }
+    //public string GetDescription(EffectStrength strength, BaseGameStat affectedStat)
+    //{
+    //    string description = "";
+    //    
+    //    var v = Mathf.Abs(GetStrength(strength));
+    //
+    //    // Likely percentage
+    //    if (v <= 1)
+    //    {
+    //        description = (v * 100).ToString();
+    //        if (!DontShowAsPercentage) description += "%";
+    //    }
+    //
+    //    if (affectedStat != Stat)
+    //    {
+    //        if (Stat)
+    //        {
+    //            description += " of";
+    //            switch (Target)
+    //            {
+    //                case TargetMode.None:
+    //                case TargetMode.Self:
+    //                    description += " the Caster's ";
+    //                    break;
+    //                case TargetMode.OneAlly:
+    //                case TargetMode.OneEnemy:
+    //                case TargetMode.AllAllies:
+    //                case TargetMode.AllEnemies:
+    //                    description += " your ";
+    //                    break;
+    //            }
+    //
+    //            description += Stat.Name;
+    //        }
+    //    }
+    //
+    //    if (Constant > 0)
+    //    {
+    //        description += " plus " + Constant;
+    //    }
+    //
+    //    return description;
+    //}
 }

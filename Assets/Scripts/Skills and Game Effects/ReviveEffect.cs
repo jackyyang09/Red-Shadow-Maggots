@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Revive Effect", menuName = "ScriptableObjects/Game Effects/On Death/Revive", order = 1)]
-public class ReviveEffect : BaseOnDeathEffect
+public class ReviveEffect : BaseStatScaledEffect
 {
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Revive";
@@ -11,11 +11,17 @@ public class ReviveEffect : BaseOnDeathEffect
         "When " + RSMConstants.Keywords.Short.HEALTH + " reaches 0, " +
         "prevents death and regain " + RSMConstants.Keywords.Short.HEALTH + ".";
 
-    public GameStatValue value;
-
-    public override void OnDeath(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override bool Activate(AppliedEffect effect)
     {
-        target.Heal(value.SolveValue(strength, user));
+        effect.cachedValues.Clear();
+        effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.target));
+
+        return base.Activate(effect);
+    }
+
+    public override void OnDeath(AppliedEffect effect)
+    {
+        effect.target.Heal(effect.cachedValues[0]);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
@@ -37,14 +43,16 @@ public class ReviveEffect : BaseOnDeathEffect
 
         d += " that recovers " + RSMConstants.Keywords.Short.HEALTH + " equal to ";
 
-        d += value.GetDescription(props.strength, value.Stat) + " " + 
+        d += EffectValueDescriptor(props.effectValues[0], stat) +
             DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return d;
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
-        return ExplainerDescription.Trim('.') + " equal to " + value.GetDescription(strength, value.Stat);
+        string d = ExplainerDescription;
+        var index = d.IndexOf(RSMConstants.Keywords.Short.HEALTH);
+        return d.Insert(index, effect.cachedValues[0] + " ");
     }
 }

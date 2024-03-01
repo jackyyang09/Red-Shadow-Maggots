@@ -6,26 +6,8 @@ using UnityEngine;
 
 public class EarthBenderSpyPassive : BaseCharacterPassive
 {
-    [Header("Wait Limit Effect")]
-    [SerializeField] EffectStrength waitLimitStrength;
-    [SerializeField] StatChangeEffect waitLimitEffect;
-    [SerializeField] int waitLimitDuration;
-
-    [Header("Status Effect")]
-    [SerializeField] EffectStrength statusStrength;
-    [SerializeField] EarthBenderSpyEffect statusEffect;
-
-    bool HasStacks
-    {
-        get
-        {
-            if (baseCharacter.EffectDictionary.ContainsKey(statusEffect))
-            {
-                return baseCharacter.EffectDictionary[statusEffect].Count > 0;
-            }
-            return false;
-        }
-    }
+    [SerializeField] EffectProperties waitLimitProps;
+    [SerializeField] EffectProperties statusProps;
 
     bool qteSuccess;
 
@@ -53,61 +35,31 @@ public class EarthBenderSpyPassive : BaseCharacterPassive
         }
         else
         {
-            DecreaseStack();
+            DecreaseStack(statusProps.effect);
         }
     }
 
     void OnDealDamage(BaseCharacter character)
     {
-        var props = new EffectProperties();
-
-        props.effect = waitLimitEffect;
-        props.effectDuration = waitLimitDuration;
-        props.strength = EffectStrength.Medium;
-
-        ApplyEffectToCharacter(character, props);
+        ApplyEffectToCharacter(character, waitLimitProps);
     }
 
     void OnTakeDamage(float trueDamage, DamageStruct damage)
     {
-        var qte = damage.QTEResult;
-
-        switch (BattleSystem.Instance.CurrentPhase)
-        {
-            case BattlePhases.PlayerTurn:
-                qteSuccess = !baseCharacter.IsPlayer() && qte != QuickTimeBase.QTEResult.Perfect;
-                break;
-            case BattlePhases.EnemyTurn:
-                qteSuccess = baseCharacter.IsPlayer() && qte == QuickTimeBase.QTEResult.Perfect;
-                break;
-        }
+        var qteSuccess = DefenseQTESuccessful(damage);
 
         if (!qteSuccess && damage.Source)
         {
             // Damage must be from an Attack
-            RemoveEffect();
+            RemoveEffect(statusProps.effect);
         }
-    }
-
-    void DecreaseStack()
-    {
-        if (!HasStacks) return;
-        var ae = baseCharacter.EffectDictionary[statusEffect][0];
-        baseCharacter.RemoveEffect(ae, 1);
-    }
-
-    void RemoveEffect()
-    {
-        if (!HasStacks) return;
-        var ae = baseCharacter.EffectDictionary[statusEffect][0];
-        baseCharacter.RemoveEffect(ae, ae.Stacks);
     }
 
     void OnEndTurn()
     {
         if (!qteSuccess) return;
 
-        ApplyEffect(statusEffect, 1);
+        ApplyEffect(statusProps);
 
         qteSuccess = false;
     }

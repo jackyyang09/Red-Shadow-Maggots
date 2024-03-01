@@ -12,32 +12,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Pop Pee-ls
   m_EditorClassIdentifier: 
-  skillName: Pop Pee-ls
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Pop Pee-ls
   sprite: {fileID: 21300000, guid: fddacf9d37423a347b8258351670cc21, type: 3}
   targetMode: 1
-  skillCooldown: 6
   gameEffects:
-  - effect: {fileID: 11400000, guid: 4c411a7de34c7424cbd554d17e069694, type: 2}
+  - effect: {fileID: 11400000, guid: 5605d8a473401c1479cdae400cf85313, type: 2}
+    values:
+    - 0.05
+    effectValues:
+    - multiplier: 0.05
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 5
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0.1
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 5
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: f95e984902c223d4db569c79eb190be8, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0.3
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: e3cd3f1986e138142be19bff447424b2, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0.3
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 2
-    customValues: []
+  coolDown: 3

@@ -31,6 +31,46 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
     protected static Color buffColour = new Color(0.6f, 0.8f, 1f);
     protected static Color debuffColour = new Color(1, 0.25f, 0.25f);
 
+    GUIStyle nullStyle;
+    protected GUIStyle NullStyle
+    {
+        get
+        {
+            if (nullStyle == null)
+            {
+                nullStyle = new GUIStyle(EditorStyles.label)
+                    .ApplyTextAnchor(TextAnchor.MiddleCenter)
+                    .ApplyWordWrap()
+                    .ApplyRichText();
+            }
+            return nullStyle;
+        }
+    }
+    GUIStyle buffStyle;
+    protected GUIStyle BuffStyle
+    {
+        get
+        {
+            if (buffStyle == null)
+            {
+                buffStyle = new GUIStyle(NullStyle).SetTextColor(buffColour);
+            }
+            return buffStyle;
+        }
+    }
+    GUIStyle debuffStyle;
+    protected GUIStyle DebuffStyle
+    {
+        get
+        {
+            if (debuffStyle == null)
+            {
+                debuffStyle = new GUIStyle(NullStyle).SetTextColor(debuffColour);
+            }
+            return debuffStyle;
+        }
+    }
+
     protected virtual void OnEnable()
     {
         targetObject = target as T;
@@ -38,7 +78,7 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         InitializeSerializedProperties();
 
         CacheSpriteAssetPreview();
-    }
+    }   
 
     protected SerializedProperty sprite;
 
@@ -75,32 +115,21 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         }
     }
 
-    protected void RenderEffectDescriptions(EffectProperties[] gameEffects, string[] skillDescriptions)
+    protected void RenderEffectDescriptions(TargetMode target, EffectProperties[] gameEffects, string[] skillDescriptions)
     {
+        if (gameEffects.Length == 0)
+        {
+            EditorGUILayout.LabelField("None", NullStyle);
+            return;
+        }
+
         for (int i = 0; i < gameEffects.Length; i++)
         {
-            var nullStyle = new GUIStyle(EditorStyles.label)
-                .ApplyTextAnchor(TextAnchor.MiddleCenter)
-                .ApplyWordWrap()
-                .ApplyRichText();
+            var ge = gameEffects[i];
 
-            var buffStyle = new GUIStyle(EditorStyles.label)
-                .SetTextColor(buffColour)
-                .ApplyTextAnchor(TextAnchor.MiddleCenter)
-                .ApplyWordWrap()
-                .ApplyRichText();
-
-            var debuffStyle = new GUIStyle(EditorStyles.label)
-                .SetTextColor(debuffColour)
-                .ApplyTextAnchor(TextAnchor.MiddleCenter)
-                .ApplyWordWrap()
-                .ApplyRichText();
-
-            var gameEffect = gameEffects[i];
-
-            if (gameEffect.effect == null)
+            if (ge.effect == null)
             {
-                EditorGUILayout.LabelField("None", nullStyle);
+                EditorGUILayout.LabelField("None", NullStyle);
                 continue;
             }
 
@@ -110,18 +139,43 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
                 desc = desc.Replace("u>", "b>");
             }
 
-            switch (gameEffect.effect.effectType)
+            TargetMode t = target;
+            if (ge.targetOverride != TargetMode.None) t = ge.targetOverride;
+
+            switch (ge.effect.effectType)
             {
                 case EffectType.None:
-                    EditorGUILayout.LabelField(desc, nullStyle);
+                    EditorGUILayout.LabelField(desc, NullStyle);
                     break;
                 case EffectType.Heal:
                 case EffectType.Buff:
-                    EditorGUILayout.LabelField(desc, buffStyle);
+                    switch (t)
+                    {
+                        case TargetMode.OneEnemy:
+                        case TargetMode.AllEnemies:
+                            EditorGUILayout.LabelField(desc, DebuffStyle);
+                            break;
+                        case TargetMode.OneAlly:
+                        case TargetMode.AllAllies:
+                        case TargetMode.Self:
+                            EditorGUILayout.LabelField(desc, BuffStyle);
+                            break;
+                    }
                     break;
                 case EffectType.Debuff:
                 case EffectType.Damage:
-                    EditorGUILayout.LabelField(desc, debuffStyle);
+                    switch (t)
+                    {
+                        case TargetMode.OneEnemy:
+                        case TargetMode.AllEnemies:
+                            EditorGUILayout.LabelField(desc, BuffStyle);
+                            break;
+                        case TargetMode.OneAlly:
+                        case TargetMode.AllAllies:
+                        case TargetMode.Self:
+                            EditorGUILayout.LabelField(desc, DebuffStyle);
+                            break;
+                    }
                     break;
             }
         }
@@ -151,7 +205,6 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
 
                 EditorGUILayout.PropertyField(strengthProp);
                 object value = null;
-                if (ge.effect != null) value = ge.effect.GetEffectStrength(ge.strength, ge.customValues);
                 string valueLabel = "None";
                 if (value != null) valueLabel = value.ToString();
                 EditorGUILayout.LabelField("Value: ", valueLabel);

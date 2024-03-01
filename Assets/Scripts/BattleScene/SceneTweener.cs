@@ -293,12 +293,16 @@ public class SceneTweener : BasicSingleton<SceneTweener>
 
                 battleSystem.ActiveEnemy.CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.15f);
                 activePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.1f);
+
+                activePlayer.ReturnToIdle();
                 break;
             case BattlePhases.EnemyTurn:
                 var activeEnemy = battleSystem.ActiveEnemy;
 
                 battleSystem.ActivePlayer.CharacterMesh.transform.DORotate(new Vector3(0, -90, 0), 0.15f);
                 activeEnemy.CharacterMesh.transform.DORotate(new Vector3(0, 90, 0), 0.1f);
+
+                activeEnemy.ReturnToIdle();
                 break;
         }
 

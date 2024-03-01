@@ -4,59 +4,54 @@ using UnityEngine;
 
 public class MultiStatChangeEffect : BaseGameEffect
 {
-    [System.Serializable]
-    public class StatChangePair
-    {
-        public BaseGameStat targetStat;
-        public float value;
-    }
-
-    [SerializeField] protected List<StatChangePair> stats = new List<StatChangePair>();
+    [SerializeField] protected BaseGameStat[] stats;
 
     public override bool Activate(AppliedEffect effect)
     {
         if (effect.cachedValues.Count == 0)
         {
-            foreach (var stat in stats)
+            for (int i = 0; i < stats.Length; i++)
             {
-                stat.targetStat.SetGameStat(effect.target, stat.value);
-                effect.cachedValues.Add(stat.value);
+                var value = GetValue(stats[i], effect.values[i], effect.target);
+                stats[i].SetGameStat(effect.target, value);
+                effect.cachedValues.Add(value);
+                Debug.Log(value);
             }
         }
         else
         {
-            for (int i = 0; i < stats.Count; i++)
+            for (int i = 0; i < stats.Length; i++)
             {
                 var amount = effect.cachedValues[i];
-                stats[i].targetStat.SetGameStat(effect.target, amount);
+                stats[i].SetGameStat(effect.target, amount);
             }
         }
 
         return base.Activate(effect);
     }
 
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(AppliedEffect effect)
     {
-        foreach (var stat in stats)
+        for (int i = 0; i < stats.Length; i++)
         {
-            stat.targetStat.SetGameStat(target, -stat.value);
+            stats[i].SetGameStat(effect.target, -effect.cachedValues[i]);
         }
 
-        base.OnExpire(user, target, strength, customValues);
+        base.OnExpire(effect);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         string d = "";
 
-        for (int i = 0; i < stats.Count; i++)
+        for (int i = 0; i < stats.Length; i++)
         {
             if (i > 0)
             {
                 d += ", ";
             }
 
-            if (stats[i].value >= 0)
+            if (effect.cachedValues[i] >= 0)
             {
                 d += "increase ";
             }
@@ -65,9 +60,29 @@ public class MultiStatChangeEffect : BaseGameEffect
                 d += "decrease ";
             }
 
-            d += stats[i].targetStat.Name;
+            d += stats[i].Name;
 
-            d += " by " + stats[i].value.FormatPercentage() /* + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit)*/;
+            d += " by ";
+
+            switch (effect.values[0].deltaType)
+            {
+                case EffectProperties.EffectType.Percentage:
+                    {
+                        var abs = Mathf.Abs(effect.cachedValues[i]);
+                        d += abs.FormatPercentage();
+                    }
+                    break;
+                case EffectProperties.EffectType.Value:
+                    var val = Mathf.FloorToInt(effect.cachedValues[i]);
+                    d += Mathf.Abs(val);
+                    break;
+                case EffectProperties.EffectType.Decimal:
+                    {
+                        var abs = Mathf.Abs(effect.cachedValues[i]);
+                        d += abs.FormatToDecimal();
+                    }
+                    break;
+            }
         }
 
         d = d.Substring(0, 1).ToUpper() + d.Substring(1);
@@ -75,31 +90,33 @@ public class MultiStatChangeEffect : BaseGameEffect
         return d;
     }
 
-    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    //{
-    //    string description = TargetModeDescriptor(targetMode);
-    //
-    //    for (int i = 0; i < stats.Count; i++)
-    //    {
-    //        if (i > 0)
-    //        {
-    //            description += ", ";
-    //        }
-    //
-    //        description += stats[i].targetStat.Name;
-    //
-    //        if (stats[i].value.Table[0] >= 0)
-    //        {
-    //            description += " increased ";
-    //        }
-    //        else
-    //        {
-    //            description += " decreased ";
-    //        }
-    //
-    //        description += "by " + stats[i].value.GetDescription(props.strength) + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    //    }
-    //
-    //    return description;
-    //}
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    {
+        string description = TargetModeDescriptor(targetMode);
+    
+        for (int i = 0; i < stats.Length; i++)
+        {
+            if (i > 0)
+            {
+                description += ", ";
+            }
+    
+            description += stats[i].Name;
+    
+            if (props.effectValues[i].multiplier >= 0 && props.effectValues[i].flat >= 0)
+            {
+                description += " increased ";
+            }
+            else
+            {
+                description += " decreased ";
+            }
+
+            description += "by " + EffectValueDescriptor(props.effectValues[i]);
+            
+            description += DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        }
+    
+        return description;
+    }
 }

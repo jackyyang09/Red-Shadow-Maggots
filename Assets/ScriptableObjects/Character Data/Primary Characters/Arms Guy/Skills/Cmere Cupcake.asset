@@ -12,27 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Cmere Cupcake
   m_EditorClassIdentifier: 
-  skillName: C'mere Cupcake
-  skillDescription:
-  - +Apply Taunt to an Ally (2 Turns)
-  - +20% Defence to an Ally (3 Turns)
-  - +30% Crit Chance to Self (3 Turns)
+  abilityName: C'mere Cupcake
   sprite: {fileID: 21300000, guid: d59d6360890fea94db09304c72d57d22, type: 3}
   targetMode: 1
-  skillCooldown: 6
   gameEffects:
   - effect: {fileID: 11400000, guid: 9cbb860454c45b249ba6a03a856c6ee8, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 0
-    customValues: []
-  - effect: {fileID: 11400000, guid: e1e99e69d46ef884a91912252eb8261f, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 578987be117f497428b3dc25ca4eaeb4, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 5
-    strength: 3
-    customValues: []
+  coolDown: 6

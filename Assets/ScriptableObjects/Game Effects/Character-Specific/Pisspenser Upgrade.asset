@@ -13,12 +13,42 @@ MonoBehaviour:
   m_Name: Pisspenser Upgrade
   m_EditorClassIdentifier: 
   effectIcon: {fileID: 21300000, guid: ecd7d4b61fecfaf4da21b61d2d9de876, type: 3}
+  effectName: Upgrade
   effectText: Upgrade!
   effectType: 2
-  activateOnApply: 1
   activateOnDeath: 0
   particlePrefab: {fileID: 0}
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 0}
   tickSound: {fileID: 0}
-  stats: []
+  stats:
+  - {fileID: 11400000, guid: fe45de3acb5849f499215f92adf9f519, type: 2}
+  - {fileID: 11400000, guid: 4d8d9af137efab146868ad5b0afb9a9e, type: 2}
+  healEffect:
+    effect: {fileID: 11400000, guid: f95e984902c223d4db569c79eb190be8, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  shieldEffect:
+    effect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0

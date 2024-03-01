@@ -12,17 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Super Slam
   m_EditorClassIdentifier: 
-  skillName: Getting Riled Up
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Getting Riled Up
   sprite: {fileID: 21300000, guid: 839c6ac223c07f449b514be10ac237c2, type: 3}
   targetMode: 5
-  skillCooldown: 5
   gameEffects:
   - effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 5
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 5

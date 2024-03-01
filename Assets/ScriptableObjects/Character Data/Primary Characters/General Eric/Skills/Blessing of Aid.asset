@@ -12,21 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Blessing of Aid
   m_EditorClassIdentifier: 
-  skillName: Blessing of Aid
-  skillDescription:
-  - Removes all Debuffs from an Ally
-  - +20% Crit Chance to an Ally (2 Turns)
+  abilityName: Blessing of Aid
   sprite: {fileID: 21300000, guid: d5910f88a0f248041823f02241b0765d, type: 3}
   targetMode: 1
-  skillCooldown: 5
   gameEffects:
   - effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 578987be117f497428b3dc25ca4eaeb4, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 2
-    customValues: []
+  coolDown: 5

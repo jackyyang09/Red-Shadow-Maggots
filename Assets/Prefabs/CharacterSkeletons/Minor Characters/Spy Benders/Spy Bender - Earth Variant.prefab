@@ -393,6 +393,14 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: a3d1eea9e024604469d4bfe48778a861, type: 2}
+    - target: {fileID: 6832623051895393883, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      propertyPath: value19
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6832623051895393883, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      propertyPath: value21
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6832623051996401996, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
       propertyPath: colliders.Array.size
       value: 11
@@ -633,6 +641,18 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 07473d9558991744dbe51c302a901e0f, type: 2}
+    - target: {fileID: 8314973778245115421, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[26]
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314973778245115421, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[33]
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8314973778245115421, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      propertyPath: m_BlendShapeWeights.Array.data[37]
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8867785508459379118, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
@@ -653,6 +673,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 106599514118386598, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6102627072049754583}
+    - targetCorrespondingSourceObject: {fileID: 106599514118386598, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7448864721155373494}
     - targetCorrespondingSourceObject: {fileID: 513383113266405808, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4976625658634864967}
@@ -1638,11 +1661,61 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e5d84ad993c0ff4997f9990feaef775, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waitLimitStrength: 3
-  waitLimitEffect: {fileID: 11400000, guid: ecfc85ced7b2ca04985578832954eca4, type: 2}
-  waitLimitDuration: 1
-  statusStrength: 3
-  statusEffect: {fileID: 11400000, guid: a5fb6095594166a4f84a770cf792e329, type: 2}
+  waitLimitProps:
+    effect: {fileID: 11400000, guid: ecfc85ced7b2ca04985578832954eca4, type: 2}
+    values:
+    - 0.1
+    effectValues:
+    - multiplier: 0
+      flat: -0.05
+      flatType: 0
+      deltaType: 2
+    effectDuration: 1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  statusProps:
+    effect: {fileID: 11400000, guid: 24240514d14d2dc468a8a059894cfccc, type: 2}
+    values:
+    - 0.1
+    - 0.05
+    - 0.1
+    - 0.05
+    effectValues:
+    - multiplier: 0
+      flat: 0.1
+      flatType: 0
+      deltaType: 0
+    - multiplier: 0
+      flat: -0.05
+      flatType: 0
+      deltaType: 2
+    - multiplier: 0
+      flat: 0.1
+      flatType: 0
+      deltaType: 0
+    - multiplier: 0
+      flat: 0.05
+      flatType: 0
+      deltaType: 0
+    effectDuration: -1
+    activationLimit: 0
+    stacks: 1
+    maxStacks: -1
+    targetOverride: 0
+--- !u!114 &7448864721155373494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8438647024381206678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d922c9c173254943b1995919bdc522f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!137 &8559930042681965649 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 192621751013207905, guid: 8bc9c17858e0cc5478e93108bd6216f4, type: 3}

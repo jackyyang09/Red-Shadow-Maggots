@@ -135,7 +135,7 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void BeginAttack()
     {
-        battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer.transform);
+        battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer);
         if (battleSystem.ActiveEnemy.CanCrit)
         {
             if (battleSystem.ActiveEnemy.Reference.isSuperCriticalAnAttack)

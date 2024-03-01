@@ -12,30 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Rigid Form
   m_EditorClassIdentifier: 
-  skillName: Rigid Form
-  skillDescription: []
+  abilityName: Rigid Form
   sprite: {fileID: 21300000, guid: 6f2e4f5f1e2885740ab1891c523c4e3b, type: 3}
   targetMode: 5
-  skillCooldown: 5
   gameEffects:
   - effect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0.3
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 3
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 5db7c8e0e7afe924a8b066cab1babee9, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: d9f7a453c0ee76f4c90397f540fa204f, type: 2}
+    values:
+    - -0.15
+    effectValues:
+    - multiplier: 0
+      flat: -0.15
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 2
-    customValues: []
+  coolDown: 5

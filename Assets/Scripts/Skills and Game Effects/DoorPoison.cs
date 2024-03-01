@@ -22,9 +22,10 @@ public class DoorPoison : DamagePerTurnEffect
     public override string ExplainerDescription =>
         "Every turn, get hit by a door and lose " + RSMConstants.Keywords.Short.HEALTH + ".";
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
-        return ExplainerDescription.Split('.')[0] + " equal to " + value.GetDescription(strength, value.Stat);
+        return ExplainerDescription.Split('.')[0] 
+            + " equal to " + effect.cachedValues[0];
     }
 
     public GameObject doorPrefab;
@@ -48,22 +49,16 @@ public class DoorPoison : DamagePerTurnEffect
                 break;
         }
 
-        //s += (int)(change * 100) + "% " + Keywords.Short.MAX_HEALTH + 
-        //    " every turn by getting hit by a door ";
-        s += "hit by a <u>Door</u> every turn, taking " + value.GetDescription(props.strength, value.Stat) +
-            " in damage " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        s += "hit by a <u>Door</u> every turn, taking " +
+            EffectValueDescriptor(props.effectValues[0], "your", stat) + " in damage " + 
+            DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
 
         return s;
     }
 
     public override void Tick(AppliedEffect effect)
     {
-        effect.target.StartCoroutine(PlayEffect(effect.target, () => DealDamage(effect.target, effect.strength, effect.customValues)));
-    }
-
-    public override void TickCustom(BaseCharacter user, BaseCharacter target, List<object> values)
-    {
-        //target.StartCoroutine(PlayEffect(target, () => DealDamage(target, strength, values)));
+        effect.target.StartCoroutine(PlayEffect(effect.target, () => DealDamage(effect.cachedValues[0], effect.target)));
     }
 
     IEnumerator PlayEffect(BaseCharacter target, System.Action damageDelegate)

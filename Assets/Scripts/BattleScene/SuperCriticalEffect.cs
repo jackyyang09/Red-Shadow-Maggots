@@ -4,6 +4,9 @@ using UnityEngine;
 using UnityEngine.Events;
 using static Facade;
 
+/// <summary>
+/// Deprecated
+/// </summary>
 public abstract class SuperCriticalEffect : MonoBehaviour
 {
     [SerializeField] protected AnimationHelper animHelper = null;
@@ -29,7 +32,7 @@ public abstract class SuperCriticalEffect : MonoBehaviour
 
     public void ApplyNextSuperCritEffect()
     {
-        SkillObject superCrit = baseCharacter.Reference.superCritical;
+        var superCrit = baseCharacter.Reference.superCritical;
         if (effectsApplied >= superCrit.gameEffects.Length)
         {
             Debug.LogWarning(nameof(SuperCriticalEffect) + " - " + gameObject.name + ": " +

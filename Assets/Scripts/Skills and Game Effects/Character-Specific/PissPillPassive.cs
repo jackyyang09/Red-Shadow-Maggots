@@ -9,13 +9,13 @@ using Random = UnityEngine.Random;
 public class PissPillPassive : BaseCharacterPassive
 {
     [Header("Peed Application")]
-    [SerializeField] PeePoison peeEffect;
+    [SerializeField] EffectProperties peeProps;
     [SerializeField] float peeChance;
     [SerializeField] float peeChanceGreater;
-    [SerializeField] int peeDuration;
     float[] peeChances;
 
     [Header("Debuff Clear")]
+    [SerializeField] EffectProperties clearProps;
     [SerializeField] ClearDebuffs clearDebuffEffect;
 
     List<BaseCharacter> beneficiaries = new List<BaseCharacter>();
@@ -72,17 +72,11 @@ public class PissPillPassive : BaseCharacterPassive
 
     public void ApplyPeed()
     {
-        var props = new EffectProperties();
-
-        props.effect = peeEffect;
-        props.effectDuration = peeDuration;
-        props.strength = EffectStrength.Medium;
-
-        if (!battleSystem.OpposingCharacter.EffectDictionary.ContainsKey(peeEffect))
+        if (!battleSystem.OpposingCharacter.EffectDictionary.ContainsKey(peeProps.effect))
         {
             beneficiaries.Add(baseCharacter);
         }
-        ApplyEffectToCharacter(battleSystem.OpposingCharacter, props);
+        ApplyEffectToCharacter(battleSystem.OpposingCharacter, peeProps);
     }
 
     private void OnDealDamage(BaseCharacter attacker, BaseCharacter defender)
@@ -91,7 +85,7 @@ public class PissPillPassive : BaseCharacterPassive
         if (beneficiaries.Contains(defender)) return;
 
         // Trigger only when attacking an enemy with Peed
-        if (!defender.EffectDictionary.ContainsKey(peeEffect)) return;
+        if (!defender.EffectDictionary.ContainsKey(peeProps.effect)) return;
 
         List<BaseCharacter> allies = null;
 
@@ -114,11 +108,9 @@ public class PissPillPassive : BaseCharacterPassive
             }
         }
 
-        EffectProperties props = new EffectProperties();
-        props.effect = clearDebuffEffect;
         if (attacker.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff))
         {
-            clearDebuffEffect.Activate(new AppliedEffect(baseCharacter, attacker, props));
+            ApplyEffect(clearProps);
         }
         else
         {
@@ -126,7 +118,7 @@ public class PissPillPassive : BaseCharacterPassive
             if (allies.Count > 0)
             {
                 var randomAlly = allies[Random.Range(0, allies.Count)];
-                clearDebuffEffect.Activate(new AppliedEffect(baseCharacter, randomAlly, props));
+                ApplyEffectToCharacter(randomAlly, clearProps);
             }
         }
 

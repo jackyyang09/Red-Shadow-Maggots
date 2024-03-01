@@ -9,26 +9,50 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Script: {fileID: 11500000, guid: 4bb6f183406fef34383a205fbc65307a, type: 3}
   m_Name: Boulder Fall
   m_EditorClassIdentifier: 
-  skillName: Boulder Fall
-  skillDescription: []
+  abilityName: Boulder Fall
   sprite: {fileID: 21300000, guid: 906f298bd6d108c4dbdb8e5090b90db1, type: 3}
   targetMode: 4
-  skillCooldown: 0
   gameEffects:
   - effect: {fileID: 11400000, guid: 3186e7f4ce00a624c87a754725e77c21, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: -0.2
+      flat: 0
+      flatType: 0
+      deltaType: 1
     effectDuration: 3
     activationLimit: 0
     stacks: 0
-    targetOverride: 0
-    strength: 3
-    customValues: []
+    maxStacks: -1
+    targetOverride: 4
   - effect: {fileID: 11400000, guid: c2811681df6718e46a599c2406a9d996, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: -0.2
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
-    targetOverride: 0
-    strength: 3
-    customValues: []
+    maxStacks: -1
+    targetOverride: 4
+  damageScaledStat: {fileID: 0}
+  damageEffects:
+  - effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
+    values: []
+    effectValues:
+    - multiplier: 3.5
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
+    targetOverride: 4

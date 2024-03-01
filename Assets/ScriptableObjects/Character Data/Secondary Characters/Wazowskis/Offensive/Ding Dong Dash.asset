@@ -12,23 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Ding Dong Dash
   m_EditorClassIdentifier: 
-  skillName: Ding Dong Dash
-  skillDescription: []
+  abilityName: Ding Dong Dash
   sprite: {fileID: 21300000, guid: a622bc4b4e0a18ae0b1af9ec405ad7aa, type: 3}
   targetMode: 5
-  skillCooldown: 6
   gameEffects:
-  - effect: {fileID: 11400000, guid: 18d4744c72e773f4b93955f20fa87df9, type: 2}
-    effectDuration: 1
-    activationLimit: 0
-    stacks: 0
-    targetOverride: 5
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
+  - effect: {fileID: 11400000, guid: 32e35a280914b064cb9f1e5f5a5a2be0, type: 2}
+    values:
+    - -0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
+    targetOverride: 5
+  - effect: {fileID: 11400000, guid: a1e67efc9ec2c0346ad28968db37b5fe, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  - effect: {fileID: 11400000, guid: b9d99a9445a90a84a9fc8df704a8d49c, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  coolDown: 5

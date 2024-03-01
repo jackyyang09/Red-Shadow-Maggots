@@ -12,17 +12,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Spill Piss
   m_EditorClassIdentifier: 
-  skillName: Spill Piss
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Spill Piss
   sprite: {fileID: 21300000, guid: 058a2627dc63cec4786b47c96f8a921d, type: 3}
   targetMode: 2
-  skillCooldown: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: 93c0c505074daf7499074166aabe2dc7, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 5

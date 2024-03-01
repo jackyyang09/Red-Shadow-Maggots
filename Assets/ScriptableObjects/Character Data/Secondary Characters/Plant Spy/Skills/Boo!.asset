@@ -9,35 +9,77 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Script: {fileID: 11500000, guid: 4bb6f183406fef34383a205fbc65307a, type: 3}
   m_Name: Boo!
   m_EditorClassIdentifier: 
-  skillName: Boo!
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Boo!
   sprite: {fileID: 21300000, guid: e498ac332011ece4bb487eef0bd9b3be, type: 3}
-  targetMode: 2
-  skillCooldown: 5
+  targetMode: 0
   gameEffects:
-  - effect: {fileID: 11400000, guid: 36545912bfc778442866dc1d5570eb15, type: 2}
+  - effect: {fileID: 11400000, guid: 3186e7f4ce00a624c87a754725e77c21, type: 2}
+    values:
+    - -0.25
+    effectValues:
+    - multiplier: -0.25
+      flat: 0
+      flatType: 0
+      deltaType: 1
     effectDuration: 3
-    targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 93c0c505074daf7499074166aabe2dc7, type: 2}
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
+    targetOverride: 2
+  - effect: {fileID: 11400000, guid: c2811681df6718e46a599c2406a9d996, type: 2}
+    values:
+    - -0.15
+    effectValues:
+    - multiplier: 0
+      flat: -0.15
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
-    targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 578987be117f497428b3dc25ca4eaeb4, type: 2}
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
+    targetOverride: 2
+  - effect: {fileID: 11400000, guid: 17e838c6d68f07f4d9946d4aa9ccdd46, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
     targetOverride: 5
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: c89b508f30462ea4d8b2cf209be40559, type: 2}
+  - effect: {fileID: 11400000, guid: a1e67efc9ec2c0346ad28968db37b5fe, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
     targetOverride: 5
-    strength: 3
-    customValues: []
+  damageScaledStat: {fileID: 0}
+  damageEffects:
+  - effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
+    values:
+    - 6
+    effectValues:
+    - multiplier: 6
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 0
+    targetOverride: 2

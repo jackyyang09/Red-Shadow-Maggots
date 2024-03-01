@@ -17,6 +17,8 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
 
     bool critChanceChanged;
 
+    public int MaxStacks => throw new System.NotImplementedException();
+
     public void OnStacksChanged(AppliedEffect effect)
     {
         if (effect.Stacks >= critChanceRequirement && !critChanceChanged)
@@ -42,7 +44,7 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
         base.Tick(effect);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         string d = "Gain effects depending on stack count:\n" +
             "<indent=2.5%>" +

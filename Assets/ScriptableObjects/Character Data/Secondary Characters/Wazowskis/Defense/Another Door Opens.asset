@@ -12,29 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Another Door Opens
   m_EditorClassIdentifier: 
-  skillName: Another Door Opens
-  skillDescription: []
+  abilityName: Another Door Opens
   sprite: {fileID: 21300000, guid: 50836447c6fed4b4daf80d6e4b215a38, type: 3}
-  targetMode: 1
-  skillCooldown: 5
+  targetMode: 5
   gameEffects:
-  - effect: {fileID: 11400000, guid: c89b508f30462ea4d8b2cf209be40559, type: 2}
-    effectDuration: 2
-    targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 4f1e08f41e5298843878353fc5cf3f32, type: 2}
+  - effect: {fileID: 11400000, guid: 44a68c7647b7dd344997046f829a6cde, type: 2}
+    values:
+    - 0.075
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+  - effect: {fileID: 11400000, guid: 8331c40900116a64a9a912d09f7485e4, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 201137323f285fa42a49d7b4a8380df0, type: 2}
+  - effect: {fileID: 11400000, guid: da546b01a80cd7c4882c0f89903de460, type: 2}
+    values:
+    - 0.15
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 1
-    targetOverride: 5
-    strength: 3
-    customValues: []
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  coolDown: 5

@@ -3,18 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Shield Effect", menuName = "ScriptableObjects/Game Effects/Shield", order = 1)]
-public class BaseShieldEffect : BaseGameEffect
+public class BaseShieldEffect : BaseStatScaledEffect
 {
-    public enum ScalingStat
-    {
-        Health,
-        Attack
-    }
-
-    [SerializeField] ScalingStat stat;
     [SerializeField] GameObject forceFieldPrefab;
-
-    public GameStatValue value;
 
     /// <summary>
     /// Applies a Shield to all allies, absorbing DMG equal to 45% of Gepard's DEF plus 600 for 3 turn(s).
@@ -22,25 +13,24 @@ public class BaseShieldEffect : BaseGameEffect
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Shield";
     public override string ExplainerDescription =>
-        "Takes " + RSMConstants.Keywords.Short.DAMAGE + " in place of " + RSMConstants.Keywords.Short.HEALTH + ". ";
+        "Takes " + RSMConstants.Keywords.Short.DAMAGE + " in place of " + 
+        RSMConstants.Keywords.Short.HEALTH + ". ";
         //RSMConstants.Keywords.Short.DAMAGE + " taken is reduced by " + RSMConstants.Keywords.Short.DEFENSE + ".";
-
-    BaseCharacter targetCharacter;
-    ForceFieldFX forceFieldInstance;
 
     public override bool Activate(AppliedEffect effect)
     {
-        float percentageChange = value.GetStrength(effect.strength);
         var target = effect.target;
 
-        targetCharacter = target;
-
+        effect.instantiatedObjects = new GameObject[1];
         if (effect.target.ShieldPercent == 0)
         {
-            forceFieldInstance = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
-            forceFieldInstance.Initialize(target);
+            var ff = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
+            ff.Initialize(target);
+            effect.instantiatedObjects[0] = ff.gameObject;
 
-            target.OnShieldBroken += OnShieldBroken;
+            effect.customCallbacks = new System.Action[1];
+            effect.customCallbacks[0] = () => OnSpecialCallback(effect);
+            target.OnShieldBroken += effect.customCallbacks[0];
         }
 
         if (effect.cachedValues.Count > 0)
@@ -49,16 +39,7 @@ public class BaseShieldEffect : BaseGameEffect
         }
         else
         {
-            float value = 0;
-            switch (stat)
-            {
-                case ScalingStat.Health:
-                    value = effect.caster.MaxHealth * percentageChange;
-                    break;
-                case ScalingStat.Attack:
-                    value = effect.caster.AttackModified * percentageChange;
-                    break;
-            }
+            float value = GetValue(stat, effect.values[0], effect.caster);
 
             target.GiveShield(value, effect);
             effect.cachedValues.Add(value);
@@ -67,27 +48,26 @@ public class BaseShieldEffect : BaseGameEffect
         return true;
     }
 
-    public override void OnExpire(BaseCharacter user, BaseCharacter target, EffectStrength strength, float[] customValues)
+    public override void OnExpire(AppliedEffect effect)
     {
-        base.OnExpire(user, target, strength, customValues);
-        Destroy(forceFieldInstance.gameObject);
+        base.OnExpire(effect);
+        Destroy(effect.instantiatedObjects[0]);
     }
 
-    void OnShieldBroken()
+    public override void OnSpecialCallback(AppliedEffect effect)
     {
-        targetCharacter.OnShieldBroken -= OnShieldBroken;
-        Destroy(forceFieldInstance.gameObject);
+        effect.target.OnShieldBroken -= effect.customCallbacks[0];
+        Destroy(effect.instantiatedObjects[0]);
+        base.OnSpecialCallback(effect);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         return ExplainerDescription;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float percentageChange = value.GetStrength(props.strength);
-
         string s = TargetModeDescriptor(targetMode);
 
         switch (targetMode)
@@ -106,20 +86,10 @@ public class BaseShieldEffect : BaseGameEffect
                 break;
         }
 
-        s += percentageChange * 100 + "% of your ";
+        s += EffectValueDescriptor(props.effectValues[0], "your", stat);
 
-        switch (stat)
-        {
-            case ScalingStat.Health:
-                s += RSMConstants.Keywords.Short.MAX_HEALTH;
-                break;
-            case ScalingStat.Attack:
-                s += RSMConstants.Keywords.Short.ATTACK;
-                break;
-        }
+        s += "as a <u>Shield</u> ";
 
-        s += " as a <u>Shield</u>";
-
-        return s + " " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 }

@@ -3,15 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
-public class BaseHealEffect : BaseGameEffect
+public class BaseHealEffect : BaseStatScaledEffect
 {
-    [SerializeField] protected GameStatValue value;
-
     public override bool Activate(AppliedEffect effect)
     {
-        var amount = value.SolveValue(effect.strength, effect.caster, effect.target);
+        var amount = GetValue(stat, effect.values[0], effect.caster);
 
-        //var amount = (float)GetEffectStrength(strength, customValues) * user.MaxHealth;
+        if (effect.cachedValues.Count == 0)
+        {
+            effect.cachedValues.Add(amount);
+        }
+        else
+        {
+            amount = effect.cachedValues[0];
+        }
 
         effect.target.Heal(amount);
 
@@ -20,12 +25,14 @@ public class BaseHealEffect : BaseGameEffect
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        var change = (int)((float)GetEffectStrength(props.strength, props.customValues) * 100);
-
         string s = TargetModeDescriptor(targetMode);
 
         switch (targetMode)
         {
+            case TargetMode.None:
+            case TargetMode.Self:
+                s += "Recover ";
+                break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
                 s += "recovers ";
@@ -37,32 +44,8 @@ public class BaseHealEffect : BaseGameEffect
         }
 
         s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
-            change + "% of your " + RSMConstants.Keywords.Short.MAX_HEALTH;
+            EffectValueDescriptor(props.effectValues[0], "your", stat);
 
         return s;
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                if (customValues.Length == 0)
-                {
-                    return 0f;
-                }
-                else return (float)customValues[0];
-            case EffectStrength.Weak:
-                return 0.05f;
-            case EffectStrength.Small:
-                return 0.15f;
-            case EffectStrength.Medium:
-                return 0.3f;
-            case EffectStrength.Large:
-                return 0.6f;
-            case EffectStrength.EX:
-                return 1f;
-        }
-        return 0;
     }
 }

@@ -12,33 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Filter Fluids
   m_EditorClassIdentifier: 
-  skillName: Filter Fluids
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Filter Fluids
   sprite: {fileID: 21300000, guid: c056025c8e5059c4cbcbd459ee2456fa, type: 3}
   targetMode: 1
-  skillCooldown: 5
   gameEffects:
   - effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 0
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
+    values:
+    - 0.05
+    effectValues:
+    - multiplier: 0.05
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 3
-    strength: 2
-    customValues: []
   - effect: {fileID: 11400000, guid: 5db7c8e0e7afe924a8b066cab1babee9, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 2
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 3
-    strength: 3
-    customValues: []
+  coolDown: 5

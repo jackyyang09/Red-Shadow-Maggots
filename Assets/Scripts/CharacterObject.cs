@@ -154,7 +154,7 @@ public class CharacterObject : ScriptableObject
 
     public bool hasAltSkillAnimation = false;
 
-    public SkillObject superCritical;
+    public SuperCritObject superCritical;
     public AnimationClip superCriticalAnim;
     public bool isSuperCriticalAnAttack;
     public AttackRange superCritRange;

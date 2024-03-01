@@ -12,26 +12,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Ping Position
   m_EditorClassIdentifier: 
-  skillName: Ping Position
-  skillDescription:
-  - -20% Defence to All Enemies (3 Turns)
-  - -20% Attack to All Enemies (3 Turns)
-  - +30% Crit Chance to Allies (3 Turns)
+  abilityName: Ping Position
   sprite: {fileID: 21300000, guid: fe682e7efb3ce644aa3be37dec2bcd72, type: 3}
   targetMode: 1
-  skillCooldown: 5
   gameEffects:
   - effect: {fileID: 11400000, guid: 9cbb860454c45b249ba6a03a856c6ee8, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 1
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 17e838c6d68f07f4d9946d4aa9ccdd46, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0.3
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
     activationLimit: 0
     stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 5

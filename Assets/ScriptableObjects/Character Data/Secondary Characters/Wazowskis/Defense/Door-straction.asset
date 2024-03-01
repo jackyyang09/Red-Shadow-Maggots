@@ -12,24 +12,47 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Door-straction
   m_EditorClassIdentifier: 
-  skillName: Door-straction
-  skillDescription: []
-  sprite: {fileID: 21300000, guid: a8f04f365338f90499b0163d5a97bc64, type: 3}
-  targetMode: 2
-  skillCooldown: 6
+  abilityName: Door-straction
+  sprite: {fileID: 21300000, guid: 66f1fcc2ac04c1f47afe8cb9f949437f, type: 3}
+  targetMode: 1
   gameEffects:
-  - effect: {fileID: 11400000, guid: 9780907339177e2479ecd4b0df0a595d, type: 2}
-    effectDuration: 5
-    targetOverride: 0
-    strength: 3
-    customValues: []
   - effect: {fileID: 11400000, guid: 9cbb860454c45b249ba6a03a856c6ee8, type: 2}
-    effectDuration: 1
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 5
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 5e5abe452e922584ca81d2268a2cc66a, type: 2}
+  - effect: {fileID: 11400000, guid: 5db7c8e0e7afe924a8b066cab1babee9, type: 2}
+    values:
+    - 0.3
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 5
-    strength: 4
-    customValues: []
+  - effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 5
+  coolDown: 6

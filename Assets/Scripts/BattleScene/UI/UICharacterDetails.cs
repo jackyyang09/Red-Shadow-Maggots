@@ -11,6 +11,8 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
     [SerializeField] float characterHoldTime = 0.75f;
     float fingerHoldTimer;
 
+    [SerializeField] Scrollbar effectScrollBar;
+
     [SerializeField] GameObject descriptionPrefab;
     [SerializeField] RectTransform contentRect;
 
@@ -101,6 +103,7 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
         focusedCharacter = character;
         CharacterPreviewUI.Instance.DisplayWithCharacter(focusedCharacter);
         UpdateEffectDescriptions();
+        effectScrollBar.value = 0;
 
         for (int i = 0; i < allyCharacters.Count; i++)
         {

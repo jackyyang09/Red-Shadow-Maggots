@@ -18,7 +18,7 @@ public class SkillButtonUI : MonoBehaviour
     public void UpdateStatus(GameSkill skill)
     {
         currentSkill = skill;
-        skillIcon.sprite = skill.referenceSkill.sprite;
+        skillIcon.sprite = skill.ReferenceSkill.sprite;
         if (!skill.CanUse)
         {
             cooldownText.enabled = true;

@@ -8,21 +8,19 @@ using JackysEditorHelpers;
 [CustomEditor(typeof(SkillObject))]
 public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 {
-    protected override string SHOW_GAMEEFFECTS { get { return "SKILLOBJECT_GAMEEFFECTS"; } }
+    protected override string SHOW_GAMEEFFECTS => "SKILLOBJECT_GAMEEFFECTS";
 
-    SerializedProperty skillName;
-    SerializedProperty skillDescription;
+    SerializedProperty abilityName;
     SerializedProperty targetMode;
-    SerializedProperty skillCooldown;
+    SerializedProperty coolDown;
     SerializedProperty gameEffects;
 
     public override void InitializeSerializedProperties()
     {
-        skillName = serializedObject.FindProperty(nameof(skillName));
-        skillDescription = serializedObject.FindProperty(nameof(skillDescription));
+        abilityName = serializedObject.FindProperty(nameof(abilityName));
         sprite = serializedObject.FindProperty(nameof(sprite));
         targetMode = serializedObject.FindProperty(nameof(targetMode));
-        skillCooldown = serializedObject.FindProperty(nameof(skillCooldown));
+        coolDown = serializedObject.FindProperty(nameof(coolDown));
         gameEffects = serializedObject.FindProperty(nameof(gameEffects));
     }
 
@@ -35,20 +33,20 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
         EditorGUILayout.Space();
 
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.PropertyField(skillName);
+        EditorGUILayout.PropertyField(abilityName);
         if (EditorHelper.CondensedButton("Use Object Name"))
         {
-            skillName.stringValue = target.name;
+            abilityName.stringValue = target.name;
         }
         EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.PropertyField(targetMode);
-        EditorGUILayout.PropertyField(skillCooldown);
+        EditorGUILayout.PropertyField(coolDown);
 
         var skillDescriptions = targetObject.GetSkillDescriptions();
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        RenderEffectDescriptions(targetObject.gameEffects, skillDescriptions);
+        RenderEffectDescriptions((TargetMode)targetMode.enumValueIndex, targetObject.gameEffects, skillDescriptions);
         EditorGUILayout.EndVertical();
 
         RenderEffectProperties(targetObject.gameEffects, gameEffects);

@@ -12,33 +12,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
   m_Name: Doctor Sex (Skill)
   m_EditorClassIdentifier: 
-  skillName: Doctor Sex
-  skillDescription:
-  - +20% Attack (3 Turns)
-  - +30% Crit Rate (3 Turns)
-  - -20% Defence Window (3 Turns)
-  - -20% Defence (3 Turns)
+  abilityName: Doctor Sex
   sprite: {fileID: 21300000, guid: 88dee8abd0876524298e7d6d490ee0aa, type: 3}
   targetMode: 5
-  skillCooldown: 7
   gameEffects:
   - effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 578987be117f497428b3dc25ca4eaeb4, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 4a386cb7b108bcd43917103cbee22406, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
-  - effect: {fileID: 11400000, guid: 93c0c505074daf7499074166aabe2dc7, type: 2}
+  - effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
     effectDuration: 3
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
     targetOverride: 0
-    strength: 3
-    customValues: []
+  coolDown: 7

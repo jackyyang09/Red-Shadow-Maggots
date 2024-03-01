@@ -7,7 +7,6 @@ public class BushmanPassive : BaseCharacterPassive
     [SerializeField] int stackRemovalOnSuccess;
     [SerializeField] BushmanSupplies supplies;
 
-    bool HasStacks => baseCharacter.EffectDictionary.ContainsKey(supplies);
     AppliedEffect SuppliesEffect => baseCharacter.EffectDictionary[supplies][0];
 
     protected override void Init()
@@ -36,7 +35,7 @@ public class BushmanPassive : BaseCharacterPassive
 
     private void OnTakeDamage(float trueDamage, DamageStruct damage)
     {
-        if (HasStacks)
+        if (HasStacks(supplies))
         {
             var stacks = stackRemovalOnFail;
             if (damage.QTEResult == QuickTimeBase.QTEResult.Perfect)

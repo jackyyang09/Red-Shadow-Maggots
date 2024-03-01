@@ -163,7 +163,11 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     {
         yield return obj;
 
-        BattleState.EnemyState state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
+        BattleState.EnemyState state = null;
+        if (!gachaSystem.LegacyMode)
+        {
+            state = BattleData.EnemyStates.Count > 0 ? BattleData.EnemyStates[index] : null;
+        }
 
         if (obj.Result.isBoss)
         {
@@ -174,7 +178,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             if (gachaSystem.LegacyMode)
             {
-                enemies[index] = SpawnEnemy(obj.Result, spawnPos, 5, state);
+                enemies[index] = SpawnEnemy(obj.Result, spawnPos, 5, null);
             }
             else
             {

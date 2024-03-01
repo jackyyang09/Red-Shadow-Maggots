@@ -16,13 +16,11 @@ public class PeePoison : DamagePerTurnEffect
 
     public override void Tick(AppliedEffect effect)
     {
-        ConsumeHealth(effect.target, effect.strength, effect.customValues);
+        ConsumeHealth(effect.cachedValues[0], effect.target);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        float change = (float)GetEffectStrength(props.strength, props.customValues);
-
         string s = TargetModeDescriptor(targetMode);
 
         switch (targetMode)
@@ -32,41 +30,23 @@ public class PeePoison : DamagePerTurnEffect
                 break;
             case TargetMode.OneAlly:
             case TargetMode.OneEnemy:
+                s += "<u>Pees</u> ";
+                break;
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
                 s += "<u>Pee</u> ";
                 break;
         }
 
-        s += "at " + (int)(change * 100) + "% strength ";
+        s += "at " + props.effectValues[0].multiplier.FormatPercentage() + " strength ";
 
         return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }
 
-    public override string GetEffectDescription(EffectStrength strength, float[] customValues)
+    public override string GetEffectDescription(AppliedEffect effect)
     {
         var d = "Urinate every turn, losing " + RSMConstants.Keywords.Short.HEALTH +
-            " equal to " + value.GetDescription(strength, value.Stat);
+            " equal to " + EffectValueDescriptor(effect.values[0], "your", stat);
         return d;
-    }
-
-    public override object GetEffectStrength(EffectStrength strength, float[] customValues)
-    {
-        switch (strength)
-        {
-            case EffectStrength.Custom:
-                return customValues[0];
-            case EffectStrength.Weak:
-                return 0.025f;
-            case EffectStrength.Small:
-                return 0.05f;
-            case EffectStrength.Medium:
-                return 0.15f;
-            case EffectStrength.Large:
-                return 0.2f;
-            case EffectStrength.EX:
-                return 0.25f;
-        }
-        return 0;
     }
 }

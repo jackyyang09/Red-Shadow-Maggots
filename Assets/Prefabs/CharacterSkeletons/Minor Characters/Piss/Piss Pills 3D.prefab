@@ -358,6 +358,9 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 881113886584967561}
+    - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 7413566226045971673}
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
 --- !u!212 &1392290882672076452 stripped
@@ -370,6 +373,18 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
   m_PrefabInstance: {fileID: 7871882230836639379}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &881113886584967561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3645214098014877645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d922c9c173254943b1995919bdc522f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &7413566226045971673
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -382,10 +397,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 625fbf57f59f70049b580766b4820c66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  peeEffect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
+  peeProps:
+    effect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
+    values:
+    - 0.02
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
   peeChance: 0.5
   peeChanceGreater: 1
-  peeDuration: 2
+  clearProps:
+    effect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
   clearDebuffEffect: {fileID: 11400000, guid: 5f613de0866dcb3459a0d7e21f617928, type: 2}
 --- !u!4 &3645214098014877646 stripped
 Transform:

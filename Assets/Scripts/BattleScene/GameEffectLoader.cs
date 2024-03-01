@@ -25,9 +25,8 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
                 effect.referenceEffect + " not added to gameEffects list!");
         }
         se.RemainingTurns = effect.remainingTurns;
-        se.Strength = effect.strength;
         se.CachedValues = effect.cachedValues;
-        se.CustomValues = effect.customValues;
+        se.Values = effect.values;
         return se;
     }
 
@@ -41,10 +40,8 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         ae.caster = characters[effect.Caster];
         ae.target = target;
         ae.remainingTurns = effect.RemainingTurns;
-        ae.strength = effect.Strength;
         ae.cachedValues = effect.CachedValues;
-        ae.customValues = effect.CustomValues;
-        ae.description = ae.referenceEffect.GetEffectDescription(ae.strength, ae.customValues);
+        ae.values = effect.Values;
 
         return ae;
     }
