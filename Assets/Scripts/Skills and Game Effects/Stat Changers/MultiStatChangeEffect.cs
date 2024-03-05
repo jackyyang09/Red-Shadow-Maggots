@@ -15,7 +15,6 @@ public class MultiStatChangeEffect : BaseGameEffect
                 var value = GetValue(stats[i], effect.values[i], effect.target);
                 stats[i].SetGameStat(effect.target, value);
                 effect.cachedValues.Add(value);
-                Debug.Log(value);
             }
         }
         else

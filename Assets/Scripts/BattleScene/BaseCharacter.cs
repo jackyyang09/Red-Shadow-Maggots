@@ -1208,10 +1208,12 @@ public abstract class BaseCharacter : MonoBehaviour
     {
         effectRegion.rotation = characterMesh.transform.rotation;
         var newEffect = Instantiate(prefab, effectRegion.transform.position, effectRegion.rotation);
+        Debug.Log(effectRegion.transform.position + " " + newEffect.transform.position);
         //newEffect.transform.localEulerAngles = Vector3.zero;
         if (!removeParent)
         {
             newEffect.transform.SetParent(animHelper.SkeletonRoot);
+            Debug.Log(animHelper.SkeletonRoot.position + " " + newEffect.transform.position);
         }
 
         if (destroyAutomatically)
