@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClassIconRenderer : StatRenderer
+public class ClassIconRenderer : StatRenderController
 {
     [SerializeField] Sprite[] icons;
     [SerializeField] UnityEngine.UI.Image iconImage;

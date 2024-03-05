@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthShieldRenderer : StatRenderer
+public class HealthShieldRenderer : BaseStatRenderer
 {
     [SerializeField] Image healthFill;
     [SerializeField] Image shieldFill;
@@ -16,7 +16,7 @@ public class HealthShieldRenderer : StatRenderer
         mat = healthFill.material;
     }
 
-    public override void UpdateStat(BaseCharacter character)
+    public override void RenderInBattle(BaseCharacter character)
     {
         mat.SetFloat("_Steps", character.MaxHealth / SimpleHealth.HEALTH_STEPS);
 

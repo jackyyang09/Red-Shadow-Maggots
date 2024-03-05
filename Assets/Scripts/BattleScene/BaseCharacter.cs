@@ -81,8 +81,9 @@ public abstract class BaseCharacter : MonoBehaviour
     public float DefenseLeniencyModified => characterReference.defenseLeniency + defenseLeniencyModifier;
     public void ApplyDefenseLeniencyModifier(float mod) => defenseLeniencyModifier += mod;
 
-    float healInModifier = 1;
-    public float HealInModifier => healInModifier;
+    float healReceived = 1;
+    float healInModifier = 0;
+    public float HealInModifier => healReceived + healInModifier;
     public void ApplyHealInModifier(float mod) => healInModifier += mod;
 
     [SerializeField] [Range(0.02f, 1)] float critChance = 0.02f;

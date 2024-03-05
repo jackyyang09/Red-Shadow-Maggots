@@ -1,24 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class WaitRenderer : BaseStatRenderer
+public class WaitLimitRenderer : BaseStatRenderer
 {
     public override void RenderState(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
     {
-        ValueText = character.wait.FormatToDecimal();
+        ValueText = character.waitLimit.FormatToDecimal();
     }
 
     public override void RenderInBattle(BaseCharacter character)
     {
-        var modifier = character.WaitModifier.FormatToDecimal();
-        ValueText = character.WaitModified.FormatToDecimal();
-        if (character.WaitModifier > 0)
+        var modifier = character.WaitLimitModifier.FormatToDecimal();
+        ValueText = character.WaitLimitModified.FormatToDecimal();
+        if (character.WaitLimitModifier > 0)
         {
             ValueText += RenderPositiveMod(modifier);
         }
-        else if (character.WaitModifier < 0)
+        else if (character.WaitLimitModifier < 0)
         {
             ValueText += RenderNegativeMod(modifier);
         }

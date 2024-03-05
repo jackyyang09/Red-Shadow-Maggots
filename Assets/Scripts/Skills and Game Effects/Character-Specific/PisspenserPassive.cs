@@ -43,7 +43,7 @@ public class PisspenserPassive : BaseCharacterPassive
                     baseCharacter.RemoveEffect(UpgradeEffect, peesApplied);
                 }
             }
-            else
+            else if (peesApplied > 0)
             {
                 var props = upgradeProps.Copy();
                 props.stacks = peesApplied;

@@ -23,7 +23,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
     public OptimizedCanvas OptimizedCanvas => canvas;
     public bool IsVisible => canvas.IsVisible;
 
-    [SerializeField] StatRenderer[] statRenderers;
+    [SerializeField] StatRenderController[] statRenderers;
 
     [SerializeField] Button[] buttons;
     [SerializeField] OptimizedCanvas[] panels;

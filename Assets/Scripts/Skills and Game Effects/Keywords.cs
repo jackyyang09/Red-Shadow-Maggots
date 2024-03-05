@@ -7,11 +7,12 @@ namespace RSMConstants
     public enum StatEnum
     {
         Attack = 0,
-        AttackWindow,
+        AttackWindow = 1,
         CurrentHealth,
         CritChance,
         CritDamage,
         Defense,
+        DamageReduction = 999,
         DefenseWindow,
         Health,
         HealReceived,

@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5272843306312420120}
-  - component: {fileID: 3812264874110043588}
   - component: {fileID: 1792221572673520871}
+  - component: {fileID: 3812264874110043588}
   m_Layer: 5
   m_Name: Stat Row
   m_TagString: Untagged
@@ -39,23 +39,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &3812264874110043588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 904431393401394279}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e144568330fa2bb4f87602b7a3c0c0d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetStat: 0
-  positiveModifier: {r: 1, g: 1, b: 0, a: 1}
-  negativeModifier: {r: 1, g: 0, b: 0, a: 1}
-  nameLabel: {fileID: 7469107590129690970}
-  valueLabel: {fileID: 1648183639071932483}
 --- !u!114 &1792221572673520871
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,6 +65,24 @@ MonoBehaviour:
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
+--- !u!114 &3812264874110043588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 904431393401394279}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e144568330fa2bb4f87602b7a3c0c0d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetStat: 0
+  positiveModifier: {r: 1, g: 1, b: 0, a: 1}
+  negativeModifier: {r: 1, g: 0, b: 0, a: 1}
+  nameLabel: {fileID: 7469107590129690970}
+  valueLabel: {fileID: 1648183639071932483}
+  renderer: {fileID: 0}
 --- !u!1 &2276869116973820003
 GameObject:
   m_ObjectHideFlags: 0
