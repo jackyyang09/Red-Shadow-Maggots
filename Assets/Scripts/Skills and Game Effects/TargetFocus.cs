@@ -41,7 +41,7 @@ public class TargetFocus : BaseGameEffect
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
-        string s = "Apply <u>Taunt</u>";
+        string s = "Apply <u>Taunt </u>";
 
         switch (targetMode)
         {

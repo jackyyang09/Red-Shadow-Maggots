@@ -21,7 +21,7 @@ public class BaseStatRenderer : MonoBehaviour
     protected string BeginColourLabel(Color c) => " <color=#" + ColorUtility.ToHtmlStringRGBA(c) + ">";
 
     protected string POS_COLOUR => BeginColourLabel(controller.PositiveColor) + "(+";
-    protected string NEG_COLOUR => BeginColourLabel(controller.NegativeColor) + "(-";
+    protected string NEG_COLOUR => BeginColourLabel(controller.NegativeColor) + "(";
     protected static string END_BRACKET = ")</color>";
     protected static string END_COLOUR = "</color>";
 

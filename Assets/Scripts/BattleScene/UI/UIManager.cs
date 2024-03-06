@@ -75,7 +75,7 @@ public class UIManager : BasicSingleton<UIManager>
 
         OnAttackCommit += HideBattleUI;
 
-        _skillManagerUI.Initialize(5);
+        _skillManagerUI.Initialize();
         _skillManagerUI.ShowDetails += ShowSkillDetails;
         _skillManagerUI.HideDetails += HideSkillDetails;
     }
@@ -133,6 +133,8 @@ public class UIManager : BasicSingleton<UIManager>
         attackButton.Show();
         CanSelectCharacter = true;
 
+        _skillManagerUI.ShowUI();
+
         UpdateSkillGraphic(battleSystem.ActivePlayer);
 
         OnShowBattleUI?.Invoke();
@@ -143,7 +145,7 @@ public class UIManager : BasicSingleton<UIManager>
         attackButton.Hide();
         CanSelectCharacter = false;
 
-        _skillManagerUI.HideAllButtons();
+        _skillManagerUI.HideUI();
 
         OnHideBattleUI?.Invoke();
     }
@@ -186,7 +188,7 @@ public class UIManager : BasicSingleton<UIManager>
         if (enemyController.EnemyList.Any(e => e.Reference.isBoss)) bossUI.HideUI();
         attackButton.Hide();
 
-        _skillManagerUI.HideAllButtons();
+        _skillManagerUI.HideUI();
 
         foreach (PlayerCharacter p in battleSystem.PlayerCharacters)
         {

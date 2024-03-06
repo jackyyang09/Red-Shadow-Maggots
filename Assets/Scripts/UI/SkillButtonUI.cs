@@ -4,12 +4,10 @@ using UnityEngine.UI;
 
 public class SkillButtonUI : MonoBehaviour
 {
-    public OptimizedButton button = null;
+    [SerializeField] Image skillIcon;
+    [SerializeField] Image darkOut;
 
-    [SerializeField] Image skillIcon = null;
-    [SerializeField] Image darkOut = null;
-
-    [SerializeField] TMPro.TextMeshProUGUI cooldownText = null;
+    [SerializeField] TMPro.TextMeshProUGUI cooldownText;
     [SerializeField] private HoldButton _holdButton;
 
     public GameSkill currentSkill { get; private set; }
