@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
-using System;
 
 public class SimpleHealth : MonoBehaviour
 {
@@ -48,11 +47,11 @@ public class SimpleHealth : MonoBehaviour
         //set "steps" property (there will be new sector for each 100 health points)
         healthBar.material.SetFloat("_Steps", character.MaxHealth / HEALTH_STEPS);
 
-        // set color of the health bar depending on the character type
-        if (character is EnemyCharacter)
-        {
-            healthBar.material.SetColor("_Color", Color.red);
-        }
+        //// set color of the health bar depending on the character type
+        //if (character is EnemyCharacter)
+        //{
+        //    healthBar.material.SetColor("_Color", Color.red);
+        //}
 
         OnSetHealth();
     }

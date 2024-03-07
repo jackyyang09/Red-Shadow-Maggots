@@ -13,7 +13,8 @@ public class HealthShieldRenderer : BaseStatRenderer
     private void Start()
     {
         // Instantiate material
-        mat = healthFill.material;
+        mat = new Material(healthFill.material);
+        healthFill.material = mat;
     }
 
     public override void RenderInBattle(BaseCharacter character)
