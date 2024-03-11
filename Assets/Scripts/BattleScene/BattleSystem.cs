@@ -31,8 +31,6 @@ public struct TargetedCharacters
 
 public class BattleSystem : BasicSingleton<BattleSystem>
 {
-    public static float QuickTimeCritModifier = 0.15f;
-
     [SerializeField] BattlePhases currentPhase;
     public BattlePhases CurrentPhase => currentPhase;
 
@@ -401,7 +399,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void ActivateSkill(GameSkill skill)
     {
-        if (playerTargets.player.CanUseSkill(skill))
+        if (skill.CanUse)
         {
             StartCoroutine(SkillUseSequence(skill));
         }
@@ -438,7 +436,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
         playerTargets.player.RegisterOnFinishApplyingSkillEffects(() => finished = true);
 
-        playerTargets.player.ResolveSkill();
+        playerTargets.player.ResolveSkill(skill);
 
         // Wait for skill effects to finish animating
         while (!finished) yield return null;
@@ -531,11 +529,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public IEnumerator ChangePhaseRoutine()
     {
-        if (CurrentPhase == BattlePhases.EnemyTurn)
-        {
-            enemyTargets.enemy.IncreaseChargeLevel();
-        }
-
         foreach (var effect in deathEffects)
         {
             effect.OnDeath();

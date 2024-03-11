@@ -16,8 +16,7 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
 
     [SerializeField] Camera cam;
 
-    [SerializeField] GameObject healthTextPrefab;
-    [SerializeField] GameObject critTextPrefab;
+    [SerializeField] GameObject healTextPrefab;
     [SerializeField] GameObject effectTextPrefab;
 
     [SerializeField] TMPro.TMP_FontAsset buffTextColour;
@@ -27,7 +26,7 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
     
     public void SpawnHealNumberAt(float healAmount, Transform trans)
     {
-        var text = Instantiate(healthTextPrefab, transform.GetChild(0)).GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        var text = Instantiate(healTextPrefab, transform.GetChild(0)).GetComponentInChildren<TMPro.TextMeshProUGUI>();
         var billboard = text.GetComponent<ViewportBillboard>();
         text.text = "+" + ((int)healAmount).ToString();
         billboard.EnableWithSettings(cam, trans);
@@ -36,11 +35,6 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
         text.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
 
         Destroy(text.gameObject, numberLifetime);
-    }
-
-    public GameObject SpawnCriticalHitAt(Transform trans)
-    {
-        return Instantiate(critTextPrefab, trans);
     }
 
     [ContextMenu(nameof(Test))]

@@ -175,25 +175,19 @@ public abstract class BaseCharacter : MonoBehaviour
 
     protected List<GameSkill> gameSkills = new List<GameSkill>();
     public List<GameSkill> Skills => gameSkills;
+    protected GameSkill superCritSkill;
+    public GameSkill SuperCritSkill => superCritSkill;
+    public virtual bool CanUseSuperCrit => superCritSkill.CooldownTimer <= 0;
 
     public bool CanUseSkill(int index)
     {
         return gameSkills[index].CanUse;
     }
 
-    public bool CanUseSkill(GameSkill skill)
-    {
-        var resultSkill = gameSkills.Find(x => x == skill);
-        return resultSkill != null && resultSkill.CanUse;
-    }
-
     bool initialized;
     public bool Initialized => initialized;
 
     protected ViewportBillboard billBoard;
-
-    protected bool usedSuperCritThisTurn;
-    public bool UsedSuperCritThisTurn => usedSuperCritThisTurn;
 
     public Action<AppliedEffect> OnApplyGameEffect;
     public Action<AppliedEffect> OnEffectStacksChanged;
@@ -303,8 +297,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         for (int i = 0; i < characterReference.skills.Length; i++)
         {
-            GameSkill newSkill = new GameSkill();
-            newSkill.InitWithSkill(characterReference.skills[i]);
+            GameSkill newSkill = new GameSkill(characterReference.skills[i]);
             gameSkills.Add(newSkill);
         }
 
@@ -395,6 +388,7 @@ public abstract class BaseCharacter : MonoBehaviour
         UIManager.OnAttackCommit += HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += OnStartPlayerTurn;
         OnEndTurn += CooldownSkills;
+        OnEndTurn += CooldownSuperCrit;
 
         GlobalEvents.OnCharacterFinishSuperCritical += OnCharacterFinishSuperCritical;
     }
@@ -404,6 +398,7 @@ public abstract class BaseCharacter : MonoBehaviour
         UIManager.OnAttackCommit -= HideCharacterUI;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= OnStartPlayerTurn;
         OnEndTurn -= CooldownSkills;
+        OnEndTurn -= CooldownSuperCrit;
 
         GlobalEvents.OnCharacterFinishSuperCritical -= OnCharacterFinishSuperCritical;
     }
@@ -437,7 +432,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     private void OnStartPlayerTurn()
     {
-        usedSuperCritThisTurn = false;
         ShowCharacterUI();
     }
 
@@ -448,13 +442,13 @@ public abstract class BaseCharacter : MonoBehaviour
             rigAnim.Play("Super Critical");
         }
 
-        usedSuperCritThisTurn = true;
-
         IncomingDamage.QTEValue = 1;
         IncomingDamage.IsCritical = true;
         IncomingDamage.IsSuperCritical = true;
         IncomingDamage.CritDamageModifier = CritDamageModified;
         animHelper.EnableCrits();
+
+        superCritSkill.BeginCooldown();
 
         OnBeginSuperCrit?.Invoke();
         GlobalEvents.OnCharacterUseSuperCritical?.Invoke(this);
@@ -491,29 +485,17 @@ public abstract class BaseCharacter : MonoBehaviour
         IncomingDamage.Source = this;
 
         var targetTransform = target.transform;
-        if (CanCrit && !usedSuperCritThisTurn)
+
+        switch (IncomingAttack.attackRange)
         {
-            switch (Reference.superCritRange)
-            {
-                case AttackRange.CloseRange:
-                    sceneTweener.MeleeMoveTo(transform, targetTransform);
-                    break;
-            }
-            UseSuperCritical();
+            case AttackRange.CloseRange:
+                sceneTweener.MeleeTweenTo(transform, targetTransform);
+                break;
+            case AttackRange.LongRange:
+                sceneTweener.RangedTweenTo(CharacterMesh.transform, targetTransform);
+                break;
         }
-        else
-        {
-            switch (IncomingAttack.attackRange)
-            {
-                case AttackRange.CloseRange:
-                    sceneTweener.MeleeTweenTo(transform, targetTransform);
-                    break;
-                case AttackRange.LongRange:
-                    sceneTweener.RangedTweenTo(CharacterMesh.transform, targetTransform);
-                    break;
-            }
-            OnBeginAttack?.Invoke(target);
-        }
+        OnBeginAttack?.Invoke(target);
     }
 
     public void FinishAttack()
@@ -571,16 +553,10 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public virtual void UseSkill(GameSkill skill)
     {
-        //stupid solution. TODO: rework this without index. Just use the skill itself
-        var index = gameSkills.IndexOf(skill);
-
-        currentSkill = gameSkills[index];
-        StartCoroutine(SkillRoutine(index));
+        StartCoroutine(SkillRoutine(skill));
     }
-    
-    List<BaseCharacter> targets = new List<BaseCharacter>();
 
-    GameSkill currentSkill;
+    List<BaseCharacter> targets = new List<BaseCharacter>();
 
     List<Action> onSkillFoundTargets = new List<Action>();
     public void RegisterOnSkillFoundTargets(Action newAction) => onSkillFoundTargets.Add(newAction);
@@ -597,13 +573,13 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void ClearSkillTargets() => targets.Clear();
 
-    IEnumerator SkillRoutine(int skillUsed)
+    IEnumerator SkillRoutine(GameSkill skill)
     {
         cancelSkill = false;
 
         targets.Clear();
 
-        switch (currentSkill.ReferenceSkill.targetMode)
+        switch (skill.ReferenceSkill.targetMode)
         {
             case TargetMode.None:
             case TargetMode.Self:
@@ -680,7 +656,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (cancelSkill)
             {
-                switch (currentSkill.ReferenceSkill.targetMode)
+                switch (skill.ReferenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
                         PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
@@ -701,7 +677,7 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
             {
-                switch (currentSkill.ReferenceSkill.targetMode)
+                switch (skill.ReferenceSkill.targetMode)
                 {
                     case TargetMode.OneAlly:
                         PlayerCharacter.OnSelectPlayer -= AddSkillTarget;
@@ -713,23 +689,25 @@ public abstract class BaseCharacter : MonoBehaviour
                 }
             }
 
-            SkillExecuteRoutine(skillUsed);
+            SkillExecuteRoutine(skill);
         }
 
         onSkillFoundTargets.Clear();
     }
 
-    public void SkillExecuteRoutine(int skillUsed)
+    public void SkillExecuteRoutine(GameSkill skillUsed)
     {
         Instantiate(skillParticles1, transform);
         //animHelper.RegisterOnFinishSkillAnimation(() => Instantiate(skillParticles2, transform));
 
-        if (skillUsed == 0) JSAM.AudioManager.PlaySound(Reference.voiceFirstSkill);
+        var index = gameSkills.IndexOf(skillUsed);
+
+        if (index == 0) JSAM.AudioManager.PlaySound(Reference.voiceFirstSkill);
         else JSAM.AudioManager.PlaySound(Reference.voiceSecondSkill);
 
         if (rigAnim)
         {
-            if (Reference.hasAltSkillAnimation && skillUsed == 1)
+            if (Reference.hasAltSkillAnimation && index == 1)
             {
                 rigAnim.Play("Skill Alt");
             }
@@ -740,7 +718,7 @@ public abstract class BaseCharacter : MonoBehaviour
             spriteAnim.Play("Skill");
         }
 
-        OnCharacterActivateSkill?.Invoke(this, currentSkill);
+        OnCharacterActivateSkill?.Invoke(this, skillUsed);
         OnSkillUsed?.Invoke();
         for (int i = 0; i < onSkillFoundTargets.Count; i++)
         {
@@ -756,9 +734,9 @@ public abstract class BaseCharacter : MonoBehaviour
         cancelSkill = true;
     }
 
-    public void ResolveSkill()
+    public void ResolveSkill(GameSkill skill)
     {
-        StartCoroutine(ActivateSkill());
+        StartCoroutine(ActivateSkill(skill));
     }
 
     public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
@@ -785,13 +763,13 @@ public abstract class BaseCharacter : MonoBehaviour
         OnAppliedEffect?.Invoke(targets[0], newEffect);
     }
 
-    IEnumerator ActivateSkill()
+    IEnumerator ActivateSkill(GameSkill skill)
     {
-        currentSkill.BeginCooldown();
+        skill.BeginCooldown();
 
-        for (int i = 0; i < currentSkill.ReferenceSkill.gameEffects.Length; i++)
+        for (int i = 0; i < skill.ReferenceSkill.gameEffects.Length; i++)
         {
-            EffectProperties effect = currentSkill.ReferenceSkill.gameEffects[i];
+            EffectProperties effect = skill.ReferenceSkill.gameEffects[i];
             switch (effect.targetOverride)
             {
                 case TargetMode.None:
@@ -944,6 +922,11 @@ public abstract class BaseCharacter : MonoBehaviour
         OnRemoveEffect?.Invoke(this, effect);
     }
 
+    /// <summary>
+    /// Unused?
+    /// </summary>
+    /// <param name="effect"></param>
+    /// <param name="immediate"></param>
     public void RemoveAllEffectsOfType(BaseGameEffect effect, bool immediate = false)
     {
         var iterate = new List<AppliedEffect>(AppliedEffects);
@@ -966,6 +949,11 @@ public abstract class BaseCharacter : MonoBehaviour
         {
             gameSkills[i].Cooldown();
         }
+    }
+
+    public void CooldownSuperCrit()
+    {
+        superCritSkill.Cooldown();
     }
 
     public IEnumerator TickEffects(float delay)

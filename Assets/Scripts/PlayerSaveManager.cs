@@ -21,7 +21,7 @@ public class PlayerSave
     public List<MaggotState> MaggotStates = new List<MaggotState>();
 
     // Everything is a property just in case the future database implementation is funny like Firebase
-    public float Canteens { get; set; }
+    public int Canteens { get; set; }
     public int BattlesFought { get; set; }
     public int NodesTravelled { get; set; }
     public int Exp { get; set; }

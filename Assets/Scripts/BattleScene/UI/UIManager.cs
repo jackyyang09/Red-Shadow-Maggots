@@ -171,11 +171,18 @@ public class UIManager : BasicSingleton<UIManager>
         OnCharacterStatUIClosed?.Invoke();
     }
 
+    public void UseSuperCrit()
+    {
+        if (!battleSystem.ActivePlayer.CanUseSuperCrit) return;
+        battleSystem.ActivePlayer.UseSuperCritical();
+        OnAttackCommit?.Invoke();
+    }
+
     private void UpdateSkillGraphic(PlayerCharacter obj)
     {
         if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
         {
-            _skillManagerUI.SetSkills(obj.Skills);
+            _skillManagerUI.SetSkills(obj.Skills, obj.SuperCritSkill);
         }
     }
 
@@ -228,10 +235,7 @@ public class UIManager : BasicSingleton<UIManager>
 
     private void ShowSkillDetails(GameSkill skill)
     {
-        var selectedSkill = battleSystem.ActivePlayer.Skills.FirstOrDefault(x => x == skill);
-        if (selectedSkill == null) return;
-
-        skillPanel.ShowWithDetails(selectedSkill);
+        skillPanel.ShowWithDetails(skill);
     }
 
     private void HideSkillDetails(GameSkill skill)

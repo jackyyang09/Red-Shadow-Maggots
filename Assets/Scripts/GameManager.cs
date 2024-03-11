@@ -92,7 +92,7 @@ public class GameManager : BasicSingleton<GameManager>
                 p.Cooldowns = new int[2];
                 for (int j = 0; j < 2; j++)
                 {
-                    p.Cooldowns[j] = player.Skills[j].cooldownTimer;
+                    p.Cooldowns[j] = player.Skills[j].CooldownTimer;
                 }
             }
 
@@ -127,7 +127,7 @@ public class GameManager : BasicSingleton<GameManager>
         BattleData.PlayerStates = partyData;
         BattleData.EnemyStates = waveData;
 
-        BattleData.StoredCharge = canteenSystem.AvailableCharge;
+        BattleData.Canteens = canteenSystem.Canteens;
         BattleData.RoundCount = gameManager.RoundCount;
         BattleData.SelectedEnemy = new List<EnemyCharacter>(enemyController.Enemies).IndexOf(battleSystem.ActiveEnemy);
 
@@ -137,7 +137,7 @@ public class GameManager : BasicSingleton<GameManager>
     public void LoadBattleState()
     {
         gameManager.RoundCount = BattleData.RoundCount;
-        canteenSystem.SetCanteenCharge(BattleData.StoredCharge);
+        canteenSystem.SetCanteenCharge(BattleData.Canteens);
         if (enemyController.Enemies[BattleData.SelectedEnemy].IsDead)
         {
             battleSystem.SetActiveEnemy(enemyController.RandomEnemy);
@@ -156,15 +156,15 @@ public class GameManager : BasicSingleton<GameManager>
         PlayerData.Exp += ExpGained;
         PlayerData.InBattle = false;
         PlayerData.BattlesFought++;
-        PlayerData.Canteens = canteenSystem.StoredCharge;
+        PlayerData.Canteens = canteenSystem.Canteens;
 
         for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
         {
             if (!battleSystem.PlayerCharacters[i]) continue;
             var j = BattleData.PlayerStates[i].Index;
             PlayerData.MaggotStates[j].Health = battleSystem.PlayerCharacters[i].CurrentHealth;
-            PlayerData.MaggotStates[j].SkillCoodowns[0] = battleSystem.PlayerCharacters[i].Skills[0].cooldownTimer;
-            PlayerData.MaggotStates[j].SkillCoodowns[1] = battleSystem.PlayerCharacters[i].Skills[1].cooldownTimer;
+            PlayerData.MaggotStates[j].SkillCoodowns[0] = battleSystem.PlayerCharacters[i].Skills[0].CooldownTimer;
+            PlayerData.MaggotStates[j].SkillCoodowns[1] = battleSystem.PlayerCharacters[i].Skills[1].CooldownTimer;
         }
 
         battleStateManager.DeleteData();

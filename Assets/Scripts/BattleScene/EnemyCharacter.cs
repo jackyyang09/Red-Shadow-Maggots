@@ -31,9 +31,14 @@ public class EnemyCharacter : BaseCharacter
     public static System.Action<EnemyCharacter> OnSelectedEnemyCharacterChange;
     public System.Action<int> onCritLevelChanged;
 
+    protected bool usedSuperCritThisTurn;
+    public bool UsedSuperCritThisTurn => usedSuperCritThisTurn;
+
     public override void InitializeWithInfo(int level, BattleState.State stateInfo = null)
     {
         base.InitializeWithInfo(level, stateInfo);
+
+        superCritSkill = new GameSkill(characterReference.superCritical);
 
         if (stateInfo != null)
         {
@@ -85,6 +90,7 @@ public class EnemyCharacter : BaseCharacter
         base.OnEnable();
 
         OnSelectedEnemyCharacterChange += UpdateSelectedStatus;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] += OnEndPhase;
     }
 
     protected override void OnDisable()
@@ -92,6 +98,7 @@ public class EnemyCharacter : BaseCharacter
         base.OnDisable();
 
         OnSelectedEnemyCharacterChange -= UpdateSelectedStatus;
+        BattleSystem.OnEndPhase[BattlePhases.EnemyTurn.ToInt()] -= OnEndPhase;
     }
 
     // Update is called once per frame
@@ -99,6 +106,14 @@ public class EnemyCharacter : BaseCharacter
     //{
     //    
     //}
+
+    void OnEndPhase()
+    {
+        IncreaseChargeLevel();
+
+        usedSuperCritThisTurn = false;
+        usedSkillThisTurn = false;
+    }
 
     public void IncreaseChargeLevel(int i = 1)
     {
@@ -109,8 +124,6 @@ public class EnemyCharacter : BaseCharacter
         }
 
         if (usedSuperCritThisTurn) ResetChargeLevel();
-
-        usedSkillThisTurn = false;
     }
 
     public void DecreaseChargeLevel(int i = 1)
@@ -149,6 +162,8 @@ public class EnemyCharacter : BaseCharacter
     public override void UseSuperCritical()
     {
         base.UseSuperCritical();
+
+        usedSuperCritThisTurn = true;
 
         var a = new AttackStruct();
         a.attackAnimation = Reference.superCriticalAnim;

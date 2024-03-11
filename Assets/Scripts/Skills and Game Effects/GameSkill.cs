@@ -11,23 +11,33 @@ public class GameSkill
     /// <summary>
     /// How long to wait before skill recharges
     /// </summary>
-    public int cooldownTimer = 0;
-    public bool CanUse => cooldownTimer == 0;
+    public int CooldownTimer;
+    public bool CanUse => EffectiveCooldown?.Invoke() == 0;
 
-    public SkillObject ReferenceSkill { get; private set; }
+    public delegate int CoolDownDelegate();
+    // Because the real cooldown sometimes isn't what we're looking for
+    public CoolDownDelegate EffectiveCooldown { get; private set; }
 
-    public void InitWithSkill(SkillObject reference)
+    public BaseAbilityObject ReferenceSkill { get; private set; }
+
+    public GameSkill(BaseAbilityObject skill, CoolDownDelegate d = null)
     {
-        ReferenceSkill = reference;
+        if (d == null)
+        {
+            EffectiveCooldown = () => CooldownTimer;
+        }
+        else EffectiveCooldown = d;
+
+        ReferenceSkill = skill;
     }
 
     public void BeginCooldown()
     {
-        cooldownTimer = ReferenceSkill.coolDown;
+        CooldownTimer = ReferenceSkill.coolDown;
     }
 
     public void Cooldown()
     {
-        cooldownTimer = Mathf.Clamp(cooldownTimer - 1, 0, ReferenceSkill.coolDown);
+        CooldownTimer = Mathf.Clamp(CooldownTimer - 1, 0, ReferenceSkill.coolDown);
     }
 }

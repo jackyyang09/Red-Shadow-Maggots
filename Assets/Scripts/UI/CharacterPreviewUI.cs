@@ -75,11 +75,8 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         //int classIndex = (int)character.characterClass;
         //if (classText) classText.text = classTuples[classIndex].title;
 
-        GameSkill newSkill = new GameSkill();
-        newSkill.InitWithSkill(previewedCharacterReference.skills[0]);
-        skillButton1.UpdateStatus(newSkill);
-        newSkill.InitWithSkill(previewedCharacterReference.skills[1]);
-        skillButton2.UpdateStatus(newSkill);
+        skillButton1.UpdateStatus(new GameSkill(previewedCharacterReference.skills[0]));
+        skillButton2.UpdateStatus(new GameSkill(previewedCharacterReference.skills[1]));
 
         foreach (var item in statRenderers)
         {
@@ -108,11 +105,8 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
         //int classIndex = (int)character.characterClass;
         //if (classText) classText.text = classTuples[classIndex].title;
 
-        GameSkill newSkill = new GameSkill();
-        newSkill.InitWithSkill(character.skills[0]);
-        skillButton1.UpdateStatus(newSkill);
-        newSkill.InitWithSkill(character.skills[1]);
-        skillButton2.UpdateStatus(newSkill);
+        skillButton1.UpdateStatus(new GameSkill(character.skills[0]));
+        skillButton2.UpdateStatus(new GameSkill(character.skills[1]));
 
         foreach (var item in statRenderers)
         {
@@ -142,9 +136,7 @@ public class CharacterPreviewUI : BasicSingleton<CharacterPreviewUI>
 
     public void ShowSkillDetailsWithID(int id)
     {
-        GameSkill newSkill = new GameSkill();
-        newSkill.InitWithSkill(previewedCharacterReference.skills[id]);
-        skillPanel.ShowWithDetails(newSkill);
+        skillPanel.ShowWithDetails(new GameSkill(previewedCharacterReference.skills[id]));
     }
 
     public void HideUI()

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static Facade;
 
 public class SkillManagerUI : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class SkillManagerUI : MonoBehaviour
     [SerializeField] private RectTransform _skillHolder;
     
     [SerializeField] private List<SkillButtonUI> buttons;
+    [SerializeField] SkillButtonUI superCritButton;
 
     /// <summary>
     /// The event that is invoked when a skill button is clicked.
@@ -40,19 +42,21 @@ public class SkillManagerUI : MonoBehaviour
     /// </summary>
     public void Initialize()
     {
-        SpawnButtons();
-    }
-
-    /// <summary>
-    /// Spawns the specified number of skill buttons and adds them to the _skillHolder container.
-    /// </summary>
-    /// <param name="initialCount">The number of skill buttons to be spawned.</param>
-    private void SpawnButtons()
-    {
         foreach (var b in buttons)
         {
             b.SetListeners(SkillActivated, SkillHold, SkillRelease);
         }
+        superCritButton.SetListeners(e => UIManager.Instance.UseSuperCrit(), SkillHold, SkillRelease);
+    }
+
+    private void OnEnable()
+    {
+        CanteenSystem.OnAvailableChargeChanged += OnAvailableChargeChanged;
+    }
+
+    private void OnDisable()
+    {
+        CanteenSystem.OnAvailableChargeChanged -= OnAvailableChargeChanged;
     }
 
     public void ShowUI() => canvas.Show();
@@ -63,7 +67,7 @@ public class SkillManagerUI : MonoBehaviour
     /// Automatically hides the skill buttons that are not used.
     /// </summary>
     /// <param name="skills">The skills to be set to the skill buttons.</param>
-    public void SetSkills(List<GameSkill> skills)
+    public void SetSkills(List<GameSkill> skills, GameSkill superCrit)
     {
         for (var i = 0; i < buttons.Count; i++)
         {
@@ -77,6 +81,13 @@ public class SkillManagerUI : MonoBehaviour
                 buttons[i].gameObject.SetActive(false);
             }
         }
+
+        superCritButton.UpdateStatus(superCrit);
+    }
+
+    public void OnAvailableChargeChanged()
+    {
+        superCritButton.UpdateStatus(battleSystem.ActivePlayer.SuperCritSkill);
     }
 
     /// <summary>

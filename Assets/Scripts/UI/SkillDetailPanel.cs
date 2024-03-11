@@ -57,6 +57,12 @@ public class SkillDetailPanel : MonoBehaviour
         nameText.text = skill.ReferenceSkill.abilityName;
         cooldownCount.text = skill.ReferenceSkill.coolDown.ToString() + " Turn Cooldown";
         description.text = "";
+
+        if (skill.ReferenceSkill.damageEffects.Length > 0)
+        {
+            description.text += skill.ReferenceSkill.GetEffectDescription() + "\n";
+        }
+
         var descriptions = skill.ReferenceSkill.GetSkillDescriptions();
         for (int i = 0; i < descriptions.Length; i++)
         {

@@ -86,7 +86,7 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
 
         battleStateManager.ResetData();
 
-        BattleData.StoredCharge = PlayerData.Canteens;
+        BattleData.Canteens = PlayerData.Canteens;
         BattleData.PlayerStates = new List<BattleState.PlayerState>();
         for (int i = 0; i < PlayerData.Party.Length; i++)
         {

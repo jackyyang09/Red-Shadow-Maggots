@@ -1,5 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,151 +6,89 @@ using static Facade;
 
 public class CanteenSystem : BasicSingleton<CanteenSystem>
 {
-    public class Canteen
-    {
-        public PlayerCharacter target;
-    }
-    List<Canteen> canteens = new List<Canteen>();
+    [SerializeField] int canteensPerCrit = 1;
+    public float ChargePerCanteen => canteensPerCrit;
+    [SerializeField] int maxCanteens = 5;
 
-    [SerializeField] float chargePerCanteen = 0.25f;
-    public float ChargePerCanteen => chargePerCanteen;
-    [SerializeField] int maxCanteens = 12;
+    public int AvailableCanteens => canteens - BorrowedCanteens;
 
-    public float StoredCharge => storedCharge;
-    public float AvailableCharge => storedCharge - grabbedCharge - borrowedCharge;
-    float storedCharge;
-
-    float grabbedCharge;
-    public float GrabbedCharge => grabbedCharge;
-    float borrowedCharge;
-    public float BorrowedCharge => borrowedCharge;
+    public int Canteens => canteens;
+    int canteens;
+    int borrowedCanteens;
+    public int BorrowedCanteens => borrowedCanteens;
 
     public static Action OnAvailableChargeChanged;
-    public static Action OnStoredChargeChanged;
-    public static Action OnChargeBorrowed;
     public static Action OnSetCharge;
 
     private void OnEnable()
     {
-        BaseCharacter.OnCharacterCritChanceReduced += AddExpiredCrits;
-
-        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += ResetBonusFlag;
-        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] += AddQTECritBonus;
+        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] += ConfirmCanteenUse;
+        BaseCharacter.OnCharacterDealDamage += OnCharacterDealDamage;
     }
 
     private void OnDisable()
     {
-        BaseCharacter.OnCharacterCritChanceReduced -= AddExpiredCrits;
-
-        BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] -= ResetBonusFlag;
-        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] -= AddQTECritBonus;
+        BattleSystem.OnEndPhase[BattlePhases.PlayerTurn.ToInt()] -= ConfirmCanteenUse;
+        BaseCharacter.OnCharacterDealDamage -= OnCharacterDealDamage;
     }
 
-    public void AddCanteenCharge(float charge)
+    void OnCharacterDealDamage(BaseCharacter a, BaseCharacter b)
     {
-        storedCharge = Mathf.Clamp(storedCharge + charge, 0, maxCanteens * ChargePerCanteen);
+        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
+        {
+            if (BaseCharacter.IncomingDamage.IsCritical)
+            {
+                canteens++;
+                OnAvailableChargeChanged?.Invoke();
+            }
+        }    
     }
 
-    public void SetCanteenCharge(float charge)
+    public void AddCanteenCharge(int c = 1)
     {
-        storedCharge = charge;
-        OnSetCharge?.Invoke();
-    }
-
-    public void GrabCritCharge()
-    {
-        grabbedCharge += chargePerCanteen;
+        canteens = Mathf.Min(canteens + c, maxCanteens);
         OnAvailableChargeChanged?.Invoke();
+    }
+
+    public void SetCanteenCharge(int charge)
+    {
+        canteens = charge;
+        OnSetCharge?.Invoke();
     }
 
     public void ReleaseCritCharge()
     {
-        grabbedCharge = 0;
+        borrowedCanteens = 0;
         OnAvailableChargeChanged?.Invoke();
     }
 
-    public void BorrowCritCharge(PlayerCharacter character)
+    public void BorrowCritCharge()
     {
-        canteens.Add(new Canteen { target = character });
-        character.ApplyCanteenEffect(grabbedCharge);
-        borrowedCharge += grabbedCharge;
-        grabbedCharge = 0;
-        OnChargeBorrowed?.Invoke();
+        battleSystem.ActivePlayer.ApplyCanteenEffect();
+        borrowedCanteens++;
+        OnAvailableChargeChanged?.Invoke();
     }
 
     public void CancelCanteenUse()
     {
-        foreach (var item in canteens)
-        {
-            item.target.ApplyCanteenEffect(-ChargePerCanteen);
-        }
-
-        borrowedCharge -= ChargePerCanteen * canteens.Count;
-        canteens.Clear();
-
-        OnChargeBorrowed?.Invoke();
+        battleSystem.ActivePlayer.RemoveCanteenEffects();
+        borrowedCanteens = 0;
         OnAvailableChargeChanged?.Invoke();
     }
 
-    private void ResetBonusFlag()
+    public void ConfirmCanteenUse()
     {
-        // Change so PlayerCharacter crit numbers update properly
-        BaseCharacter.IncomingDamage = new DamageStruct();
-        OnStoredChargeChanged?.Invoke();
-    }
-
-    private void AddQTECritBonus()
-    {
-        if (BaseCharacter.IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect)
-        {
-            AddCanteenCharge(BattleSystem.QuickTimeCritModifier);
-        }
-        else if (BaseCharacter.IncomingDamage.Source)
-        {
-            switch (BaseCharacter.IncomingDamage.Source.Reference.characterClass)
-            {
-                case CharacterClass.Offense:
-                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier * 0.5f);
-                    break;
-                case CharacterClass.Defense:
-                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier * 0.75f);
-                    break;
-                case CharacterClass.Support:
-                    AddCanteenCharge(BattleSystem.QuickTimeCritModifier);
-                    break;
-            }
-        }
-        ResetBonusFlag();
-    }
-
-    private void AddExpiredCrits(BaseCharacter character, float changedAmount)
-    {
-        if (changedAmount > 0)
-        {
-            switch (character.Reference.characterClass)
-            {
-                case CharacterClass.Offense:
-                    AddCanteenCharge(changedAmount * 0.5f);
-                    break;
-                case CharacterClass.Defense:
-                    AddCanteenCharge(changedAmount * 0.75f);
-                    break;
-                case CharacterClass.Support:
-                    AddCanteenCharge(changedAmount);
-                    break;
-            }
-            OnStoredChargeChanged?.Invoke();
-        }
+        canteens -= borrowedCanteens;
+        borrowedCanteens = 0;
     }
 
     #region Debug Hacks
     [IngameDebugConsole.ConsoleMethod(nameof(FillCritCanteens), "Fill all the player's stored canteens")]
     public static void FillCritCanteens()
     {
-        Instance.storedCharge = Instance.chargePerCanteen * Instance.maxCanteens;
-        OnStoredChargeChanged?.Invoke();
-        FindObjectOfType<CanteenUI>().PostHackUpdate();
-        Debug.Log("Maxed stored charge!");
+        Instance.canteens += Instance.maxCanteens;
+        OnSetCharge?.Invoke();
+        Debug.Log("Maxed canteens!");
     }
     #endregion
 }

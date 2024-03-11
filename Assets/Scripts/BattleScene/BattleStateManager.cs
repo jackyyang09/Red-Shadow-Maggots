@@ -40,7 +40,7 @@ public class BattleState
     public List<List<string>> EnemyGUIDs = new List<List<string>>();
     public List<EnemyState> EnemyStates = new List<EnemyState>();
 
-    public float StoredCharge;
+    public int Canteens;
 
     public int RoomLevel = 1;
     public int SavedSeed;

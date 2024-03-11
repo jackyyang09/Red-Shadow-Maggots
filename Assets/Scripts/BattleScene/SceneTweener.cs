@@ -226,13 +226,13 @@ public class SceneTweener : BasicSingleton<SceneTweener>
                 return;
         }
 
-        switch (obj.Reference.attackAnimations[0].attackRange)
+        switch (obj.Reference.superCritRange)
         {
             case AttackRange.CloseRange:
                 //cam.m_LookAt = obj.transform;
-                //savedPosition = obj.transform.position;
-                //Vector3 position = target.position + offset;
-                ////obj.transform.position = position;
+                savedPosition = obj.transform.position;
+                Vector3 position = target.position + offset;
+                obj.transform.position = position;
                 //path.transform.position = position;
                 //lerpValue = 2;
                 break;

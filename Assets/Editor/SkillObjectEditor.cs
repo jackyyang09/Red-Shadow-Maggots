@@ -14,6 +14,7 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
     SerializedProperty targetMode;
     SerializedProperty coolDown;
     SerializedProperty gameEffects;
+    SerializedProperty damageEffects;
 
     public override void InitializeSerializedProperties()
     {
@@ -22,6 +23,7 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
         targetMode = serializedObject.FindProperty(nameof(targetMode));
         coolDown = serializedObject.FindProperty(nameof(coolDown));
         gameEffects = serializedObject.FindProperty(nameof(gameEffects));
+        damageEffects = serializedObject.FindProperty(nameof(damageEffects));
     }
 
     public override void OnInspectorGUI()
@@ -46,9 +48,15 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
         var skillDescriptions = targetObject.GetSkillDescriptions();
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        if (damageEffects.arraySize > 0)
+        {
+            var damageDesc = targetObject.GetEffectDescription();
+            EditorGUILayout.LabelField(damageDesc, BuffStyle);
+        }
         RenderEffectDescriptions((TargetMode)targetMode.enumValueIndex, targetObject.gameEffects, skillDescriptions);
         EditorGUILayout.EndVertical();
 
+        RenderEffectProperties(targetObject.damageEffects, damageEffects);
         RenderEffectProperties(targetObject.gameEffects, gameEffects);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();

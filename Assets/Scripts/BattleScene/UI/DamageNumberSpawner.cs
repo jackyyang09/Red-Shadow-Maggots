@@ -63,7 +63,7 @@ public class DamageNumberSpawner : BasicSingleton<DamageNumberSpawner>
         GameObject number = Instantiate(damageNumberPrefabs[(int)damage.Effectivity], transform.GetChild(0));
         var dmgNumber = number.GetComponent<DamageNumber>();
 
-        dmgNumber.Initialize(cam, t, (int)damage.TrueDamage, shieldedDamage);
+        dmgNumber.Initialize(cam, t, (int)damage.TrueDamage, shieldedDamage, damage.IsCritical);
     }
 
     public void SpawnDamageNumberDelayed(Transform t, DamageStruct damage, int shieldedDamage)

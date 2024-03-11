@@ -175,7 +175,7 @@ public class EnemyController : BasicSingleton<EnemyController>
 
         enemy.RegisterOnFinishApplyingSkillEffects(() => finished = true);
 
-        enemy.ResolveSkill();
+        enemy.ResolveSkill(skill);
 
         // Wait for skill effects to finish animating
         while (!finished) yield return null;

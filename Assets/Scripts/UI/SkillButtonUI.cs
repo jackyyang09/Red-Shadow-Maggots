@@ -17,17 +17,12 @@ public class SkillButtonUI : MonoBehaviour
     {
         currentSkill = skill;
         skillIcon.sprite = skill.ReferenceSkill.sprite;
-        if (!skill.CanUse)
-        {
-            cooldownText.enabled = true;
-            cooldownText.text = skill.cooldownTimer.ToString();
-            darkOut.enabled = true;
-        }
-        else
-        {
-            cooldownText.enabled = false;
-            darkOut.enabled = false;
-        }
+
+        var coolDown = skill.EffectiveCooldown?.Invoke();
+        cooldownText.text = coolDown.ToString();
+
+        cooldownText.enabled = !skill.CanUse;
+        darkOut.enabled = !skill.CanUse;
     }
 
     /// <summary>

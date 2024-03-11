@@ -8,20 +8,12 @@ using static Facade;
 
 public class PlayerCharacter : BaseCharacter
 {
-    float canteenCharge;
-
     const float SPECIAL_ATTACK_DELAY = 0.35f;
 
-    public override float CritChanceModified
-    {
-        get
-        { 
-            return base.CritChanceModified + canteenCharge +
-                (IncomingDamage.QTEResult == QuickTimeBase.QTEResult.Perfect).ToInt() * BattleSystem.QuickTimeCritModifier;
-        }
-    }
+    int canteensBorrowed;
 
     public override bool CanCrit => CritChanceModified >= 1;
+    public override bool CanUseSuperCrit => superCritSkill.EffectiveCooldown?.Invoke() <= 0;
 
     public Action OnSetActivePlayer;
     public static Action<PlayerCharacter> OnSelectPlayer;
@@ -34,6 +26,9 @@ public class PlayerCharacter : BaseCharacter
 
         maxHealth = characterReference.GetMaxHealth(currentLevel, false)/* * RarityMultiplier*/;
 
+        superCritSkill = new GameSkill(characterReference.superCritical, 
+            () => Mathf.Max(superCritSkill.CooldownTimer - canteensBorrowed, 0));
+
         if (stateInfo != null)
         {
             var s = stateInfo as BattleState.PlayerState;
@@ -41,7 +36,7 @@ public class PlayerCharacter : BaseCharacter
             {
                 for (int i = 0; i < s.Cooldowns.Length; i++)
                 {
-                    gameSkills[i].cooldownTimer = s.Cooldowns[i];
+                    gameSkills[i].CooldownTimer = s.Cooldowns[i];
                 }
             }
         }
@@ -131,14 +126,11 @@ public class PlayerCharacter : BaseCharacter
     {
         IncomingAttack = Reference.attackAnimations[0];
 
-        if (!CanCrit || usedSuperCritThisTurn)
-        {
-            OnPlayerQTEAttack?.Invoke(this);
+        OnPlayerQTEAttack?.Invoke(this);
 
-            if (Reference.attackQteType == QTEType.SimpleBar)
-            {
-                Windup();
-            }
+        if (Reference.attackQteType == QTEType.SimpleBar)
+        {
+            Windup();
         }
 
         base.BeginAttack(target);
@@ -169,10 +161,9 @@ public class PlayerCharacter : BaseCharacter
         IncomingDamage.IsCritical = UnityEngine.Random.value < finalCritChance;
         if (IncomingDamage.IsCritical)
         {
-            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f && !UsedSuperCritThisTurn;
+            IncomingDamage.IsSuperCritical = finalCritChance >= 1.0f;
         }
 
-        // Add an additional crit chance factor on successful attack QTE
         if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
         {
             OnExecuteAttack?.Invoke(qteSuccess);
@@ -245,16 +236,14 @@ public class PlayerCharacter : BaseCharacter
         return (1 - damage.QTEPlayer * DefenseModified) * (1 + damageAbsorptionModifier);
     }
 
-    public void ApplyCanteenEffect(float critCharge)
+    public void ApplyCanteenEffect()
     {
-        canteenCharge += critCharge;
-        OnCharacterCritChanceChanged?.Invoke();
+        canteensBorrowed += 1;
     }
 
     public void RemoveCanteenEffects()
     {
-        canteenCharge = 0;
-        OnCharacterCritChanceChanged?.Invoke();
+        canteensBorrowed = 0;
     }
 
     public override void ShowCharacterUI()

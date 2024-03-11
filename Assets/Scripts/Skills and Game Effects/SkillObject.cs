@@ -8,5 +8,4 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Skill", menuName = "ScriptableObjects/Skill Object", order = 1)]
 public class SkillObject : BaseAbilityObject
 {
-    public int coolDown;
 }
