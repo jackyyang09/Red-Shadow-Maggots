@@ -2,6 +2,7 @@
 using JSAM;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static Facade;
 
@@ -53,7 +54,6 @@ public class AnimationHelper : MonoBehaviour
     public void RegisterOnFinishSkillAnimation(System.Action newAction) => onFinishSkillAnimation.Add(newAction);
 
     static System.Action OnShowAllRenderers;
-    static System.Action<List<AnimationHelper>> OnHideRenderers;
 
     const int DEFAULT_LAYER_ID = 17; // TF2 Ragdoll
     const int IGNORE_LAYER_ID = 19; // Ignore Cutscene Cam
@@ -71,13 +71,11 @@ public class AnimationHelper : MonoBehaviour
     private void OnEnable()
     {
         OnShowAllRenderers += ShowRenderers;
-        OnHideRenderers += HideAll;
     }
 
     private void OnDisable()
     {
         OnShowAllRenderers -= ShowRenderers;
-        OnHideRenderers -= HideAll;
 
         ResetSky();
     }
@@ -411,49 +409,45 @@ public class AnimationHelper : MonoBehaviour
         OnShowAllRenderers?.Invoke();
     }
 
-    public void HideAllPlayersExceptSelf()
+    List<BaseCharacter> GetAllAllies()
     {
-        var players = battleSystem.PlayerCharacters;
-        var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < players.Length; i++)
+        if (baseCharacter.IsPlayer())
         {
-            if (!players[i]) continue;
-            if (!players[i].IsDead && players[i] != baseCharacter)
-            {
-                toHide.Add(players[i].AnimHelper);
-            }
+            return battleSystem.LivingPlayers.ToList<BaseCharacter>();
         }
-        OnHideRenderers?.Invoke(toHide);
+        else
+        {
+            return enemyController.LivingEnemies.ToList<BaseCharacter>();
+        }
     }
 
-    public void HideAllPlayerRenderers()
+    List<BaseCharacter> GetAllEnemies()
     {
-        var players = battleSystem.PlayerCharacters;
-        var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < players.Length; i++)
+        if (!baseCharacter.IsPlayer())
         {
-            if (!players[i]) continue;
-            if (!players[i].IsDead)
-            {
-                toHide.Add(players[i].AnimHelper);
-            }
+            return battleSystem.LivingPlayers.ToList<BaseCharacter>();
         }
-        OnHideRenderers?.Invoke(toHide);
+        else
+        {
+            return enemyController.LivingEnemies.ToList<BaseCharacter>();
+        }
     }
 
-    public void HideAllEnemyRenderers()
+    public void HideAllAlliesExceptSelf()
     {
-        var enemies = enemyController.Enemies;
-        var toHide = new List<AnimationHelper>();
-        for (int i = 0; i < enemies.Length; i++)
-        {
-            if (!enemies[i]) continue;
-            if (!enemies[i].IsDead)
-            {
-                toHide.Add(enemies[i].AnimHelper);
-            }
-        }
-        OnHideRenderers?.Invoke(toHide);
+        var allies = GetAllAllies();
+        allies.Remove(baseCharacter);
+        HideAll(allies);
+    }
+
+    public void HideAllAllyRenderers()
+    {
+        HideAll(GetAllAllies());
+    }
+
+    public void HideAllOppositionRenderers()
+    {
+        HideAll(GetAllEnemies());
     }
 
     void ShowRenderers()
@@ -464,14 +458,19 @@ public class AnimationHelper : MonoBehaviour
         }
     }
 
-    void HideAll(List<AnimationHelper> helpers)
+    void HideAll(List<BaseCharacter> characters)
     {
-        if (helpers.Contains(this))
+        foreach (var c in characters)
         {
-            for (int i = 0; i < nonRagdollRenderers.Length; i++)
-            {
-                nonRagdollRenderers[i].gameObject.layer = IGNORE_LAYER_ID;
-            }
+            c.AnimHelper.HideRenderers();
+        }
+    }
+
+    void HideRenderers()
+    {
+        for (int i = 0; i < nonRagdollRenderers.Length; i++)
+        {
+            nonRagdollRenderers[i].gameObject.layer = IGNORE_LAYER_ID;
         }
     }
 
