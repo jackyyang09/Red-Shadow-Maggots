@@ -24,7 +24,9 @@ public class BaseShieldEffect : BaseStatScaledEffect
         effect.instantiatedObjects = new GameObject[1];
         if (effect.target.ShieldPercent == 0)
         {
-            var ff = Instantiate(forceFieldPrefab, target.CharacterMesh.transform).GetComponent<ForceFieldFX>();
+            var ff = Instantiate(forceFieldPrefab).GetComponent<ForceFieldFX>();
+            ff.transform.SetParent(target.AnimHelper.SkeletonRoot);
+            ff.transform.localPosition = Vector2.zero;
             ff.Initialize(target);
             effect.instantiatedObjects[0] = ff.gameObject;
 
