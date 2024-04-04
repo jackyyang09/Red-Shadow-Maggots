@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Deadly Eye
   m_EditorClassIdentifier: 
   abilityName: Deadly Eye
+  coolDown: 4
+  condition:
+    rid: -2
   sprite: {fileID: 21300000, guid: 7bed1d8040798c04381234546ee55fcb, type: 3}
   targetMode: 0
   gameEffects:
@@ -42,4 +45,88 @@ MonoBehaviour:
     stacks: 0
     maxStacks: -1
     targetOverride: 0
-  coolDown: 4
+  effects:
+  - rid: 3276119856843849809
+  - rid: 3276119856843849811
+  events: []
+  damageScaledStat: {fileID: 0}
+  damageEffects: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3276119856843849809
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 1
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        appStyle:
+          rid: 3276119856843849810
+        targetOverride: 0
+    - rid: 3276119856843849810
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3276119856843849811
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 3
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        appStyle:
+          rid: 3276119856843849812
+        targetOverride: 0
+    - rid: 3276119856843849812
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 

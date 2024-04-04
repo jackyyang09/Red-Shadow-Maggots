@@ -100,30 +100,34 @@ namespace SuperCrits
         void OnBeginSuperCrit()
         {
             effectsApplied = 0;
-            damageApplied = 0;
         }
 
         int effectsApplied = 0;
-        int damageApplied = 0;
         public void ApplyNextSuperCritEffect()
         {
-            var targets = GetEffectTargets(SuperCrit.gameEffects[effectsApplied].targetOverride);
-            foreach (var t in targets)
+            var effectEvent = SuperCrit.events[effectsApplied];
+            var group = SuperCrit.effects[effectEvent.effectIndex].Copy();
+            var targets = GetEffectTargets(group.targetOverride);
+
+            foreach (var v in group.damageProps.effectValues)
             {
-                BaseCharacter.ApplyEffectToCharacter(SuperCrit.gameEffects[effectsApplied], baseCharacter, t);
+                v.multiplier *= effectEvent.damageModifier;
+                v.flat *= effectEvent.damageModifier;
             }
-            GlobalEvents.OnGameEffectApplied?.Invoke(SuperCrit.gameEffects[effectsApplied].effect);
+
+            StartCoroutine(group.appStyle.Apply(group, baseCharacter, targets));
+
             effectsApplied++;
         }
 
         public void ApplyNextSuperCritDMGEffect()
         {
-            var targets = GetEffectTargets(SuperCrit.damageEffects[damageApplied].targetOverride);
-            foreach (var t in targets)
-            {
-                BaseCharacter.ApplyEffectToCharacter(SuperCrit.damageEffects[damageApplied], baseCharacter, t);
-            }
-            damageApplied++;
+            //var targets = GetEffectTargets(SuperCrit.damageEffects[damageApplied].targetOverride);
+            //foreach (var t in targets)
+            //{
+            //    BaseCharacter.ApplyEffectToCharacter(SuperCrit.damageEffects[damageApplied], baseCharacter, t);
+            //}
+            //damageApplied++;
         }
     }
 }

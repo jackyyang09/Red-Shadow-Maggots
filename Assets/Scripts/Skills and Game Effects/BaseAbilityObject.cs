@@ -8,22 +8,33 @@ public class BaseAbilityObject : ScriptableObject
 {
     public string abilityName;
     public int coolDown;
+    [SerializeReference] public SkillCondition condition;
     public Sprite sprite;
     public TargetMode targetMode;
-    public EffectProperties[] gameEffects;
+    public EffectProperties[] gameEffects = new EffectProperties[0];
+    [SerializeReference] public EffectGroup[] effects = new EffectGroup[0];
+    public EffectEvents[] events = new EffectEvents[0];
 
     public string[] GetSkillDescriptions()
     {
         var d = new List<string>();
 
-        foreach (var ge in gameEffects)
+        foreach (var ge in effects)
         {
-            if (!ge.effect) continue;
-
             var target = ge.targetOverride == TargetMode.None ? targetMode : ge.targetOverride;
 
-            d.Add(ge.effect.GetSkillDescription(target, ge).ToString());
+            if (ge.damageProps.effect)
+            {
+                d.Add(ge.damageProps.effect.GetSkillDescription(target, ge.damageProps).ToString());
+            }
+            
+            if (ge.effectProps.effect)
+            {
+                d.Add(ge.effectProps.effect.GetSkillDescription(target, ge.effectProps).ToString());
+            }
         }
+
+        if (d.Count == 0) return new[] { "" };
 
         return d.ToArray();
     }
@@ -35,51 +46,37 @@ public class BaseAbilityObject : ScriptableObject
     {
         var d = "";
 
-        EffectProperties.EffectValue total = new EffectProperties.EffectValue();
+        var damageEffects = effects.Where(e => e.damageProps.effect).ToList();
 
-        var singleOutliers = new List<EffectProperties>();
-        var aoeOutliers = new List<EffectProperties>();
-        singleOutliers = damageEffects.Where(e => e.targetOverride == TargetMode.OneEnemy).ToList();
-        aoeOutliers = damageEffects.Where(e => e.targetOverride == TargetMode.AllEnemies).ToList();
-
-        foreach (var de in singleOutliers)
+        for (int i = 0; i < damageEffects.Count; i++)
         {
-            if (!de.effect) continue;
-            if (de.effectValues.Length == 0) continue;
+            var group = damageEffects[i];
 
-            total.multiplier += de.effectValues[0].multiplier;
-            total.flat += de.effectValues[0].flat;
+            if (!effects[i].damageProps.effect) continue;
+
+            if (i == 0) d += "Deals ";
+            else d += "deals ";
+            d += DAMAGE + " equal to ";
+
+            var value = group.damageProps.effectValues[0];
+
+            d += BaseGameEffect.EffectValueDescriptor(value, "your",
+                (group.damageProps.effect as InstantDamageEffect).Stat) + "to ";
+
+            switch (group.targetOverride)
+            {
+                case TargetMode.OneEnemy:
+                    d += "An Enemy";
+                    break;
+                case TargetMode.AllEnemies:
+                    d += "All Enemies";
+                    break;
+            }
+
+            if (i + 1 < damageEffects.Count) d += " and ";
         }
 
-        if (singleOutliers.Count > 0)
-        {
-            d += "Deals " + DAMAGE + " equal to " + BaseGameEffect.EffectValueDescriptor(total, "your",
-                (singleOutliers[0].effect as InstantDamageEffect).Stat) + "to an Enemy";
-
-            if (aoeOutliers.Count > 0) d += " and deals ";
-        }
-        else
-        {
-            d += "Deals ";
-        }
-
-        total = new EffectProperties.EffectValue();
-
-        foreach (var de in aoeOutliers)
-        {
-            if (!de.effect) continue;
-            if (de.effectValues.Length == 0) continue;
-
-            total.multiplier += de.effectValues[0].multiplier;
-            total.flat += de.effectValues[0].flat;
-        }
-
-        if (aoeOutliers.Count > 0)
-        {
-            d += "damage equal to " + BaseGameEffect.EffectValueDescriptor(total, "your",
-                    (aoeOutliers[0].effect as InstantDamageEffect).Stat) + "to All Enemies";
-        }
-
+        if (d.Length > 0) return d + ". ";
         return d;
     }
 }

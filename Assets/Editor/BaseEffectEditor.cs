@@ -80,14 +80,65 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         CacheSpriteAssetPreview();
     }   
 
+    protected SerializedProperty abilityName;
     protected SerializedProperty sprite;
+    protected SerializedProperty condition;
+    protected SerializedProperty effects;
+    protected SerializedProperty events;
 
-    public abstract void InitializeSerializedProperties();
+    public virtual void InitializeSerializedProperties()
+    {
+        abilityName = serializedObject.FindProperty(nameof(abilityName));
+        sprite = serializedObject.FindProperty(nameof(sprite));
+        condition = serializedObject.FindProperty(nameof(condition));
+        effects = serializedObject.FindProperty(nameof(effects));
+        events = serializedObject.FindProperty(nameof(events));
+    }
 
     protected void CacheSpriteAssetPreview()
     {
         cachedPreview = AssetDatabase.LoadAssetAtPath<Texture>(AssetDatabase.GetAssetPath(sprite.objectReferenceValue));
         lastSprite = sprite.objectReferenceValue;
+    }
+
+    protected void RenderConditionProperty()
+    {
+        var list = new List<string>
+        {
+            "None",
+            nameof(AppliedEffectCondition),
+        };
+
+        int index = 0;
+        if (condition.managedReferenceValue != null)
+        {
+            var t = condition.managedReferenceValue.GetType().Name;
+            index = list.IndexOf(t);
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Condition Type");
+
+        EditorGUI.BeginChangeCheck();
+        index = EditorGUILayout.Popup(index, list.ToArray());
+        if (EditorGUI.EndChangeCheck())
+        {
+            switch (index)
+            {
+                case 0:
+                    condition.managedReferenceValue = null;
+                    break;
+                case 1:
+                    condition.managedReferenceValue = new AppliedEffectCondition();
+                    break;
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
+        if (index > 0)
+        {
+            EditorGUILayout.PropertyField(condition);
+        }
     }
 
     protected void RenderDragAndDropSprite()
@@ -115,19 +166,19 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         }
     }
 
-    protected void RenderEffectDescriptions(TargetMode target, EffectProperties[] gameEffects, string[] skillDescriptions)
+    protected void RenderEffectDescriptions(TargetMode target, EffectGroup[] group, string[] skillDescriptions)
     {
-        if (gameEffects.Length == 0)
+        if (group.Length == 0)
         {
             EditorGUILayout.LabelField("None", NullStyle);
             return;
         }
 
-        for (int i = 0; i < gameEffects.Length; i++)
+        for (int i = 0; i < group.Length; i++)
         {
-            var ge = gameEffects[i];
+            var ge = group[i];
 
-            if (ge.effect == null)
+            if (ge.damageProps == null && ge.effectProps == null)
             {
                 EditorGUILayout.LabelField("None", NullStyle);
                 continue;
@@ -142,7 +193,8 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
             TargetMode t = target;
             if (ge.targetOverride != TargetMode.None) t = ge.targetOverride;
 
-            switch (ge.effect.effectType)
+            if (!ge.effectProps.effect) continue;
+            switch (ge.effectProps.effect.effectType)
             {
                 case EffectType.None:
                     EditorGUILayout.LabelField(desc, NullStyle);

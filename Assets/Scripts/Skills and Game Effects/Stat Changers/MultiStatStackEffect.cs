@@ -35,21 +35,44 @@ public class MultiStatStackEffect : MultiStatChangeEffect, IStackableEffect
     {
         var d = TargetModeDescriptor(targetMode);
 
-        switch (targetMode)
+        if (props.stacks > 0)
         {
-            case TargetMode.None:
-            case TargetMode.Self:
-                d += "Receive ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                d += "receive ";
-                break;
+            switch (targetMode)
+            {
+                case TargetMode.None:
+                case TargetMode.Self:
+                    d += "Receive ";
+                    break;
+                case TargetMode.OneAlly:
+                case TargetMode.OneEnemy:
+                case TargetMode.AllAllies:
+                case TargetMode.AllEnemies:
+                    d += "receives ";
+                    break;
+            }
+        }
+        else
+        {
+            switch (targetMode)
+            {
+                case TargetMode.None:
+                case TargetMode.Self:
+                    d += "Lose ";
+                    break;
+                case TargetMode.OneAlly:
+                case TargetMode.OneEnemy:
+                case TargetMode.AllAllies:
+                case TargetMode.AllEnemies:
+                    d += "loses ";
+                    break;
+            }
         }
 
-        d += props.stacks + " stacks of " + props.effect.effectName;
+        var count = Mathf.Abs(props.stacks);
+        d += count + " stack";
+        if (count > 1) d += "s";
+        d += " of " + props.effect.effectName + " ";
+        if (props.maxStacks > 0) d += "(max " + props.maxStacks + ")";
 
         return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }

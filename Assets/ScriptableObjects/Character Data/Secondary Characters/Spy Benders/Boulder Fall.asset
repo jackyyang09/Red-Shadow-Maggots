@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Boulder Fall
   m_EditorClassIdentifier: 
   abilityName: Boulder Fall
+  coolDown: 0
+  condition:
+    rid: -2
   sprite: {fileID: 21300000, guid: 906f298bd6d108c4dbdb8e5090b90db1, type: 3}
   targetMode: 4
   gameEffects:
@@ -42,6 +45,10 @@ MonoBehaviour:
     stacks: 0
     maxStacks: -1
     targetOverride: 4
+  effects:
+  - rid: 3276119856843849973
+  - rid: 3276119856843849971
+  events: []
   damageScaledStat: {fileID: 0}
   damageEffects:
   - effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
@@ -56,3 +63,81 @@ MonoBehaviour:
     stacks: 0
     maxStacks: 0
     targetOverride: 4
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3276119856843849971
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 11400000, guid: c2811681df6718e46a599c2406a9d996, type: 2}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: -0.2
+            flatType: 0
+            deltaType: 0
+          effectDuration: 3
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 4
+        appStyle:
+          rid: 3276119856843849972
+        targetOverride: 4
+    - rid: 3276119856843849972
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3276119856843849973
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
+          values: []
+          effectValues:
+          - multiplier: 3.5
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: 0
+          targetOverride: 4
+        effectProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        appStyle:
+          rid: 3276119856843849974
+        targetOverride: 4
+    - rid: 3276119856843849974
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 

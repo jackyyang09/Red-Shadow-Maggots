@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f8a35a9a504d4e47a127438251347b6, type: 3}
+  m_Name: Sniper Gang Stack
+  m_EditorClassIdentifier: 
+  effectIcon: {fileID: 0}
+  effectName: Cripple
+  effectText: Crippled!
+  effectType: 3
+  activateOnDeath: 0
+  particlePrefab: {fileID: 0}
+  tickPrefab: {fileID: 0}
+  activationSound: {fileID: 0}
+  tickSound: {fileID: 0}
+  stats:
+  - {fileID: 11400000, guid: fe45de3acb5849f499215f92adf9f519, type: 2}
+  - {fileID: 11400000, guid: 4d8d9af137efab146868ad5b0afb9a9e, type: 2}
+  - {fileID: 11400000, guid: 3c2dc630517c1b2419affdb95a96ae7b, type: 2}
+  - {fileID: 11400000, guid: 8809b31ff18ec6148856733d17683ac8, type: 2}
+  healEffect:
+    effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0
+  shieldEffect:
+    effect: {fileID: 0}
+    values:
+    - 0
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    targetOverride: 0

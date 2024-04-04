@@ -9,7 +9,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
 {
     protected override string SHOW_GAMEEFFECTS => "SUPERCRITOBJECT_GAMEEFFECTS";
 
-    SerializedProperty abilityName;
     SerializedProperty coolDown;
     SerializedProperty skillDescription;
     SerializedProperty targetMode;
@@ -18,10 +17,10 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
 
     public override void InitializeSerializedProperties()
     {
-        abilityName = serializedObject.FindProperty(nameof(abilityName));
+        base.InitializeSerializedProperties();
+
         coolDown = serializedObject.FindProperty(nameof(coolDown));
         skillDescription = serializedObject.FindProperty(nameof(skillDescription));
-        sprite = serializedObject.FindProperty(nameof(sprite));
         targetMode = serializedObject.FindProperty(nameof(targetMode));
         gameEffects = serializedObject.FindProperty(nameof(gameEffects));
         damageEffects = serializedObject.FindProperty(nameof(damageEffects));
@@ -54,12 +53,13 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
             var damageDesc = targetObject.GetEffectDescription();
             EditorGUILayout.LabelField(damageDesc, BuffStyle);
         }
-        RenderEffectDescriptions(targetObject.targetMode, targetObject.gameEffects, effectDesc);
+        RenderEffectDescriptions(targetObject.targetMode, targetObject.effects, effectDesc);
         EditorGUILayout.EndVertical();
 
-        
-        RenderEffectProperties(targetObject.damageEffects, damageEffects);
-        RenderEffectProperties(targetObject.gameEffects, gameEffects);
+        EditorGUILayout.PropertyField(effects);
+        EditorGUILayout.PropertyField(damageEffects);
+        EditorGUILayout.PropertyField(gameEffects);
+        EditorGUILayout.PropertyField(events);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
     }

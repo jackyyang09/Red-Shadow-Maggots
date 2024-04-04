@@ -147,6 +147,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     List<BaseCharacter> moveOrder = new List<BaseCharacter>();
     public List<BaseCharacter> MoveOrder => moveOrder;
 
+    List<WaitListEntity> waitList = new List<WaitListEntity>();
+
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
 

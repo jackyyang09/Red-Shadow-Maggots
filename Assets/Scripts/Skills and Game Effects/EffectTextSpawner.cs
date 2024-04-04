@@ -13,6 +13,7 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
 
     [Header("Effect Text")]
     [SerializeField] float effectTextShowTime = 0.8f;
+    [SerializeField] float textBufferDelay = 0.15f;
 
     [SerializeField] Camera cam;
 
@@ -23,13 +24,49 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
     [SerializeField] TMPro.TMP_FontAsset debuffTextColour;
 
     [SerializeField] GameObject missPrefab;
-    
-    public void SpawnHealNumberAt(float healAmount, Transform trans)
+
+    readonly Dictionary<Transform, List<System.Action>> textQueue = new Dictionary<Transform, List<System.Action>>();
+
+    readonly Dictionary<Transform, Coroutine> textRoutines = new Dictionary<Transform, Coroutine>();
+
+    IEnumerator DisplayText(Transform t)
+    {
+        while (textQueue[t].Count > 0)
+        {
+            textQueue[t][0].Invoke();
+            textQueue[t].RemoveAt(0);
+            yield return new WaitForSeconds(textBufferDelay);
+        }
+
+        textRoutines.Remove(t);
+    }
+
+    public void AddEffectToQueue(Transform t, System.Action action)
+    {
+        if (!textQueue.ContainsKey(t))
+        {
+            textQueue.Add(t, new List<System.Action>());
+        }
+
+        textQueue[t].Add(action);
+
+        if (!textRoutines.ContainsKey(t))
+        {
+            textRoutines.Add(t, StartCoroutine(DisplayText(t)));
+        }
+    }
+
+    public void SpawnHealNumberAt(float healAmount, Transform t)
+    {
+        AddEffectToQueue(t, () => SpawnHealNumberAtInternal(healAmount, t));    
+    }
+
+    void SpawnHealNumberAtInternal(float healAmount, Transform t)
     {
         var text = Instantiate(healTextPrefab, transform.GetChild(0)).GetComponentInChildren<TMPro.TextMeshProUGUI>();
         var billboard = text.GetComponent<ViewportBillboard>();
         text.text = "+" + ((int)healAmount).ToString();
-        billboard.EnableWithSettings(cam, trans);
+        billboard.EnableWithSettings(cam, t);
         DOTween.To(() => billboard.offset.y, x => billboard.offset.y = x, billboard.offset.y + textVerticalMovement, numberLifetime)/*.SetEase(Ease.OutCubic)*/;
 
         text.DOFade(0, 0.5f).SetDelay(numberLifetime - 0.5f);
@@ -45,6 +82,11 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
 
     public void SpawnMissAt(Transform t)
     {
+        AddEffectToQueue(t, () => SpawnMissAtInternal(t));
+    }
+
+    void SpawnMissAtInternal (Transform t)
+    {
         var billboard = Instantiate(missPrefab, transform.GetChild(0)).GetComponent<ViewportBillboard>();
         billboard.EnableWithSettings(cam, t);
 
@@ -56,10 +98,15 @@ public class EffectTextSpawner : BasicSingleton<EffectTextSpawner>
         Destroy(billboard.gameObject, textFadeDelay + numberLifetime + 0.5f);
     }
 
-    public void SpawnEffectAt(BaseGameEffect effect, Transform trans)
+    public void SpawnEffectAt(BaseGameEffect effect, Transform t)
+    {
+        AddEffectToQueue(t, () => SpawnEffectAtInternal(effect, t));
+    }
+
+    void SpawnEffectAtInternal(BaseGameEffect effect, Transform t)
     {
         var billboard = Instantiate(effectTextPrefab, transform.GetChild(0)).GetComponent<ViewportBillboard>();
-        billboard.EnableWithSettings(cam, trans);
+        billboard.EnableWithSettings(cam, t);
 
         var billboardImage = billboard.GetComponentInChildren<UnityEngine.UI.Image>();
         if (effect.effectIcon) billboardImage.sprite = effect.effectIcon;

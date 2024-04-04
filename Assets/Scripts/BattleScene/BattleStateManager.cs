@@ -11,6 +11,7 @@ public class BattleState
         public int Caster;
         public TargetMode TargetMode;
         public int EffectIndex;
+        public int StartingTurns;
         public int RemainingTurns;
         public EffectProperties.EffectValue[] Values;
         public List<float> CachedValues;

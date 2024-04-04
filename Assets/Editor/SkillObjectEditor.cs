@@ -10,7 +10,6 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 {
     protected override string SHOW_GAMEEFFECTS => "SKILLOBJECT_GAMEEFFECTS";
 
-    SerializedProperty abilityName;
     SerializedProperty targetMode;
     SerializedProperty coolDown;
     SerializedProperty gameEffects;
@@ -18,8 +17,8 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
     public override void InitializeSerializedProperties()
     {
-        abilityName = serializedObject.FindProperty(nameof(abilityName));
-        sprite = serializedObject.FindProperty(nameof(sprite));
+        base.InitializeSerializedProperties();
+
         targetMode = serializedObject.FindProperty(nameof(targetMode));
         coolDown = serializedObject.FindProperty(nameof(coolDown));
         gameEffects = serializedObject.FindProperty(nameof(gameEffects));
@@ -44,6 +43,7 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
         EditorGUILayout.PropertyField(targetMode);
         EditorGUILayout.PropertyField(coolDown);
+        RenderConditionProperty();
 
         var skillDescriptions = targetObject.GetSkillDescriptions();
 
@@ -53,11 +53,13 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
             var damageDesc = targetObject.GetEffectDescription();
             EditorGUILayout.LabelField(damageDesc, BuffStyle);
         }
-        RenderEffectDescriptions((TargetMode)targetMode.enumValueIndex, targetObject.gameEffects, skillDescriptions);
+        RenderEffectDescriptions((TargetMode)targetMode.enumValueIndex, targetObject.effects, skillDescriptions);
         EditorGUILayout.EndVertical();
 
-        RenderEffectProperties(targetObject.damageEffects, damageEffects);
-        RenderEffectProperties(targetObject.gameEffects, gameEffects);
+        EditorGUILayout.PropertyField(effects);
+        EditorGUILayout.PropertyField(damageEffects);
+        EditorGUILayout.PropertyField(gameEffects);
+        EditorGUILayout.PropertyField(events);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
     }

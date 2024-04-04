@@ -1,6 +1,7 @@
 ﻿using DG.Tweening;
 using RSMConstants;
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -739,44 +740,43 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill(skill));
     }
 
-    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
+    public static bool ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
     {
-        if (!target) return;
-        if (target.IsDead) return;
-        ApplyEffectToCharacter(props, caster, new[] { target });
+        if (!target) return false;
+        if (target.IsDead) return false;
+        return ApplyEffectToCharacter(props, caster, new[] { target });
     }
 
-    public static void ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter[] targets)
+    public static bool ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter[] targets)
     {
-        if (targets == null) return;
-        if (targets.Length == 0) return;
+        if (targets == null) return false;
+        if (targets.Length == 0) return false;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, targets[0].transform);
         // TODO: Uncomment me
         //newEffect.cachedValue = props.effect.Activate(caster, target, props.strength, props.customValues);
 
-        EffectTextSpawner.Instance.SpawnEffectAt(props.effect, targets[0].transform);
-
         AppliedEffect newEffect = new AppliedEffect(caster, targets, props);
 
-        targets[0].ApplyEffect(newEffect);
+        bool applied = targets[0].ApplyEffect(newEffect);
+        if (applied)
+        {
+            EffectTextSpawner.Instance.SpawnEffectAt(props.effect, targets[0].transform);
+            OnAppliedEffect?.Invoke(targets[0], newEffect);
+        }
 
-        OnAppliedEffect?.Invoke(targets[0], newEffect);
+        return applied;
     }
 
     IEnumerator ActivateSkill(GameSkill skill)
     {
         skill.BeginCooldown();
 
-        for (int i = 0; i < skill.ReferenceSkill.gameEffects.Length; i++)
+        foreach (var effect in skill.ReferenceSkill.effects)
         {
-            EffectProperties effect = skill.ReferenceSkill.gameEffects[i];
             switch (effect.targetOverride)
             {
                 case TargetMode.None:
-                    for (int j = 0; j < targets.Count; j++)
-                    {
-                        ApplyEffectToCharacter(effect, this, targets[j]);
-                    }
+                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, targets));
                     break;
                 case TargetMode.OneAlly:
                 case TargetMode.OneEnemy:
@@ -784,19 +784,15 @@ public abstract class BaseCharacter : MonoBehaviour
                         " should not be used as overrides!");
                     break;
                 case TargetMode.AllAllies:
+                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
+
                     switch (battleSystem.CurrentPhase)
                     {
                         case BattlePhases.PlayerTurn:
-                            for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
-                            {
-                                ApplyEffectToCharacter(effect, this, battleSystem.PlayerCharacters[j]);
-                            }
+                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
                             break;
                         case BattlePhases.EnemyTurn:
-                            for (int j = 0; j < enemyController.Enemies.Length; j++)
-                            {
-                                ApplyEffectToCharacter(effect, this, enemyController.Enemies[j]);
-                            }
+                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, enemyController.EnemyList.ToList<BaseCharacter>()));
                             break;
                     }
                     break;
@@ -804,27 +800,17 @@ public abstract class BaseCharacter : MonoBehaviour
                     switch (battleSystem.CurrentPhase)
                     {
                         case BattlePhases.PlayerTurn:
-                            for (int j = 0; j < enemyController.Enemies.Length; j++)
-                            {
-                                ApplyEffectToCharacter(effect, this, enemyController.Enemies[j]);
-                            }
+                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, enemyController.EnemyList.ToList<BaseCharacter>()));
                             break;
                         case BattlePhases.EnemyTurn:
-                            for (int j = 0; j < battleSystem.PlayerCharacters.Length; j++)
-                            {
-                                ApplyEffectToCharacter(effect, this, battleSystem.PlayerCharacters[j]);
-                            }
+                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
                             break;
                     }
                     break;
                 case TargetMode.Self:
-                    ApplyEffectToCharacter(effect, this, this);
+                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, new List<BaseCharacter>{ this }));
                     break;
             }
-
-            GlobalEvents.OnGameEffectApplied?.Invoke(effect.effect);
-
-            yield return new WaitForSeconds(sceneTweener.SkillEffectApplyDelay);
         }
 
         for (int i = 0; i < onFinishApplyingSkillEffects.Count; i++)
@@ -835,7 +821,7 @@ public abstract class BaseCharacter : MonoBehaviour
         onFinishApplyingSkillEffects.Clear();
     }
 
-    public void ApplyEffect(AppliedEffect newEffect)
+    public bool ApplyEffect(AppliedEffect newEffect)
     {
         if (effectMask[(int)newEffect.referenceEffect.effectType].Count > 0)
         {
@@ -849,7 +835,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     em.Remove(e);
                 }
             }
-            return;
+            return false;
         }
 
         bool apply = true;
@@ -866,8 +852,16 @@ public abstract class BaseCharacter : MonoBehaviour
             {
                 if (EffectDictionary[newEffect.referenceEffect].Count > 0)
                 {
-                    EffectDictionary[newEffect.referenceEffect][0].Stacks += newEffect.Stacks;
-                    newEffect = EffectDictionary[newEffect.referenceEffect][0];
+                    var e = EffectDictionary[newEffect.referenceEffect][0];
+                    if (e.Stacks + newEffect.Stacks <= 0)
+                    {
+                        RemoveEffect(e, e.Stacks);
+                        return false;
+                    }
+                    else
+                    {
+                        e.Stacks += newEffect.Stacks;
+                    }
                     apply = false;
                 }
                 else
@@ -888,6 +882,8 @@ public abstract class BaseCharacter : MonoBehaviour
             newEffect.Apply();
         }
         OnApplyGameEffect?.Invoke(newEffect);
+
+        return true;
     }
     
     public void RemoveEffect(AppliedEffect effect, int stacks = 0)

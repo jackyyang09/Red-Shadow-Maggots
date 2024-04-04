@@ -5,20 +5,24 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
 public class BaseHealEffect : BaseStatScaledEffect
 {
-    public override bool Activate(AppliedEffect effect)
+    protected void ApplyHeal(AppliedEffect effect)
     {
-        var amount = GetValue(stat, effect.values[0], effect.caster);
+        effect.target.Heal(effect.cachedValues[0]);
+    }
 
+    protected void CacheValue(AppliedEffect effect)
+    {
         if (effect.cachedValues.Count == 0)
         {
-            effect.cachedValues.Add(amount);
+            effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.caster));
         }
-        else
-        {
-            amount = effect.cachedValues[0];
-        }
+    }
 
-        effect.target.Heal(amount);
+    public override bool Activate(AppliedEffect effect)
+    {
+        CacheValue(effect);
+
+        ApplyHeal(effect);
 
         return true;
     }

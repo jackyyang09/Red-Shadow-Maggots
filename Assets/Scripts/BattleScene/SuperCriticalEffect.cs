@@ -33,14 +33,14 @@ public abstract class SuperCriticalEffect : MonoBehaviour
     public void ApplyNextSuperCritEffect()
     {
         var superCrit = baseCharacter.Reference.superCritical;
-        if (effectsApplied >= superCrit.gameEffects.Length)
+        if (effectsApplied >= superCrit.effects.Length)
         {
             Debug.LogWarning(nameof(SuperCriticalEffect) + " - " + gameObject.name + ": " +
                 "Tried to apply next super critical effect, but all effects have been applied!");
             return;
         }
 
-        var effect = superCrit.gameEffects[effectsApplied];
+        var effect = superCrit.effects[effectsApplied];
         List<BaseCharacter> targets = new List<BaseCharacter>();
         var targetMode = effect.targetOverride == TargetMode.None ? superCrit.targetMode : effect.targetOverride;
         switch (targetMode)
@@ -95,13 +95,8 @@ public abstract class SuperCriticalEffect : MonoBehaviour
                 break;
         }
 
-        for (int i = 0; i < targets.Count; i++)
-        {
-            if (!targets[i]) continue;
-            BaseCharacter.ApplyEffectToCharacter(effect, baseCharacter, targets[i]);
-        }
+        effect.appStyle.Apply(effect, baseCharacter, targets);
 
-        GlobalEvents.OnGameEffectApplied?.Invoke(superCrit.gameEffects[effectsApplied].effect);
         effectsApplied++;
     }
 }

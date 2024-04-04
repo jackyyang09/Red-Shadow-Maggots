@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilityName: Apply Coating
   coolDown: 6
+  condition:
+    rid: -2
   sprite: {fileID: 21300000, guid: 995769b923adb3b47b4ba244c7ae1f29, type: 3}
   targetMode: 0
   gameEffects:
@@ -53,6 +55,10 @@ MonoBehaviour:
     stacks: 5
     maxStacks: 0
     targetOverride: 5
+  effects:
+  - rid: 3276119856843849911
+  - rid: 3276119856843849909
+  events: []
   damageScaledStat: {fileID: 0}
   damageEffects:
   - effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
@@ -68,3 +74,93 @@ MonoBehaviour:
     stacks: 0
     maxStacks: 0
     targetOverride: 4
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3276119856843849909
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 11400000, guid: 49306fe7ce176de4da4910bb09fa5a9c, type: 2}
+          values: []
+          effectValues:
+          - multiplier: 0.1
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          - multiplier: 0.1
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          - multiplier: 0.1
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          - multiplier: 0.1
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: -1
+          activationLimit: 0
+          stacks: 5
+          maxStacks: 0
+          targetOverride: 5
+        appStyle:
+          rid: 3276119856843849910
+        targetOverride: 5
+    - rid: 3276119856843849910
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3276119856843849911
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 11400000, guid: 3259eac507c625540ab354e6d5590f3d, type: 2}
+          values:
+          - 3
+          effectValues:
+          - multiplier: 3
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: 0
+          targetOverride: 4
+        effectProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        appStyle:
+          rid: 3276119856843849912
+        targetOverride: 4
+    - rid: 3276119856843849912
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 

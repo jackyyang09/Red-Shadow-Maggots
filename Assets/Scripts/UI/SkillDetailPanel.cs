@@ -58,16 +58,17 @@ public class SkillDetailPanel : MonoBehaviour
         cooldownCount.text = skill.ReferenceSkill.coolDown.ToString() + " Turn Cooldown";
         description.text = "";
 
-        if (skill.ReferenceSkill.damageEffects.Length > 0)
+        if (skill.ReferenceSkill.effects.Length > 0)
         {
-            description.text += skill.ReferenceSkill.GetEffectDescription() + "\n";
+            var desc = skill.ReferenceSkill.GetEffectDescription();
+            if (desc.Length > 0) description.text += "\n";
         }
 
         var descriptions = skill.ReferenceSkill.GetSkillDescriptions();
         for (int i = 0; i < descriptions.Length; i++)
         {
             description.text += "<color=#";
-            switch (skill.ReferenceSkill.gameEffects[i].effect.effectType)
+            switch (skill.ReferenceSkill.effects[i].effectProps.effect.effectType)
             {
                 case EffectType.None:
                     description.text += ColorUtility.ToHtmlStringRGB(Color.grey);
@@ -89,9 +90,9 @@ public class SkillDetailPanel : MonoBehaviour
         List<BaseGameEffect> effects = new List<BaseGameEffect>();
 
         int j = 0;
-        for (int i = 0; j < skill.ReferenceSkill.gameEffects.Length; j++)
+        for (int i = 0; j < skill.ReferenceSkill.effects.Length; j++)
         {
-            var e = skill.ReferenceSkill.gameEffects[j].effect;
+            var e = skill.ReferenceSkill.effects[j].effectProps.effect;
             if (!e.IncludesExplainer) continue;
             if (effects.Contains(e)) continue;
             effects.Add(e);

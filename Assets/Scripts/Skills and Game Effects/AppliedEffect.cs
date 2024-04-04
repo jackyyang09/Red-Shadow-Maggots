@@ -36,6 +36,7 @@ public class AppliedEffect
     }
 
     public EffectProperties.EffectValue[] values;
+    public int startingTurns;
     public int remainingTurns;
     public int remainingActivations;
     public string description;
@@ -59,6 +60,7 @@ public class AppliedEffect
         stackEffect = referenceEffect as IStackableEffect;
 
         remainingTurns = props.effectDuration;
+        startingTurns = props.effectDuration;
         remainingActivations = props.activationLimit;
         // Internal variable rather than Property is used to prevent invokation of event
         stacks = props.stacks;
@@ -128,6 +130,12 @@ public class AppliedEffect
     //    }
     //    return true;
     //}
+
+    public void ResetDuration()
+    {
+        remainingTurns = startingTurns;
+        RefreshDescription();
+    }
 
     void OnStacksChanged()
     {

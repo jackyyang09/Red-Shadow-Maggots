@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: Life Has Many Doors
   m_EditorClassIdentifier: 
   abilityName: Life Has Many Doors
+  coolDown: 4
+  condition:
+    rid: -2
   sprite: {fileID: 21300000, guid: a8f04f365338f90499b0163d5a97bc64, type: 3}
   targetMode: 5
   gameEffects:
@@ -42,4 +45,88 @@ MonoBehaviour:
     stacks: 0
     maxStacks: -1
     targetOverride: 0
-  coolDown: 4
+  effects:
+  - rid: 3276119856843850021
+  - rid: 3276119856843850023
+  events: []
+  damageScaledStat: {fileID: 0}
+  damageEffects: []
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 3276119856843850021
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 11400000, guid: 18d4744c72e773f4b93955f20fa87df9, type: 2}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 1
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 5
+        appStyle:
+          rid: 3276119856843850022
+        targetOverride: 5
+    - rid: 3276119856843850022
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3276119856843850023
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          values:
+          - 0
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 0
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        effectProps:
+          effect: {fileID: 11400000, guid: dadd5b262deacaa4191505a73015189c, type: 2}
+          values:
+          - 0.3
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          effectDuration: 3
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          targetOverride: 0
+        appStyle:
+          rid: 3276119856843850024
+        targetOverride: 0
+    - rid: 3276119856843850024
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 

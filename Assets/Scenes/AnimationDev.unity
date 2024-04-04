@@ -15064,7 +15064,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 5000
-  field of view: 60
+  field of view: 40
   orthographic: 0
   orthographic size: 10
   m_Depth: 0
@@ -15090,8 +15090,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.29033485, y: -0.08527848, z: -0.025796663, w: 0.95276856}
-  m_LocalPosition: {x: 0.51299995, y: 1.43, z: -1.0200002}
+  m_LocalRotation: {x: -0, y: 0.46866745, z: -0, w: -0.88337475}
+  m_LocalPosition: {x: 1.5890001, y: 2.075, z: -1.0010004}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -68536,6 +68536,75 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1001 &2966741594456827389
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 592406259578055917, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4150472303944902564, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: m_Name
+      value: Sniper Grunt Summon
+      objectReference: {fileID: 0}
+    - target: {fileID: 8048967933924773033, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: defaultRenderers.Array.data[4]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8048967933924773033, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: defaultRenderers.Array.data[5]
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8048967933924773033, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
+      propertyPath: defaultRenderers.Array.data[6]
+      value: 
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 326c1f78b39905549bcd239ba343919a, type: 3}
 --- !u!1 &2974681887498037282
 GameObject:
   m_ObjectHideFlags: 0
@@ -79600,7 +79669,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8438647025302825760, guid: 302f8a7d9b5df4348bae2e95c1f300dd, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8512435551122076348, guid: 302f8a7d9b5df4348bae2e95c1f300dd, type: 3}
       propertyPath: m_Enabled
@@ -94876,6 +94945,7 @@ SceneRoots:
   - {fileID: 1836502852}
   - {fileID: 1787392707}
   - {fileID: 1450498623}
+  - {fileID: 2966741594456827389}
   - {fileID: 1428464008}
   - {fileID: 1538208189}
   - {fileID: 2052417640586825248}

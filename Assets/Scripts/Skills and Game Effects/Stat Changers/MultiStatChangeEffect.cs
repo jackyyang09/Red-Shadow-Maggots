@@ -41,6 +41,8 @@ public class MultiStatChangeEffect : BaseGameEffect
 
     public override string GetEffectDescription(AppliedEffect effect)
     {
+        if (stats.Length == 0) return "No effect";
+
         string d = "";
 
         for (int i = 0; i < stats.Length; i++)
