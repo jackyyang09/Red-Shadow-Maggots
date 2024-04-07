@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MultiStatChangeEffect : BaseGameEffect
 {
-    [SerializeField] protected BaseGameStat[] stats;
+    [SerializeField] public BaseGameStat[] stats;
 
     public override bool Activate(AppliedEffect effect)
     {

@@ -178,7 +178,8 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         {
             var ge = group[i];
 
-            if (ge.damageProps == null && ge.effectProps == null)
+            if ((ge.damageProps == null || ge.damageProps.effect == null) && 
+                (ge.effectProps == null || ge.effectProps.effect == null))
             {
                 EditorGUILayout.LabelField("None", NullStyle);
                 continue;
@@ -193,8 +194,18 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
             TargetMode t = target;
             if (ge.targetOverride != TargetMode.None) t = ge.targetOverride;
 
-            if (!ge.effectProps.effect) continue;
-            switch (ge.effectProps.effect.effectType)
+            EffectType type;
+
+            if (ge.effectProps.effect)
+            {
+                type = ge.effectProps.effect.effectType;
+            }
+            else
+            {
+                type = ge.damageProps.effect.effectType;
+            }
+
+            switch (type)
             {
                 case EffectType.None:
                     EditorGUILayout.LabelField(desc, NullStyle);

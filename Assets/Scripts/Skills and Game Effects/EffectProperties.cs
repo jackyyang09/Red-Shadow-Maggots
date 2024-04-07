@@ -17,17 +17,27 @@ public class EffectProperties
 {
     public enum EffectType
     {
+        [Tooltip("Multiplied by 100 w/ a `%`, always displays 1 decimal place " +
+            "\nex. 0.0%, 99.9%")]
         Percentage,
+        [Tooltip("Treated as is inputted")]
         Value,
+        [Tooltip("Multiplied by 100 and rounded to lowest int " +
+            "\nex. 0.999 -> 99")]
         Decimal
     }
 
     [System.Serializable]
     public class EffectValue
     {
+        [Tooltip("This value will be multiplied with a different value")]
         public float multiplier;
+        [Tooltip("Any values to be added on")]
         public float flat;
+        [Tooltip("Defines how the flat value is displayed in Skill Descriptions")]
         public EffectType flatType;
+        [Tooltip("Defines how the value change is displayed in the Effect Description" +
+            "\nex. ATK increased by 20 vs ATK increased by 20%")]
         public EffectType deltaType;
 
         public EffectValue Copy()

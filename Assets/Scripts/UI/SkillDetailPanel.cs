@@ -54,21 +54,29 @@ public class SkillDetailPanel : MonoBehaviour
 
     public void ShowWithDetails(GameSkill skill)
     {
-        nameText.text = skill.ReferenceSkill.abilityName;
-        cooldownCount.text = skill.ReferenceSkill.coolDown.ToString() + " Turn Cooldown";
+        var reference = skill.ReferenceSkill;
+
+        nameText.text = reference.abilityName;
+        cooldownCount.text = reference.coolDown.ToString() + " Turn Cooldown";
         description.text = "";
 
-        if (skill.ReferenceSkill.effects.Length > 0)
-        {
-            var desc = skill.ReferenceSkill.GetEffectDescription();
-            if (desc.Length > 0) description.text += "\n";
-        }
-
-        var descriptions = skill.ReferenceSkill.GetSkillDescriptions();
+        var descriptions = reference.GetSkillDescriptions();
         for (int i = 0; i < descriptions.Length; i++)
         {
             description.text += "<color=#";
-            switch (skill.ReferenceSkill.effects[i].effectProps.effect.effectType)
+
+            EffectType type;
+
+            if (reference.effects[i].effectProps.effect)
+            {
+                type = reference.effects[i].effectProps.effect.effectType;
+            }
+            else
+            {
+                type = reference.effects[i].damageProps.effect.effectType;
+            }
+
+            switch (type)
             {
                 case EffectType.None:
                     description.text += ColorUtility.ToHtmlStringRGB(Color.grey);
@@ -93,6 +101,7 @@ public class SkillDetailPanel : MonoBehaviour
         for (int i = 0; j < skill.ReferenceSkill.effects.Length; j++)
         {
             var e = skill.ReferenceSkill.effects[j].effectProps.effect;
+            if (!e) continue;
             if (!e.IncludesExplainer) continue;
             if (effects.Contains(e)) continue;
             effects.Add(e);

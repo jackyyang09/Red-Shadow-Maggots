@@ -27,8 +27,18 @@ public class BaseStatRenderer : MonoBehaviour
 
     protected string RenderPositiveMod(int v) => POS_COLOUR + v + END_BRACKET;
     protected string RenderPositiveMod(string s) => POS_COLOUR + s + END_BRACKET;
-    protected string RenderNegativeMod(int v) => NEG_COLOUR + v + END_BRACKET;
-    protected string RenderNegativeMod(string s) => NEG_COLOUR + s + END_BRACKET;
+    protected string RenderNegativeMod(int v, bool isPositive = false)
+    {
+        if (isPositive) return NEG_COLOUR + "+" + v + END_BRACKET;
+        else return NEG_COLOUR + v + END_BRACKET;
+    }
+    protected string RenderNegativeMod(string s, bool isPositive = false)
+    {
+        if (isPositive) return NEG_COLOUR + "+" + s + END_BRACKET;
+        else return NEG_COLOUR + s + END_BRACKET;
+
+        ;
+    }
 
     protected void RefreshValueLabelLayout()
     {

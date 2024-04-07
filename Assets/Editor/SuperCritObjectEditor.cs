@@ -48,11 +48,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
         var effectDesc = targetObject.GetSkillDescriptions();
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        if (damageEffects.arraySize > 0)
-        {
-            var damageDesc = targetObject.GetEffectDescription();
-            EditorGUILayout.LabelField(damageDesc, BuffStyle);
-        }
         RenderEffectDescriptions(targetObject.targetMode, targetObject.effects, effectDesc);
         EditorGUILayout.EndVertical();
 

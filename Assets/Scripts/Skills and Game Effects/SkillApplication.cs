@@ -52,7 +52,7 @@ public class RepeatedApplication : BaseApplicationStyle
 
     public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
     {
-        for (int i = 0; i < Repeats; i++)
+        for (int i = 0; i < 1 + Repeats; i++)
         {
             int applied = ApplyEffects(effects, caster, potentialTargets[0]);
 
@@ -67,7 +67,7 @@ public class RandomApplication : RepeatedApplication
     public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
     {
         var target = potentialTargets[0];
-        for (int i = 0; i < Repeats; i++)
+        for (int i = 0; i < 1 + Repeats; i++)
         {
             int applied = ApplyEffects(effects, caster, target);
 
@@ -84,7 +84,7 @@ public class BounceApplication : RepeatedApplication
     public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
     {
         var target = potentialTargets[0];
-        for (int i = 0; i < Repeats; i++)
+        for (int i = 0; i < 1 + Repeats; i++)
         {
             int applied = ApplyEffects(effects, caster, target);
 

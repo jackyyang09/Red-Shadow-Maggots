@@ -17,26 +17,37 @@ public class BaseAbilityObject : ScriptableObject
 
     public string[] GetSkillDescriptions()
     {
-        var d = new List<string>();
+        var description = new List<string>();
 
         foreach (var ge in effects)
         {
+            var d = "";
             var target = ge.targetOverride == TargetMode.None ? targetMode : ge.targetOverride;
 
             if (ge.damageProps.effect)
             {
-                d.Add(ge.damageProps.effect.GetSkillDescription(target, ge.damageProps).ToString());
+                d = ge.damageProps.effect.GetSkillDescription(target, ge.damageProps).ToString();
             }
             
             if (ge.effectProps.effect)
             {
-                d.Add(ge.effectProps.effect.GetSkillDescription(target, ge.effectProps).ToString());
+                d = ge.effectProps.effect.GetSkillDescription(target, ge.effectProps).ToString();
             }
+
+            var repeatStyle = ge.appStyle as RepeatedApplication;
+            if (repeatStyle != null)
+            {
+                d += "(Repeat " + repeatStyle.Repeats + " Time";
+                if (repeatStyle.Repeats > 1) d += "s";
+                d += ")";
+            }
+
+            description.Add(d);
         }
 
-        if (d.Count == 0) return new[] { "" };
+        if (description.Count == 0) return new[] { "" };
 
-        return d.ToArray();
+        return description.ToArray();
     }
 
     public BaseGameStat damageScaledStat;

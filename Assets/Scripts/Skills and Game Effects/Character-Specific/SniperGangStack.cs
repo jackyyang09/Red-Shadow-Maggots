@@ -30,7 +30,7 @@ public class SniperGangStack : MultiStatStackEffect
         base.OnExpire(effect);
     }
 
-    public new void OnStacksChanged(AppliedEffect effect)
+    public override void OnStacksChanged(AppliedEffect effect)
     {
         var targets = new List<BaseCharacter> { effect.target };
         targets.AddRange(effect.extraTargets);
@@ -60,19 +60,19 @@ public class SniperGangStack : MultiStatStackEffect
 
     public override string GetEffectDescription(AppliedEffect effect)
     {
-        string d = "For each stack: Increase " +
-            RSMConstants.Keywords.Short.ATTACK + " by " +
-            effect.values[0].multiplier.FormatPercentage() +
-            " and " + RSMConstants.Keywords.Short.DEFENSE + " by " +
-            effect.values[1].multiplier.FormatPercentage() +
-            " for " + TargetModeDescriptor(TargetMode.AllAllies).TrimEnd() + ". " +
-            "At the start of your turn, " + TargetModeDescriptor(TargetMode.AllAllies) + "recover " +
-            RSMConstants.Keywords.Short.HEALTH + " equal to " +
-            effect.values[2].multiplier.FormatPercentage() + " of your " +
-            RSMConstants.Keywords.Short.MAX_HEALTH +
-            " and receive a Shield with a strength of " +
-            effect.values[3].multiplier.FormatPercentage() + " of your " +
-            RSMConstants.Keywords.Short.MAX_HEALTH + ".";
+        string d = "Apply the following effects based on the number of stacks:\n";
+
+        d += "1 - Reduce " + RSMConstants.Keywords.Short.ATTACK + " by " +
+            effect.values[0].multiplier.FormatPercentage() + "\n";
+
+        d += "2 - Reduce " + RSMConstants.Keywords.Short.DEFENSE + " by " +
+            effect.values[1].multiplier.FormatPercentage() + "\n";
+
+        d += "3 - Reduce " + RSMConstants.Keywords.Short.WAIT_LIMIT + " by " +
+            effect.values[2].flat.FormatToDecimal() + "\n";
+
+        d += "4 - Increase " + RSMConstants.Keywords.Short.WAIT + " by " +
+            effect.values[3].flat.FormatToDecimal() + "\n";
 
         return d;
     }

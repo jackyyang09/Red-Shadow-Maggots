@@ -49,7 +49,7 @@ public class TargetFocus : BaseGameEffect
             case TargetMode.OneEnemy:
             case TargetMode.AllAllies:
             case TargetMode.AllEnemies:
-                s += " to " + TargetModeDescriptor(targetMode);
+                s += "to " + TargetModeDescriptor(targetMode);
                 break;
         }
 

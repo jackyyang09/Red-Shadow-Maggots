@@ -36,4 +36,27 @@ public class InstantDamageEffect : BaseDamageEffect
 
         return base.Activate(effect);
     }
+
+    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    {
+        string s = TargetModeDescriptor(targetMode);
+
+        switch (targetMode)
+        {
+            case TargetMode.Self:
+                s += "Take ";
+                break;
+            case TargetMode.OneAlly:
+            case TargetMode.OneEnemy:
+            case TargetMode.AllAllies:
+            case TargetMode.AllEnemies:
+                s += "take ";
+                break;
+        }
+
+        s += RSMConstants.Keywords.Short.DAMAGE + " equal to " +
+            EffectValueDescriptor(props.effectValues[0], "your", stat);
+
+        return s;
+    }
 }

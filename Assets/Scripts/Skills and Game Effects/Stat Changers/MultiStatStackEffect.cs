@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Multi Stat Stack Effect", menuName = "ScriptableObjects/Multi Stat Stack Effect", order = 1)]
 public class MultiStatStackEffect : MultiStatChangeEffect, IStackableEffect
 {
-    public void OnStacksChanged(AppliedEffect effect)
+    public virtual void OnStacksChanged(AppliedEffect effect)
     {
         for (int i = 0; i < effect.cachedValues.Count; i++)
         {
@@ -72,7 +72,7 @@ public class MultiStatStackEffect : MultiStatChangeEffect, IStackableEffect
         d += count + " stack";
         if (count > 1) d += "s";
         d += " of " + props.effect.effectName + " ";
-        if (props.maxStacks > 0) d += "(max " + props.maxStacks + ")";
+        if (props.maxStacks > 0) d += "(Max " + props.maxStacks + ") ";
 
         return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
     }

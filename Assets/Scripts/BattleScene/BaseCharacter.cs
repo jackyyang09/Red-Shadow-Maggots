@@ -752,8 +752,6 @@ public abstract class BaseCharacter : MonoBehaviour
         if (targets == null) return false;
         if (targets.Length == 0) return false;
         if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, targets[0].transform);
-        // TODO: Uncomment me
-        //newEffect.cachedValue = props.effect.Activate(caster, target, props.strength, props.customValues);
 
         AppliedEffect newEffect = new AppliedEffect(caster, targets, props);
 
@@ -861,6 +859,7 @@ public abstract class BaseCharacter : MonoBehaviour
                     else
                     {
                         e.Stacks += newEffect.Stacks;
+                        newEffect = e;
                     }
                     apply = false;
                 }

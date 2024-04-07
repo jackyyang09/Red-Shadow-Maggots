@@ -14,13 +14,13 @@ public class WaitRenderer : BaseStatRenderer
     {
         var modifier = character.WaitModifier.FormatToDecimal();
         ValueText = character.WaitModified.FormatToDecimal();
-        if (character.WaitModifier > 0)
+        if (character.WaitModifier < 0)
         {
             ValueText += RenderPositiveMod(modifier);
         }
-        else if (character.WaitModifier < 0)
+        else if (character.WaitModifier > 0)
         {
-            ValueText += RenderNegativeMod(modifier);
+            ValueText += RenderNegativeMod(modifier, true);
         }
     }
 }

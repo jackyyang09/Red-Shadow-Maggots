@@ -48,11 +48,6 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
         var skillDescriptions = targetObject.GetSkillDescriptions();
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-        if (damageEffects.arraySize > 0)
-        {
-            var damageDesc = targetObject.GetEffectDescription();
-            EditorGUILayout.LabelField(damageDesc, BuffStyle);
-        }
         RenderEffectDescriptions((TargetMode)targetMode.enumValueIndex, targetObject.effects, skillDescriptions);
         EditorGUILayout.EndVertical();
 
