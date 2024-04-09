@@ -16,11 +16,11 @@ public class WaitRenderer : BaseStatRenderer
         ValueText = character.WaitModified.FormatToDecimal();
         if (character.WaitModifier < 0)
         {
-            ValueText += RenderPositiveMod(modifier);
+            ValueText += RenderPositiveModWithMinus(modifier);
         }
         else if (character.WaitModifier > 0)
         {
-            ValueText += RenderNegativeMod(modifier, true);
+            ValueText += RenderNegativeModWithPlus(modifier);
         }
     }
 }
