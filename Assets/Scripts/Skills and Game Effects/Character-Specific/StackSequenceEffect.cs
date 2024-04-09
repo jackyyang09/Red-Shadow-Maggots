@@ -26,7 +26,6 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
                 {
                     d += item + ", ";
                 }
-                Debug.Log(effects[i].effectName + " " + d);
             }
         }
         else
@@ -35,6 +34,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
             effect.customCallbacks[0] = () => OnSpecialCallback(effect);
             effect.target.OnStartTurnLate += effect.customCallbacks[0];
 
+            Queue<EffectProperties.EffectValue> backup = new(effect.values);
             for (int i = 0; i < effect.Stacks; i++)
             {
                 var cached = new List<float>(effect.cachedValues);
@@ -42,7 +42,12 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
                 effects[i].Activate(effect);
                 cached.AddRange(effect.cachedValues);
                 effect.cachedValues = cached;
+
+                Queue<EffectProperties.EffectValue> cache = new(effect.values);
+                cache.Enqueue(cache.Dequeue());
+                effect.values = cache.ToArray();
             }
+            effect.values = backup.ToArray();
         }
 
         return true;

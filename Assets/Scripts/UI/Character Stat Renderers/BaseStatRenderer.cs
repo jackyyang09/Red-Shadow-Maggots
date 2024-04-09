@@ -31,7 +31,7 @@ public class BaseStatRenderer : MonoBehaviour
 
     protected string RenderNegativeMod(int v) => NEG_COLOUR + v + END_BRACKET;
     protected string RenderNegativeMod(string s) => NEG_COLOUR + s + END_BRACKET;
-    protected string RenderNegativeModWithPlus(string s) => BeginColourLabel(controller.NegativeColor) + "(" + s + END_BRACKET;
+    protected string RenderNegativeModWithPlus(string s) => BeginColourLabel(controller.NegativeColor) + "(+" + s + END_BRACKET;
 
     protected void RefreshValueLabelLayout()
     {
