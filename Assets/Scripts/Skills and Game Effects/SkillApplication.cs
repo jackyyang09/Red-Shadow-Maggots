@@ -12,13 +12,13 @@ public class BaseApplicationStyle
 {
     protected float Delay => sceneTweener.SkillEffectApplyDelay;
 
-    protected int ApplyEffects(EffectGroup group, BaseCharacter caster, BaseCharacter target)
+    protected int ApplyEffects(EffectGroup group, TargetProps targetProps)
     {
         int applied = 0;
 
         if (group.damageProps.effect)
         {
-            if (ApplyEffectToCharacter(group.damageProps, caster, target))
+            if (ApplyEffectToCharacter(group.damageProps, targetProps))
             {
                 GlobalEvents.OnGameEffectApplied?.Invoke(group.damageProps.effect);
                 applied++;
@@ -26,7 +26,7 @@ public class BaseApplicationStyle
         }
         if (group.effectProps.effect)
         {
-            if (ApplyEffectToCharacter(group.effectProps, caster, target))
+            if (ApplyEffectToCharacter(group.effectProps, targetProps))
             {
                 GlobalEvents.OnGameEffectApplied?.Invoke(group.effectProps.effect);
                 applied++;
@@ -36,9 +36,12 @@ public class BaseApplicationStyle
         return applied;
     }
 
-    public virtual IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
+    public virtual IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
     {
-        int applied = ApplyEffects(effects, caster, potentialTargets[0]);
+        var newT = targetProps.ShallowCopy();
+        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+
+        int applied = ApplyEffects(effects, newT);
 
         // Wait 0 or 1 times the delay factor
         yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
@@ -50,11 +53,14 @@ public class RepeatedApplication : BaseApplicationStyle
     [Min(1)]
     public int Repeats = 1;
 
-    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
+    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
     {
+        var newT = targetProps.ShallowCopy();
+        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+
         for (int i = 0; i < 1 + Repeats; i++)
         {
-            int applied = ApplyEffects(effects, caster, potentialTargets[0]);
+            int applied = ApplyEffects(effects, newT);
 
             // Wait 0 or 1 times the delay factor
             yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
@@ -64,36 +70,40 @@ public class RepeatedApplication : BaseApplicationStyle
 
 public class RandomApplication : RepeatedApplication
 {
-    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
+    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
     {
-        var target = potentialTargets[0];
+        var newT = targetProps.ShallowCopy();
+        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+
         for (int i = 0; i < 1 + Repeats; i++)
         {
-            int applied = ApplyEffects(effects, caster, target);
+            int applied = ApplyEffects(effects, newT);
 
             // Wait 0 or 1 times the delay factor
             yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
 
-            target = potentialTargets[Random.Range(0, potentialTargets.Count)];
+            newT.Targets = new BaseCharacter[] { targetProps.Targets[Random.Range(0, targetProps.Targets.Length)] };
         }
     }
 }
 
 public class BounceApplication : RepeatedApplication
 {
-    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, List<BaseCharacter> potentialTargets)
+    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
     {
-        var target = potentialTargets[0];
-        for (int i = 0; i < 1 + Repeats; i++)
-        {
-            int applied = ApplyEffects(effects, caster, target);
-
-            // Wait 0 or 1 times the delay factor
-            yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
-
-            Debug.LogWarning("Bounce hasn't been implemented!");
-            target = potentialTargets[Random.Range(0, potentialTargets.Count)];
-        }
+        //var target = potentialTargets[0];
+        //for (int i = 0; i < 1 + Repeats; i++)
+        //{
+        //    int applied = ApplyEffects(effects, caster, target);
+        //
+        //    // Wait 0 or 1 times the delay factor
+        //    yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
+        //
+        //    Debug.LogWarning("Bounce hasn't been implemented!");
+        //    target = potentialTargets[Random.Range(0, potentialTargets.Count)];
+        //}
+        Debug.LogError("Bounce hasn't been implemented!");
+        yield return null;
     }
 }
 

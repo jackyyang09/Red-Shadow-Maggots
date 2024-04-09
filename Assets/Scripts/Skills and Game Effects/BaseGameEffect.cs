@@ -42,6 +42,11 @@ public abstract class BaseGameEffect : ScriptableObject
     [HideInInspector] public virtual string ExplainerDescription { get; }
 
     /// <summary>
+    /// The number of indices of CachedValues this effect accesses
+    /// </summary>
+    public virtual int ValueCount => 1;
+
+    /// <summary>
     /// Overrides default tick time if value is above -1
     /// </summary>
     public virtual float TickAnimationTime => 0;

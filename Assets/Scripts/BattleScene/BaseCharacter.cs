@@ -740,26 +740,19 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(ActivateSkill(skill));
     }
 
-    public static bool ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter target)
+    public static bool ApplyEffectToCharacter(EffectProperties props, TargetProps targetProps)
     {
-        if (!target) return false;
-        if (target.IsDead) return false;
-        return ApplyEffectToCharacter(props, caster, new[] { target });
-    }
+        if (targetProps.Targets == null) return false;
+        if (targetProps.Targets.Length == 0) return false;
+        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, targetProps.Targets[0].transform);
 
-    public static bool ApplyEffectToCharacter(EffectProperties props, BaseCharacter caster, BaseCharacter[] targets)
-    {
-        if (targets == null) return false;
-        if (targets.Length == 0) return false;
-        if (props.effect.particlePrefab) Instantiate(props.effect.particlePrefab, targets[0].transform);
+        AppliedEffect newEffect = new AppliedEffect(targetProps, props);
 
-        AppliedEffect newEffect = new AppliedEffect(caster, targets, props);
-
-        bool applied = targets[0].ApplyEffect(newEffect);
+        bool applied = targetProps.Targets[0].ApplyEffect(newEffect);
         if (applied)
         {
-            EffectTextSpawner.Instance.SpawnEffectAt(props.effect, targets[0].transform);
-            OnAppliedEffect?.Invoke(targets[0], newEffect);
+            EffectTextSpawner.Instance.SpawnEffectAt(props.effect, targetProps.Targets[0].transform);
+            OnAppliedEffect?.Invoke(targetProps.Targets[0], newEffect);
         }
 
         return applied;
@@ -771,10 +764,15 @@ public abstract class BaseCharacter : MonoBehaviour
 
         foreach (var effect in skill.ReferenceSkill.effects)
         {
+            var targetProps = new TargetProps();
+
+            targetProps.Caster = this;
+            targetProps.TargetMode = effect.targetOverride == TargetMode.None ? skill.ReferenceSkill.targetMode : effect.targetOverride;
+
             switch (effect.targetOverride)
             {
                 case TargetMode.None:
-                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, targets));
+                    targetProps.Targets = targets.ToArray();
                     break;
                 case TargetMode.OneAlly:
                 case TargetMode.OneEnemy:
@@ -782,15 +780,13 @@ public abstract class BaseCharacter : MonoBehaviour
                         " should not be used as overrides!");
                     break;
                 case TargetMode.AllAllies:
-                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
-
                     switch (battleSystem.CurrentPhase)
                     {
                         case BattlePhases.PlayerTurn:
-                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
+                            targetProps.Targets = battleSystem.PlayerList.ToArray();
                             break;
                         case BattlePhases.EnemyTurn:
-                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, enemyController.EnemyList.ToList<BaseCharacter>()));
+                            targetProps.Targets = enemyController.EnemyList.ToArray();
                             break;
                     }
                     break;
@@ -798,17 +794,19 @@ public abstract class BaseCharacter : MonoBehaviour
                     switch (battleSystem.CurrentPhase)
                     {
                         case BattlePhases.PlayerTurn:
-                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, enemyController.EnemyList.ToList<BaseCharacter>()));
+                            targetProps.Targets = enemyController.EnemyList.ToArray();
                             break;
                         case BattlePhases.EnemyTurn:
-                            yield return StartCoroutine(effect.appStyle.Apply(effect, this, battleSystem.PlayerList.ToList<BaseCharacter>()));
+                            targetProps.Targets = battleSystem.PlayerList.ToArray();
                             break;
                     }
                     break;
                 case TargetMode.Self:
-                    yield return StartCoroutine(effect.appStyle.Apply(effect, this, new List<BaseCharacter>{ this }));
+                    targetProps.Targets = new BaseCharacter[] { this };
                     break;
             }
+
+            yield return StartCoroutine(effect.appStyle.Apply(effect, targetProps));
         }
 
         for (int i = 0; i < onFinishApplyingSkillEffects.Count; i++)

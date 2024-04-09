@@ -23,21 +23,38 @@ public abstract class BaseCharacterPassive : MonoBehaviour
     protected virtual void ApplyEffect(BaseGameEffect e, int s)
     {
         if (s == 0) return;
-        EffectProperties props = new EffectProperties() 
+        EffectProperties props = new() 
         { 
             effect = e, effectDuration = -1, stacks = s 
         };
-        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, baseCharacter);
+        TargetProps targetProps = new()
+        {
+            Caster = baseCharacter, Targets = new[] { baseCharacter },
+            TargetMode = TargetMode.Self
+        };
+        BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }
 
     protected void ApplyEffect(EffectProperties props)
     {
-        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, baseCharacter);
+        TargetProps targetProps = new()
+        {
+            Caster = baseCharacter,
+            Targets = new[] { baseCharacter },
+            TargetMode = TargetMode.Self
+        };
+        BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }
 
     protected void ApplyEffectToCharacter(BaseCharacter character, EffectProperties props)
     {
-        BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, character);
+        TargetProps targetProps = new()
+        {
+            Caster = baseCharacter,
+            Targets = new[] { character },
+            TargetMode = TargetMode.None
+        };
+        BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }
 
     protected bool HasStacks(BaseGameEffect effect)

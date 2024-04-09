@@ -95,7 +95,7 @@ public abstract class SuperCriticalEffect : MonoBehaviour
                 break;
         }
 
-        effect.appStyle.Apply(effect, baseCharacter, targets);
+        //effect.appStyle.Apply(effect, baseCharacter, targets);
 
         effectsApplied++;
     }

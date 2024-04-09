@@ -12,6 +12,18 @@ public enum TargetMode
     Self
 }
 
+public class TargetProps
+{
+    public BaseCharacter Caster;
+    public BaseCharacter[] Targets;
+    public TargetMode TargetMode;
+
+    public TargetProps ShallowCopy()
+    {
+        return MemberwiseClone() as TargetProps;
+    }
+}
+
 [System.Serializable]
 public class EffectProperties
 {

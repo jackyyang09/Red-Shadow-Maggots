@@ -10,6 +10,7 @@ public class AppliedEffect
     public BaseCharacter caster;
     public BaseCharacter target;
     public List<BaseCharacter> extraTargets = new List<BaseCharacter>();
+    public TargetMode targetMode;
     public BaseGameEffect referenceEffect;
 
     IStackableEffect stackEffect;
@@ -44,17 +45,36 @@ public class AppliedEffect
     public System.Action[] customCallbacks;
     public GameObject[] instantiatedObjects;
 
+    /// <summary>
+    /// Constructs a basic EffectProperties instance based off exising values.
+    /// Cache this value when using
+    /// </summary>
+    public EffectProperties Properties
+    {
+        get
+        {
+            return new()
+            {
+                effect = referenceEffect,
+                effectDuration = startingTurns,
+                effectValues = values,
+                maxStacks = maxStacks
+            };
+        }
+    }
+
     public AppliedEffect(BaseGameEffect effect)
     {
         referenceEffect = effect;
         stackEffect = referenceEffect as IStackableEffect;
     }
 
-    public AppliedEffect(BaseCharacter c, BaseCharacter[] targets, EffectProperties props)
+    public AppliedEffect(TargetProps targets, EffectProperties props)
     {
-        caster = c;
-        target = targets[0];
-        extraTargets = new List<BaseCharacter>(targets);
+        caster = targets.Caster;
+        target = targets.Targets[0];
+        targetMode = targets.TargetMode;
+        extraTargets = new List<BaseCharacter>(targets.Targets);
         extraTargets.RemoveAt(0);
         referenceEffect = props.effect;
         stackEffect = referenceEffect as IStackableEffect;

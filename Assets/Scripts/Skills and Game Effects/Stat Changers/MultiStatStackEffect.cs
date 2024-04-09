@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Multi Stat Stack Effect", menuName = "ScriptableObjects/Multi Stat Stack Effect", order = 1)]
-public class MultiStatStackEffect : MultiStatChangeEffect, IStackableEffect
+public class MultiStatStackEffect : StatChangeEffect, IStackableEffect
 {
     public virtual void OnStacksChanged(AppliedEffect effect)
     {

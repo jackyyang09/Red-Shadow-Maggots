@@ -48,11 +48,14 @@ public class PisspenserSpecial : MultiStatStackEffect
         {
             var props = healEffect.Copy();
             props.effectValues = new[] { effect.values[2] * effect.Stacks };
-            BaseCharacter.ApplyEffectToCharacter(props, effect.caster, ally);
+            TargetProps targetProps = new() { 
+                Caster = effect.caster, Targets = new[] { ally }, TargetMode = TargetMode.AllAllies
+            };
+            BaseCharacter.ApplyEffectToCharacter(props, targetProps);
 
             props = shieldEffect.Copy();
             props.effectValues = new[] { effect.values[3] * effect.Stacks };
-            BaseCharacter.ApplyEffectToCharacter(props, effect.caster, ally);
+            BaseCharacter.ApplyEffectToCharacter(props, targetProps);
         }
     }
 

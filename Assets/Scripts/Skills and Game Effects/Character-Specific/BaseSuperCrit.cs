@@ -115,7 +115,14 @@ namespace SuperCrits
                 v.flat *= effectEvent.damageModifier;
             }
 
-            StartCoroutine(group.appStyle.Apply(group, baseCharacter, targets));
+            TargetProps targetProps = new()
+            {
+                Caster = baseCharacter,
+                Targets = targets.ToArray(),
+                TargetMode = group.targetOverride
+            };
+
+            StartCoroutine(group.appStyle.Apply(group, targetProps));
 
             effectsApplied++;
         }
