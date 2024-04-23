@@ -6,27 +6,31 @@ using UnityEditor;
 #endif
 using static Facade;
 using static BaseCharacter;
+using DocumentFormat.OpenXml.Drawing.Charts;
 
 [System.Serializable]
 public class BaseApplicationStyle
 {
     protected float Delay => sceneTweener.SkillEffectApplyDelay;
 
-    protected int ApplyEffects(EffectGroup group, TargetProps targetProps)
+    protected int ApplyEffects(EffectGroup group, BaseCharacter caster, BaseCharacter castTarget)
     {
         int applied = 0;
 
         if (group.damageProps.effect)
         {
-            if (ApplyEffectToCharacter(group.damageProps, targetProps))
+            var t = new TargetProps() { Caster = caster, Targets = new[] { castTarget } };
+            if (ApplyEffectToCharacter(group.damageProps, t))
             {
                 GlobalEvents.OnGameEffectApplied?.Invoke(group.damageProps.effect);
                 applied++;
             }
         }
+
         if (group.effectProps.effect)
         {
-            if (ApplyEffectToCharacter(group.effectProps, targetProps))
+            var t = new TargetProps() { Caster = caster, Targets = new[] { castTarget } };
+            if (ApplyEffectToCharacter(group.effectProps, t))
             {
                 GlobalEvents.OnGameEffectApplied?.Invoke(group.effectProps.effect);
                 applied++;
@@ -36,12 +40,15 @@ public class BaseApplicationStyle
         return applied;
     }
 
-    public virtual IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
+    public virtual IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
     {
-        var newT = targetProps.ShallowCopy();
-        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+        int applied = 0;
+        var effectTargets = effects.effectTarget.GetTargets(caster, target);
 
-        int applied = ApplyEffects(effects, newT);
+        foreach (var t in effectTargets)
+        {
+            applied += ApplyEffects(effects, caster, target);
+        }
 
         // Wait 0 or 1 times the delay factor
         yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
@@ -53,14 +60,17 @@ public class RepeatedApplication : BaseApplicationStyle
     [Min(1)]
     public int Repeats = 1;
 
-    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
+    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
     {
-        var newT = targetProps.ShallowCopy();
-        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+        var effectTargets = effects.effectTarget.GetTargets(caster, target);
 
         for (int i = 0; i < 1 + Repeats; i++)
         {
-            int applied = ApplyEffects(effects, newT);
+            int applied = 0;
+            foreach (var t in effectTargets)
+            {
+                applied += ApplyEffects(effects, caster, target);
+            }
 
             // Wait 0 or 1 times the delay factor
             yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
@@ -70,26 +80,26 @@ public class RepeatedApplication : BaseApplicationStyle
 
 public class RandomApplication : RepeatedApplication
 {
-    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
+    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
     {
-        var newT = targetProps.ShallowCopy();
-        newT.Targets = new BaseCharacter[] { newT.Targets[0] };
+        var effectTargets = effects.effectTarget.GetTargets(caster, target);
 
+        BaseCharacter rTarget = target;
         for (int i = 0; i < 1 + Repeats; i++)
         {
-            int applied = ApplyEffects(effects, newT);
+            int applied = ApplyEffects(effects, caster, rTarget);
 
             // Wait 0 or 1 times the delay factor
             yield return new WaitForSeconds(Mathf.Min(applied, 1) * Delay);
 
-            newT.Targets = new BaseCharacter[] { targetProps.Targets[Random.Range(0, targetProps.Targets.Length)] };
+            rTarget = effectTargets[Random.Range(0, effectTargets.Length)];
         }
     }
 }
 
 public class BounceApplication : RepeatedApplication
 {
-    public override IEnumerator Apply(EffectGroup effects, TargetProps targetProps)
+    public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
     {
         //var target = potentialTargets[0];
         //for (int i = 0; i < 1 + Repeats; i++)
@@ -114,6 +124,7 @@ public class EffectGroup
     public EffectProperties effectProps;
     [SerializeReference] public BaseApplicationStyle appStyle = new BaseApplicationStyle();
     public TargetMode targetOverride;
+    [SerializeReference] public BaseEffectTarget effectTarget;
 
     public EffectGroup Copy()
     {
@@ -136,6 +147,11 @@ public class EffectGroupDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
+
+        if (property.managedReferenceValue == null)
+        {
+            property.managedReferenceValue = new EffectGroup();
+        }
 
         SerializedProperty damageProps, effectProps, appStyle, targetOverride;
         damageProps = property.FindPropertyRelative(nameof(damageProps));

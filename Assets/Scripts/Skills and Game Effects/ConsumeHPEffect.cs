@@ -7,7 +7,7 @@ public class ConsumeHPEffect : BaseDamageEffect
 {
     public override bool Activate(AppliedEffect effect)
     {
-        base.ConsumeHealth(GetValue(stat, effect.values[0], effect.target), effect.target);
+        base.ConsumeHealth(GetValue(stat, effect.values[0], effect.Target), effect.Target);
 
         return base.Activate(effect);
     }

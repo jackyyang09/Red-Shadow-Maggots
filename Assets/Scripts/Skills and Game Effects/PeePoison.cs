@@ -16,32 +16,32 @@ public class PeePoison : DamagePerTurnEffect
 
     public override void Tick(AppliedEffect effect)
     {
-        ConsumeHealth(effect.cachedValues[0], effect.target);
+        ConsumeHealth(effect.cachedValues[0], effect.Target);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.Self:
-                s += "<u>Pee</u> ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-                s += "<u>Pees</u> ";
-                break;
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "<u>Pee</u> ";
-                break;
-        }
-
-        s += "at " + props.effectValues[0].multiplier.FormatPercentage() + " strength ";
-
-        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    }
+    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    //{
+    //    string s = TargetModeDescriptor(targetMode);
+    //
+    //    switch (targetMode)
+    //    {
+    //        case TargetMode.Self:
+    //            s += "<u>Pee</u> ";
+    //            break;
+    //        case TargetMode.OneAlly:
+    //        case TargetMode.OneEnemy:
+    //            s += "<u>Pees</u> ";
+    //            break;
+    //        case TargetMode.AllAllies:
+    //        case TargetMode.AllEnemies:
+    //            s += "<u>Pee</u> ";
+    //            break;
+    //    }
+    //
+    //    s += "at " + props.effectValues[0].multiplier.FormatPercentage() + " strength ";
+    //
+    //    return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+    //}
 
     public override string GetEffectDescription(AppliedEffect effect)
     {

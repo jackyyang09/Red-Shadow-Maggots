@@ -9,16 +9,16 @@ public class MultiStatStackEffect : StatChangeEffect, IStackableEffect
     {
         for (int i = 0; i < effect.cachedValues.Count; i++)
         {
-            stats[i].SetGameStat(effect.target, -effect.cachedValues[i]);
+            stats[i].SetGameStat(effect.Target, -effect.cachedValues[i]);
         }
 
         effect.cachedValues.Clear();
 
         for (int i = 0; i < stats.Length; i++)
         {
-            var amount = GetValue(stats[i], effect.values[i], effect.target) * effect.Stacks;
+            var amount = GetValue(stats[i], effect.values[i], effect.Target) * effect.Stacks;
 
-            stats[i].SetGameStat(effect.target, amount);
+            stats[i].SetGameStat(effect.Target, amount);
 
             effect.cachedValues.Add(amount);
         }

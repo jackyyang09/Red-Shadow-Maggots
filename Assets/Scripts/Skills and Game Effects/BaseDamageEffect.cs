@@ -28,6 +28,16 @@ public class BaseDamageEffect : BaseStatScaledEffect
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
+        var d = base.GetSkillDescription(targetMode, props);
+        if (d.Contains("$STAT"))
+        {
+            var statScaled = props.valueGroup.Values[0] as StatScaledValue;
+            var statName = statScaled == null ? statScaled.Stat.Name : "NO STAT";
+            d = d.Replace("$STAT", statName);
+        }
+
+        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+
         string s = TargetModeDescriptor(targetMode);
 
         switch (targetMode)

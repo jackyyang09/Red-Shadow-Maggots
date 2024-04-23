@@ -7,10 +7,14 @@ using UnityEngine;
 /// </summary>
 public class AppliedEffect
 {
-    public BaseCharacter caster;
-    public BaseCharacter target;
+    public BaseCharacter Caster => targetProps.Caster;
+    public BaseCharacter Target => targetProps.Targets[0];
     public List<BaseCharacter> extraTargets = new List<BaseCharacter>();
-    public TargetMode targetMode;
+    public TargetMode TargetMode => targetProps.TargetMode;
+    public TargetProps targetProps;
+
+    public BaseEffectTarget effectTarget;
+
     public BaseGameEffect referenceEffect;
 
     IStackableEffect stackEffect;
@@ -36,7 +40,8 @@ public class AppliedEffect
         }
     }
 
-    public EffectProperties.EffectValue[] values;
+    public EffectProperties.OldValue[] values;
+    public ValueGroup valueGroup;
     public int startingTurns;
     public int remainingTurns;
     public int remainingActivations;
@@ -71,11 +76,10 @@ public class AppliedEffect
 
     public AppliedEffect(TargetProps targets, EffectProperties props)
     {
-        caster = targets.Caster;
-        target = targets.Targets[0];
-        targetMode = targets.TargetMode;
+        targetProps = targets;
         extraTargets = new List<BaseCharacter>(targets.Targets);
         extraTargets.RemoveAt(0);
+
         referenceEffect = props.effect;
         stackEffect = referenceEffect as IStackableEffect;
 
@@ -111,7 +115,7 @@ public class AppliedEffect
             remainingActivations--;
             if (remainingActivations == 0)
             {
-                target.RemoveEffect(this);
+                Target.RemoveEffect(this);
                 active = false;
             }
         }
@@ -192,7 +196,7 @@ public class AppliedEffect
 
     public void Remove()
     {
-        target.RemoveEffect(this);
+        Target.RemoveEffect(this);
     }
 
     public class AppliedEffectComparer : IEqualityComparer<AppliedEffect>

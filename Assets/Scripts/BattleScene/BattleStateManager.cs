@@ -13,7 +13,7 @@ public class BattleState
         public int EffectIndex;
         public int StartingTurns;
         public int RemainingTurns;
-        public EffectProperties.EffectValue[] Values;
+        public EffectProperties.OldValue[] Values;
         public List<float> CachedValues;
     }
 

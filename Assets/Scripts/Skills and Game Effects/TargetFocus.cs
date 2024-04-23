@@ -13,13 +13,13 @@ public class TargetFocus : BaseGameEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        if (effect.caster.IsEnemy(out EnemyCharacter e))
+        if (effect.Caster.IsEnemy(out EnemyCharacter e))
         {
             Debug.LogWarning("TARGET FOCUS ON THE ENEMY HASN'T BEEN IMPLEMENTED YET");
         }
         else
         {
-            var player = effect.target as PlayerCharacter;
+            var player = effect.Target as PlayerCharacter;
             BattleSystem.Instance.ApplyTargetFocus(player);
         }
         
@@ -28,13 +28,13 @@ public class TargetFocus : BaseGameEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        if (effect.target.IsEnemy(out EnemyCharacter e))
+        if (effect.Target.IsEnemy(out EnemyCharacter e))
         {
             Debug.LogWarning("TARGET FOCUS ON THE ENEMY HASN'T BEEN IMPLEMENTED YET");
         }
         else
         {
-            var player = effect.target as PlayerCharacter;
+            var player = effect.Target as PlayerCharacter;
             BattleSystem.Instance.RemoveTargetFocus(player);
         }
     }

@@ -19,10 +19,10 @@ public class BaseShieldEffect : BaseStatScaledEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        var target = effect.target;
+        var target = effect.Target;
 
         effect.instantiatedObjects = new GameObject[1];
-        if (effect.target.ShieldPercent == 0)
+        if (effect.Target.ShieldPercent == 0)
         {
             var ff = Instantiate(forceFieldPrefab).GetComponent<ForceFieldFX>();
             ff.transform.SetParent(target.AnimHelper.SkeletonRoot);
@@ -41,7 +41,7 @@ public class BaseShieldEffect : BaseStatScaledEffect
         }
         else
         {
-            float value = GetValue(stat, effect.values[0], effect.caster);
+            float value = GetValue(stat, effect.values[0], effect.Caster);
 
             target.GiveShield(value, effect);
             effect.cachedValues.Add(value);
@@ -58,7 +58,7 @@ public class BaseShieldEffect : BaseStatScaledEffect
 
     public override void OnSpecialCallback(AppliedEffect effect)
     {
-        effect.target.OnShieldBroken -= effect.customCallbacks[0];
+        effect.Target.OnShieldBroken -= effect.customCallbacks[0];
         Destroy(effect.instantiatedObjects[0]);
         base.OnSpecialCallback(effect);
     }

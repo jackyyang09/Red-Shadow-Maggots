@@ -15,9 +15,9 @@ public class PisspenserSpecial : MultiStatStackEffect
     {
         effect.customCallbacks = new System.Action[1];
         effect.customCallbacks[0] = () => OnSpecialCallback(effect);
-        effect.target.OnStartTurnLate += effect.customCallbacks[0];
+        effect.Target.OnStartTurnLate += effect.customCallbacks[0];
 
-        if (effect.target.IsPlayer())
+        if (effect.Target.IsPlayer())
         {
             effect.extraTargets = battleSystem.PlayerList.ConvertAll(e => (BaseCharacter)e);
         }
@@ -25,14 +25,14 @@ public class PisspenserSpecial : MultiStatStackEffect
         {
             effect.extraTargets = enemyController.EnemyList.ConvertAll(e => (BaseCharacter)e);
         }
-        effect.extraTargets.Remove(effect.target);
+        effect.extraTargets.Remove(effect.Target);
 
         return true;
     }
 
     public override void OnExpire(AppliedEffect effect)
     {
-        effect.target.OnStartTurnLate -= effect.customCallbacks[0];
+        effect.Target.OnStartTurnLate -= effect.customCallbacks[0];
 
         base.OnExpire(effect);
     }
@@ -41,7 +41,7 @@ public class PisspenserSpecial : MultiStatStackEffect
     {
         base.OnSpecialCallback(effect);
 
-        var targets = new List<BaseCharacter>{ effect.target };
+        var targets = new List<BaseCharacter>{ effect.Target };
         targets.AddRange(effect.extraTargets);
 
         foreach (var ally in targets)
@@ -49,7 +49,7 @@ public class PisspenserSpecial : MultiStatStackEffect
             var props = healEffect.Copy();
             props.effectValues = new[] { effect.values[2] * effect.Stacks };
             TargetProps targetProps = new() { 
-                Caster = effect.caster, Targets = new[] { ally }, TargetMode = TargetMode.AllAllies
+                Caster = effect.Caster, Targets = new[] { ally }, TargetMode = TargetMode.AllAllies
             };
             BaseCharacter.ApplyEffectToCharacter(props, targetProps);
 
@@ -61,7 +61,7 @@ public class PisspenserSpecial : MultiStatStackEffect
 
     public new void OnStacksChanged(AppliedEffect effect)
     {
-        var targets = new List<BaseCharacter> { effect.target };
+        var targets = new List<BaseCharacter> { effect.Target };
         targets.AddRange(effect.extraTargets);
 
         foreach (var ally in targets)

@@ -68,7 +68,13 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public virtual void OnSpecialCallback(AppliedEffect effect) { }
 
-    public virtual string GetSkillDescription(TargetMode targetMode, EffectProperties props) => "";
+    public virtual string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    {
+        if (props.description == "") return "";
+        var d = props.description;
+        d = d.Replace("$VALUE", props.valueGroup.Values[0].GetSkillDescription());
+        return d;
+    }
 
     public virtual string GetEffectDescription(AppliedEffect effect) => "";
 
@@ -104,16 +110,16 @@ public abstract class BaseGameEffect : ScriptableObject
             s += turns + " Turn";
             if (turns > 1) s += "s";
         }
-        s += ")";
+        s += ") ";
         return s;
     }
 
-    public static string EffectValueDescriptor(EffectProperties.EffectValue value, BaseGameStat stat = null)
+    public static string EffectValueDescriptor(EffectProperties.OldValue value, BaseGameStat stat = null)
     {
         return EffectValueDescriptor(value, "your", stat);
     }
 
-    public static string EffectValueDescriptor(EffectProperties.EffectValue value, string subject, BaseGameStat stat = null)
+    public static string EffectValueDescriptor(EffectProperties.OldValue value, string subject, BaseGameStat stat = null)
     {
         string d = "";
         if (value.multiplier != 0)
@@ -133,13 +139,13 @@ public abstract class BaseGameEffect : ScriptableObject
             var abs = Mathf.Abs(value.flat);
             switch (value.flatType)
             {
-                case EffectProperties.EffectType.Percentage:
+                case ValueType.Percentage:
                     d += abs.FormatPercentage();
                     break;
-                case EffectProperties.EffectType.Value:
+                case ValueType.Value:
                     d += abs;
                     break;
-                case EffectProperties.EffectType.Decimal:
+                case ValueType.Decimal:
                     d += abs.FormatToDecimal();
                     break;
             }
@@ -148,7 +154,7 @@ public abstract class BaseGameEffect : ScriptableObject
         return d;
     }
 
-    public static float GetValue(BaseGameStat stat, EffectProperties.EffectValue value, BaseCharacter source)
+    public static float GetValue(BaseGameStat stat, EffectProperties.OldValue value, BaseCharacter source)
     {
         float o = 0;
         if (value.multiplier != 0)

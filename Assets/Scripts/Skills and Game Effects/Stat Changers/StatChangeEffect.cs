@@ -12,14 +12,14 @@ public class StatChangeEffect : BaseGameEffect
     {
         if (effect.cachedValues.Count == 0)
         {
-            var value = GetValue(stat, effect.values[0], effect.target);
-            stat.SetGameStat(effect.target, value);
+            var value = effect.valueGroup.Values[0].GetValue(effect.targetProps);
+            stat.SetGameStat(effect.Target, value);
             effect.cachedValues.Add(value);
         }
         else
         {
             var amount = effect.cachedValues[0];
-            stats[0].SetGameStat(effect.target, amount);
+            stats[0].SetGameStat(effect.Target, amount);
         }
 
         return base.Activate(effect);
@@ -27,7 +27,7 @@ public class StatChangeEffect : BaseGameEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        stat.SetGameStat(effect.target, -effect.cachedValues[0]);
+        stat.SetGameStat(effect.Target, -effect.cachedValues[0]);
 
         base.OnExpire(effect);
     }
@@ -54,17 +54,17 @@ public class StatChangeEffect : BaseGameEffect
 
         switch (effect.values[0].deltaType)
         {
-            case EffectProperties.EffectType.Percentage:
+            case ValueType.Percentage:
                 {
                     var abs = Mathf.Abs(value);
                     d += abs.FormatPercentage();
                 }
                 break;
-            case EffectProperties.EffectType.Value:
+            case ValueType.Value:
                 var val = Mathf.FloorToInt(value);
                 d += Mathf.Abs(val);
                 break;
-            case EffectProperties.EffectType.Decimal:
+            case ValueType.Decimal:
                 {
                     var abs = Mathf.Abs(value);
                     d += abs.FormatToDecimal();
@@ -79,6 +79,11 @@ public class StatChangeEffect : BaseGameEffect
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
+        var d = base.GetSkillDescription(targetMode, props);
+        d = d.Replace("$STAT", stat.Name);
+
+        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+
         string description = TargetModeDescriptor(targetMode);
     
         description += stat.Name;

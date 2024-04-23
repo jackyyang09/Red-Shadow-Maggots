@@ -11,7 +11,6 @@ public class BaseAbilityObject : ScriptableObject
     [SerializeReference] public SkillCondition condition;
     public Sprite sprite;
     public TargetMode targetMode;
-    public EffectProperties[] gameEffects = new EffectProperties[0];
     [SerializeReference] public EffectGroup[] effects = new EffectGroup[0];
     public EffectEvents[] events = new EffectEvents[0];
 
@@ -22,6 +21,13 @@ public class BaseAbilityObject : ScriptableObject
         foreach (var ge in effects)
         {
             var d = "";
+
+            if (ge == null)
+            {
+                description.Add("None");
+                continue;
+            }
+
             var target = ge.targetOverride == TargetMode.None ? targetMode : ge.targetOverride;
 
             if (ge.damageProps.effect)
@@ -49,9 +55,6 @@ public class BaseAbilityObject : ScriptableObject
 
         return description.ToArray();
     }
-
-    public BaseGameStat damageScaledStat;
-    public EffectProperties[] damageEffects;
 
     public string GetEffectDescription()
     {

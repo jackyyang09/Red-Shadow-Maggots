@@ -52,8 +52,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.PropertyField(effects);
-        EditorGUILayout.PropertyField(damageEffects);
-        EditorGUILayout.PropertyField(gameEffects);
         EditorGUILayout.PropertyField(events);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();

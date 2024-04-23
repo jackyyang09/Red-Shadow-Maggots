@@ -7,7 +7,7 @@ public class DodgeEffect : BaseGameEffect
 {
     public override bool Activate(AppliedEffect effect)
     {
-        effect.target.IsDodging = true;
+        effect.Target.IsDodging = true;
         // TODO: Re-applying dodge effect should remove other dodge instances
         Debug.LogWarning(nameof(DodgeEffect) + ": Re-applying dodge effect should remove other dodge instances?");
         return true;
@@ -15,7 +15,7 @@ public class DodgeEffect : BaseGameEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        effect.target.IsDodging = false;
+        effect.Target.IsDodging = false;
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

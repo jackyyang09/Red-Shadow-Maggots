@@ -10,7 +10,7 @@ public class InstantDamageEffect : BaseDamageEffect
     {
         if (effect.cachedValues.Count == 0)
         {
-            effect.cachedValues.Add(GetValue(stat, effect.values[0],effect.target));
+            effect.cachedValues.Add(GetValue(stat, effect.values[0],effect.Target));
         }
 
         DamageStruct damageStruct = new DamageStruct
@@ -20,16 +20,16 @@ public class InstantDamageEffect : BaseDamageEffect
             Effectivity = DamageEffectivess.Normal,
             QTEResult = QuickTimeBase.QTEResult.Perfect
         };
-        effect.target.TakeDamage(damageStruct);
+        effect.Target.TakeDamage(damageStruct);
 
         switch (battleSystem.CurrentPhase)
         {
             case BattlePhases.PlayerTurn:
-                damageStruct.QTEPlayer = (!effect.target.IsPlayer()).ToInt();
+                damageStruct.QTEPlayer = (!effect.Target.IsPlayer()).ToInt();
                 damageStruct.QTEEnemy = 1 - damageStruct.QTEPlayer;
                 break;
             case BattlePhases.EnemyTurn:
-                damageStruct.QTEEnemy = effect.target.IsPlayer().ToInt();
+                damageStruct.QTEEnemy = effect.Target.IsPlayer().ToInt();
                 damageStruct.QTEPlayer = 1 - damageStruct.QTEEnemy;
                 break;
         }

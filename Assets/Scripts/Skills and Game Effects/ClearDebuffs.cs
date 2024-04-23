@@ -8,7 +8,7 @@ public class ClearDebuffs : BaseGameEffect
 {
     public override bool Activate(AppliedEffect effect)
     {
-        var effects = effect.target.AppliedEffects.Where(e => e.referenceEffect.effectType == EffectType.Debuff).ToList();
+        var effects = effect.Target.AppliedEffects.Where(e => e.referenceEffect.effectType == EffectType.Debuff).ToList();
 
         if (effects.Count == 0) return false;
 

@@ -32,9 +32,9 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
         {
             effect.customCallbacks = new System.Action[1];
             effect.customCallbacks[0] = () => OnSpecialCallback(effect);
-            effect.target.OnStartTurnLate += effect.customCallbacks[0];
+            effect.Target.OnStartTurnLate += effect.customCallbacks[0];
 
-            Queue<EffectProperties.EffectValue> backup = new(effect.values);
+            Queue<EffectProperties.OldValue> backup = new(effect.values);
             for (int i = 0; i < effect.Stacks; i++)
             {
                 var cached = new List<float>(effect.cachedValues);
@@ -43,7 +43,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
                 cached.AddRange(effect.cachedValues);
                 effect.cachedValues = cached;
 
-                Queue<EffectProperties.EffectValue> cache = new(effect.values);
+                Queue<EffectProperties.OldValue> cache = new(effect.values);
                 cache.Enqueue(cache.Dequeue());
                 effect.values = cache.ToArray();
             }
@@ -67,7 +67,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
     {
         if (effect.cachedValues.Count > 0)
         {
-            effect.target.OnStartTurnLate -= effect.customCallbacks[0];
+            effect.Target.OnStartTurnLate -= effect.customCallbacks[0];
 
             var count = effect.cachedValues.Count;
             for (int i = 0; i < count; i++)
@@ -81,7 +81,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
 
     public void OnStacksChanged(AppliedEffect effect)
     {
-        var targets = new List<BaseCharacter> { effect.target };
+        var targets = new List<BaseCharacter> { effect.Target };
         targets.AddRange(effect.extraTargets);
 
         if (effect.cachedValues.Count > 0)
@@ -101,9 +101,9 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
         var props = effect.Properties;
         for (int i = 0; i < effects.Length; i++)
         {
-            d += (i + 1) + " - " + effects[i].GetSkillDescription(effect.targetMode, props) + "\n";
+            d += (i + 1) + " - " + effects[i].GetSkillDescription(effect.TargetMode, props) + "\n";
 
-            Queue<EffectProperties.EffectValue> cache = new(props.effectValues);
+            Queue<EffectProperties.OldValue> cache = new(props.effectValues);
             for (int j = 0; j < effects[i].ValueCount; j++)
             {
                 cache.Enqueue(cache.Dequeue());

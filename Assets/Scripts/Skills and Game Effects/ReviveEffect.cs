@@ -14,14 +14,14 @@ public class ReviveEffect : BaseStatScaledEffect
     public override bool Activate(AppliedEffect effect)
     {
         effect.cachedValues.Clear();
-        effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.target));
+        effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.Target));
 
         return base.Activate(effect);
     }
 
     public override void OnDeath(AppliedEffect effect)
     {
-        effect.target.Heal(effect.cachedValues[0]);
+        effect.Target.Heal(effect.cachedValues[0]);
     }
 
     public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

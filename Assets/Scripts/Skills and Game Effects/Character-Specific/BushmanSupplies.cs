@@ -24,7 +24,7 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
         if (effect.Stacks >= critChanceRequirement && !critChanceChanged)
         {
             critChanceChanged = true;
-            effect.target.ApplyCritChanceModifier(critChanceModifier);
+            effect.Target.ApplyCritChanceModifier(critChanceModifier);
         }
 
         //if (effect.Stacks >= dodgeRequirement)
@@ -39,7 +39,7 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
     {
         if (effect.Stacks < healRequirement) return;
 
-        effect.target.Heal(effect.caster.MaxHealth * effect.Stacks * healAmount);
+        effect.Target.Heal(effect.Caster.MaxHealth * effect.Stacks * healAmount);
 
         base.Tick(effect);
     }

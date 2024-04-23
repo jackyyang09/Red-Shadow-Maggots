@@ -178,6 +178,12 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         {
             var ge = group[i];
 
+            if (ge == null)
+            {
+                EditorGUILayout.LabelField("None", NullStyle);
+                continue;
+            }
+
             if ((ge.damageProps == null || ge.damageProps.effect == null) && 
                 (ge.effectProps == null || ge.effectProps.effect == null))
             {

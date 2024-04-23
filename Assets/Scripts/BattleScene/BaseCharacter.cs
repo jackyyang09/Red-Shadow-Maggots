@@ -557,7 +557,7 @@ public abstract class BaseCharacter : MonoBehaviour
         StartCoroutine(SkillRoutine(skill));
     }
 
-    List<BaseCharacter> targets = new List<BaseCharacter>();
+    BaseCharacter skillTarget;
 
     List<Action> onSkillFoundTargets = new List<Action>();
     public void RegisterOnSkillFoundTargets(Action newAction) => onSkillFoundTargets.Add(newAction);
@@ -569,23 +569,17 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public void AddSkillTarget(BaseCharacter character)
     {
-        targets.Add(character);
+        skillTarget = character;
     }
-
-    public void ClearSkillTargets() => targets.Clear();
 
     IEnumerator SkillRoutine(GameSkill skill)
     {
         cancelSkill = false;
 
-        targets.Clear();
+        skillTarget = null;
 
         switch (skill.ReferenceSkill.targetMode)
         {
-            case TargetMode.None:
-            case TargetMode.Self:
-                targets.Add(this);
-                break;
             case TargetMode.OneAlly:
                 switch (battleSystem.CurrentPhase)
                 {
@@ -594,7 +588,7 @@ public abstract class BaseCharacter : MonoBehaviour
                         ui.EnterSkillTargetMode();
                         break;
                     case BattlePhases.EnemyTurn:
-                        targets.Add(enemyController.RandomEnemy);
+                        skillTarget = enemyController.RandomEnemy;
                         break;
                 }
                 break;
@@ -602,58 +596,16 @@ public abstract class BaseCharacter : MonoBehaviour
                 switch (battleSystem.CurrentPhase)
                 {
                     case BattlePhases.PlayerTurn:
-                        targets.Add(battleSystem.ActiveEnemy);
+                        skillTarget = battleSystem.ActiveEnemy;
                         break;
                     case BattlePhases.EnemyTurn:
-                        targets.Add(battleSystem.EnemyAttackTarget);
-                        break;
-                }
-                break;
-            case TargetMode.AllAllies:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
-                        {
-                            if (!battleSystem.PlayerCharacters[i]) continue;
-                            targets.Add(battleSystem.PlayerCharacters[i]);
-                        }
-
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        for (int i = 0; i < enemyController.Enemies.Length; i++)
-                        {
-                            if (!enemyController.Enemies[i]) continue;
-                            targets.Add(enemyController.Enemies[i]);
-                        }
-
-                        break;
-                }
-                break;
-            case TargetMode.AllEnemies:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        for (int i = 0; i < enemyController.Enemies.Length; i++)
-                        {
-                            if (!enemyController.Enemies[i]) continue;
-                            targets.Add(enemyController.Enemies[i]);
-                        }
-
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        for (int i = 0; i < battleSystem.PlayerCharacters.Length; i++)
-                        {
-                            if (!battleSystem.PlayerCharacters[i]) continue;
-                            targets.Add(battleSystem.PlayerCharacters[i]);
-                        }
-
+                        skillTarget = battleSystem.EnemyAttackTarget;
                         break;
                 }
                 break;
         }
 
-        while (targets.Count == 0)
+        while (skillTarget == null)
         {
             if (cancelSkill)
             {
@@ -764,49 +716,7 @@ public abstract class BaseCharacter : MonoBehaviour
 
         foreach (var effect in skill.ReferenceSkill.effects)
         {
-            var targetProps = new TargetProps();
-
-            targetProps.Caster = this;
-            targetProps.TargetMode = effect.targetOverride == TargetMode.None ? skill.ReferenceSkill.targetMode : effect.targetOverride;
-
-            switch (effect.targetOverride)
-            {
-                case TargetMode.None:
-                    targetProps.Targets = targets.ToArray();
-                    break;
-                case TargetMode.OneAlly:
-                case TargetMode.OneEnemy:
-                    Debug.LogError("TargetMode: " + TargetMode.OneAlly + " and " + TargetMode.OneEnemy +
-                        " should not be used as overrides!");
-                    break;
-                case TargetMode.AllAllies:
-                    switch (battleSystem.CurrentPhase)
-                    {
-                        case BattlePhases.PlayerTurn:
-                            targetProps.Targets = battleSystem.PlayerList.ToArray();
-                            break;
-                        case BattlePhases.EnemyTurn:
-                            targetProps.Targets = enemyController.EnemyList.ToArray();
-                            break;
-                    }
-                    break;
-                case TargetMode.AllEnemies:
-                    switch (battleSystem.CurrentPhase)
-                    {
-                        case BattlePhases.PlayerTurn:
-                            targetProps.Targets = enemyController.EnemyList.ToArray();
-                            break;
-                        case BattlePhases.EnemyTurn:
-                            targetProps.Targets = battleSystem.PlayerList.ToArray();
-                            break;
-                    }
-                    break;
-                case TargetMode.Self:
-                    targetProps.Targets = new BaseCharacter[] { this };
-                    break;
-            }
-
-            yield return StartCoroutine(effect.appStyle.Apply(effect, targetProps));
+            yield return StartCoroutine(effect.appStyle.Apply(effect, this, skillTarget));
         }
 
         for (int i = 0; i < onFinishApplyingSkillEffects.Count; i++)

@@ -58,7 +58,7 @@ public class DoorPoison : DamagePerTurnEffect
 
     public override void Tick(AppliedEffect effect)
     {
-        effect.target.StartCoroutine(PlayEffect(effect.target, () => DealDamage(effect.cachedValues[0], effect.target)));
+        effect.Target.StartCoroutine(PlayEffect(effect.Target, () => DealDamage(effect.cachedValues[0], effect.Target)));
     }
 
     IEnumerator PlayEffect(BaseCharacter target, System.Action damageDelegate)

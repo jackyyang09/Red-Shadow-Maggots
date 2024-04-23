@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Heal Effect", menuName = "ScriptableObjects/Game Effects/Heal", order = 1)]
-public class BaseHealEffect : BaseStatScaledEffect
+public class BaseHealEffect : BaseGameEffect
 {
     protected void ApplyHeal(AppliedEffect effect)
     {
-        effect.target.Heal(effect.cachedValues[0]);
+        effect.Target.Heal(effect.cachedValues[0]);
     }
 
     protected void CacheValue(AppliedEffect effect)
     {
         if (effect.cachedValues.Count == 0)
         {
-            effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.caster));
+            //effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.caster));
+            effect.cachedValues.Add(effect.valueGroup.Values[0].GetValue(effect.targetProps));
         }
     }
 
@@ -48,7 +49,8 @@ public class BaseHealEffect : BaseStatScaledEffect
         }
 
         s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
-            EffectValueDescriptor(props.effectValues[0], "your", stat);
+            props.valueGroup.Values[0].GetSkillDescription();
+            //EffectValueDescriptor(props.effectValues[0], "your", stat);
 
         return s;
     }

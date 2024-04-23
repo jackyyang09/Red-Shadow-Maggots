@@ -141,37 +141,38 @@ namespace RSM.Editor.CharacterDesignMatrix
                             {
                                 var skill = c.skills[j];
 
-                                var fraction = 1f / skill.gameEffects.Length;
-                                for (int l = 0; l < skill.gameEffects.Length; l++)
+                                var fraction = 1f / skill.effects.Length;
+                                for (int l = 0; l < skill.effects.Length; l++)
                                 {
-                                    var effect = skill.gameEffects[l];
-                                    if (!effectDictionary.ContainsKey(effect.effect)) continue;
-                                    var p = effectDictionary[effect.effect];
-                                    b.Roles[0] += p.attackerMod;
-                                    b.Roles[1] += p.protectorMod;
-                                    b.Roles[2] += p.buffSupportMod;
-                                    b.Roles[3] += p.debuffSupportMod;
-                                    b.Roles[4] += p.healerMod;
-
-                                    var time = effect.effectDuration;
-                                    float lerp = Mathf.InverseLerp(0, 6, time);
-                                    b.BurstOrSustain += fraction * Mathf.Lerp(-1, 1, lerp);
-
-                                    var target = effect.targetOverride != TargetMode.None ?
-                                        effect.targetOverride : skill.targetMode;
-
-                                    switch (target)
-                                    {
-                                        case TargetMode.OneAlly:
-                                        case TargetMode.OneEnemy:
-                                        case TargetMode.Self:
-                                            b.SingleOrAOE -= fraction;
-                                            break;
-                                        case TargetMode.AllAllies:
-                                        case TargetMode.AllEnemies:
-                                            b.SingleOrAOE += fraction;
-                                            break;
-                                    }
+                                    // Reimplement this
+                                    //var effect = skill.effects[l];
+                                    //if (!effectDictionary.ContainsKey(effect.effect)) continue;
+                                    //var p = effectDictionary[effect.effect];
+                                    //b.Roles[0] += p.attackerMod;
+                                    //b.Roles[1] += p.protectorMod;
+                                    //b.Roles[2] += p.buffSupportMod;
+                                    //b.Roles[3] += p.debuffSupportMod;
+                                    //b.Roles[4] += p.healerMod;
+                                    //
+                                    //var time = effect.effectDuration;
+                                    //float lerp = Mathf.InverseLerp(0, 6, time);
+                                    //b.BurstOrSustain += fraction * Mathf.Lerp(-1, 1, lerp);
+                                    //
+                                    //var target = effect.targetOverride != TargetMode.None ?
+                                    //    effect.targetOverride : skill.targetMode;
+                                    //
+                                    //switch (target)
+                                    //{
+                                    //    case TargetMode.OneAlly:
+                                    //    case TargetMode.OneEnemy:
+                                    //    case TargetMode.Self:
+                                    //        b.SingleOrAOE -= fraction;
+                                    //        break;
+                                    //    case TargetMode.AllAllies:
+                                    //    case TargetMode.AllEnemies:
+                                    //        b.SingleOrAOE += fraction;
+                                    //        break;
+                                    //}
                                 }
                             }
                             prop.managedReferenceValue = b;

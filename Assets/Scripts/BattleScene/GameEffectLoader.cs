@@ -16,7 +16,7 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
 
         var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
         characters.AddRange(enemyController.EnemyList);
-        se.Caster = characters.IndexOf(effect.caster);
+        se.Caster = characters.IndexOf(effect.Caster);
 
         se.EffectIndex = GetEffectIndex(effect.referenceEffect);
         if (se.EffectIndex == -1)
@@ -38,8 +38,9 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
         characters.AddRange(enemyController.EnemyList);
 
-        ae.caster = characters[effect.Caster];
-        ae.target = target;
+        ae.targetProps = new TargetProps();
+        ae.targetProps.Caster = characters[effect.Caster];
+        ae.targetProps.Targets = new BaseCharacter[] { target };
         ae.remainingTurns = effect.RemainingTurns;
         ae.startingTurns = effect.StartingTurns;
         ae.cachedValues = effect.CachedValues;

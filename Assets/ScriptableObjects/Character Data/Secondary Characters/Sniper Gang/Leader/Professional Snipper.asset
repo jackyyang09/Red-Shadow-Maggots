@@ -18,60 +18,9 @@ MonoBehaviour:
     rid: -2
   sprite: {fileID: 0}
   targetMode: 2
-  gameEffects:
-  - effect: {fileID: 11400000, guid: 0b9f740f165fa4c49971ea17a8f6a243, type: 2}
-    values: []
-    effectValues:
-    - multiplier: 0.15
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: -1
-    activationLimit: 0
-    stacks: 1
-    maxStacks: 4
-    targetOverride: 0
-  - effect: {fileID: 11400000, guid: e6bcfc8495cf8ec469478fc4715363eb, type: 2}
-    values: []
-    effectValues:
-    - multiplier: 0.15
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: -1
-    activationLimit: 0
-    stacks: -1
-    maxStacks: -1
-    targetOverride: 0
-  - effect: {fileID: 11400000, guid: f95e984902c223d4db569c79eb190be8, type: 2}
-    values: []
-    effectValues:
-    - multiplier: 0.25
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: 0
-    activationLimit: 0
-    stacks: 0
-    maxStacks: 0
-    targetOverride: 0
-  - effect: {fileID: 11400000, guid: 5db7c8e0e7afe924a8b066cab1babee9, type: 2}
-    values: []
-    effectValues:
-    - multiplier: 0.15
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: 3
-    activationLimit: 0
-    stacks: 0
-    maxStacks: 0
-    targetOverride: 0
   effects:
   - rid: 3276119856843849961
   events: []
-  damageScaledStat: {fileID: 0}
-  damageEffects: []
   references:
     version: 2
     RefIds:
@@ -81,26 +30,28 @@ MonoBehaviour:
       type: {class: RandomApplication, ns: , asm: Assembly-CSharp}
       data:
         Repeats: 3
+    - rid: 2246025591381557248
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
     - rid: 3276119856843849961
       type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
       data:
         damageProps:
           effect: {fileID: 0}
-          values:
-          - 0
           effectValues:
           - multiplier: 0
             flat: 0
             flatType: 0
             deltaType: 0
+          valueGroup:
+            Values: []
           effectDuration: 0
           activationLimit: 0
           stacks: 0
           maxStacks: -1
-          targetOverride: 0
         effectProps:
           effect: {fileID: 11400000, guid: 0650309458158a54b8ac281b81017d35, type: 2}
-          values: []
           effectValues:
           - multiplier: -0.1
             flat: 0
@@ -118,11 +69,13 @@ MonoBehaviour:
             flat: 0.05
             flatType: 2
             deltaType: 2
+          valueGroup:
+            Values:
+            - rid: 2246025591381557248
           effectDuration: -1
           activationLimit: 0
           stacks: 1
           maxStacks: 4
-          targetOverride: 0
         appStyle:
           rid: 2246025285040603137
         targetOverride: 0

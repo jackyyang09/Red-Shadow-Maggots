@@ -11,7 +11,7 @@ public class BaseEffectMasker : BaseGameEffect
     {
         foreach (var e in effectMask)
         {
-            effect.target.ApplyEffectMask(e, effect);
+            effect.Target.ApplyEffectMask(e, effect);
         }
 
         return base.Activate(effect);
