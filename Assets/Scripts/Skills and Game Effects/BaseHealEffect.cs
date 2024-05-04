@@ -48,9 +48,9 @@ public class BaseHealEffect : BaseGameEffect
                 break;
         }
 
-        s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
-            props.valueGroup.Values[0].GetSkillDescription();
-            //EffectValueDescriptor(props.effectValues[0], "your", stat);
+        //s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
+        //    props.valueGroup.Values[0].ProcessSkillDescription();
+        //    //EffectValueDescriptor(props.effectValues[0], "your", stat);
 
         return s;
     }

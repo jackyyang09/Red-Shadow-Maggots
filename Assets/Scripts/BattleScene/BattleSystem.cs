@@ -50,11 +50,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         get
         {
-            if (playerList == null)
-            {
-                playerList = playerCharacters.Where(e => e != null).ToList();
-            }
-            return playerList;
+            return playerCharacters.Where(e => e != null).ToList();
         }
     }
 

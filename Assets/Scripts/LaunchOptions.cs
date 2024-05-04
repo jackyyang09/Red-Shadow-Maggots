@@ -12,6 +12,9 @@ public class LaunchOptions : MonoBehaviour
     {
         yield return new WaitUntil(() => BattleSystem.Initialized);
 
+        //  Not having this here risks invoking certain cheats too early, causing the game to hang
+        yield return new WaitForSeconds(2);
+
         foreach (var s in commands)
         {
             DebugLogConsole.ExecuteCommand(s);

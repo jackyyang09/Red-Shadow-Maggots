@@ -27,32 +27,56 @@ MonoBehaviour:
     RefIds:
     - rid: -2
       type: {class: , ns: , asm: }
-    - rid: 2246025647366864987
-      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
-      data:
-        FlatValue: 0
-        ValueType: 0
-    - rid: 2246025647366864988
-      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
-      data:
-        FlatValue: 0
-        ValueType: 0
-    - rid: 2246025647366864989
-      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
-      data:
-        FlatValue: 0
-        ValueType: 0
-    - rid: 2246025647366864990
-      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
-      data:
-        FlatValue: 0.3
-        ValueType: 0
     - rid: 2246025679671132173
       type: {class: TargetTarget, ns: , asm: Assembly-CSharp}
       data: 
     - rid: 2246025679671132174
       type: {class: TargetTarget, ns: , asm: Assembly-CSharp}
       data: 
+    - rid: 2246025722192461842
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025722192461846
+    - rid: 2246025722192461843
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025722192461847
+    - rid: 2246025722192461844
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025722192461848
+    - rid: 2246025722192461845
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025722192461849
+    - rid: 2246025722192461846
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 2246025722192461847
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 2246025722192461848
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 2246025722192461849
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0.3
+        ValueType: 0
+        Operator: 0
     - rid: 3276119856843849919
       type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
       data:
@@ -64,8 +88,7 @@ MonoBehaviour:
             flatType: 0
             deltaType: 0
           valueGroup:
-            Values:
-            - rid: 2246025647366864987
+            rid: 2246025722192461842
           effectDuration: 0
           activationLimit: 0
           stacks: 0
@@ -79,8 +102,7 @@ MonoBehaviour:
             flatType: 0
             deltaType: 0
           valueGroup:
-            Values:
-            - rid: 2246025647366864988
+            rid: 2246025722192461843
           effectDuration: 1
           activationLimit: 0
           stacks: 0
@@ -105,8 +127,7 @@ MonoBehaviour:
             flatType: 0
             deltaType: 0
           valueGroup:
-            Values:
-            - rid: 2246025647366864989
+            rid: 2246025722192461844
           effectDuration: 0
           activationLimit: 0
           stacks: 0
@@ -120,13 +141,12 @@ MonoBehaviour:
             flatType: 0
             deltaType: 0
           valueGroup:
-            Values:
-            - rid: 2246025647366864990
+            rid: 2246025722192461845
           effectDuration: 3
           activationLimit: 0
           stacks: 0
           maxStacks: -1
-          description: 'Increases One Ally''s $STAT by $VALUE '
+          description: 'Increases One Ally''s $STAT by $FLAT0 '
         appStyle:
           rid: 3276119856843849922
         targetOverride: 0

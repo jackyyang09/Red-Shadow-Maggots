@@ -34,6 +34,8 @@ public abstract class BaseGameEffect : ScriptableObject
     public JSAM.SoundFileObject activationSound;
     public JSAM.SoundFileObject tickSound;
 
+    [TextArea] public string effectDescription;
+
     [HideInInspector] public virtual bool IncludesExplainer { get; }
     /// <summary>
     /// Only used if IncludesExplainer is true
@@ -71,12 +73,33 @@ public abstract class BaseGameEffect : ScriptableObject
     public virtual string GetSkillDescription(TargetMode targetMode, EffectProperties props)
     {
         if (props.description == "") return "";
+
         var d = props.description;
-        d = d.Replace("$VALUE", props.valueGroup.Values[0].GetSkillDescription());
+
+        var stack = "$STACKS";
+
+        if (d.Contains(stack)) d = d.Replace(stack, props.stacks.ToString());
+
+        var effect = "$EFFECT";
+
+        if (d.Contains(effect)) d = d.Replace(effect, props.effect.effectName);
+
+        for (int i = 0; i < props.valueGroup.Values.Length; i++)
+        {
+            d = props.valueGroup.Values[i].ProcessSkillDescription(d, i);
+        }
+
         return d;
     }
 
-    public virtual string GetEffectDescription(AppliedEffect effect) => "";
+    public virtual string GetEffectDescription(AppliedEffect effect)
+    {
+        if (effect.referenceEffect.effectDescription == "") return "";
+
+        var d = effect.referenceEffect.effectDescription;
+
+        return d;
+    }
 
     protected string TargetModeDescriptor(TargetMode mode)
     {

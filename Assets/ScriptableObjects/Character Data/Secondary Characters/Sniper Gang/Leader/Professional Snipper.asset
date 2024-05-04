@@ -29,11 +29,25 @@ MonoBehaviour:
     - rid: 2246025285040603137
       type: {class: RandomApplication, ns: , asm: Assembly-CSharp}
       data:
-        Repeats: 3
-    - rid: 2246025591381557248
+        Repeats: 2
+    - rid: 2246025850912506083
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025850912506085
+    - rid: 2246025850912506084
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values: []
+    - rid: 2246025850912506085
       type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
       data:
         FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 2246025850912506105
+      type: {class: AllEnemies, ns: , asm: Assembly-CSharp}
+      data: 
     - rid: 3276119856843849961
       type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
       data:
@@ -45,11 +59,12 @@ MonoBehaviour:
             flatType: 0
             deltaType: 0
           valueGroup:
-            Values: []
+            rid: 2246025850912506083
           effectDuration: 0
           activationLimit: 0
           stacks: 0
           maxStacks: -1
+          description: 
         effectProps:
           effect: {fileID: 11400000, guid: 0650309458158a54b8ac281b81017d35, type: 2}
           effectValues:
@@ -70,12 +85,14 @@ MonoBehaviour:
             flatType: 2
             deltaType: 2
           valueGroup:
-            Values:
-            - rid: 2246025591381557248
+            rid: 2246025850912506084
           effectDuration: -1
           activationLimit: 0
           stacks: 1
           maxStacks: 4
+          description: 'Apply $STACKS Stack of $EFFECT to a random Enemy. '
         appStyle:
           rid: 2246025285040603137
         targetOverride: 0
+        effectTarget:
+          rid: 2246025850912506105

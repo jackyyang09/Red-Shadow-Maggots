@@ -12,7 +12,7 @@ public class DamagePerTurnEffect : BaseDamageEffect
         if (effect.cachedValues.Count == 0)
         {
             //var value = GetValue(stat, effect.values[0], effect.Caster);
-            var value = effect.valueGroup.Values[0].GetValue(effect.targetProps);
+            var value = effect.valueGroup.GetValue(effect.targetProps);
             effect.cachedValues.Add(value);
         }
 

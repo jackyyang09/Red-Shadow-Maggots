@@ -2,6 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public class CachedValue
+{
+    public float Value;
+    public ValueType Type;
+}
+
 /// <summary>
 /// An instance of a GameEffect to be attached to an instanced Character
 /// </summary>
@@ -80,6 +86,8 @@ public class AppliedEffect
         extraTargets = new List<BaseCharacter>(targets.Targets);
         extraTargets.RemoveAt(0);
 
+        valueGroup = props.valueGroup.ShallowCopy();
+
         referenceEffect = props.effect;
         stackEffect = referenceEffect as IStackableEffect;
 
@@ -118,8 +126,8 @@ public class AppliedEffect
                 Target.RemoveEffect(this);
                 active = false;
             }
+            RefreshDescription();
         }
-        RefreshDescription();
         return active;
     }
 

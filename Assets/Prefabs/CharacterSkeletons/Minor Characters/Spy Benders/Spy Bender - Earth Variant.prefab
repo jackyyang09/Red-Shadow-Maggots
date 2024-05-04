@@ -801,25 +801,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waitLimitProps:
     effect: {fileID: 11400000, guid: ecfc85ced7b2ca04985578832954eca4, type: 2}
-    values:
-    - 0.1
     effectValues:
     - multiplier: 0
       flat: -0.05
       flatType: 0
       deltaType: 2
+    valueGroup:
+      rid: 1000
     effectDuration: 1
     activationLimit: 0
     stacks: 0
     maxStacks: -1
-    targetOverride: 0
+    description: 
   statusProps:
     effect: {fileID: 11400000, guid: 24240514d14d2dc468a8a059894cfccc, type: 2}
-    values:
-    - 0.1
-    - 0.05
-    - 0.1
-    - 0.05
     effectValues:
     - multiplier: 0
       flat: 0.1
@@ -837,11 +832,54 @@ MonoBehaviour:
       flat: 0.05
       flatType: 0
       deltaType: 0
+    valueGroup:
+      rid: 2246025701259739363
     effectDuration: -1
     activationLimit: 0
     stacks: 1
     maxStacks: -1
-    targetOverride: 0
+    description: 
+  references:
+    version: 2
+    RefIds:
+    - rid: 1000
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 1002
+    - rid: 1002
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: -0.05
+        ValueType: 2
+    - rid: 2246025701259739363
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025701259739364
+        - rid: 2246025701259739365
+        - rid: 2246025701259739366
+        - rid: 2246025701259739367
+    - rid: 2246025701259739364
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0.1
+        ValueType: 0
+    - rid: 2246025701259739365
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: -0.05
+        ValueType: 2
+    - rid: 2246025701259739366
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0.1
+        ValueType: 0
+    - rid: 2246025701259739367
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0.05
+        ValueType: 0
 --- !u!114 &7448864721155373494
 MonoBehaviour:
   m_ObjectHideFlags: 0

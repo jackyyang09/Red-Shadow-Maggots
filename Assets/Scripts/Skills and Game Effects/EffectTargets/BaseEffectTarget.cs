@@ -11,9 +11,15 @@ public abstract class BaseEffectTarget
 
 public class TargetSelf : BaseEffectTarget
 {
+    /// <summary>
+    /// Specifically returns the target in-case the caster forces the target to hit itself
+    /// </summary>
+    /// <param name="caster"></param>
+    /// <param name="target"></param>
+    /// <returns></returns>
     public override BaseCharacter[] GetTargets(BaseCharacter caster, BaseCharacter target)
     {
-        return new BaseCharacter[] { caster };
+        return new BaseCharacter[] { target };
     }
 }
 
@@ -29,7 +35,10 @@ public class AllAllies : BaseEffectTarget
 {
     public override BaseCharacter[] GetTargets(BaseCharacter caster, BaseCharacter target)
     {
-        if (caster.IsPlayer()) return battleSystem.PlayerList.ToArray();
+        if (caster.IsPlayer())
+        {
+            return battleSystem.PlayerList.ToArray();
+        }
         else return enemyController.LivingEnemies.ToArray();
     }
 }
@@ -76,7 +85,7 @@ public class AllEnemies : BaseEffectTarget
 {
     public override BaseCharacter[] GetTargets(BaseCharacter caster, BaseCharacter target)
     {
-        if (caster.IsPlayer()) return battleSystem.PlayerList.ToArray();
+        if (!caster.IsPlayer()) return battleSystem.PlayerList.ToArray();
         else return enemyController.LivingEnemies.ToArray();
     }
 }

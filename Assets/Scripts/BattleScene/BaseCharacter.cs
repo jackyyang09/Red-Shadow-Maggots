@@ -580,6 +580,10 @@ public abstract class BaseCharacter : MonoBehaviour
 
         switch (skill.ReferenceSkill.targetMode)
         {
+            case TargetMode.None:
+            case TargetMode.Self:
+                skillTarget = this;
+                break;
             case TargetMode.OneAlly:
                 switch (battleSystem.CurrentPhase)
                 {

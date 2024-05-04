@@ -317,18 +317,39 @@ MonoBehaviour:
   peeEffect: {fileID: 11400000, guid: 6ffcf7ed3b283f245a4d06b3a5f88ea6, type: 2}
   madnessProps:
     effect: {fileID: 11400000, guid: cfa86856d411e4e4b847893a3a5298ea, type: 2}
-    values:
-    - 0.2
     effectValues:
     - multiplier: 0.2
       flat: 0
       flatType: 0
       deltaType: 1
+    valueGroup:
+      rid: 2246025850912506021
     effectDuration: -1
     activationLimit: 0
     stacks: 0
     maxStacks: -1
-    targetOverride: 0
+    description: 
+  references:
+    version: 2
+    RefIds:
+    - rid: 2246025850912506021
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 2246025850912506022
+    - rid: 2246025850912506022
+      type: {class: StatScaledValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+        Multiplier: 0.2
+        Stat: {fileID: 11400000, guid: fe45de3acb5849f499215f92adf9f519, type: 2}
+        StatSource:
+          rid: 2246025850912506023
+    - rid: 2246025850912506023
+      type: {class: TargetSelf, ns: , asm: Assembly-CSharp}
+      data: 
 --- !u!4 &1589842857519330939 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}

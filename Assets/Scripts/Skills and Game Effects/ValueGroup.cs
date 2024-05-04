@@ -1,9 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 [System.Serializable]
 public class ValueGroup
@@ -12,38 +9,55 @@ public class ValueGroup
 
     public float GetValue(TargetProps targetProps)
     {
-        float o = 0;
-        foreach (var v in Values)
+        if (Values.Length == 0) return 0;
+
+        float o = Values[0].GetValue(targetProps);
+
+        for (int i = 1; i < Values.Length; i++)
         {
-            o += v.GetValue(targetProps);
+            switch (Values[i].Operator)
+            {
+                case ValueOperator.Addition:
+                    o += Values[i].GetValue(targetProps);
+                    break;
+                case ValueOperator.Multiplication:
+                    o *= Values[i].GetValue(targetProps);
+                    break;
+            }
         }
         return o;
     }
+
+    public ValueGroup ShallowCopy()
+    {
+        return MemberwiseClone() as ValueGroup;
+    }
 }
 
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(ValueGroup))]
-public class ValueGroupDrawer : PropertyDrawer
-{
-    protected readonly float DefaultHeight = EditorGUI.GetPropertyHeight(SerializedPropertyType.Enum, GUIContent.none) + 2;
-
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+public static class ValueExtensions
+{ 
+    public static string FormatTo(this float value, ValueType valueType)
     {
-        return EditorGUI.GetPropertyHeight(property, true) + DefaultHeight;
-    }
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        if (property.managedReferenceValue == null)
+        string valueString = "";
+        switch (valueType)
         {
-            property.managedReferenceValue = new EffectGroup();
+            case ValueType.Percentage:
+                {
+                    var abs = Mathf.Abs(value);
+                    valueString = abs.FormatPercentage();
+                }
+                break;
+            case ValueType.Value:
+                var val = Mathf.FloorToInt(value);
+                valueString = Mathf.Abs(val).ToString();
+                break;
+            case ValueType.Decimal:
+                {
+                    var abs = Mathf.Abs(value);
+                    valueString = abs.FormatToDecimal();
+                }
+                break;
         }
-
-        EditorGUI.PropertyField(position, property, true);
-
-        EditorGUI.EndProperty();
+        return valueString;
     }
 }
-#endif

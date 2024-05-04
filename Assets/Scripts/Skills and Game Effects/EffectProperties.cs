@@ -81,7 +81,7 @@ public class EffectProperties
     public int activationLimit;
     public int stacks;
     public int maxStacks = -1;
-    public string description;
+    [TextArea] public string description;
 
     /// <summary>
     /// Shallow-Copy

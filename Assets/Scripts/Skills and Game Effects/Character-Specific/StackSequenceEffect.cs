@@ -5,6 +5,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Stack Sequence", menuName = "ScriptableObjects/Stack Sequence Effect", order = 1)]
 public class StackSequenceEffect : CompoundEffect, IStackableEffect
 {
+    public int[] stackRequirements;
+
     public override bool Activate(AppliedEffect effect)
     {
         if (effect.cachedValues.Count > 0)
@@ -13,19 +15,13 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
 
             for (int i = 0; i < effect.Stacks; i++)
             {
-                effects[i].Activate(effect);
+                effectGroups[i].effectProps.effect.Activate(effect);
                 Queue<float> cache = new Queue<float>(effect.cachedValues);
-                for (int j = 0; j < effects[i].ValueCount; j++)
+                for (int j = 0; j < effectGroups[i].effectProps.effect.ValueCount; j++)
                 {
                     cache.Enqueue(cache.Dequeue());
                 }
                 effect.cachedValues = new List<float>(cache.ToArray());
-
-                string d = "";
-                foreach (var item in effect.cachedValues)
-                {
-                    d += item + ", ";
-                }
             }
         }
         else
@@ -34,20 +30,18 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
             effect.customCallbacks[0] = () => OnSpecialCallback(effect);
             effect.Target.OnStartTurnLate += effect.customCallbacks[0];
 
-            Queue<EffectProperties.OldValue> backup = new(effect.values);
+            Queue<BaseEffectValue> backup = new(effect.valueGroup.Values);
             for (int i = 0; i < effect.Stacks; i++)
             {
+                effect.valueGroup = effectGroups[i].effectProps.valueGroup.ShallowCopy();
+
                 var cached = new List<float>(effect.cachedValues);
                 effect.cachedValues.Clear();
-                effects[i].Activate(effect);
+                effectGroups[i].effectProps.effect.Activate(effect);
                 cached.AddRange(effect.cachedValues);
                 effect.cachedValues = cached;
-
-                Queue<EffectProperties.OldValue> cache = new(effect.values);
-                cache.Enqueue(cache.Dequeue());
-                effect.values = cache.ToArray();
             }
-            effect.values = backup.ToArray();
+            effect.valueGroup.Values = backup.ToArray();
         }
 
         return true;
@@ -72,7 +66,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
             var count = effect.cachedValues.Count;
             for (int i = 0; i < count; i++)
             {
-                effects[i].OnExpire(effect);
+                effectGroups[i].effectProps.effect.OnExpire(effect);
 
                 effect.cachedValues.RemoveAt(0);
             }
@@ -96,29 +90,52 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
 
     public override string GetEffectDescription(AppliedEffect effect)
     {
-        string d = "Apply the following effects based on the number of stacks:\n";
-
-        var props = effect.Properties;
-        for (int i = 0; i < effects.Length; i++)
+        string d = effectDescription + "\n";
+    
+        for (int i = 0; i < effectGroups.Length; i++)
         {
-            d += (i + 1) + " - " + effects[i].GetSkillDescription(effect.TargetMode, props) + "\n";
+            var props = effectGroups[i].effectProps;
+            effect.valueGroup = props.valueGroup.ShallowCopy();
 
-            Queue<EffectProperties.OldValue> cache = new(props.effectValues);
-            for (int j = 0; j < effects[i].ValueCount; j++)
+            var skillD = props.effect.GetSkillDescription(TargetMode.None, props);
+
+            if (i < effect.Stacks)
             {
-                cache.Enqueue(cache.Dequeue());
+                d += stackRequirements[i] + " - " + skillD;
             }
-            props.effectValues = cache.ToArray();
+            else
+            {
+                d += "<color=grey>" + stackRequirements[i] + " - " + skillD + "</color>";
+            }
+
+            //if (i < effect.cachedValues.Count)
+            //{
+            //    var value = effect.cachedValues[i];
+            //
+            //    // TODO: ValueType of cachedValue should probably be derived from ValueGroup output
+            //    // But there currently isn't much of a use case I can think of for this behaviour
+            //    // besides in this situation
+            //    d += " (" + value.FormatTo(effect.valueGroup.Values[0].ValueType) + ")";
+            //}
+
+            d += "\n";
+
+            //Queue<float> cache = new Queue<float>(effect.cachedValues);
+            //for (int j = 0; j < props.effect.ValueCount; j++)
+            //{
+            //    cache.Enqueue(cache.Dequeue());
+            //}
+            //effect.cachedValues = new List<float>(cache);
         }
-
+    
         return d;
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string d = "Apply " + props.stacks + " Stack of " + props.effect.effectName + " to "
-            + TargetModeDescriptor(targetMode);
-
-        return d;
-    }
+    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    //{
+    //    string d = "Apply " + props.stacks + " Stack of " + props.effect.effectName + " to "
+    //        + TargetModeDescriptor(targetMode);
+    //
+    //    return d;
+    //}
 }
