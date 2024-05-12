@@ -36,16 +36,6 @@ public class BaseEffectValue
     {
         var value = GetValue(targetProps);
 
-        switch (ValueType)
-        {
-            case ValueType.Percentage:
-                return value.FormatPercentage();
-            case ValueType.Value:
-                return value.ToString();
-            case ValueType.Decimal:
-                return value.FormatToDecimal();
-        }
-
-        return "";
+        return value.FormatTo(ValueType);
     }
 }

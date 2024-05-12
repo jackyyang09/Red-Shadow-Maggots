@@ -10,16 +10,16 @@ public class StatChangeEffect : BaseGameEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        if (effect.cachedValues.Count == 0)
+        if (effect.valueCache.Count == 0)
         {
             var value = effect.valueGroup.GetValue(effect.targetProps);
             stat.SetGameStat(effect.Target, value);
-            effect.cachedValues.Add(value);
+            effect.valueCache.Add(new CachedValue { Value = value, Type = effect.valueGroup.ValueType });
         }
         else
         {
-            var amount = effect.cachedValues[0];
-            stats[0].SetGameStat(effect.Target, amount);
+            var amount = effect.valueCache[0];
+            stats[0].SetGameStat(effect.Target, amount.Value);
         }
 
         return base.Activate(effect);
@@ -27,7 +27,7 @@ public class StatChangeEffect : BaseGameEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        stat.SetGameStat(effect.Target, -effect.cachedValues[0]);
+        stat.SetGameStat(effect.Target, -effect.valueCache[0].Value);
 
         base.OnExpire(effect);
     }

@@ -77,7 +77,7 @@ public class EffectProperties
     public BaseGameEffect effect;
     public OldValue[] effectValues = new OldValue[1];
     [SerializeReference] public ValueGroup valueGroup = new ValueGroup();
-    public int effectDuration;
+    public int effectDuration = -1;
     public int activationLimit;
     public int stacks;
     public int maxStacks = -1;

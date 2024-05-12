@@ -60,6 +60,10 @@ public class EnemyCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, 90, 0);
+
+        waitEntity.IsPlayerControlled = false;
+
+        battleSystem.AddEnemyToWaitList(this, waitEntity);
     }
 
     protected override IEnumerator CreateBillboardUI()
@@ -284,10 +288,7 @@ public class EnemyCharacter : BaseCharacter
     public override void InvokeDeathEvents()
     {
         base.InvokeDeathEvents();
-        onDeath?.Invoke();
         EnemyController.Instance.RegisterEnemyDeath(this);
-        GlobalEvents.OnAnyEnemyDeath?.Invoke();
-        OnCharacterDeath?.Invoke(this);
     }
 
     public void DeathEffects()

@@ -16,10 +16,11 @@ MonoBehaviour:
   coolDown: 3
   condition:
     rid: -2
-  sprite: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 63541994bc6d02644804fba91ce075f3, type: 3}
   targetMode: 2
   effects:
   - rid: 3276119856843849961
+  - rid: 3382399285540159510
   events: []
   references:
     version: 2
@@ -35,10 +36,12 @@ MonoBehaviour:
       data:
         Values:
         - rid: 2246025850912506085
+        ValueType: 0
     - rid: 2246025850912506084
       type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
       data:
         Values: []
+        ValueType: 0
     - rid: 2246025850912506085
       type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
       data:
@@ -96,3 +99,69 @@ MonoBehaviour:
         targetOverride: 0
         effectTarget:
           rid: 2246025850912506105
+    - rid: 3382399285540159510
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        damageProps:
+          effect: {fileID: 0}
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          valueGroup:
+            rid: 3382399285540159511
+          effectDuration: -1
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          description: 
+        effectProps:
+          effect: {fileID: 11400000, guid: 96a5ed1f10c9370408a760f000a61046, type: 2}
+          effectValues:
+          - multiplier: 0
+            flat: 0
+            flatType: 0
+            deltaType: 0
+          valueGroup:
+            rid: 3382399285540159512
+          effectDuration: -1
+          activationLimit: 0
+          stacks: 0
+          maxStacks: -1
+          description: Spawns an Ally
+        appStyle:
+          rid: 3382399285540159513
+        targetOverride: 5
+        effectTarget:
+          rid: 3382399285540159516
+    - rid: 3382399285540159511
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 3382399285540159514
+        ValueType: 0
+    - rid: 3382399285540159512
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 3382399285540159515
+        ValueType: 0
+    - rid: 3382399285540159513
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3382399285540159514
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 3382399285540159515
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 3382399285540159516
+      type: {class: TargetSelf, ns: , asm: Assembly-CSharp}
+      data: 

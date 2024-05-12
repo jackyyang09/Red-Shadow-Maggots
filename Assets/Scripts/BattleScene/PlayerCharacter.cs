@@ -53,6 +53,11 @@ public class PlayerCharacter : BaseCharacter
         base.OnCharacterLoaded(obj);
 
         characterMesh.transform.eulerAngles = new Vector3(0, -90, 0);
+
+        waitEntity.IsPlayerControlled = true;
+        waitEntity.MovesOnPlayerTurn = true;
+
+        battleSystem.AddPlayerToWaitList(this, waitEntity);
     }
 
     protected override IEnumerator CreateBillboardUI()
@@ -267,9 +272,6 @@ public class PlayerCharacter : BaseCharacter
     {
         base.InvokeDeathEvents();
         battleSystem.RegisterPlayerDeath(this);
-        onDeath?.Invoke();
-        OnCharacterDeath?.Invoke(this);
-        GlobalEvents.OnAnyPlayerDeath?.Invoke();
     }
 
     public void DeathEffects()

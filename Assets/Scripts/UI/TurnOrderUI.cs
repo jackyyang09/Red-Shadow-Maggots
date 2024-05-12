@@ -1,4 +1,5 @@
 using DG.Tweening;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,7 @@ public class TurnOrderUI : BaseGameUI
     [SerializeField] Transform feather;
     [SerializeField] Transform weight;
 
-    Dictionary<BaseCharacter, TurnOrderGraphic> characterToGraphic = new Dictionary<BaseCharacter, TurnOrderGraphic>();
+    Dictionary<WaitListEntity, TurnOrderGraphic> waiteeToGraphic = new Dictionary<WaitListEntity, TurnOrderGraphic>();
 
     public override void ShowUI()
     {
@@ -40,18 +41,18 @@ public class TurnOrderUI : BaseGameUI
     {
         yield return new WaitUntil(() => BattleSystem.Initialized);
 
-        var characters = battleSystem.AllCharacters;
-        for (int i = 0; i < characters.Count; i++)
-        {
-            var g = Instantiate(profilePrefab, layoutRoot).GetComponent<TurnOrderGraphic>();
-            g.InitializeWithCharacter(characters[i], battleSystem.MoveOrder[0] == characters[i]);
-            graphics.Add(g);
-            characterToGraphic.Add(characters[i], g);
-        }
+        //var waitList = battleSystem.WaitList;
+        //for (int i = 0; i < waitList.Count; i++)
+        //{
+        //    var g = Instantiate(profilePrefab, layoutRoot).GetComponent<TurnOrderGraphic>();
+        //    g.InitializeWithEntity(waitList[i], battleSystem.WaitList[0] == waitList[i]);
+        //    graphics.Add(g);
+        //    waiteeToGraphic.Add(waitList[i], g);
+        //}
 
-        UpdateGraphicsHierarchy(GetReorderedGraphics());
+        //UpdateGraphicsHierarchy(GetReorderedGraphics());
 
-        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+
         //LayoutRebuilder.ForceRebuildLayoutImmediate(explainerParent);
 
         BattleSystem.OnMoveOrderUpdated += OnMoveOrderUpdated;
@@ -67,7 +68,10 @@ public class TurnOrderUI : BaseGameUI
         CharacterPreviewUI.Instance.OnShow += HideUI;
         CharacterPreviewUI.Instance.OnHide += ShowUI;
 
-        BaseCharacter.OnCharacterDeath += OnCharacterDeath;
+        //BaseCharacter.OnCharacterDeath += OnCharacterDeath;
+
+        BattleSystem.OnWaitListEntityAdded += OnWaitListEntityAdded;
+        BattleSystem.OnWaitListEntityRemoved += OnWaitListEntityRemoved;
     }
 
     private void OnDisable()
@@ -80,7 +84,10 @@ public class TurnOrderUI : BaseGameUI
         CharacterPreviewUI.Instance.OnShow -= HideUI;
         CharacterPreviewUI.Instance.OnHide -= ShowUI;
 
-        BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
+        //BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
+
+        BattleSystem.OnWaitListEntityAdded -= OnWaitListEntityAdded;
+        BattleSystem.OnWaitListEntityRemoved -= OnWaitListEntityRemoved;
     }
 
     private void OnDestroy()
@@ -88,10 +95,22 @@ public class TurnOrderUI : BaseGameUI
         BattleSystem.OnMoveOrderUpdated -= OnMoveOrderUpdated;
     }
 
-    void OnCharacterDeath(BaseCharacter b)
+    private void OnWaitListEntityAdded(WaitListEntity entity, int index)
     {
-        characterToGraphic[b].gameObject.SetActive(false);
-        graphics.Remove(characterToGraphic[b]);
+        var g = Instantiate(profilePrefab, layoutRoot).GetComponent<TurnOrderGraphic>();
+        g.InitializeWithEntity(entity);
+        graphics.Insert(index, g);
+        g.transform.SetSiblingIndex(1 + index);
+        waiteeToGraphic.Add(entity, g);
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
+    }
+
+    void OnWaitListEntityRemoved(WaitListEntity entity)
+    {
+        waiteeToGraphic[entity].gameObject.SetActive(false);
+        graphics.Remove(waiteeToGraphic[entity]);
+        waiteeToGraphic.Remove(entity);
     }
 
     void UpdateGraphicsHierarchy(List<TurnOrderGraphic> newOrder)
@@ -112,9 +131,13 @@ public class TurnOrderUI : BaseGameUI
         weight.SetAsLastSibling();
     }
 
+    /// <summary>
+    /// Re-order TurnOrderGraphics based on final order of Waitlist
+    /// </summary>
+    /// <returns></returns>
     List<TurnOrderGraphic> GetReorderedGraphics()
     {
-        return battleSystem.MoveOrder.Select(c => graphics.First(g => g.Character == c)).ToList();
+        return battleSystem.WaitList.Select(c => graphics.First(g => g.Waitee == c)).ToList();
     }
 
     void OnMoveOrderUpdated()
@@ -128,14 +151,18 @@ public class TurnOrderUI : BaseGameUI
         fitter.enabled = false;
         layoutGroup.enabled = false;
 
+        // List of graphics arranged to match WaitList
         var finalOrder = GetReorderedGraphics();
+        var finalOrderRects = finalOrder.Select(c => c.GetRectTransform()).ToList();
 
+        // List of graphics at their current transforms
         var graphicsTransforms = graphics.Select(s => s.GetRectTransform()).ToList();
 
         bool anyoneOverwait = false;
         for (int i = 0; i < finalOrder.Count; i++)
         {
-            if (finalOrder[i].Character.IsOverWait)
+            // Animate turn order graphic
+            if (finalOrder[i].Waitee.IsOverWait)
             {
                 bool previouslyVisible = true;
                 anyoneOverwait = true;
@@ -154,10 +181,13 @@ public class TurnOrderUI : BaseGameUI
 
                 float dest = 0;
 
+
                 if (previouslyVisible)
                 {
+                    var trueIndex = roundChangeGraphic.transform.GetSiblingIndex() - 1;
+                    graphicsTransforms.Insert(trueIndex, roundChangeGraphic.GetRectTransform());
                     dest = graphicsTransforms[i].anchoredPosition.x;
-                    graphicsTransforms.Insert(i + 1, roundChangeGraphic.GetRectTransform());
+                    //graphicsTransforms.Insert(i + 1, roundChangeGraphic.GetRectTransform());
                 }
                 else
                 {
@@ -166,7 +196,6 @@ public class TurnOrderUI : BaseGameUI
                 }
                 roundChangeGraphic.GetRectTransform().DOAnchorPos3DX(dest, tweenTime).SetEase(easeType);
                 //Debug.Log("RCG moving to " + graphics[i].Character.Reference.characterName + " at " + dest);
-
 
                 fitter.enabled = false;
                 layoutGroup.enabled = false;

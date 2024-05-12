@@ -5015,6 +5015,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5076697950676818881}
+    - targetCorrespondingSourceObject: {fileID: 6893020664900747614, guid: e96445fd04248e447b138931f4914599, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1215954612393584551}
   m_SourcePrefab: {fileID: 100100000, guid: e96445fd04248e447b138931f4914599, type: 3}
 --- !u!1 &4388577760422734276 stripped
 GameObject:
@@ -5461,6 +5464,99 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5395fb4f18e8d249a2950f5f8ad1fbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1215954612393584551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4388577760422734276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bba4cf112870144fb0bc244bdd2de33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  crippleProps:
+    effect: {fileID: 11400000, guid: 0650309458158a54b8ac281b81017d35, type: 2}
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    valueGroup:
+      rid: 3382399139867000878
+    effectDuration: -1
+    activationLimit: 0
+    stacks: 1
+    maxStacks: 4
+    description: 
+  sparePartsProps:
+    effect: {fileID: 11400000, guid: d9a3d541d3925bd48842d4ced4331177, type: 2}
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    valueGroup:
+      rid: 1000
+    effectDuration: -1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: 4
+    description: 
+  waitLimitProps:
+    effect: {fileID: 0}
+    effectValues:
+    - multiplier: 0
+      flat: 0
+      flatType: 0
+      deltaType: 0
+    valueGroup:
+      rid: 3382399139867000880
+    effectDuration: 0
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+    description: 
+  references:
+    version: 2
+    RefIds:
+    - rid: 1000
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 1001
+        ValueType: 0
+    - rid: 1001
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 3382399139867000878
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 3382399139867000881
+        ValueType: 0
+    - rid: 3382399139867000880
+      type: {class: ValueGroup, ns: , asm: Assembly-CSharp}
+      data:
+        Values:
+        - rid: 3382399139867000883
+        ValueType: 0
+    - rid: 3382399139867000881
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
+    - rid: 3382399139867000883
+      type: {class: BaseEffectValue, ns: , asm: Assembly-CSharp}
+      data:
+        FlatValue: 0
+        ValueType: 0
+        Operator: 0
 --- !u!4 &4388577760422734279 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6893020664900747613, guid: e96445fd04248e447b138931f4914599, type: 3}

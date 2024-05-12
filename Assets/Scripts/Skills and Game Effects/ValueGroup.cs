@@ -6,6 +6,7 @@ using UnityEngine;
 public class ValueGroup
 {
     [SerializeReference] public BaseEffectValue[] Values = new BaseEffectValue[] { new BaseEffectValue() };
+    public ValueType ValueType;
 
     public float GetValue(TargetProps targetProps)
     {

@@ -108,17 +108,11 @@ public abstract class BaseCharacter : MonoBehaviour
 
     [SerializeField] float wait = 0.5f;
     public float Wait => wait;
+
     float waitModifier;
     public float WaitModifier => waitModifier;
     public float WaitModified => wait + waitModifier;
-    float waitTimer;
-    public float WaitTimer => waitTimer;
-    public void IncrementWaitTimer()
-    {
-        waitTimer += WaitModified;
-        OnWaitTimeChanged?.Invoke();
-        OnCharacterWaitChanged?.Invoke(this);
-    }
+    public float WaitTimer => waitEntity.WaitTimer;
 
     [SerializeField] float waitLimit = 1;
     public float WaitLimit => waitLimit;
@@ -129,7 +123,8 @@ public abstract class BaseCharacter : MonoBehaviour
     public float WaitPercentage => Mathf.Min(1, WaitTimer / WaitLimitModified);
     public bool IsOverWait => WaitPercentage >= 1;
 
-    public void ResetWait() => waitTimer = 0;
+    protected WaitListEntity waitEntity;
+    public WaitListEntity WaitEntity => waitEntity;
 
     [SerializeField] protected Rarity rarity;
     public float RarityMultiplier => 1 + 0.5f * (int)rarity;
@@ -222,7 +217,6 @@ public abstract class BaseCharacter : MonoBehaviour
     public Action OnSkillUsed;
 
     public Action OnWaitChanged;
-    public Action OnWaitTimeChanged;
     public Action OnWaitLimitChanged;
 
     /// <summary>
@@ -235,6 +229,7 @@ public abstract class BaseCharacter : MonoBehaviour
     /// </summary>
     public Action<float, DamageStruct> OnTakeDamage;
     public Action<float> onConsumeHealth;
+    public Action OnDeath;
 
     public Action OnCharacterCritChanceChanged;
 
@@ -255,8 +250,6 @@ public abstract class BaseCharacter : MonoBehaviour
 
     public static Action<BaseCharacter, AppliedEffect> OnAppliedEffect;
     public static Action<BaseCharacter, AppliedEffect> OnRemoveEffect;
-
-    public static Action<BaseCharacter> OnCharacterWaitChanged;
 
     public static Action<BaseCharacter> OnCharacterDeath;
 
@@ -305,7 +298,7 @@ public abstract class BaseCharacter : MonoBehaviour
         if (stateInfo != null)
         {
             health = stateInfo.Health;
-            waitTimer = stateInfo.WaitTimer;
+            waitEntity.WaitTimer = stateInfo.WaitTimer;
             if (health == 0)
             {
                 DieSilently();
@@ -373,6 +366,18 @@ public abstract class BaseCharacter : MonoBehaviour
         characterMesh = Instantiate(obj.Result, transform);
         rigAnim = characterMesh.GetComponentInChildren<Animator>();
         animHelper = GetComponentInChildren<AnimationHelper>();
+
+        waitEntity = new WaitListEntity(() => Wait, () => WaitLimitModified)
+        {
+            Headshot = Reference.headshotSprite,
+            Character = this
+        };
+
+        OnStartTurn += waitEntity.OnStartTurn;
+        OnEndTurn += waitEntity.OnEndTurn;
+        OnWaitChanged += waitEntity.OnWaitChanged;
+        OnWaitLimitChanged += waitEntity.OnWaitLimitChanged;
+
         initialized = true;
     }
 
@@ -1123,6 +1128,10 @@ public abstract class BaseCharacter : MonoBehaviour
     public virtual void InvokeDeathEvents()
     {
         JSAM.AudioManager.PlaySound(BattleSceneSounds.KillSound);
+        OnDeath?.Invoke();
+        onDeath?.Invoke();
+        OnCharacterDeath?.Invoke(this);
+        GlobalEvents.OnAnyPlayerDeath?.Invoke();
     }
 
     public virtual void Die()

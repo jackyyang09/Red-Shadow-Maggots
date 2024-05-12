@@ -58,7 +58,7 @@ public class CharacterUI : BaseGameUI
         health.InitializeWithCharacter(character);
         shield.InitializeWithCharacter(character);
 
-        designatedCharacter.OnWaitTimeChanged += OnWaitChanged;
+        designatedCharacter.WaitEntity.OnWaitTimerChanged += OnWaitChanged;
         designatedCharacter.OnApplyGameEffect += AddEffectIcon;
         designatedCharacter.OnEffectStacksChanged += UpdateEffectStacks;
         designatedCharacter.OnRemoveGameEffect += RemoveEffect;
@@ -109,7 +109,7 @@ public class CharacterUI : BaseGameUI
     {
         if (designatedCharacter)
         {
-            designatedCharacter.OnWaitTimeChanged -= OnWaitChanged;
+            designatedCharacter.WaitEntity.OnWaitTimerChanged -= OnWaitChanged;
             designatedCharacter.OnApplyGameEffect -= AddEffectIcon;
             designatedCharacter.OnRemoveGameEffect -= RemoveEffect;
             designatedCharacter.onDeath.RemoveListener(SelfDestruct);

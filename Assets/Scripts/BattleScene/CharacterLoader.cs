@@ -9,6 +9,8 @@ using static Facade;
 
 public class CharacterLoader : BasicSingleton<CharacterLoader>
 {
+    [SerializeField] int legacyEnemyLevel = 1;
+
     [SerializeField] GameObject playerPrefab;
     [SerializeField] GameObject enemyPrefab;
     [SerializeField] GameObject bossPrefab;
@@ -178,7 +180,7 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
         {
             if (gachaSystem.LegacyMode)
             {
-                enemies[index] = SpawnEnemy(obj.Result, spawnPos, 5, null);
+                enemies[index] = SpawnEnemy(obj.Result, spawnPos, legacyEnemyLevel, null);
             }
             else
             {

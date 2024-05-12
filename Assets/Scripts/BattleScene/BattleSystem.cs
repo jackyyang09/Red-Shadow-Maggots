@@ -107,6 +107,7 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             switch (currentPhase)
             {
+                case BattlePhases.Entry:
                 case BattlePhases.PlayerTurn:
                     return playerTargets.enemy;
             }
@@ -140,10 +141,8 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     [SerializeField] TargetedCharacters enemyTargets = new TargetedCharacters();
 
-    List<BaseCharacter> moveOrder = new List<BaseCharacter>();
-    public List<BaseCharacter> MoveOrder => moveOrder;
-
     List<WaitListEntity> waitList = new List<WaitListEntity>();
+    public List<WaitListEntity> WaitList => waitList;
 
     List<PlayerCharacter> priorityPlayers = new List<PlayerCharacter>();
     List<EnemyCharacter> priorityEnemies = new List<EnemyCharacter>();
@@ -157,6 +156,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public static System.Action[] OnEndPhase = new System.Action[(int)BattlePhases.Count];
     public static System.Action OnEndTurn;
     public static System.Action OnEndRound;
+
+    public static System.Action<WaitListEntity, int> OnWaitListEntityAdded;
+    public static System.Action<WaitListEntity> OnWaitListEntityRemoved;
 
     public static System.Action OnMoveOrderUpdated;
 
@@ -174,8 +176,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyEnemyDeath += SwitchTargets;
 
         SkillManagerUI.OnSkillActivated += ActivateSkill;
-
-        BaseCharacter.OnCharacterDeath += OnCharacterDeath;
     }
 
     private void OnDisable()
@@ -184,8 +184,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         GlobalEvents.OnAnyEnemyDeath -= SwitchTargets;
 
         SkillManagerUI.OnSkillActivated -= ActivateSkill;
-
-        BaseCharacter.OnCharacterDeath -= OnCharacterDeath;
     }
 
     private IEnumerator Start()
@@ -214,30 +212,36 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         {
             yield return new WaitUntil(() => player.Initialized);
             if (player.IsDead) continue;
-            moveOrder.Add(player);
+            //moveOrder.Add(player);
         }
 
         foreach (var enemy in enemyController.EnemyList)
         {
             yield return new WaitUntil(() => enemy.Initialized);
             if (enemy.IsDead) continue;
-            moveOrder.Add(enemy);
+            //moveOrder.Add(enemy);
         }
 
-        UpdateMoveOrder(moveOrder.Any(e => e.WaitTimer == 0));
+        // If any character's WaitTimer is 0 on Start,
+        // then the Player has just entered Battle
+        UpdateMoveOrder(waitList.Any(e => e.WaitTimer == 0));
 
-        if (moveOrder[0].IsPlayer())
-        {
-            currentPhase = BattlePhases.PlayerTurn;
-            playerTargets.player = moveOrder[0] as PlayerCharacter;
-            playerTargets.player.ShowSelectionCircle();
-            playerTargets.enemy.ShowSelectionCircle();
-        }
-        else
-        {
-            currentPhase = BattlePhases.Entry;
-            ChangeBattlePhase();
-        }
+        // This seems important to transition into battles smoothly?
+        //if (waitList[0].IsPlayerControlled)
+        //{
+        //    currentPhase = BattlePhases.PlayerTurn;
+        //    playerTargets.player = moveOrder[0] as PlayerCharacter;
+        //    playerTargets.player.ShowSelectionCircle();
+        //    playerTargets.enemy.ShowSelectionCircle();
+        //}
+        //else
+        //{
+        //    currentPhase = BattlePhases.Entry;
+        //    ChangeBattlePhase();
+        //}
+        currentPhase = BattlePhases.Entry;
+        ChangeBattlePhase();
+
         sceneTweener.EnterBattle();
 
         Initialized = true;
@@ -246,6 +250,179 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     void OnDestroy()
     {
         Initialized = false;
+    }
+
+    public void AddGenericEntityToWaitList(WaitListEntity e)
+    {
+        AddEntityToWaitList(e);
+    }
+
+    public void AddPlayerToWaitList(PlayerCharacter c, WaitListEntity e)
+    {
+        e.Move = () =>
+        {
+            var lastPhase = currentPhase;
+
+            if (lastPhase == BattlePhases.EnemyTurn)
+            {
+                gameManager.SaveBattleState();
+            }
+
+            currentPhase = BattlePhases.PlayerTurn;
+
+            if (!enemyController.EnemiesAlive)
+            {
+                currentPhase = BattlePhases.BattleWin;
+            }
+            SetActivePlayer(c);
+
+            c.OnStartTurn?.Invoke();
+            c.OnStartTurnLate?.Invoke();
+        };
+
+        e.EffectRoutine = TickEffects(c);
+
+        c.OnDeath += e.RemoveSelf;
+        AddEntityToWaitList(e);
+    }
+
+    public void AddEnemyToWaitList(EnemyCharacter c, WaitListEntity e)
+    {
+        e.Move = () =>
+        {
+            var lastPhase = currentPhase;
+
+            if (lastPhase != BattlePhases.EnemyTurn)
+            {
+                enemyController.CalculateSkillUsage();
+            }
+
+            if (PlayersAlive)
+            {
+                currentPhase = BattlePhases.EnemyTurn;
+                SetActiveEnemy(c);
+            }
+            else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
+            else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
+
+            c.OnStartTurn?.Invoke();
+            c.OnStartTurnLate?.Invoke();
+        };
+
+        e.EffectRoutine = TickEffects(c);
+
+        c.OnDeath += e.RemoveSelf;
+        c.onDeath.AddListener(() => RemoveEntityFromWaitlist(e));
+        AddEntityToWaitList(e);
+    }
+
+    /// <summary>
+    /// Insert new entites into WaitList based on WaitTimer
+    /// </summary>
+    /// <param name="e"></param>
+    void AddEntityToWaitList(WaitListEntity e)
+    {
+        e.IncrementWaitTimer();
+
+        var index = InsertEntityIntoList(e);
+
+        OnWaitListEntityAdded?.Invoke(e, index);
+    }
+
+    int InsertEntityIntoList(WaitListEntity e)
+    {
+        int index = 0;
+        bool finish = false;
+
+        if (waitList.Count > 0)
+        {
+            for (int i = 0; i < waitList.Count; i++)
+            {
+                // If you are overwait and the current index isn't, skip
+                if (e.IsOverWait.ToInt() > waitList[i].IsOverWait.ToInt()) continue;
+                if (waitList[i].WaitTimer > e.WaitTimer || e.IsOverWait.ToInt() < waitList[i].IsOverWait.ToInt())
+                {
+                    waitList.Insert(i, e);
+                    index = i;
+                    finish = true;
+                }
+                else if (waitList[i].WaitTimer == e.WaitTimer)
+                {
+                    // Player-controlled WaitEntites are always placed ahead of
+                    // Non-Player-controlled WaitEntities, but are always sorted after previous 
+                    // Player-controlled WaitEntites of the same speed
+                    if (e.IsPlayerControlled)
+                    {
+                        for (; i < waitList.Count; i++)
+                        {
+                            if (waitList[i].WaitTimer == e.WaitTimer && waitList[i].IsPlayerControlled)
+                                continue;
+                            else
+                            {
+                                waitList.Insert(i, e);
+                                index = i;
+                                finish = true;
+                                break;
+                            }
+                        }
+
+                        if (!finish)
+                        {
+                            waitList.Add(e);
+                            index = waitList.Count - 1;
+                            finish = true;
+                            break;
+                        }
+                    }
+                    // Non-Player-controlled WaitEntites are always placede after
+                    // Player-controlled WaitEntities, but are always sorted after previous 
+                    // Non-Player-controlled WaitEntites of the same speed
+                    else
+                    {
+                        for (; i < waitList.Count; i++)
+                        {
+                            if (waitList[i].WaitTimer == e.WaitTimer && waitList[i].IsPlayerControlled)
+                                continue;
+                            if (waitList[i].WaitTimer == e.WaitTimer && !waitList[i].IsPlayerControlled)
+                                continue;
+                            else
+                            {
+                                waitList.Insert(i, e);
+                                index = i;
+                                finish = true;
+                                break;
+                            }
+                        }
+
+                        if (!finish)
+                        {
+                            waitList.Add(e);
+                            index = waitList.Count - 1;
+                            finish = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (finish) break;
+            }
+        }
+
+        if (!finish)
+        {
+            waitList.Add(e);
+            index = waitList.Count - 1;
+        }
+
+        //Debug.Log(e.Character.Reference.characterName + " " + index);
+
+        return index;
+    }
+
+    public void RemoveEntityFromWaitlist(WaitListEntity e)
+    {
+        waitList.Remove(e);
+        OnWaitListEntityRemoved?.Invoke(e);
     }
 
     public IEnumerator InitiateNextBattle()
@@ -501,9 +678,9 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     public void EndTurn()
     {
         OnEndTurn?.Invoke();
-        moveOrder[0].OnEndTurn?.Invoke();
+        waitList[0].OnEndTurn?.Invoke();
         OnEndPhase[currentPhase.ToInt()]?.Invoke();
-        moveOrder[0].IncrementWaitTimer();
+        waitList[0].IncrementWaitTimer();
         UpdateMoveOrder();
 
         ChangeBattlePhase();
@@ -511,17 +688,25 @@ public class BattleSystem : BasicSingleton<BattleSystem>
 
     public void UpdateMoveOrder(bool firstTime = false)
     {
-        if (!moveOrder.Any(c => !c.IsOverWait) || firstTime) // If everyone is OverWait or battle just began
+        if (!waitList.Any(e => !e.IsOverWait) || firstTime) // If everyone is OverWait or battle just began
         {
-            foreach (var character in moveOrder)
+            foreach (var entity in waitList)
             {
-                character.ResetWait();
-                character.IncrementWaitTimer();
+                entity.ResetWait();
+                entity.IncrementWaitTimer();
             }
             OnEndRound?.Invoke();
         }
 
-        moveOrder = moveOrder.OrderBy(c => c.WaitPercentage).ThenByDescending(c => c.IsPlayer()).ToList();
+        var backup = waitList.ToArray();
+        waitList.Clear();
+
+        foreach (var entity in backup)
+        {
+            InsertEntityIntoList(entity);
+        }
+
+        //waitList = waitList.OrderBy(c => c.WaitTimer).ThenByDescending(c => c.IsPlayerControlled).ToList();
         OnMoveOrderUpdated?.Invoke();
     }
 
@@ -537,47 +722,14 @@ public class BattleSystem : BasicSingleton<BattleSystem>
         }
         deathEffects.Clear();
 
-        var activeCharacter = moveOrder[0];
-        var isPlayer = activeCharacter as PlayerCharacter;
-        var lastPhase = currentPhase;
+        waitList[0].OnStartTurn?.Invoke();
 
-        yield return StartCoroutine(TickEffects(activeCharacter));
+        yield return StartCoroutine(waitList[0].EffectRoutine);
 
-        if (isPlayer)
-        {
-            if (lastPhase == BattlePhases.EnemyTurn)
-            {
-                gameManager.SaveBattleState();
-            }
-
-            currentPhase = BattlePhases.PlayerTurn;
-
-            if (!enemyController.EnemiesAlive)
-            {
-                currentPhase = BattlePhases.BattleWin;
-            }
-            SetActivePlayer(activeCharacter as PlayerCharacter);
-        }
-        else
-        {
-            if (lastPhase != BattlePhases.EnemyTurn)
-            {
-                enemyController.CalculateSkillUsage();
-            }
-
-            if (PlayersAlive)
-            {
-                currentPhase = BattlePhases.EnemyTurn;
-                SetActiveEnemy(activeCharacter as EnemyCharacter);
-            }
-            else if (!PlayersAlive) currentPhase = BattlePhases.BattleLose;
-            else if (!enemyController.EnemiesAlive) currentPhase = BattlePhases.BattleWin;
-        }
+        waitList[0]?.Move();
 
         finishedTurn = false;
 
-        activeCharacter.OnStartTurn?.Invoke();
-        activeCharacter.OnStartTurnLate?.Invoke();
         switch (currentPhase)
         {
             case BattlePhases.Entry:
@@ -638,11 +790,6 @@ public class BattleSystem : BasicSingleton<BattleSystem>
     {
         deadMaggots.Add(player);
         player.transform.parent = null;
-    }
-
-    private void OnCharacterDeath(BaseCharacter obj)
-    {
-        moveOrder.Remove(obj);
     }
 
     public void ApplyTargetFocus(PlayerCharacter player)

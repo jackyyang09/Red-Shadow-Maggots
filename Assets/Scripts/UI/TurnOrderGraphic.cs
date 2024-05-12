@@ -38,8 +38,8 @@ public class TurnOrderGraphic : MonoBehaviour
     [SerializeField] TextMeshProUGUI waitLabel;
     [SerializeField] Image waitFill;
 
-    public BaseCharacter Character => character;
-    BaseCharacter character;
+    WaitListEntity waitee;
+    public WaitListEntity Waitee => waitee;
     float previousWait;
 
     private void OnEnable()
@@ -50,52 +50,57 @@ public class TurnOrderGraphic : MonoBehaviour
 
     private void OnDisable()
     {
-        character.OnWaitTimeChanged -= UpdateWait;
-        character.OnWaitLimitChanged -= OnWaitLimitChanged;
-        character.OnStartTurn -= OnStartTurn;
-        character.OnEndTurn -= OnEndTurn;
+        waitee.OnWaitTimerChanged -= UpdateWaitTimer;
+        waitee.OnWaitLimitChanged -= OnWaitLimitChanged;
+        waitee.OnStartTurn -= OnStartTurn;
+        waitee.OnEndTurn -= OnEndTurn;
 
-        if (character.IsEnemy(out EnemyCharacter e))
+        if (!waitee.MovesOnPlayerTurn)
         {
             EnemyCharacter.OnSelectedEnemyCharacterChange -= OnSelectedEnemyCharacterChange;
-            e.OnStartTurn -= OnStartEnemyTurn;
-            e.OnEndTurn -= OnEndEnemyTurn;
+            waitee.OnStartTurn -= OnStartEnemyTurn;
+            waitee.OnEndTurn -= OnEndEnemyTurn;
         }
     }
 
-    public void InitializeWithCharacter(BaseCharacter c, bool myTurn = false)
+    public void InitializeWithEntity(WaitListEntity w, bool myTurn = false)
     {
-        character = c;
-        image.sprite = c.Reference.headshotSprite;
-        panelColours = colours[c.IsPlayer().ToInt()];
+        waitee = w;
+        image.sprite = w.Headshot;
+        panelColours = colours[w.MovesOnPlayerTurn.ToInt()];
         background.color = panelColours[0];
 
         ForceUpdateWait();
 
-        character.OnWaitTimeChanged += UpdateWait;
-        character.OnWaitLimitChanged += OnWaitLimitChanged;
-        character.OnStartTurn += OnStartTurn;
-        character.OnEndTurn += OnEndTurn;
+        waitee.OnWaitTimerChanged += UpdateWaitTimer;
+        waitee.OnWaitLimitChanged += OnWaitLimitChanged;
+        waitee.OnStartTurn += OnStartTurn;
+        waitee.OnEndTurn += OnEndTurn;
 
-        previousWait = character.WaitTimer;
+        previousWait = waitee.WaitTimer;
 
-        if (character.IsEnemy(out EnemyCharacter e))
+        if (!waitee.MovesOnPlayerTurn)
         {
             if (BattleSystem.Instance.CurrentPhase == BattlePhases.PlayerTurn)
             {
                 OnSelectedEnemyCharacterChange(BattleSystem.Instance.PlayerAttackTarget);
             }
             EnemyCharacter.OnSelectedEnemyCharacterChange += OnSelectedEnemyCharacterChange;
-            e.OnStartTurn += OnStartEnemyTurn;
-            e.OnEndTurn += OnEndEnemyTurn;
+            waitee.OnStartTurn += OnStartEnemyTurn;
+            waitee.OnEndTurn += OnEndEnemyTurn;
+
+            if (BattleSystem.Instance.ActiveEnemy == waitee.Character)
+            {
+                OnSelectedEnemyCharacterChange(BattleSystem.Instance.ActiveEnemy);
+            }
         }
 
         if (myTurn) OnStartTurn();
     }
 
-    private void UpdateWait()
+    private void UpdateWaitTimer()
     {
-        if (character.IsOverWait)
+        if (waitee.IsOverWait)
         {
             ForceUpdateWait();
             //ForceUpdateWait(0);
@@ -104,19 +109,19 @@ public class TurnOrderGraphic : MonoBehaviour
         {
             DOTween.To(x => previousWait = x,
             previousWait,
-            character.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            waitee.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
             {
                 waitLabel.text = previousWait.FormatToDecimal() + "%";
-                waitFill.fillAmount = previousWait / character.WaitLimitModified;
+                waitFill.fillAmount = previousWait / waitee.WaitLimit;
             });
         }
     }
 
     void ForceUpdateWait()
     {
-        previousWait = character.Wait;
-        waitLabel.text = character.WaitPercentage.FormatToDecimal() + "%";
-        waitFill.fillAmount = character.WaitPercentage;
+        previousWait = waitee.Wait;
+        waitLabel.text = waitee.WaitPercentage.FormatToDecimal() + "%";
+        waitFill.fillAmount = waitee.WaitPercentage;
     }
 
     void OnStartTurn()
@@ -138,12 +143,12 @@ public class TurnOrderGraphic : MonoBehaviour
 
     void OnEndEnemyTurn()
     {
-        OnSelectedEnemyCharacterChange(character as EnemyCharacter);
+        OnSelectedEnemyCharacterChange(waitee.Character as EnemyCharacter);
     }
     
     void OnWaitLimitChanged()
     {
-        if (Character.WaitLimitModified >= Character.WaitLimit)
+        if (waitee.WaitLimit >= waitee.WaitLimit)
         {
             waitFill.color = fastColour;
         }
@@ -155,16 +160,16 @@ public class TurnOrderGraphic : MonoBehaviour
 
         DOTween.To(x => previousWait = x,
             previousWait,
-            character.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            waitee.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
             {
                 waitLabel.text = previousWait.FormatToDecimal() + "%";
-                waitFill.fillAmount = previousWait / character.WaitLimitModified;
+                waitFill.fillAmount = previousWait / waitee.WaitLimit;
             });
     }
 
     void OnSelectedEnemyCharacterChange(EnemyCharacter e)
     {
-        stroke.enabled = e == character;
+        stroke.enabled = e == waitee.Character;
         if (!stroke.enabled)
         {
             DOTween.Kill(GetInstanceID());
@@ -184,7 +189,7 @@ public class TurnOrderGraphic : MonoBehaviour
     void TestTween()
     {
         DOTween.Kill(GetInstanceID());
-        OnSelectedEnemyCharacterChange(character as EnemyCharacter);
+        OnSelectedEnemyCharacterChange(waitee.Character as EnemyCharacter);
     }
 #endif
 }

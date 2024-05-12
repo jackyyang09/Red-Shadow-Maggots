@@ -32,6 +32,11 @@ public static class Extensions
         return System.Convert.ToInt32(b);
     }
 
+    public static string FormatMinus(this string s)
+    {
+        return s.Replace("-", "\u2011");
+    }
+
     /// <summary>
     /// Thanks ChatGPT
     /// </summary>
@@ -40,12 +45,12 @@ public static class Extensions
     public static string FormatPercentage(this float f)
     {
         f *= 100f;
-        return f.ToString("0.0") + "%"; // Adjust the number of # symbols as needed
+        return f.ToString("0.0").FormatMinus() + "%"; // Adjust the number of # symbols as needed
     }
 
     public static string FormatToDecimal(this float f)
     {
-        return Mathf.FloorToInt(f * 100f).ToString();
+        return Mathf.FloorToInt(f * 100f).ToString().FormatMinus();
     }
 
     /// <summary>

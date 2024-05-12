@@ -53,6 +53,7 @@ public class AppliedEffect
     public int remainingActivations;
     public string description;
     public List<float> cachedValues = new List<float>();
+    public List<CachedValue> valueCache = new List<CachedValue>();
     public System.Action[] customCallbacks;
     public GameObject[] instantiatedObjects;
 

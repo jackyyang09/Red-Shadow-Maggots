@@ -36,16 +36,6 @@ public class StatScaledValue : BaseEffectValue
     {
         var value = GetValue(targetProps);
 
-        switch (ValueType)
-        {
-            case ValueType.Percentage:
-                return value.FormatPercentage();
-            case ValueType.Value:
-                return value.ToString();
-            case ValueType.Decimal:
-                return value.FormatToDecimal();
-        }
-
-        return base.GetEffectDescription(targetProps);
+        return value.FormatTo(ValueType);
     }
 }

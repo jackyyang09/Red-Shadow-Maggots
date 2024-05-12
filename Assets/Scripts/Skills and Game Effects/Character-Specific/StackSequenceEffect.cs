@@ -9,19 +9,19 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
 
     public override bool Activate(AppliedEffect effect)
     {
-        if (effect.cachedValues.Count > 0)
+        if (effect.valueCache.Count > 0)
         {
             effect.ResetDuration();
 
             for (int i = 0; i < effect.Stacks; i++)
             {
                 effectGroups[i].effectProps.effect.Activate(effect);
-                Queue<float> cache = new Queue<float>(effect.cachedValues);
+                Queue<CachedValue> cache = new Queue<CachedValue>(effect.valueCache);
                 for (int j = 0; j < effectGroups[i].effectProps.effect.ValueCount; j++)
                 {
                     cache.Enqueue(cache.Dequeue());
                 }
-                effect.cachedValues = new List<float>(cache.ToArray());
+                effect.valueCache = new List<CachedValue>(cache.ToArray());
             }
         }
         else
@@ -35,11 +35,11 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
             {
                 effect.valueGroup = effectGroups[i].effectProps.valueGroup.ShallowCopy();
 
-                var cached = new List<float>(effect.cachedValues);
-                effect.cachedValues.Clear();
+                var cached = new List<CachedValue>(effect.valueCache);
+                effect.valueCache.Clear();
                 effectGroups[i].effectProps.effect.Activate(effect);
-                cached.AddRange(effect.cachedValues);
-                effect.cachedValues = cached;
+                cached.AddRange(effect.valueCache);
+                effect.valueCache = cached;
             }
             effect.valueGroup.Values = backup.ToArray();
         }
@@ -59,16 +59,16 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        if (effect.cachedValues.Count > 0)
+        if (effect.valueCache.Count > 0)
         {
             effect.Target.OnStartTurnLate -= effect.customCallbacks[0];
 
-            var count = effect.cachedValues.Count;
+            var count = effect.valueCache.Count;
             for (int i = 0; i < count; i++)
             {
                 effectGroups[i].effectProps.effect.OnExpire(effect);
 
-                effect.cachedValues.RemoveAt(0);
+                effect.valueCache.RemoveAt(0);
             }
         }
     }
@@ -78,12 +78,12 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
         var targets = new List<BaseCharacter> { effect.Target };
         targets.AddRange(effect.extraTargets);
 
-        if (effect.cachedValues.Count > 0)
+        if (effect.valueCache.Count > 0)
         {
             OnExpire(effect);
         }
 
-        effect.cachedValues.Clear();
+        effect.valueCache.Clear();
 
         Activate(effect);
     }
@@ -108,15 +108,14 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
                 d += "<color=grey>" + stackRequirements[i] + " - " + skillD + "</color>";
             }
 
-            //if (i < effect.cachedValues.Count)
-            //{
-            //    var value = effect.cachedValues[i];
-            //
-            //    // TODO: ValueType of cachedValue should probably be derived from ValueGroup output
-            //    // But there currently isn't much of a use case I can think of for this behaviour
-            //    // besides in this situation
-            //    d += " (" + value.FormatTo(effect.valueGroup.Values[0].ValueType) + ")";
-            //}
+            if (i < effect.valueCache.Count)
+            {
+                var value = effect.valueCache[i];
+
+                d += " (";
+                d += value.Value >= 0 ? "+" : "\u2011"; // Non-breaking hyphen
+                d += value.Value.FormatTo(value.Type) + ")";
+            }
 
             d += "\n";
 
