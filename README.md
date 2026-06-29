@@ -22,6 +22,8 @@ ronii - [Low Poly Heavy](https://cdn.discordapp.com/attachments/7498645995488544
 
 ten - [Arms Guy](https://github.com/jackyyang09/Red-Shadow-Maggots/blob/master/Assets/Sprites/Characters/Arms%20Guy/ArmsGuy_Full.png), [Lone Bushman](https://github.com/jackyyang09/Red-Shadow-Maggots/blob/master/Assets/Sprites/Characters/Edgy%20Huntsman/EdgyHuntsman_Full.png) and [most of the characters from the original gam jam version](https://github.com/jackyyang09/Red-Shadow-Maggots/tree/master/Assets/Sprites)
 
+[nekon](https://x.com/DxNekon/) - Colouring art from the original game jam version
+
 ## 3D Art
 [Jonathan Dan](https://artofjonathandan.com/) - Created Unique Face Rigs for [Giant Boss Heavy](https://cdn.discordapp.com/attachments/867205743128477726/867438618837909534/blender_2021-07-21_12-09-27.png?ex=6a43eaaa&is=6a42992a&hm=f78ea718369f4e84684d62e683d138d5f302d4b4571d64fcc3a9ea8c82b1b027&) and [General Eric](https://cdn.discordapp.com/attachments/867205743128477726/952782043857715260/blender_2022-03-14_00-13-32.png?ex=6a43ebad&is=6a429a2d&hm=d7664aefb9c8647cf08c3dd2bd2eb7ba2566430f10ee4e7ab71dc43be42f3985&), created mesh for [Shattered Plant Spy](https://cdn.discordapp.com/attachments/867205743128477726/989570701415563305/blender_2022-06-23_12-40-25.png?ex=6a43f188&is=6a42a008&hm=4a611273c1eaef048912625808f296694af4ce722d3a10adc16a41189ae1a6c3&) and [Broken Door](https://cdn.discordapp.com/attachments/867205743128477726/916761136240656384/blender_2021-12-04_13-41-22.png?ex=6a440dd7&is=6a42bc57&hm=5dcfdeeaf907bd6ee3dc2a5c856c276527d20873882513ff604e4121e263ce27&)
 
