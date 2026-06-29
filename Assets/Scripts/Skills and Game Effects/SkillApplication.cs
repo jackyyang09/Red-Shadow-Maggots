@@ -12,19 +12,11 @@ public class BaseApplicationStyle
 {
     protected float Delay => sceneTweener.SkillEffectApplyDelay;
 
+    public virtual string ProcessTargetDescriptor(BaseEffectTarget s) => s.Descriptor;
+
     protected int ApplyEffects(EffectGroup group, BaseCharacter caster, BaseCharacter castTarget)
     {
         int applied = 0;
-
-        if (group.damageProps.effect)
-        {
-            var t = new TargetProps() { Caster = caster, Targets = new[] { castTarget } };
-            if (ApplyEffectToCharacter(group.damageProps, t))
-            {
-                GlobalEvents.OnGameEffectApplied?.Invoke(group.damageProps.effect);
-                applied++;
-            }
-        }
 
         if (group.effectProps.effect)
         {
@@ -54,6 +46,7 @@ public class BaseApplicationStyle
     }
 }
 
+[System.Serializable]
 public class RepeatedApplication : BaseApplicationStyle
 {
     [Min(1)]
@@ -77,8 +70,14 @@ public class RepeatedApplication : BaseApplicationStyle
     }
 }
 
+[System.Serializable]
 public class RandomApplication : RepeatedApplication
 {
+    public override string ProcessTargetDescriptor(BaseEffectTarget s)
+    {
+        return s.Descriptor + " (Applied to 1 random target, " + Repeats + " times)";
+    }
+
     public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
     {
         var effectTargets = effects.effectTarget.GetTargets(caster, target);
@@ -96,6 +95,7 @@ public class RandomApplication : RepeatedApplication
     }
 }
 
+[System.Serializable]
 public class BounceApplication : RepeatedApplication
 {
     public override IEnumerator Apply(EffectGroup effects, BaseCharacter caster, BaseCharacter target)
@@ -115,89 +115,3 @@ public class BounceApplication : RepeatedApplication
         yield return null;
     }
 }
-
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(BaseApplicationStyle))]
-public class SkillApplicationDrawer : PropertyDrawer
-{
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        var defaultHeight = EditorGUI.GetPropertyHeight(property, true) + 2;
-
-        if (property.managedReferenceValue == null) return defaultHeight;
-
-        var n = property.managedReferenceValue.GetType().Name;
-        if (n == nameof(BaseApplicationStyle)) return defaultHeight;
-        else return defaultHeight * 2;
-    }
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        //EditorGUI.PropertyField(
-        //    position,
-        //    property,
-        //    true);
-
-        var list = new List<string>
-        {
-            nameof(BaseApplicationStyle),
-            nameof(RepeatedApplication),
-            nameof(RandomApplication),
-            nameof(BounceApplication)
-        };
-
-        int index = 0;
-        if (property.managedReferenceValue != null)
-        {
-            var t = property.managedReferenceValue.GetType().Name;
-            index = list.IndexOf(t);
-        }
-        else
-        {
-            property.managedReferenceValue = new BaseApplicationStyle();
-        }
-
-        float labelHeight = EditorGUI.GetPropertyHeight(SerializedPropertyType.String, GUIContent.none);
-        var labelRect = new Rect(position);
-        labelRect.height = labelHeight;
-        var cRect = EditorGUI.PrefixLabel(labelRect, label);
-        cRect.xMin -= 15;
-
-        EditorGUI.BeginChangeCheck();
-        index = EditorGUI.Popup(cRect, index, list.ToArray());
-        if (EditorGUI.EndChangeCheck())
-        {
-            switch (index)
-            {
-                case 0:
-                    property.managedReferenceValue = new BaseApplicationStyle();
-                    break;
-                case 1:
-                    property.managedReferenceValue = new RepeatedApplication();
-                    break;
-                case 2:
-                    property.managedReferenceValue = new RandomApplication();
-                    break;
-                case 3:
-                    property.managedReferenceValue = new BounceApplication();
-                    break;
-            }
-        }
-
-        if (index > 0)
-        {
-            var h = EditorGUI.GetPropertyHeight(SerializedPropertyType.Generic, GUIContent.none);
-            var rect = new Rect(position);
-            rect.height = h;
-            rect.y += h + 2f;
-            cRect = EditorGUI.PrefixLabel(rect, new GUIContent("Repeats"));
-            cRect.xMin -= 15;
-            EditorGUI.PropertyField(cRect, property.FindPropertyRelative("Repeats"), GUIContent.none);
-        }
-
-        EditorGUI.EndProperty();
-    }
-}
-#endif

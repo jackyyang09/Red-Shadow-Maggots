@@ -12,6 +12,7 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
     SerializedProperty targetMode;
     SerializedProperty coolDown;
+    SerializedProperty condition;
 
     public override void InitializeSerializedProperties()
     {
@@ -19,6 +20,7 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
         targetMode = serializedObject.FindProperty(nameof(targetMode));
         coolDown = serializedObject.FindProperty(nameof(coolDown));
+        condition = serializedObject.FindProperty(nameof(condition));
     }
 
     public override void OnInspectorGUI()
@@ -39,7 +41,8 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
 
         EditorGUILayout.PropertyField(targetMode);
         EditorGUILayout.PropertyField(coolDown);
-        RenderConditionProperty();
+        EditorGUILayout.PropertyField(condition);
+        //RenderConditionProperty();
 
         var skillDescriptions = targetObject.GetSkillDescriptions();
         
@@ -48,7 +51,6 @@ public class SkillObjectEditor : BaseEffectEditor<SkillObject>
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.PropertyField(effects);
-        EditorGUILayout.PropertyField(events);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
     }

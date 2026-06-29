@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class HealingReceivedRenderer : BaseStatRenderer
 {
+    public override void RenderState(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
+    {
+        ValueText = 1f.FormatPercentage();
+    }
+
     public override void RenderInBattle(BaseCharacter character)
     {
         var modifier = character.HealInModifier;

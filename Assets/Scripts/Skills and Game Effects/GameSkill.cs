@@ -24,7 +24,7 @@ public class GameSkill
 
     public BaseAbilityObject ReferenceSkill { get; private set; }
 
-    public GameSkill(BaseAbilityObject skill, CoolDownDelegate d = null)
+    public GameSkill(BaseCharacter character, BaseAbilityObject skill, CoolDownDelegate d = null)
     {
         if (d == null)
         {
@@ -36,7 +36,7 @@ public class GameSkill
 
         if (skill.condition != null)
         {
-            SkillRequirement = skill.condition.CanUse;
+            SkillRequirement = () => skill.condition.CanUse(character);
         }
     }
 

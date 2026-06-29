@@ -101,7 +101,56 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e0d4daedaeff1046816278fbcd4ea4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  doorEffect: {fileID: 11400000, guid: 9780907339177e2479ecd4b0df0a595d, type: 2}
-  doorDuration: 2
-  shieldEffect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
-  hpPercent: 0.15
+  doorProps:
+    effect: {fileID: 11400000, guid: 9780907339177e2479ecd4b0df0a595d, type: 2}
+    value:
+      rid: 5603165554377228329
+    effectDuration: 2
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+  shieldProps:
+    effect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
+    value:
+      rid: 5603165554377228333
+    effectDuration: -1
+    activationLimit: 0
+    stacks: 0
+    maxStacks: -1
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165554377228329
+      type: {class: MultiplyValueOp, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Left:
+          rid: 5603165554377228330
+        Right:
+          rid: 5603165554377228332
+    - rid: 5603165554377228330
+      type: {class: FlatValue, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Flat: 0.01
+    - rid: 5603165554377228332
+      type: {class: AttackStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165554377228333
+      type: {class: MultiplyValueOp, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Left:
+          rid: 5603165554377228334
+        Right:
+          rid: 5603165554377228335
+    - rid: 5603165554377228334
+      type: {class: FlatValue, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Flat: 0.15
+    - rid: 5603165554377228335
+      type: {class: MaxHealthStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

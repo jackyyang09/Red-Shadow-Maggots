@@ -3472,7 +3472,7 @@ AnimationClip:
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
+    intParameter: 1
     messageOptions: 0
   - time: 0
     functionName: HideAllAlliesExceptSelf
@@ -3488,21 +3488,14 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.25
-    functionName: ApplyNextSuperCritEffect
+  - time: 0
+    functionName: OnBeginSuperCrit
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 0
+    intParameter: 1
     messageOptions: 0
   - time: 0.5
-    functionName: ApplyNextSuperCritEffect
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.75
     functionName: ApplyNextSuperCritEffect
     data: 
     objectReferenceParameter: {fileID: 0}
@@ -3524,7 +3517,14 @@ AnimationClip:
     intParameter: 0
     messageOptions: 0
   - time: 1.8333334
-    functionName: ApplyNextSuperCritDMGEffect
+    functionName: DealDamage
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 2.3333333
+    functionName: ApplyNextSuperCritEffect
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
@@ -3537,8 +3537,8 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 2.55
-    functionName: ApplyNextSuperCritEffect
+  - time: 2.6
+    functionName: EndSuperCritical
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
@@ -3546,13 +3546,6 @@ AnimationClip:
     messageOptions: 0
   - time: 2.6
     functionName: FinishSuperCritAttack
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 2.6
-    functionName: EndSuperCritical
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

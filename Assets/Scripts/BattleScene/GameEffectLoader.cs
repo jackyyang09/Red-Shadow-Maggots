@@ -6,9 +6,10 @@ using static Facade;
 
 public class GameEffectLoader : BasicSingleton<GameEffectLoader>
 {
-    [SerializeField] List<BaseGameEffect> gameEffects = new List<BaseGameEffect>();
+    [SerializeField] List<BaseGameEffect> gameEffects = new();
 
     public int GetEffectIndex(BaseGameEffect e) => gameEffects.IndexOf(e);
+    public BaseGameEffect FromIndex(int i) => gameEffects[i];
 
     public BattleState.SerializedEffect SerializeGameEffect(AppliedEffect effect)
     {
@@ -27,13 +28,15 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         se.RemainingTurns = effect.remainingTurns;
         se.StartingTurns = effect.startingTurns;
         se.CachedValues = effect.cachedValues;
-        se.Values = effect.values;
+        if (effect.value != null) se.Values = effect.value.Serialize();
+        se.Stacks = effect.Stacks;
+
         return se;
     }
 
     public AppliedEffect DeserializeEffect(BattleState.SerializedEffect effect, BaseCharacter target)
     {
-        AppliedEffect ae = new AppliedEffect(gameEffects[effect.EffectIndex]);
+        AppliedEffect ae = new AppliedEffect(FromIndex(effect.EffectIndex));
 
         var characters = new List<BaseCharacter>(battleSystem.PlayerCharacters);
         characters.AddRange(enemyController.EnemyList);
@@ -44,7 +47,8 @@ public class GameEffectLoader : BasicSingleton<GameEffectLoader>
         ae.remainingTurns = effect.RemainingTurns;
         ae.startingTurns = effect.StartingTurns;
         ae.cachedValues = effect.CachedValues;
-        ae.values = effect.Values;
+        if (effect.Values != null) ae.value = BattleState.SerializedValue.Deserialize(effect.Values);
+        ae.stacks = effect.Stacks;
 
         return ae;
     }

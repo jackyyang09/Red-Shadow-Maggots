@@ -21,6 +21,14 @@ MonoBehaviour:
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: b945bad89b5c3784caf83ad582610d57, type: 2}
   tickSound: {fileID: 0}
-  stats:
-  - {fileID: 11400000, guid: 5bc9ef6ed29ee854384d415d8deaef05, type: 2}
-  stat: {fileID: 11400000, guid: 5bc9ef6ed29ee854384d415d8deaef05, type: 2}
+  skillDescription: Apply $VALUE $EFFECT to $TARGET
+  effectDescription: Reduce $STAT by $VALUE
+  stat:
+    rid: 5603165443679846423
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165443679846423
+      type: {class: DamageAbsorptionStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

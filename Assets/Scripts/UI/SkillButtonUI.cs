@@ -12,7 +12,6 @@ public class SkillButtonUI : MonoBehaviour
 
     public GameSkill currentSkill { get; private set; }
 
-
     public void UpdateStatus(GameSkill skill)
     {
         currentSkill = skill;
@@ -21,7 +20,7 @@ public class SkillButtonUI : MonoBehaviour
         var coolDown = skill.EffectiveCooldown?.Invoke();
         cooldownText.text = coolDown.ToString();
 
-        cooldownText.enabled = !skill.CanUse;
+        cooldownText.enabled = !skill.CanUse && skill.ReferenceSkill.coolDown > 0;
         darkOut.enabled = !skill.CanUse;
     }
 

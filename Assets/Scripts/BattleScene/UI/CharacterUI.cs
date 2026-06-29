@@ -202,7 +202,7 @@ public class CharacterUI : BaseGameUI
 
     private void AddEffectIcon(AppliedEffect obj)
     {
-        if (obj.remainingTurns == 0 && obj.remainingActivations == 0)
+        if (obj.remainingTurns <= 0 && obj.remainingUses <= 0 && !obj.HasStacks)
         {
             // Neither -1 or above 0? Likely a one-time effect
             return;
@@ -230,6 +230,7 @@ public class CharacterUI : BaseGameUI
     private void RemoveEffect(AppliedEffect obj)
     {
         var index = effects.IndexOf(obj);
+        Debug.Log(nameof(CharacterUI) + " Removing effect: " + obj.referenceEffect.effectName, gameObject);
         if (index == -1)
         {
             Debug.Log("HUH??");

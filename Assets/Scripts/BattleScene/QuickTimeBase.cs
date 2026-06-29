@@ -35,6 +35,12 @@ public abstract class QuickTimeBase : MonoBehaviour
     public System.Action OnExecuteQuickTime;
     public System.Action OnQuickTimeComplete;
 
+    [RuntimeInitializeOnLoadMethod]
+    static void Init()
+    {
+        OnExecuteAnyQuickTime = null;
+    }
+
     protected virtual void Start()
     {
         //GlobalEvents.OnEnterBattleCutscene += Hide;

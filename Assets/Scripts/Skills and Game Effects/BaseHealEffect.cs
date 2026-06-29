@@ -7,7 +7,7 @@ public class BaseHealEffect : BaseGameEffect
 {
     protected void ApplyHeal(AppliedEffect effect)
     {
-        effect.Target.Heal(effect.cachedValues[0]);
+        effect.Target.Heal(effect.cachedValues[0].Value);
     }
 
     protected void CacheValue(AppliedEffect effect)
@@ -15,7 +15,7 @@ public class BaseHealEffect : BaseGameEffect
         if (effect.cachedValues.Count == 0)
         {
             //effect.cachedValues.Add(GetValue(stat, effect.values[0], effect.caster));
-            effect.cachedValues.Add(effect.valueGroup.Values[0].GetValue(effect.targetProps));
+            effect.cachedValues.Add(new() { Value = effect.value.GetValue(effect.targetProps), Type = ValueType.Value });
         }
     }
 
@@ -26,32 +26,5 @@ public class BaseHealEffect : BaseGameEffect
         ApplyHeal(effect);
 
         return true;
-    }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.None:
-            case TargetMode.Self:
-                s += "Recover ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-                s += "recovers ";
-                break;
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "recover ";
-                break;
-        }
-
-        //s += RSMConstants.Keywords.Short.HEALTH + " equal to " +
-        //    props.valueGroup.Values[0].ProcessSkillDescription();
-        //    //EffectValueDescriptor(props.effectValues[0], "your", stat);
-
-        return s;
     }
 }

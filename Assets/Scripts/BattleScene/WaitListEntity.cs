@@ -10,7 +10,7 @@ public class WaitListEntity
 
     public float WaitTimer;
     public float Wait => getWait();
-    public float WaitPercentage => WaitTimer / getWaitLimit();
+    public float WaitPercentage => WaitTimer / WaitLimit;
     public float WaitLimit => getWaitLimit();
     public bool IsOverWait => WaitPercentage >= 1;
 
@@ -18,8 +18,10 @@ public class WaitListEntity
     public bool MovesOnPlayerTurn;
 
     public BaseCharacter Character;
+    public AppliedEffect Effect;
 
-    public IEnumerator EffectRoutine;
+    public delegate Coroutine RoutineDelegate();
+    public RoutineDelegate EffectRoutine;
 
     public Sprite Headshot;
 
@@ -57,7 +59,6 @@ public class WaitListEntity
     public void RemoveSelf()
     {
         if (Character) Character.OnDeath -= RemoveSelf;
-        BattleSystem.Instance.RemoveEntityFromWaitlist(this);
     }
 }
 

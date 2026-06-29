@@ -55,6 +55,26 @@ public class TurnOrderUI : BaseGameUI
 
         //LayoutRebuilder.ForceRebuildLayoutImmediate(explainerParent);
 
+        int overWaitIndex = -1;
+
+        for (int i = 0; i < BattleSystem.Instance.WaitList.Count; i++)
+        {
+            if (overWaitIndex == -1)
+            {
+                if (BattleSystem.Instance.WaitList[i].IsOverWait) overWaitIndex = i;
+            }
+            waiteeToGraphic[BattleSystem.Instance.WaitList[i]].transform.SetSiblingIndex(i);
+        }
+
+        if (overWaitIndex > -1)
+        {
+            roundChangeGraphic.transform.SetSiblingIndex(overWaitIndex);
+            roundChangeGraphic.ShowForRound(gameManager.RoundCount + 1);
+        }
+
+        feather.SetAsFirstSibling();
+        weight.SetAsLastSibling();
+
         BattleSystem.OnMoveOrderUpdated += OnMoveOrderUpdated;
     }
 
@@ -180,7 +200,6 @@ public class TurnOrderUI : BaseGameUI
                 }
 
                 float dest = 0;
-
 
                 if (previouslyVisible)
                 {

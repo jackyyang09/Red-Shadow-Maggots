@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WAIT LIMIT", menuName = "ScriptableObjects/Game Stats/WAIT LIMIT", order = 1)]
+[System.Serializable]
 public class WaitLimitStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.WAIT_LIMIT;

@@ -21,15 +21,12 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public bool EnemiesAlive => EnemyList.Any(e => !e.IsDead);
 
-    List<EnemyCharacter> enemyList;
+    List<EnemyCharacter> enemyList = new();
     public List<EnemyCharacter> EnemyList
     {
         get
         {
-            if (enemyList == null)
-            {
-                enemyList = Enemies.Where(e => e != null).ToList();
-            }
+            if (enemyList.Count == 0) enemyList = Enemies.Where(e => e != null).ToList();
             return enemyList;
         }
     }
@@ -135,18 +132,15 @@ public class EnemyController : BasicSingleton<EnemyController>
 
     public void BeginAttack()
     {
-        battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer);
         if (battleSystem.ActiveEnemy.CanCrit)
         {
-            if (battleSystem.ActiveEnemy.Reference.isSuperCriticalAnAttack)
+            if (battleSystem.ActiveEnemy.Reference.superCritical.effects[0].attackProps != null)
             {
-                ui.StartDefending();
+                battleSystem.ActiveEnemy.UseSuperCritical();
             }
         }
-        else
-        {
-            ui.StartDefending();
-        }
+        battleSystem.ActiveEnemy.BeginAttack(battleSystem.ActivePlayer);
+        ui.StartDefending();
     }
 
     public void ActivateEnemySkill(EnemyCharacter enemy, GameSkill skill)
@@ -197,6 +191,7 @@ public class EnemyController : BasicSingleton<EnemyController>
         {
             if (!Instance.Enemies[i]) continue;
             if (Instance.Enemies[i].IsDead) continue;
+            BaseCharacter.IncomingDamage.IsCritical = false;
             BaseCharacter.IncomingDamage.TrueDamage = Instance.Enemies[i].CurrentHealth - 1;
             Instance.Enemies[i].TakeDamage();
         }
@@ -252,6 +247,15 @@ public class EnemyController : BasicSingleton<EnemyController>
 #endif
 
         Debug.Log("Enemies skill use disabled!");
+    }
+
+    [IngameDebugConsole.ConsoleMethod(nameof(SetEnemyTarget), "Redesignates enemy attack targets")]
+    public static void SetEnemyTarget(int index)
+    {
+        var player = battleSystem.PlayerList[index];
+        battleSystem.SetEnemyAttackTarget(player);
+
+        Debug.Log("Player target set to " + player.Reference.characterName);
     }
 
     #endregion

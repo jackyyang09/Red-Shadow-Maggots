@@ -30,7 +30,6 @@ public abstract class BaseCharacterPassive : MonoBehaviour
         TargetProps targetProps = new()
         {
             Caster = baseCharacter, Targets = new[] { baseCharacter },
-            TargetMode = TargetMode.Self
         };
         BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }
@@ -41,7 +40,6 @@ public abstract class BaseCharacterPassive : MonoBehaviour
         {
             Caster = baseCharacter,
             Targets = new[] { baseCharacter },
-            TargetMode = TargetMode.Self
         };
         BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }
@@ -52,7 +50,6 @@ public abstract class BaseCharacterPassive : MonoBehaviour
         {
             Caster = baseCharacter,
             Targets = new[] { character },
-            TargetMode = TargetMode.None
         };
         BaseCharacter.ApplyEffectToCharacter(props, targetProps);
     }

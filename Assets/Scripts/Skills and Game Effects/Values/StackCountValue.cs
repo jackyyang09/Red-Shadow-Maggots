@@ -2,14 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// Inherits from StatScaledValue to allow for 
-/// "For each stack of X, increase STAT by VALUE% of STAT
-/// </summary>
+[System.Serializable]
 public class StackCountValue : BaseEffectValue
 {
     public BaseGameEffect StackEffect;
-    [SerializeReference] public BaseEffectTarget StackSource;
+    [SerializeReference, SubclassSelector] public BaseEffectTarget StackSource;
+    public override string Descriptor 
+    {
+        get
+        {
+            var stackName = StackEffect ? StackEffect.effectName : "NO STACK";
+            var source = StackSource != null ? StackSource.Descriptor : "NO SOURCE";
+            return "stacks of <u>" + stackName + "</u> on " + source;
+        }
+    }
 
     public override float GetValue(TargetProps targetProps)
     {
@@ -28,15 +34,25 @@ public class StackCountValue : BaseEffectValue
         return stacks;
     }
 
-    public override string ProcessSkillDescription(string description, int index)
+    public override string ProcessSkillDescription(BaseEffectTarget target, string description)
     {
-        description = base.ProcessSkillDescription(description, index);
-
         var stackName = StackEffect ? StackEffect.effectName : "NO STACK";
-        var key = "$STACK" + index;
-
-        description = description.Replace(key, "<u>" + stackName + "</u>");
+        description = "For each stack of <u>" + stackName + "</u> on " + target.Descriptor + ", " + description;
 
         return description;
+    }
+
+    public override BattleState.SerializedValue Serialize()
+    {
+        return new()
+        {
+            Type = nameof(StackCountValue),
+            Values = new[]
+            {
+                ((int) ValueType).ToString(),
+                GameEffectLoader.Instance.GetEffectIndex(StackEffect).ToString(),
+                StackSource.GetType().ToString()
+            }
+        };
     }
 }

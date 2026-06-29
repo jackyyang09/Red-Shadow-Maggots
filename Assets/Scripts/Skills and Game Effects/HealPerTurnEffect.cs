@@ -17,17 +17,11 @@ public class HealPerTurnEffect : BaseHealEffect
         ApplyHeal(effect);
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        var s = base.GetSkillDescription(targetMode, props);
-
-        return s + "every turn " + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    }
-
     public override string GetEffectDescription(AppliedEffect effect)
     {
-        var s = "Recovers " + Mathf.FloorToInt(effect.cachedValues[0]) + " " + RSMConstants.Keywords.Short.HEALTH + " ";
+        var d = base.GetEffectDescription(effect);
+        d = d.Replace("$REGEN", effect.cachedValues[0].String());
 
-        return s + "every turn";
+        return d;
     }
 }

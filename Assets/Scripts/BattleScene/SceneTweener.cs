@@ -88,21 +88,38 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         }
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
         anim = GetComponent<Animator>();
-        composer = playerCam.GetCinemachineComponent<CinemachineComposer>();
-        playerDolly = playerCam.GetCinemachineComponent<CinemachineTrackedDolly>();
 
-        enemyDolly = enemyCam.GetCinemachineComponent<CinemachineTrackedDolly>();
+        yield return null;
+
+        composer = playerCam.GetCinemachineComponent<CinemachineComposer>();
+        
         //EnterBattle();
     }
 
     // Update is called once per frame
     void Update()
     {
-        playerDolly.m_PathPosition = lerpValue;
-        enemyDolly.m_PathPosition = lerpValue;
+        if (!playerDolly)
+        {
+            playerDolly = playerCam.GetCinemachineComponent<CinemachineTrackedDolly>();
+        }
+        else
+        {
+            playerDolly.m_PathPosition = lerpValue;
+        }
+
+        if (!enemyDolly)
+        {
+            enemyDolly = enemyCam.GetCinemachineComponent<CinemachineTrackedDolly>();
+        }
+        else
+        {
+            Debug.LogWarning("Cannot find enemyDolly! Somehow that invisible cm object doesn't instantiate!");
+            enemyDolly.m_PathPosition = lerpValue;
+        }
     }
 
     public void EnterBattleAfterDelay() => Invoke(nameof(EnterBattle), waveTransitionDelay);
@@ -420,6 +437,11 @@ public class SceneTweener : BasicSingleton<SceneTweener>
         anim.enabled = true;
         screenEffects.FadeToBlack(ScreenEffects.EffectType.Fullscreen, 1.5f);
         anim.SetTrigger("OpenGate");
+    }
+
+    public void MakePlayersWalk()
+    {
+        // Dummy anim event method
     }
 
     public void GateEntered()

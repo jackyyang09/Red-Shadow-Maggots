@@ -10,13 +10,13 @@ public class InstantDamageEffect : BaseDamageEffect
     {
         if (effect.cachedValues.Count == 0)
         {
-            effect.cachedValues.Add(GetValue(stat, effect.values[0],effect.Target));
+            effect.cachedValues.Add(new() { Value = effect.value.GetValue(effect.targetProps), Type = effect.value.ValueType });
         }
 
         DamageStruct damageStruct = new DamageStruct
         {
             Percentage = 1,
-            TrueDamage = effect.cachedValues[0],
+            TrueDamage = effect.cachedValues[0].Value,
             Effectivity = DamageEffectivess.Normal,
             QTEResult = QuickTimeBase.QTEResult.Perfect
         };
@@ -35,28 +35,5 @@ public class InstantDamageEffect : BaseDamageEffect
         }
 
         return base.Activate(effect);
-    }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.Self:
-                s += "Take ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "take ";
-                break;
-        }
-
-        s += RSMConstants.Keywords.Short.DAMAGE + " equal to " +
-            EffectValueDescriptor(props.effectValues[0], "your", stat);
-
-        return s;
     }
 }

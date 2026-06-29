@@ -108,13 +108,13 @@ public class PissPillPassive : BaseCharacterPassive
             }
         }
 
-        if (attacker.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff))
+        if (attacker.Effects.Any(e => e.referenceEffect.effectType == EffectType.Debuff))
         {
             ApplyEffect(clearProps);
         }
         else
         {
-            allies.RemoveAll(a => !a.AppliedEffects.Any(e => e.referenceEffect.effectType == EffectType.Debuff));
+            allies.RemoveAll(a => !a.Effects.Any(e => e.referenceEffect.effectType == EffectType.Debuff));
             if (allies.Count > 0)
             {
                 var randomAlly = allies[Random.Range(0, allies.Count)];

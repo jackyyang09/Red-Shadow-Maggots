@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Revive Effect", menuName = "ScriptableObjects/Game Effects/On Death/Revive", order = 1)]
-public class ReviveEffect : BaseStatScaledEffect
+public class ReviveEffect : BaseGameEffect
 {
     public override bool IncludesExplainer => true;
     public override string ExplainerName => "Revive";
@@ -11,9 +11,19 @@ public class ReviveEffect : BaseStatScaledEffect
         "When " + RSMConstants.Keywords.Short.HEALTH + " reaches 0, " +
         "prevents death and regain " + RSMConstants.Keywords.Short.HEALTH + ".";
 
+    public override bool Activate(AppliedEffect effect)
+    {
+        if (effect.cachedValues.Count == 0)
+        {
+            var value = effect.value.GetValue(effect.targetProps);
+            effect.cachedValues.Add(new() { Value = value, Type = ValueType.Value });
+        }
+        return base.Activate(effect);
+    }
+
     public override void OnDeath(AppliedEffect effect)
     {
-        effect.Target.Heal(effect.cachedValues[0]);
+        effect.Target.Heal(effect.cachedValues[0].Value);
     }
 
     //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)

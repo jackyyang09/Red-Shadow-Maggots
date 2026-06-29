@@ -5,21 +5,20 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Stat Change Effect", menuName = "ScriptableObjects/Game Effects/Stat Change Effect", order = 1)]
 public class StatChangeEffect : BaseGameEffect
 {
-    [SerializeField] public BaseGameStat[] stats;
-    public BaseGameStat stat;
+    [SerializeReference, SubclassSelector] public BaseGameStat stat;
 
     public override bool Activate(AppliedEffect effect)
     {
-        if (effect.valueCache.Count == 0)
+        if (effect.cachedValues.Count == 0)
         {
-            var value = effect.valueGroup.GetValue(effect.targetProps);
+            var value = effect.value.GetValue(effect.targetProps);
             stat.SetGameStat(effect.Target, value);
-            effect.valueCache.Add(new CachedValue { Value = value, Type = effect.valueGroup.ValueType });
+            effect.cachedValues.Add(new CachedValue { Value = value, Type = effect.value.ValueType });
         }
         else
         {
-            var amount = effect.valueCache[0];
-            stats[0].SetGameStat(effect.Target, amount.Value);
+            var amount = effect.cachedValues[0];
+            stat.SetGameStat(effect.Target, amount.Value);
         }
 
         return base.Activate(effect);
@@ -27,60 +26,43 @@ public class StatChangeEffect : BaseGameEffect
 
     public override void OnExpire(AppliedEffect effect)
     {
-        stat.SetGameStat(effect.Target, -effect.valueCache[0].Value);
+        stat.SetGameStat(effect.Target, -effect.cachedValues[0].Value);
 
         base.OnExpire(effect);
     }
 
     public override string GetEffectDescription(AppliedEffect effect)
     {
-        if (!stat) return "No effect";
+        var d = base.GetEffectDescription(effect);
 
-        string d = effectDescription;
+        if (stat != null)
+        {
+            d = d.Replace("$STAT", stat.Name);
+        }
 
-        var key = "$STAT";
+        if (effect.value != null)
+        {
+            d = d.Replace("$VALUE", effect.cachedValues[0].Value.FormatTo(stat.ValueType));
+        }
 
-        var statName = stat ? stat.name : "NO STAT";
-        d = d.Replace(key, statName);
-
-        var value = effect.valueGroup.Values[0];
-        d = value.ProcessSkillDescription(d, 0);
+        d = effect.value.ProcessSkillDescription(effect.effectTarget, d);
 
         return d;
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    public override string GetSkillDescription(EffectGroup eg)
     {
-        var d = base.GetSkillDescription(targetMode, props);
+        var d = base.GetSkillDescription(eg);
 
         var key = "$STAT";
-        var statName = stat ? stat.name : "NO STAT";
+        var statName = stat != null ? stat.Name : "NO STAT";
         d = d.Replace(key, statName);
 
-        var value = props.valueGroup.Values[0];
-        d = value.ProcessSkillDescription(d, 0);
-
-        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-
-        //string description = TargetModeDescriptor(targetMode);
-        //
-        //description += stat.Name;
-        //
-        //var value = props.effectValues[0];
-        //
-        //if (value.multiplier >= 0 && value.flat >= 0)
+        //if (props.value != null)
         //{
-        //    description += " increased ";
+        //    d = props.value.ProcessSkillDescription(d);
         //}
-        //else
-        //{
-        //    description += " decreased ";
-        //}
-        //
-        //description += "by " + EffectValueDescriptor(value);
-        //
-        //description += DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-        //
-        //return description;
+
+        return d;
     }
 }

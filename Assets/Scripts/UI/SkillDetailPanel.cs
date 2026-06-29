@@ -65,31 +65,18 @@ public class SkillDetailPanel : MonoBehaviour
         {
             description.text += "<color=#";
 
-            EffectType type;
+            // Null style
+            //description.text += ColorUtility.ToHtmlStringRGB(Color.grey);
 
-            if (reference.effects[i].effectProps.effect)
+            var e = skill.ReferenceSkill.effects[i];
+
+            bool positive = true;
+            if (e.effectProps != null)
             {
-                type = reference.effects[i].effectProps.effect.effectType;
-            }
-            else
-            {
-                type = reference.effects[i].damageProps.effect.effectType;
+                positive = e.effectTarget.IsPositive(e.effectProps.effect, reference.targetMode);
             }
 
-            switch (type)
-            {
-                case EffectType.None:
-                    description.text += ColorUtility.ToHtmlStringRGB(Color.grey);
-                    break;
-                case EffectType.Heal:
-                case EffectType.Buff:
-                    description.text += buffColourText;
-                    break;
-                case EffectType.Debuff:
-                case EffectType.Damage:
-                    description.text += debuffColourText;
-                    break;
-            }
+            description.text += positive ? buffColourText : debuffColourText;
 
             description.text += ">" + descriptions[i] + "</color>\n";
         }
@@ -100,7 +87,11 @@ public class SkillDetailPanel : MonoBehaviour
         int j = 0;
         for (int i = 0; j < skill.ReferenceSkill.effects.Length; j++)
         {
-            var e = skill.ReferenceSkill.effects[j].effectProps.effect;
+            BaseGameEffect e = null;
+            if (skill.ReferenceSkill.effects[j].effectProps != null)
+            {
+                e = skill.ReferenceSkill.effects[j].effectProps.effect;
+            }
             if (!e) continue;
             if (!e.IncludesExplainer) continue;
             if (effects.Contains(e)) continue;

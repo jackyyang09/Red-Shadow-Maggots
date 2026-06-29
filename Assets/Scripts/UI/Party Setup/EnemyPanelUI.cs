@@ -6,6 +6,8 @@ using static Facade;
 
 public class EnemyPanelUI : BaseFacePanelUI
 {
+    [SerializeField] StatRenderController[] renderers;
+
     public override void InitializeWithIndex(int index)
     {
         base.InitializeWithIndex(index);
@@ -33,6 +35,10 @@ public class EnemyPanelUI : BaseFacePanelUI
     {
         var op = Addressables.LoadAssetAsync<CharacterObject>(GUID);
         yield return op;
+        foreach (var r in renderers)
+        {
+            r.UpdateStat(state, op.Result, true);
+        }
         gachaSystem.TryAddLoadedMaggot(op);
         healthBar.fillAmount = 1;
         profileGraphic.sprite = op.Result.headshotSprite;

@@ -84,7 +84,6 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
     protected SerializedProperty sprite;
     protected SerializedProperty condition;
     protected SerializedProperty effects;
-    protected SerializedProperty events;
 
     public virtual void InitializeSerializedProperties()
     {
@@ -92,7 +91,6 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         sprite = serializedObject.FindProperty(nameof(sprite));
         condition = serializedObject.FindProperty(nameof(condition));
         effects = serializedObject.FindProperty(nameof(effects));
-        events = serializedObject.FindProperty(nameof(events));
     }
 
     protected void CacheSpriteAssetPreview()
@@ -101,45 +99,45 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
         lastSprite = sprite.objectReferenceValue;
     }
 
-    protected void RenderConditionProperty()
-    {
-        var list = new List<string>
-        {
-            "None",
-            nameof(AppliedEffectCondition),
-        };
-
-        int index = 0;
-        if (condition.managedReferenceValue != null)
-        {
-            var t = condition.managedReferenceValue.GetType().Name;
-            index = list.IndexOf(t);
-        }
-
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.PrefixLabel("Condition Type");
-
-        EditorGUI.BeginChangeCheck();
-        index = EditorGUILayout.Popup(index, list.ToArray());
-        if (EditorGUI.EndChangeCheck())
-        {
-            switch (index)
-            {
-                case 0:
-                    condition.managedReferenceValue = null;
-                    break;
-                case 1:
-                    condition.managedReferenceValue = new AppliedEffectCondition();
-                    break;
-            }
-        }
-        EditorGUILayout.EndHorizontal();
-
-        if (index > 0)
-        {
-            EditorGUILayout.PropertyField(condition);
-        }
-    }
+    //protected void RenderConditionProperty()
+    //{
+    //    var list = new List<string>
+    //    {
+    //        "None",
+    //        nameof(AppliedEffectCondition),
+    //    };
+    //
+    //    int index = 0;
+    //    if (condition.managedReferenceValue != null)
+    //    {
+    //        var t = condition.managedReferenceValue.GetType().Name;
+    //        index = list.IndexOf(t);
+    //    }
+    //
+    //    EditorGUILayout.BeginHorizontal();
+    //    EditorGUILayout.PrefixLabel("Condition Type");
+    //
+    //    EditorGUI.BeginChangeCheck();
+    //    index = EditorGUILayout.Popup(index, list.ToArray());
+    //    if (EditorGUI.EndChangeCheck())
+    //    {
+    //        switch (index)
+    //        {
+    //            case 0:
+    //                condition.managedReferenceValue = null;
+    //                break;
+    //            case 1:
+    //                condition.managedReferenceValue = new AppliedEffectCondition();
+    //                break;
+    //        }
+    //    }
+    //    EditorGUILayout.EndHorizontal();
+    //
+    //    if (index > 0)
+    //    {
+    //        EditorGUILayout.PropertyField(condition);
+    //    }
+    //}
 
     protected void RenderDragAndDropSprite()
     {
@@ -184,68 +182,30 @@ public abstract class BaseEffectEditor<T> : Editor where T : ScriptableObject
                 continue;
             }
 
-            if ((ge.damageProps == null || ge.damageProps.effect == null) && 
-                (ge.effectProps == null || ge.effectProps.effect == null))
-            {
-                EditorGUILayout.LabelField("None", NullStyle);
-                continue;
-            }
-
             var desc = skillDescriptions[i];
             if (desc.Contains("<u>"))
             {
                 desc = desc.Replace("u>", "b>");
             }
 
-            TargetMode t = target;
-            if (ge.targetOverride != TargetMode.None) t = ge.targetOverride;
-
-            EffectType type;
-
-            if (ge.effectProps.effect)
+            if (ge.effectTarget == null) continue;
+            if (ge.effectProps != null)
             {
-                type = ge.effectProps.effect.effectType;
+                if (ge.effectProps.effect != null && ge.effectTarget != null)
+                {
+                    var positive = ge.effectTarget.IsPositive(ge.effectProps.effect, target);
+
+                    EditorGUILayout.LabelField(desc, positive ? BuffStyle : DebuffStyle);
+                }
+            }
+            else if (ge.attackProps != null)
+            {
+                // Assuming there are no negative attacks 
+                EditorGUILayout.LabelField(desc, BuffStyle);
             }
             else
             {
-                type = ge.damageProps.effect.effectType;
-            }
-
-            switch (type)
-            {
-                case EffectType.None:
-                    EditorGUILayout.LabelField(desc, NullStyle);
-                    break;
-                case EffectType.Heal:
-                case EffectType.Buff:
-                    switch (t)
-                    {
-                        case TargetMode.OneEnemy:
-                        case TargetMode.AllEnemies:
-                            EditorGUILayout.LabelField(desc, DebuffStyle);
-                            break;
-                        case TargetMode.OneAlly:
-                        case TargetMode.AllAllies:
-                        case TargetMode.Self:
-                            EditorGUILayout.LabelField(desc, BuffStyle);
-                            break;
-                    }
-                    break;
-                case EffectType.Debuff:
-                case EffectType.Damage:
-                    switch (t)
-                    {
-                        case TargetMode.OneEnemy:
-                        case TargetMode.AllEnemies:
-                            EditorGUILayout.LabelField(desc, BuffStyle);
-                            break;
-                        case TargetMode.OneAlly:
-                        case TargetMode.AllAllies:
-                        case TargetMode.Self:
-                            EditorGUILayout.LabelField(desc, DebuffStyle);
-                            break;
-                    }
-                    break;
+                EditorGUILayout.LabelField(desc, NullStyle);
             }
         }
     }

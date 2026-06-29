@@ -29,13 +29,14 @@ MonoBehaviour:
   waitLimit: 1
   attackLeniency: 0.25
   defenseLeniency: 0.25
+  attackAnim: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
+  basicAttack: {fileID: 11400000, guid: 322f0dc2541f3c24e95318b3279d406c, type: 2}
   skills:
   - {fileID: 11400000, guid: c1e696a254f3a2d4892e601e895e3a04, type: 2}
   - {fileID: 11400000, guid: cf80afe3b8e0b30498aec064bbc8a039, type: 2}
   hasAltSkillAnimation: 0
   superCritical: {fileID: 11400000, guid: b075922b3db8c4e479b171f44e84507f, type: 2}
   superCriticalAnim: {fileID: 7400000, guid: d6e044860a9260647b4c3e6e6cf81771, type: 2}
-  isSuperCriticalAnAttack: 1
   superCritRange: 0
   tweenBackStyle: 0
   spriteObject: {fileID: 0}
@@ -45,14 +46,6 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  attackAnimations:
-  - attackAnimation: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
-    attackRange: 0
-    isAOE: 0
-  enemyAttackAnimations:
-  - attackAnimation: {fileID: 7400000, guid: f1df2451b5f88144f97fb7625ce3e12a, type: 2}
-    attackRange: 0
-    isAOE: 0
   attackEffectPrefab: {fileID: 3773689495526468024, guid: 43238d9d76a9237459a1b47d20a920c5, type: 3}
   projectileEffectPrefabs: []
   extraEffectPrefabs: []

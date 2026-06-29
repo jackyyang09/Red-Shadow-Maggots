@@ -55,6 +55,8 @@ public class AnimationHelper : MonoBehaviour
 
     static System.Action OnShowAllRenderers;
 
+    int attackIndex, effectIndex = 1;
+
     const int DEFAULT_LAYER_ID = 17; // TF2 Ragdoll
     const int IGNORE_LAYER_ID = 19; // Ignore Cutscene Cam
 
@@ -178,6 +180,7 @@ public class AnimationHelper : MonoBehaviour
         ShowVirtualCamera();
         DarkenSky();
         AudioManager.PlaySound(BattleSceneSounds.SuperCritical);
+        attackIndex = 0;
     }
     
     // TODO: Consider merging this with FinishSuperCritAttack()
@@ -227,42 +230,37 @@ public class AnimationHelper : MonoBehaviour
 
     public void ShakeMesh() => baseCharacter.CharacterMesh.transform.DOShakePosition(0.5f, shakeStrength, shakeVibrato);
 
-    public void DealDamage() => DealPercentage();
-    public void DealPercentage(float percentage = 1)
+    public void DealDamage()
     {
-        BaseCharacter.IncomingDamage.Percentage = percentage;
+        var a = BaseCharacter.IncomingAttack.Ability;
+        var targets = BaseCharacter.IncomingAttack.Targets;
+
+        // This is really bad practice, but it's the Animations that dictate when an attack happens
+        BaseCharacter.IncomingDamage.Percentage = a.effects[0].attackProps.Hits[attackIndex];
 
         BaseCharacter.OnCharacterExecuteAttack?.Invoke(BaseCharacter);
 
-        baseCharacter.DealDamage(battleSystem.OpposingCharacter);
-    }
-
-    public void DealAOEDamage() => DealAOEPercentage();
-
-    public void DealAOEPercentage(float percentage = 1)
-    {
-        BaseCharacter.IncomingDamage.Percentage = percentage;
-        BaseCharacter.IncomingDamage.IsAOE = true;
-
-        var targets = new List<BaseCharacter>();
-        if (battleSystem.CurrentPhase == BattlePhases.PlayerTurn)
-        {
-            targets.AddRange(enemyController.LivingEnemies);
-        }
-        else if (battleSystem.CurrentPhase == BattlePhases.EnemyTurn)
-        {
-            targets.AddRange(battleSystem.LivingPlayers);
-        }
-
-        BaseCharacter.OnCharacterExecuteAttack?.Invoke(BaseCharacter);
-
-        foreach (var character in targets)
+        foreach (var character in targets.Targets)
         {
             baseCharacter.DealDamage(character);
         }
+
+        attackIndex++;
     }
 
-    public void FinishAttack() => baseCharacter.FinishAttack();
+    public void ApplyNextAttackEffect()
+    {
+        var a = BaseCharacter.IncomingAttack.Ability;
+
+        a.effects[effectIndex].appStyle.Apply(a.effects[effectIndex], baseCharacter, battleSystem.OpposingCharacter);
+    }
+
+    public void FinishAttack()
+    {
+        attackIndex = 0;
+        effectIndex = 1;
+        baseCharacter.FinishAttack();
+    }
 
     public void FinishSuperCritAttack() => baseCharacter.FinishSuperCritAttack();
 
@@ -494,7 +492,11 @@ public class AnimationHelper : MonoBehaviour
     [ContextMenu(nameof(SetupRagdollComponents))]
     void SetupRagdollComponents()
     {
-        
+        UnityEditor.Undo.RecordObject(this, "Seting up Ragdoll");
+        ragdollRenderers = GetComponentsInChildren<Renderer>();
+        nonRagdollRenderers = GetComponentsInChildren<Renderer>();
+        rigidBodies = GetComponentsInChildren<Rigidbody>();
+        colliders = GetComponentsInChildren<Collider>();
     }
 #endif
 }

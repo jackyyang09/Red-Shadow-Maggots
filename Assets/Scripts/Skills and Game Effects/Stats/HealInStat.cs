@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "HEALING", menuName = "ScriptableObjects/Game Stats/HEALING", order = 1)]
+[System.Serializable]
 public class HealInStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.HEAL_RECEIVED;

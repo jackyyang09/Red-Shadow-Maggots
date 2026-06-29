@@ -1711,7 +1711,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4388577760422734279, guid: 309a36c87eff1e543a7325992fba775e, type: 3}
       insertIndex: -1
       addedObject: {fileID: 406562942187563820}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4388577760422734276, guid: 309a36c87eff1e543a7325992fba775e, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2156896358026266747}
   m_SourcePrefab: {fileID: 100100000, guid: 309a36c87eff1e543a7325992fba775e, type: 3}
 --- !u!4 &796106006929758490 stripped
 Transform:
@@ -1773,3 +1776,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4388577760422734279, guid: 309a36c87eff1e543a7325992fba775e, type: 3}
   m_PrefabInstance: {fileID: 4773562990779936095}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &9140132439716168859 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4388577760422734276, guid: 309a36c87eff1e543a7325992fba775e, type: 3}
+  m_PrefabInstance: {fileID: 4773562990779936095}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2156896358026266747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9140132439716168859}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7c131bbb2b001345b4182d5a3860f33, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sniperGruntStack: {fileID: 11400000, guid: 0650309458158a54b8ac281b81017d35, type: 2}
+  sniperGangRevive: {fileID: 11400000, guid: d9a3d541d3925bd48842d4ced4331177, type: 2}
+  attack:
+    rid: 5603165723367571472
+  atkUp: 0.05
+  wait:
+    rid: 5603165723367571473
+  waitDown: -0.04
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165723367571472
+      type: {class: AttackStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165723367571473
+      type: {class: WaitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

@@ -12,8 +12,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
     SerializedProperty coolDown;
     SerializedProperty skillDescription;
     SerializedProperty targetMode;
-    SerializedProperty gameEffects;
-    SerializedProperty damageEffects;
 
     public override void InitializeSerializedProperties()
     {
@@ -22,8 +20,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
         coolDown = serializedObject.FindProperty(nameof(coolDown));
         skillDescription = serializedObject.FindProperty(nameof(skillDescription));
         targetMode = serializedObject.FindProperty(nameof(targetMode));
-        gameEffects = serializedObject.FindProperty(nameof(gameEffects));
-        damageEffects = serializedObject.FindProperty(nameof(damageEffects));
     }
 
     public override void OnInspectorGUI()
@@ -52,7 +48,6 @@ public class SuperCritObjectEditor : BaseEffectEditor<SuperCritObject>
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.PropertyField(effects);
-        EditorGUILayout.PropertyField(events);
 
         if (serializedObject.hasModifiedProperties) serializedObject.ApplyModifiedProperties();
     }

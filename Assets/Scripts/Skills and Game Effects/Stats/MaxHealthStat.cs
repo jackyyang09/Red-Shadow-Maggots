@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "MAX HP", menuName = "ScriptableObjects/Game Stats/MAX HP", order = 1)]
+[System.Serializable]
 public class MaxHealthStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.MAX_HEALTH;

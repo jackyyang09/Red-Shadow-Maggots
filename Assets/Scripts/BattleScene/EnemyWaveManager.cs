@@ -26,11 +26,13 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
     { 
         get 
         {
-            if (playerDataManager.LoadedData.InBattle)
-            {
-                return WaveCount == battleStateManager.LoadedData.EnemyGUIDs.Count - 1;
-            }
-            else return waveCount == waves.Length - 1; 
+            Debug.Log("Assuming all battles are 1 wave long. Ending combat...");
+            return true;
+            //if (playerDataManager.LoadedData.InBattle)
+            //{
+            //    return WaveCount == battleStateManager.LoadedData.EnemyWaves.Count - 1;
+            //}
+            //else return waveCount == waves.Length - 1; 
         } 
     }
 
@@ -42,7 +44,7 @@ public class EnemyWaveManager : BasicSingleton<EnemyWaveManager>
         {
             if (playerDataManager.LoadedData.InBattle)
             {
-                return battleStateManager.LoadedData.EnemyGUIDs.Count;
+                return battleStateManager.LoadedData.EnemyWaves.Count;
             }
             return waves.Length; 
         } 

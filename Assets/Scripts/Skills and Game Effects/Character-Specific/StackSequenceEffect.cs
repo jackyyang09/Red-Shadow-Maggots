@@ -2,88 +2,77 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// This code is terrible
+/// Effects are usually applied through AppliedEffect, but each AppliedEffect created is treated as a different entity
+/// Having one "effect" control multiple "effects" creates a mess that I didn't account for
+/// </summary>
 [CreateAssetMenu(fileName = "New Stack Sequence", menuName = "ScriptableObjects/Stack Sequence Effect", order = 1)]
 public class StackSequenceEffect : CompoundEffect, IStackableEffect
 {
+    [SerializeReference, SubclassSelector] public BaseGameStat[] stats;
+
+    [SerializeReference, SubclassSelector] public BaseEffectValue[] values;
+
     public int[] stackRequirements;
 
     public override bool Activate(AppliedEffect effect)
     {
-        if (effect.valueCache.Count > 0)
+        if (effect.cachedValues.Count > 0)
         {
             effect.ResetDuration();
-
-            for (int i = 0; i < effect.Stacks; i++)
+        
+            for (int i = 0; i < effect.cachedValues.Count; i++)
             {
-                effectGroups[i].effectProps.effect.Activate(effect);
-                Queue<CachedValue> cache = new Queue<CachedValue>(effect.valueCache);
-                for (int j = 0; j < effectGroups[i].effectProps.effect.ValueCount; j++)
-                {
-                    cache.Enqueue(cache.Dequeue());
-                }
-                effect.valueCache = new List<CachedValue>(cache.ToArray());
+                stats[i].SetGameStat(effect.Target, effect.cachedValues[i].Value);
             }
         }
         else
         {
-            effect.customCallbacks = new System.Action[1];
-            effect.customCallbacks[0] = () => OnSpecialCallback(effect);
-            effect.Target.OnStartTurnLate += effect.customCallbacks[0];
-
-            Queue<BaseEffectValue> backup = new(effect.valueGroup.Values);
-            for (int i = 0; i < effect.Stacks; i++)
+            for (int i = 0; i < stackRequirements.Length; i++)
             {
-                effect.valueGroup = effectGroups[i].effectProps.valueGroup.ShallowCopy();
+                if (effect.Stacks >= stackRequirements[i])
+                {
+                    var amount = values[i].GetValue(effect.targetProps);
 
-                var cached = new List<CachedValue>(effect.valueCache);
-                effect.valueCache.Clear();
-                effectGroups[i].effectProps.effect.Activate(effect);
-                cached.AddRange(effect.valueCache);
-                effect.valueCache = cached;
+                    stats[i].SetGameStat(effect.Target, amount);
+
+                    effect.cachedValues.Add(new() { Value = amount, Type = values[i].ValueType });
+                }
             }
-            effect.valueGroup.Values = backup.ToArray();
         }
 
         return true;
     }
 
-    public override void Tick(AppliedEffect effect)
-    {
-        effect.Stacks--;
-        if (effect.Stacks == 0)
-        {
-            effect.Remove();
-        }
-        base.Tick(effect);
-    }
+    //public override void Tick(AppliedEffect effect)
+    //{
+    //    effect.Stacks--;
+    //    if (effect.Stacks == 0)
+    //    {
+    //        effect.Remove();
+    //    }
+    //    base.Tick(effect);
+    //}
 
     public override void OnExpire(AppliedEffect effect)
     {
-        if (effect.valueCache.Count > 0)
+        for (int i = 0; i < effect.cachedValues.Count; i++)
         {
-            effect.Target.OnStartTurnLate -= effect.customCallbacks[0];
-
-            var count = effect.valueCache.Count;
-            for (int i = 0; i < count; i++)
-            {
-                effectGroups[i].effectProps.effect.OnExpire(effect);
-
-                effect.valueCache.RemoveAt(0);
-            }
+            stats[i].SetGameStat(effect.Target, -effect.cachedValues[i].Value);
         }
     }
 
-    public void OnStacksChanged(AppliedEffect effect)
+    public void OnStacksChanged(AppliedEffect effect, int previous)
     {
         var targets = new List<BaseCharacter> { effect.Target };
-        targets.AddRange(effect.extraTargets);
 
-        if (effect.valueCache.Count > 0)
+        if (effect.cachedValues.Count > 0)
         {
             OnExpire(effect);
         }
 
-        effect.valueCache.Clear();
+        effect.cachedValues.Clear();
 
         Activate(effect);
     }
@@ -91,30 +80,26 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
     public override string GetEffectDescription(AppliedEffect effect)
     {
         string d = effectDescription + "\n";
-    
-        for (int i = 0; i < effectGroups.Length; i++)
+        for (int i = 0; i < stats.Length; i++)
         {
-            var props = effectGroups[i].effectProps;
-            effect.valueGroup = props.valueGroup.ShallowCopy();
+            //effect.valueGroup = props.value.ShallowCopy();
 
-            var skillD = props.effect.GetSkillDescription(TargetMode.None, props);
+            var v = values[i].GetValue(effect.targetProps);
+            bool positive = v > 0;
+            var skillD = positive ? "Increase " : "Decrease ";
+            skillD += stats[i].Name + " ";
+
+            string value = "(";
+            value += positive ? "+" : "\u2011"; // Non-breaking hyphen
+            value += values[i].Descriptor + ")";
 
             if (i < effect.Stacks)
             {
-                d += stackRequirements[i] + " - " + skillD;
+                d += stackRequirements[i] + " - " + skillD + value;
             }
             else
             {
-                d += "<color=grey>" + stackRequirements[i] + " - " + skillD + "</color>";
-            }
-
-            if (i < effect.valueCache.Count)
-            {
-                var value = effect.valueCache[i];
-
-                d += " (";
-                d += value.Value >= 0 ? "+" : "\u2011"; // Non-breaking hyphen
-                d += value.Value.FormatTo(value.Type) + ")";
+                d += "<color=grey>" + stackRequirements[i] + " - " + skillD + value + "</color>";
             }
 
             d += "\n";
@@ -126,15 +111,7 @@ public class StackSequenceEffect : CompoundEffect, IStackableEffect
             //}
             //effect.cachedValues = new List<float>(cache);
         }
-    
+
         return d;
     }
-
-    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    //{
-    //    string d = "Apply " + props.stacks + " Stack of " + props.effect.effectName + " to "
-    //        + TargetModeDescriptor(targetMode);
-    //
-    //    return d;
-    //}
 }

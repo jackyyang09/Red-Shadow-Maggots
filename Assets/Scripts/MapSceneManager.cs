@@ -11,6 +11,7 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
 
     [SerializeField] DevLocker.Utils.SceneReference battleScene;
 
+    [SerializeField] BattleObject[] eliteList;
     [SerializeField] BattleObject[] battleList;
 
     [SerializeField] BattleObject bossBattle;
@@ -69,9 +70,12 @@ public class MapSceneManager : BasicSingleton<MapSceneManager>
         switch (obj)
         {
             case NodeType.MinorEnemy:
-            case NodeType.EliteEnemy:
-                Random.InitState(PlayerData.NodesTravelled);
+                //Random.InitState(PlayerData.NodesTravelled);
                 nextBattleNode = battleList[Random.Range(0, battleList.Length)];
+                partySetup.Initialize();
+                break;
+            case NodeType.EliteEnemy:
+                nextBattleNode = eliteList[Random.Range(0, eliteList.Length)];
                 partySetup.Initialize();
                 break;
             case NodeType.Boss:

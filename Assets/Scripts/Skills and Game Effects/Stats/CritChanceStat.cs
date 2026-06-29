@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CRIT RATE", menuName = "ScriptableObjects/Game Stats/CRIT RATE", order = 1)]
+[System.Serializable]
 public class CritChanceStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.CRIT_CHANCE;

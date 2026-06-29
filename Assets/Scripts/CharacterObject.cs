@@ -39,6 +39,8 @@ public class AttackStruct
     public AnimationClip attackAnimation;
     public AttackRange attackRange;
     public bool isAOE;
+    public BaseAbilityObject Ability;
+    public TargetProps Targets = new();
 }
 
 #if UNITY_EDITOR
@@ -150,13 +152,15 @@ public class CharacterObject : ScriptableObject
     /// </summary>
     [Range(0, 1)] public float defenseLeniency;
 
+    public AttackRange basicAttackRange;
+    public AnimationClip attackAnim;
+    public SkillObject basicAttack;
     public SkillObject[] skills;
 
     public bool hasAltSkillAnimation = false;
 
-    public SuperCritObject superCritical;
+    public BaseAbilityObject superCritical;
     public AnimationClip superCriticalAnim;
-    public bool isSuperCriticalAnAttack;
     public AttackRange superCritRange;
     public TweenBackType tweenBackStyle;
 
@@ -164,8 +168,6 @@ public class CharacterObject : ScriptableObject
     public GameObject spriteObject;
     public AnimatorOverrideController animator;
     public AssetReference characterRig;
-    public AttackStruct[] attackAnimations;
-    public AttackStruct[] enemyAttackAnimations;
 
     [Header("Effect Prefabs")]
     public GameObject attackEffectPrefab;

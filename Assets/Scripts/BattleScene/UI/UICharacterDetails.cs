@@ -114,7 +114,7 @@ public class UICharacterDetails : BasicSingleton<UICharacterDetails>
     void UpdateEffectDescriptions()
     {
         List<AppliedEffect> effects = new List<AppliedEffect>();
-        foreach (var item in focusedCharacter.AppliedEffects)
+        foreach (var item in focusedCharacter.Effects)
         {
             effects.Add(item);
         }

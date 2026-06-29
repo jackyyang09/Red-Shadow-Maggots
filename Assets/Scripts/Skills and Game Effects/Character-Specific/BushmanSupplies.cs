@@ -19,7 +19,7 @@ public class BushmanSupplies : BaseGameEffect, IStackableEffect
 
     public int MaxStacks => throw new System.NotImplementedException();
 
-    public void OnStacksChanged(AppliedEffect effect)
+    public void OnStacksChanged(AppliedEffect effect, int previous)
     {
         if (effect.Stacks >= critChanceRequirement && !critChanceChanged)
         {

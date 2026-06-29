@@ -7,11 +7,11 @@ public class PisspenserPassive : BaseCharacterPassive
 {
     [Header("Upgrades")]
     [SerializeField] EffectProperties upgradeProps;
+    [SerializeReference, SubclassSelector] BaseEffectTarget target;
+
     [SerializeField] EffectProperties glitchProps;
 
     [SerializeField] PeePoison peeEffect;
-
-    int peesApplied = 0;
 
     bool IsGlitched => baseCharacter.EffectDictionary.ContainsKey(glitchProps.effect);
     AppliedEffect UpgradeEffect => baseCharacter.EffectDictionary[upgradeProps.effect][0];
@@ -20,37 +20,43 @@ public class PisspenserPassive : BaseCharacterPassive
     {
         baseCharacter.OnStartTurn += OnStartTurn;
         baseCharacter.OnTakeDamage += OnTakeDamage;
-        BaseCharacter.OnAppliedEffect += OnAppliedEffect;
-        BaseCharacter.OnRemoveEffect += OnRemoveEffect;
     }
 
     protected override void Cleanup()
     {
         baseCharacter.OnStartTurn -= OnStartTurn;
         baseCharacter.OnTakeDamage -= OnTakeDamage;
-        BaseCharacter.OnAppliedEffect -= OnAppliedEffect;
-        BaseCharacter.OnRemoveEffect -= OnRemoveEffect;
     }
 
     void OnStartTurn()
     {
-        if (peesApplied >= 0)
+        var pees = 0;
+
+        var everyone = battleSystem.AllCharacters;
+        foreach (var e in everyone)
         {
-            if (IsGlitched)
+            if (e.EffectDictionary.ContainsKey(peeEffect))
             {
-                if (HasStacks(upgradeProps.effect))
-                {
-                    baseCharacter.RemoveEffect(UpgradeEffect, peesApplied);
-                }
+                pees += e.EffectDictionary[peeEffect].Count;
             }
-            else if (peesApplied > 0)
-            {
-                var props = upgradeProps.Copy();
-                props.stacks = peesApplied;
-                ApplyEffect(props);
-                //BaseCharacter.ApplyEffectToCharacter(props, baseCharacter, allies.ToArray());
-                //ApplyEffect(upgradeEffect, 30);
-            }
+        }
+
+        if (pees == 0) return;
+
+        bool glitched = IsGlitched;
+
+        var targets = target.GetTargets(baseCharacter, null);
+
+        if (glitched) pees *= -1;
+        upgradeProps.stacks = pees;
+
+        foreach (var t in targets)
+        {
+            //if (t.EffectDictionary.ContainsKey(upgradeProps.effect))
+            //{
+            //    t.RemoveEffect(t.EffectDictionary[upgradeProps.effect][0]);
+            //}
+            ApplyEffectToCharacter(t, upgradeProps);
         }
     }
 
@@ -61,25 +67,13 @@ public class PisspenserPassive : BaseCharacterPassive
             if (IsGlitched)
             {
                 RemoveEffect(glitchProps.effect);
+                Debug.Log("Remove Glitch!");
             }
             else
             {
                 ApplyEffect(glitchProps);
+                Debug.Log("Apply Glitch!");
             }
         }
-    }
-
-    void OnAppliedEffect(BaseCharacter character, AppliedEffect effect)
-    {
-        if (effect.referenceEffect != peeEffect) return;
-
-        peesApplied++;
-    }
-
-    void OnRemoveEffect(BaseCharacter character, AppliedEffect effect)
-    {
-        if (effect.referenceEffect != peeEffect) return;
-
-        peesApplied = Mathf.Max(peesApplied - 1, 0);
     }
 }

@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49cc256fd0b0962418bd74e008ae6986, type: 3}
+  m_Name: Wait Limit Up
+  m_EditorClassIdentifier: 
+  effectIcon: {fileID: 21300000, guid: 1e12e2453da9d614a83635255b86da25, type: 3}
+  effectName: Wait Limit+
+  effectText: WAIT LIMIT UP!
+  effectType: 2
+  activateOnDeath: 0
+  particlePrefab: {fileID: 4335457655553992257, guid: a097de64e3031d848816f5ae888f1986, type: 3}
+  tickPrefab: {fileID: 0}
+  activationSound: {fileID: 11400000, guid: d5d1da69a98cdae459683a52ce043646, type: 2}
+  tickSound: {fileID: 0}
+  skillDescription: 
+  effectDescription: Reduce $STAT by $VALUE
+  stat:
+    rid: 5603165244957917350
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165244957917350
+      type: {class: WaitLimitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

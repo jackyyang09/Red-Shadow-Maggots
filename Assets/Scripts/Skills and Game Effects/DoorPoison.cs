@@ -22,43 +22,11 @@ public class DoorPoison : DamagePerTurnEffect
     public override string ExplainerDescription =>
         "Every turn, get hit by a door and lose " + RSMConstants.Keywords.Short.HEALTH + ".";
 
-    public override string GetEffectDescription(AppliedEffect effect)
-    {
-        return ExplainerDescription.Split('.')[0] 
-            + " equal to " + effect.cachedValues[0];
-    }
-
     public GameObject doorPrefab;
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.Self:
-                s += "Get ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-                s += "gets ";
-                break;
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "get ";
-                break;
-        }
-
-        s += "hit by a <u>Door</u> every turn, taking " +
-            EffectValueDescriptor(props.effectValues[0], "your", stat) + " in damage " + 
-            DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-
-        return s;
-    }
 
     public override void Tick(AppliedEffect effect)
     {
-        effect.Target.StartCoroutine(PlayEffect(effect.Target, () => DealDamage(effect.cachedValues[0], effect.Target)));
+        effect.Target.StartCoroutine(PlayEffect(effect.Target, () => DealDamage(effect.cachedValues[0].Value, effect.Target)));
     }
 
     IEnumerator PlayEffect(BaseCharacter target, System.Action damageDelegate)

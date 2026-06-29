@@ -12,7 +12,7 @@ public class DeadeyeStack : BaseGameEffect, IStackableEffect
         return "Increase ATK";
     }
 
-    public void OnStacksChanged(AppliedEffect effect)
+    public void OnStacksChanged(AppliedEffect effect, int previous)
     {
         throw new System.NotImplementedException();
     }

@@ -21,6 +21,14 @@ MonoBehaviour:
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: d5d1da69a98cdae459683a52ce043646, type: 2}
   tickSound: {fileID: 0}
-  stats:
-  - {fileID: 11400000, guid: 8809b31ff18ec6148856733d17683ac8, type: 2}
-  stat: {fileID: 11400000, guid: 8809b31ff18ec6148856733d17683ac8, type: 2}
+  skillDescription: Apply $EFFECT of $VALUE to $TARGET
+  effectDescription: Reduce $STAT by $VALUE
+  stat:
+    rid: 5603165443679846427
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165443679846427
+      type: {class: WaitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

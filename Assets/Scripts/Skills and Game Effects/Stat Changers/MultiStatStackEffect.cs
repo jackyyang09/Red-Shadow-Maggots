@@ -3,77 +3,68 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Multi Stat Stack Effect", menuName = "ScriptableObjects/Multi Stat Stack Effect", order = 1)]
-public class MultiStatStackEffect : StatChangeEffect, IStackableEffect
+public class MultiStatStackEffect : BaseGameEffect, IStackableEffect
 {
-    public virtual void OnStacksChanged(AppliedEffect effect)
+    [SerializeReference, SubclassSelector] public BaseGameStat[] stats;
+    [SerializeReference, SubclassSelector] protected BaseEffectValue[] values;
+
+    public override bool Activate(AppliedEffect effect)
+    {
+        // Dummy
+        // This class probably shouldn't inherit from StatChangeEffect
+        return true;
+    }
+
+    /// <summary>
+    /// This is a hack, this class should be re-implemented in a way that 
+    /// doesn't include non-stack effects
+    /// </summary>
+    protected virtual void AdditionalEffects(AppliedEffect effect)
+    {
+
+    }
+
+    protected void RemoveEffect(AppliedEffect effect)
     {
         for (int i = 0; i < effect.cachedValues.Count; i++)
         {
-            stats[i].SetGameStat(effect.Target, -effect.cachedValues[i]);
+            stats[i].SetGameStat(effect.Target, -effect.cachedValues[i].Value);
         }
 
         effect.cachedValues.Clear();
+    }
 
-        for (int i = 0; i < stats.Length; i++)
+    public virtual void OnStacksChanged(AppliedEffect effect, int previous)
+    {
+        Debug.Log(effect.Stacks);
+        if (previous > 0)
         {
-            var amount = GetValue(stats[i], effect.values[i], effect.Target) * effect.Stacks;
-
-            stats[i].SetGameStat(effect.Target, amount);
-
-            effect.cachedValues.Add(amount);
+            RemoveEffect(effect);
         }
-    }
 
-    public override string GetEffectDescription(AppliedEffect effect)
-    {
-        var d = base.GetEffectDescription(effect);
+        if (effect.Stacks == 0) return;
 
-        return "For each stack, " + d.Substring(0, 1).ToLower() + d.Substring(1);
-    }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        var d = TargetModeDescriptor(targetMode);
-
-        if (props.stacks > 0)
+        if (effect.cachedValues.Count > 0)
         {
-            switch (targetMode)
+            for (int i = 0; i < stats.Length; i++)
             {
-                case TargetMode.None:
-                case TargetMode.Self:
-                    d += "Receive ";
-                    break;
-                case TargetMode.OneAlly:
-                case TargetMode.OneEnemy:
-                case TargetMode.AllAllies:
-                case TargetMode.AllEnemies:
-                    d += "receives ";
-                    break;
+                stats[i].SetGameStat(effect.Target, effect.cachedValues[i].Value);
             }
         }
         else
         {
-            switch (targetMode)
+            for (int i = 0; i < stats.Length; i++)
             {
-                case TargetMode.None:
-                case TargetMode.Self:
-                    d += "Lose ";
-                    break;
-                case TargetMode.OneAlly:
-                case TargetMode.OneEnemy:
-                case TargetMode.AllAllies:
-                case TargetMode.AllEnemies:
-                    d += "loses ";
-                    break;
+                var amount = values[i].GetValue(effect.targetProps) * effect.Stacks;
+
+                stats[i].SetGameStat(effect.Target, amount);
+
+                effect.cachedValues.Add(new() { Value = amount, Type = ValueType.Value });
             }
+
+            AdditionalEffects(effect);
         }
 
-        var count = Mathf.Abs(props.stacks);
-        d += count + " stack";
-        if (count > 1) d += "s";
-        d += " of " + props.effect.effectName + " ";
-        if (props.maxStacks > 0) d += "(Max " + props.maxStacks + ") ";
-
-        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        GlobalEvents.OnGameEffectApplied?.Invoke(this);
     }
 }

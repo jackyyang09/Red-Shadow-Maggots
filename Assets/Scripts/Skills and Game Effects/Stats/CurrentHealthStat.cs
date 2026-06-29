@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Current Health", menuName = "ScriptableObjects/Game Stats/Current Health", order = 1)]
+[System.Serializable]
 public class CurrentHealthStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.CURRENT_HEALTH;

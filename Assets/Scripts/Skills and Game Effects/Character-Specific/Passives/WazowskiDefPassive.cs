@@ -7,12 +7,8 @@ public class WazowskiDefPassive : BaseCharacterPassive
 {
     [Header("Door")]
     [SerializeField] EffectProperties doorProps;
-    [SerializeField] BaseGameEffect doorEffect;
-    [SerializeField] int doorDuration;
 
     [SerializeField] EffectProperties shieldProps;
-    [SerializeField] BaseGameEffect shieldEffect;
-    [SerializeField] float hpPercent;
 
     protected override void Init()
     {

@@ -16,7 +16,6 @@ public class TargetProps
 {
     public BaseCharacter Caster;
     public BaseCharacter[] Targets;
-    public TargetMode TargetMode;
 
     public TargetProps ShallowCopy()
     {
@@ -39,49 +38,12 @@ public enum ValueType
 [System.Serializable]
 public class EffectProperties
 {
-    [System.Serializable]
-    public class OldValue
-    {
-        [Tooltip("This value will be multiplied with a different value")]
-        public float multiplier;
-        [Tooltip("Any values to be added on")]
-        public float flat;
-        [Tooltip("Defines how the flat value is displayed in Skill Descriptions")]
-        public ValueType flatType;
-        [Tooltip("Defines how the value change is displayed in the Effect Description" +
-            "\nex. ATK increased by 20 vs ATK increased by 20%")]
-        public ValueType deltaType;
-
-        public OldValue Copy()
-        {
-            return MemberwiseClone() as OldValue;
-        }
-
-        public static OldValue operator *(OldValue e, int stacks)
-        {
-            var c = e.Copy();
-            c.multiplier *= stacks;
-            c.flat *= stacks;
-            return c;
-        }
-
-        public static OldValue operator *(OldValue e, float stacks)
-        {
-            var c = e.Copy();
-            c.multiplier *= stacks;
-            c.flat *= stacks;
-            return c;
-        }
-    }
-
     public BaseGameEffect effect;
-    public OldValue[] effectValues = new OldValue[1];
-    [SerializeReference] public ValueGroup valueGroup = new ValueGroup();
+    [SerializeReference, SubclassSelector] public BaseEffectValue value;
     public int effectDuration = -1;
     public int activationLimit;
     public int stacks;
     public int maxStacks = -1;
-    [TextArea] public string description;
 
     /// <summary>
     /// Shallow-Copy
@@ -89,6 +51,10 @@ public class EffectProperties
     /// <returns></returns>
     public EffectProperties Copy()
     {
-        return MemberwiseClone() as EffectProperties;
+        var clone = (EffectProperties)MemberwiseClone();
+
+        if (value != null) clone.value = value.Clone(); 
+
+        return clone;
     }
 }

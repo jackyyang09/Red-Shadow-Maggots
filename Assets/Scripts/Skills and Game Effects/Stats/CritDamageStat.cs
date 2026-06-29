@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "CRIT DMG", menuName = "ScriptableObjects/Game Stats/CRIT DMG", order = 1)]
+[System.Serializable]
 public class CritDamageStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.CRIT_DAMAGE;

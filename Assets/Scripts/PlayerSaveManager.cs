@@ -20,14 +20,13 @@ public class PlayerSave
     public int[] Party = new int[] { -1, -1, -1, -1 };
     public List<MaggotState> MaggotStates = new List<MaggotState>();
 
-    // Everything is a property just in case the future database implementation is funny like Firebase
-    public int Canteens { get; set; }
-    public int BattlesFought { get; set; }
-    public int NodesTravelled { get; set; }
-    public int Exp { get; set; }
-    public int Money { get; set; }
-    public bool InBattle { get; set; }
-    public Vector2 MapPosition { get; set; }
+    public int Canteens;
+    public int BattlesFought;
+    public int NodesTravelled;
+    public int Exp;
+    public int Money;
+    public bool InBattle;
+    public Vector2 MapPosition;
 
     public PlayerSave()
     {
@@ -35,7 +34,7 @@ public class PlayerSave
     }
 }
 
-public class PlayerSaveManager : BaseSaveManager<PlayerSave>
+public class PlayerSaveManager : JsonSaveManager<PlayerSave>
 {
     public override string FILE_NAME => "PlayerData";
 

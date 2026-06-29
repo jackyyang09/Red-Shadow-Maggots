@@ -13,14 +13,4 @@ public class EffectRemoval : BaseGameEffect
 
         return base.Activate(effect);
     }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        var d = base.GetSkillDescription(targetMode, props);
-
-        var effectName = targetEffect ? targetEffect.effectName : "NO TARGET";
-        d = d.Replace("$TARGETEFFECT", "<u>" + effectName + "</u>");
-
-        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    }
 }

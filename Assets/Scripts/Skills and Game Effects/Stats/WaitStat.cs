@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "WAIT", menuName = "ScriptableObjects/Game Stats/WAIT", order = 1)]
+[System.Serializable]
 public class WaitStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.WAIT;

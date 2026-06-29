@@ -56,25 +56,4 @@ public class BaseEffectMasker : BaseGameEffect
     {
         return GetBaseDescription();
     }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string d = TargetModeDescriptor(targetMode);
-
-        var baseD = GetBaseDescription();
-
-        switch (targetMode)
-        {
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                baseD = baseD.FirstCharToLower();
-                break;
-        }
-
-        d += baseD + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-
-        return d + base.GetSkillDescription(targetMode, props);
-    }
 }

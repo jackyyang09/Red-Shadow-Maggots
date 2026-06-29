@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ATK WINDOW", menuName = "ScriptableObjects/Game Stats/ATK WINDOW", order = 1)]
+[System.Serializable]
 public class AttackWindowStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.ATTACK_WINDOW;

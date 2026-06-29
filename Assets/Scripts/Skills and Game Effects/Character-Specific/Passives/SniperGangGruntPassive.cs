@@ -29,10 +29,7 @@ public class SniperGangGruntPassive : BaseCharacterPassive
             if (character.IsPlayer() == baseCharacter.IsPlayer()) return;
 
             var stacks = character.EffectDictionary[effect.referenceEffect][0].Stacks;
-            if (stacks == crippleProps.maxStacks)
-            {
-                ApplyEffectToCharacter(baseCharacter, sparePartsProps);
-            }
+            ApplyEffectToCharacter(baseCharacter, sparePartsProps);
         }
     }
 

@@ -38,7 +38,7 @@ public class EnemyCharacter : BaseCharacter
     {
         base.InitializeWithInfo(level, stateInfo);
 
-        superCritSkill = new GameSkill(characterReference.superCritical);
+        superCritSkill = new GameSkill(this, characterReference.superCritical);
 
         if (stateInfo != null)
         {
@@ -63,7 +63,7 @@ public class EnemyCharacter : BaseCharacter
 
         waitEntity.IsPlayerControlled = false;
 
-        battleSystem.AddEnemyToWaitList(this, waitEntity);
+        battleSystem.AddEnemyToWaitList(this, waitEntity, false);
     }
 
     protected override IEnumerator CreateBillboardUI()
@@ -154,10 +154,13 @@ public class EnemyCharacter : BaseCharacter
         {
             battleStateManager.InitializeRandom();
 
-            int attackIndex = Random.Range(0, Reference.enemyAttackAnimations.Length);
-            var attack = Reference.enemyAttackAnimations[attackIndex];
-            IncomingAttack = attack;
-            PlayAttackAnimation(attackIndex);
+            var a = Reference.basicAttack;
+            IncomingAttack.Ability = a;
+            var t = Reference.basicAttack.effects[0].effectTarget.GetTargets(this, target);
+            IncomingAttack.Targets.Caster = this;
+            IncomingAttack.Targets.Targets = t;
+
+            PlayAttackAnimation(0);
         }
 
         base.BeginAttack(target);
@@ -168,11 +171,6 @@ public class EnemyCharacter : BaseCharacter
         base.UseSuperCritical();
 
         usedSuperCritThisTurn = true;
-
-        var a = new AttackStruct();
-        a.attackAnimation = Reference.superCriticalAnim;
-        a.attackRange = AttackRange.LongRange;
-        IncomingAttack = a;
     }
 
     public void PlayAttackAnimation()
@@ -182,11 +180,11 @@ public class EnemyCharacter : BaseCharacter
 
         if (rigAnim)
         {
-            if (Reference.attackAnimations.Length > 1)
-            {
-                rigAnim.Play("Attack Level 2");
-            }
-            else
+            //if (Reference.attackAnimations.Length > 1)
+            //{
+            //    rigAnim.Play("Attack Level 2");
+            //}
+            //else
             {
                 rigAnim.Play("Enemy Attack Level 2");
             }
@@ -199,6 +197,8 @@ public class EnemyCharacter : BaseCharacter
 
     public void PlayAttackAnimation(int selectedAttack)
     {
+        IncomingAttack.attackAnimation = Reference.attackAnim;
+
         OnCharacterStartAttack?.Invoke(this);
         QuickTimeBase.OnExecuteAnyQuickTime += ExecuteAttack;
 

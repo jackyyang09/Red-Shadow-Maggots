@@ -18,8 +18,10 @@ public class OpenCasketFuneral : SuperCriticalEffect
         }
     }
 
-    public override void BeginSuperCritEffect()
+    public override void BeginSuperCritEffect(int startIndex)
     {
+        base.BeginSuperCritEffect(startIndex);
+
         turnsPassed = 0;
         skeletonTransform.transform.localScale = Vector3.one;
         BattleSystem.OnStartPhase[BattlePhases.PlayerTurn.ToInt()] += TickTurnsPassed;

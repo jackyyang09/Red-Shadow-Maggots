@@ -69,7 +69,7 @@ public class DiscordWrapper : MonoBehaviour
         discordInstance.RunCallbacks();
     }
 
-    private void OnApplicationQuit()
+    private void OnDisable()
     {
         if (discordInstance == null) return;
         discordInstance.Dispose();

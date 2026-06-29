@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class BaseDamageEffect : BaseStatScaledEffect
+public class BaseDamageEffect : BaseGameEffect
 {
     public virtual void DealDamage(float value, BaseCharacter target)
     {
@@ -24,38 +24,5 @@ public class BaseDamageEffect : BaseStatScaledEffect
             QTEResult = QuickTimeBase.QTEResult.Early
         };
         target.ConsumeHealth(damageStruct);
-    }
-
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        var d = base.GetSkillDescription(targetMode, props);
-        if (d.Contains("$STAT"))
-        {
-            var statScaled = props.valueGroup.Values[0] as StatScaledValue;
-            var statName = statScaled == null ? statScaled.Stat.Name : "NO STAT";
-            d = d.Replace("$STAT", statName);
-        }
-
-        return d + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.Self:
-                s += "Lose ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "lose ";
-                break;
-        }
-
-        s += RSMConstants.Keywords.Short.HEALTH + " equal to " + 
-            EffectValueDescriptor(props.effectValues[0], "your", stat);
-
-        return s;
     }
 }

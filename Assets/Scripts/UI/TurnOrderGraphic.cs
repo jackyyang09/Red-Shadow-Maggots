@@ -61,6 +61,8 @@ public class TurnOrderGraphic : MonoBehaviour
             waitee.OnStartTurn -= OnStartEnemyTurn;
             waitee.OnEndTurn -= OnEndEnemyTurn;
         }
+
+        DOTween.Kill(GetInstanceID());
     }
 
     public void InitializeWithEntity(WaitListEntity w, bool myTurn = false)
@@ -109,9 +111,9 @@ public class TurnOrderGraphic : MonoBehaviour
         {
             DOTween.To(x => previousWait = x,
             previousWait,
-            waitee.WaitPercentage, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
+            waitee.WaitTimer, dialTweenTime).SetEase(dialEase).OnUpdate(() =>
             {
-                waitLabel.text = previousWait.FormatToDecimal() + "%";
+                waitLabel.text = previousWait.FormatToDecimal();
                 waitFill.fillAmount = previousWait / waitee.WaitLimit;
             });
         }
@@ -120,7 +122,7 @@ public class TurnOrderGraphic : MonoBehaviour
     void ForceUpdateWait()
     {
         previousWait = waitee.Wait;
-        waitLabel.text = waitee.WaitPercentage.FormatToDecimal() + "%";
+        waitLabel.text = waitee.WaitTimer.FormatToDecimal();
         waitFill.fillAmount = waitee.WaitPercentage;
     }
 

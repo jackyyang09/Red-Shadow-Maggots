@@ -9,7 +9,7 @@ public class SuperCritArmsGuy : SuperCriticalEffect
         base.DealSuperCritDamage();
     }
 
-    public override void BeginSuperCritEffect()
+    public override void BeginSuperCritEffect(int startIndex)
     {
         BaseCharacter.IncomingDamage.QTEResult = QuickTimeBase.QTEResult.Perfect;
         BaseCharacter.IncomingDamage.ChargeLevel = 3;

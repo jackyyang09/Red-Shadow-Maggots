@@ -17,18 +17,17 @@ public abstract class SuperCriticalEffect : MonoBehaviour
 
     }
 
-    public virtual void BeginSuperCritEffect()
+    public virtual void BeginSuperCritEffect(int startIndex)
     {
-
+        effectsApplied = startIndex;
     }
 
     public virtual void FinishSuperCritEffect()
     {
         GlobalEvents.OnCharacterFinishSuperCritical?.Invoke(baseCharacter);
-        effectsApplied = 0;
     }
 
-    int effectsApplied = 0;
+    int effectsApplied;
 
     public void ApplyNextSuperCritEffect()
     {
@@ -41,61 +40,12 @@ public abstract class SuperCriticalEffect : MonoBehaviour
         }
 
         var effect = superCrit.effects[effectsApplied];
-        List<BaseCharacter> targets = new List<BaseCharacter>();
-        var targetMode = effect.targetOverride == TargetMode.None ? superCrit.targetMode : effect.targetOverride;
-        switch (targetMode)
-        {
-            case TargetMode.None:
-            case TargetMode.Self:
-                targets.Add(baseCharacter);
-                break;
-            case TargetMode.OneAlly:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        targets.Add(enemyController.RandomEnemy);
-                        break;
-                }
-                //target = baseCharacter;
-                break;
-            case TargetMode.OneEnemy:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        targets.Add(battleSystem.ActiveEnemy);
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        targets.Add(battleSystem.ActivePlayer);
-                        break;
-                }
-                break;
-            case TargetMode.AllAllies:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        targets.AddRange(battleSystem.PlayerCharacters);
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        targets.AddRange(enemyController.Enemies);
-                        break;
-                }
-                break;
-            case TargetMode.AllEnemies:
-                switch (battleSystem.CurrentPhase)
-                {
-                    case BattlePhases.PlayerTurn:
-                        targets.AddRange(enemyController.Enemies);
-                        break;
-                    case BattlePhases.EnemyTurn:
-                        targets.AddRange(battleSystem.PlayerCharacters);
-                        break;
-                }
-                break;
-        }
+        var targets = superCrit.effects[effectsApplied].effectTarget.GetTargets(baseCharacter, battleSystem.OpposingCharacter);
 
-        //effect.appStyle.Apply(effect, baseCharacter, targets);
+        foreach (var t in targets)
+        {
+            effect.appStyle.Apply(effect, baseCharacter, t);
+        }
 
         effectsApplied++;
     }

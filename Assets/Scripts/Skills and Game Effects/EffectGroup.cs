@@ -8,42 +8,16 @@ using UnityEditor;
 [System.Serializable]
 public class EffectGroup
 {
-    public EffectProperties damageProps;
-    public EffectProperties effectProps;
-    [SerializeReference] public BaseApplicationStyle appStyle = new BaseApplicationStyle();
-    public TargetMode targetOverride;
-    [SerializeReference] public BaseEffectTarget effectTarget;
+    [SerializeReference, SubclassSelector] public EffectProperties effectProps;
+    [SerializeReference, SubclassSelector] public AttackProps attackProps;
+    [SerializeReference, SubclassSelector] public BaseApplicationStyle appStyle;
+    [SerializeReference, SubclassSelector] public BaseEffectTarget effectTarget;
 
     public EffectGroup Copy()
     {
         var group = MemberwiseClone() as EffectGroup;
-        group.damageProps = damageProps.Copy();
-        group.effectProps = effectProps.Copy();
+        if (group.effectProps != null) group.effectProps = effectProps.Copy();
+        if (group.attackProps != null) group.attackProps = attackProps.Copy();
         return group;
     }
 }
-
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(EffectGroup))]
-public class EffectGroupDrawer : PropertyDrawer
-{
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return EditorGUI.GetPropertyHeight(property, true);
-    }
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        if (property.managedReferenceValue == null)
-        {
-            property.managedReferenceValue = new EffectGroup();
-        }
-
-        EditorGUI.PropertyField(position, property, true);
-
-        EditorGUI.EndProperty();
-    }
-}
-#endif

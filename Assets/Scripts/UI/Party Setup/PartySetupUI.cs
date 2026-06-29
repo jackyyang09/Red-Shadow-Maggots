@@ -110,7 +110,7 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
         {
             BattleData.UseSpecialCam[i] = node.waves[i].UseSpecialCam;
 
-            BattleData.EnemyGUIDs.Add(new List<string>());
+            BattleData.EnemyWaves.Add(new());
             for (int j = 0; j < node.waves[i].Enemies.Length; j++)
             {
                 string guid = "";
@@ -118,7 +118,7 @@ public class PartySetupUI : BasicSingleton<PartySetupUI>
                 {
                     guid = node.waves[i].Enemies[j].AssetGUID;
                 }
-                BattleData.EnemyGUIDs[i].Add(guid);
+                BattleData.EnemyWaves[i].EnemyGUIDs.Add(guid);
             }
         }
         battleStateManager.SaveData();

@@ -13,6 +13,10 @@ public enum EffectType
 
 /// <summary>
 /// The base definition of a singular game effect
+/// 
+/// Reflection: Rather than creating a zillion new ScriptableObject instances:
+/// Have GameAbilityObject inherit from ScriptableObject, and have it contain a reference 
+/// to a subclass of BaseGameAbility
 /// </summary>
 #if UNITY_EDITOR
 [UnityEditor.CanEditMultipleObjects]
@@ -34,6 +38,7 @@ public abstract class BaseGameEffect : ScriptableObject
     public JSAM.SoundFileObject activationSound;
     public JSAM.SoundFileObject tickSound;
 
+    [TextArea] public string skillDescription;
     [TextArea] public string effectDescription;
 
     [HideInInspector] public virtual bool IncludesExplainer { get; }
@@ -63,30 +68,36 @@ public abstract class BaseGameEffect : ScriptableObject
     /// Called on every turn after it's activation
     /// </summary>
     public virtual void Tick(AppliedEffect effect) { }
-
+    
     public virtual void OnExpire(AppliedEffect effect) { }
 
     public virtual void OnDeath(AppliedEffect effect) { }
 
     public virtual void OnSpecialCallback(AppliedEffect effect) { }
 
-    public virtual string GetSkillDescription(TargetMode targetMode, EffectProperties props)
+    public virtual string GetSkillDescription(EffectGroup eg)
     {
-        if (props.description == "") return "";
+        var d = skillDescription;
 
-        var d = props.description;
+        var props = eg.effectProps;
+        var targetMode = eg.effectTarget;
 
-        var stack = "$STACKS";
-
-        if (d.Contains(stack)) d = d.Replace(stack, props.stacks.ToString());
-
-        var effect = "$EFFECT";
-
-        if (d.Contains(effect)) d = d.Replace(effect, props.effect.effectName);
-
-        for (int i = 0; i < props.valueGroup.Values.Length; i++)
+        if (d.Contains("$STACKS"))
         {
-            d = props.valueGroup.Values[i].ProcessSkillDescription(d, i);
+            if (props.stacks < 0)
+            {
+                d = d.Replace("Apply", "Remove");
+            }
+            d = d.Replace("$STACKS", Mathf.Abs(props.stacks).ToString());
+        }
+
+        d = d.Replace("$EFFECT", props.effect.effectName);
+
+        if (eg.appStyle != null) d = d.Replace("$TARGET", eg.appStyle.ProcessTargetDescriptor(targetMode));
+
+        if (props.value != null)
+        {
+            d = props.value.ProcessSkillDescription(targetMode, d);
         }
 
         return d;
@@ -94,27 +105,9 @@ public abstract class BaseGameEffect : ScriptableObject
 
     public virtual string GetEffectDescription(AppliedEffect effect)
     {
-        if (effect.referenceEffect.effectDescription == "") return "";
-
-        var d = effect.referenceEffect.effectDescription;
+        var d = effectDescription;
 
         return d;
-    }
-
-    protected string TargetModeDescriptor(TargetMode mode)
-    {
-        switch (mode)
-        {
-            case TargetMode.OneAlly:
-                return "Ally ";
-            case TargetMode.OneEnemy:
-                return "Enemy ";
-            case TargetMode.AllAllies:
-                return "All Allies ";
-            case TargetMode.AllEnemies:
-                return "All Enemies ";
-        }
-        return "";
     }
 
     public static string DurationAndActivationDescriptor(int turns, int activations)
@@ -136,59 +129,9 @@ public abstract class BaseGameEffect : ScriptableObject
         s += ") ";
         return s;
     }
-
-    public static string EffectValueDescriptor(EffectProperties.OldValue value, BaseGameStat stat = null)
-    {
-        return EffectValueDescriptor(value, "your", stat);
-    }
-
-    public static string EffectValueDescriptor(EffectProperties.OldValue value, string subject, BaseGameStat stat = null)
-    {
-        string d = "";
-        if (value.multiplier != 0)
-        {
-            d = Mathf.Abs(value.multiplier).FormatPercentage() + " ";
-        }
-        if (stat)
-        {
-            d += "of " + subject + " " + stat.Name + " ";
-        }
-        if (value.multiplier != 0 && value.flat != 0)
-        {
-            d += "plus ";
-        }
-        if (value.flat != 0)
-        {
-            var abs = Mathf.Abs(value.flat);
-            switch (value.flatType)
-            {
-                case ValueType.Percentage:
-                    d += abs.FormatPercentage();
-                    break;
-                case ValueType.Value:
-                    d += abs;
-                    break;
-                case ValueType.Decimal:
-                    d += abs.FormatToDecimal();
-                    break;
-            }
-            d += " ";
-        }
-        return d;
-    }
-
-    public static float GetValue(BaseGameStat stat, EffectProperties.OldValue value, BaseCharacter source)
-    {
-        float o = 0;
-        if (value.multiplier != 0)
-        {
-            o = stat.GetGameStat(source) * value.multiplier;
-        }
-        return o + value.flat;
-    }
 }
 
 public interface IStackableEffect
 {
-    public void OnStacksChanged(AppliedEffect effect);
+    public void OnStacksChanged(AppliedEffect effect, int previous);
 }

@@ -19,37 +19,36 @@ MonoBehaviour:
   activateOnDeath: 0
   particlePrefab: {fileID: 0}
   tickPrefab: {fileID: 0}
-  activationSound: {fileID: 0}
+  activationSound: {fileID: 11400000, guid: b12ec6181aa12ab4483960f1d81a9b86, type: 2}
   tickSound: {fileID: 0}
+  skillDescription: Apply $STACKS stacks of $EFFECT
+  effectDescription: For each stack, increases own ATK and DEF by 2.5% and apply
+    healing and shielding equal to 5% of own MAX HP.
   stats:
-  - {fileID: 11400000, guid: fe45de3acb5849f499215f92adf9f519, type: 2}
-  - {fileID: 11400000, guid: 4d8d9af137efab146868ad5b0afb9a9e, type: 2}
-  stat: {fileID: 11400000, guid: fe45de3acb5849f499215f92adf9f519, type: 2}
-  healEffect:
-    effect: {fileID: 11400000, guid: f95e984902c223d4db569c79eb190be8, type: 2}
-    values:
-    - 0
-    effectValues:
-    - multiplier: 0
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: 0
-    activationLimit: 0
-    stacks: 0
-    maxStacks: -1
-    targetOverride: 0
-  shieldEffect:
-    effect: {fileID: 11400000, guid: 506d90cb37ed8cc43b1e9bfc9b150a4f, type: 2}
-    values:
-    - 0
-    effectValues:
-    - multiplier: 0
-      flat: 0
-      flatType: 0
-      deltaType: 0
-    effectDuration: 3
-    activationLimit: 0
-    stacks: 0
-    maxStacks: -1
-    targetOverride: 0
+  - rid: 5603165554377228319
+  - rid: 5603165554377228320
+  - rid: 5603165554377228321
+  values:
+  - 0.025
+  - 0.025
+  - 0.05
+  targetMode:
+    rid: 5603165554377228322
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165554377228319
+      type: {class: AttackStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165554377228320
+      type: {class: DefenseStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165554377228321
+      type: {class: MaxHealthStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165554377228322
+      type: {class: AllAllies, ns: , asm: Assembly-CSharp}
+      data: 

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DEF", menuName = "ScriptableObjects/Game Stats/DEF", order = 1)]
+[System.Serializable]
 public class DefenseStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.DEFENSE;

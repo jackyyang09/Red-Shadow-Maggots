@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using RSMConstants;
 
-[CreateAssetMenu(fileName = "DMG ABSORPTION", menuName = "ScriptableObjects/Game Stats/DMG ABSORPTION", order = 1)]
+[System.Serializable]
 public class DamageAbsorptionStat : BaseGameStat
 {
     public override string Name => Keywords.Short.DAMAGE_ABSORPTION;

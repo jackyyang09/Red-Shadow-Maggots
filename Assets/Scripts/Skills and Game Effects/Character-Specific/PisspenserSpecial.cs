@@ -4,105 +4,49 @@ using UnityEngine;
 using static Facade;
 
 [CreateAssetMenu(fileName = "Pisspenser Upgrade", menuName = "ScriptableObjects/Character-Specific/Piss/Pisspenser Upgrade", order = 1)]
-public class PisspenserSpecial : MultiStatStackEffect
+public class PisspenserSpecial : BaseGameEffect, IStackableEffect
 {
     public override string ExplainerName => "Upgrade";
 
-    [SerializeField] EffectProperties healEffect;
-    [SerializeField] EffectProperties shieldEffect;
+    [SerializeReference, SubclassSelector] BaseGameStat[] stats;
+    [SerializeField] float[] values;
+    [SerializeReference, SubclassSelector] BaseEffectTarget targetMode;
 
     public override bool Activate(AppliedEffect effect)
     {
-        effect.customCallbacks = new System.Action[1];
-        effect.customCallbacks[0] = () => OnSpecialCallback(effect);
-        effect.Target.OnStartTurnLate += effect.customCallbacks[0];
-
-        if (effect.Target.IsPlayer())
-        {
-            effect.extraTargets = battleSystem.PlayerList.ConvertAll(e => (BaseCharacter)e);
-        }
-        else
-        {
-            effect.extraTargets = enemyController.EnemyList.ConvertAll(e => (BaseCharacter)e);
-        }
-        effect.extraTargets.Remove(effect.Target);
-
-        return true;
+        effect.Caster.OnStartTurn += () => OnStartTurn(effect);
+        return base.Activate(effect);
     }
 
-    public override void OnExpire(AppliedEffect effect)
+    void OnStartTurn(AppliedEffect effect)
     {
-        effect.Target.OnStartTurnLate -= effect.customCallbacks[0];
+        var targets = targetMode.GetTargets(effect.Caster, effect.Target);
 
-        base.OnExpire(effect);
-    }
-
-    public override void OnSpecialCallback(AppliedEffect effect)
-    {
-        base.OnSpecialCallback(effect);
-
-        var targets = new List<BaseCharacter>{ effect.Target };
-        targets.AddRange(effect.extraTargets);
-
-        foreach (var ally in targets)
+        if (effect.cachedValues.Count > 0) // Remove old stat changes
         {
-            var props = healEffect.Copy();
-            props.effectValues = new[] { effect.values[2] * effect.Stacks };
-            TargetProps targetProps = new() { 
-                Caster = effect.Caster, Targets = new[] { ally }, TargetMode = TargetMode.AllAllies
-            };
-            BaseCharacter.ApplyEffectToCharacter(props, targetProps);
+            stats[0].SetGameStat(effect.Caster, -effect.cachedValues[0].Value);
+            stats[1].SetGameStat(effect.Caster, -effect.cachedValues[1].Value);
+            effect.cachedValues.Clear();
+        }
 
-            props = shieldEffect.Copy();
-            props.effectValues = new[] { effect.values[3] * effect.Stacks };
-            BaseCharacter.ApplyEffectToCharacter(props, targetProps);
+        for (int i = 0; i < stats.Length; i++)
+        {
+            var value = effect.Stacks * values[i] * stats[i].GetGameStat(effect.Caster);
+            effect.cachedValues.Add(new CachedValue { Value = value, Type = ValueType.Percentage });
+        }
+
+        stats[0].SetGameStat(effect.Caster, effect.cachedValues[0].Value);
+        stats[1].SetGameStat(effect.Caster, effect.cachedValues[1].Value);
+
+        foreach (var t in targets)
+        {
+            t.Heal(effect.cachedValues[2].Value);
+            t.GiveShield(effect.cachedValues[2].Value, effect);
         }
     }
 
-    public new void OnStacksChanged(AppliedEffect effect)
+    public void OnStacksChanged(AppliedEffect effect, int previous)
     {
-        var targets = new List<BaseCharacter> { effect.Target };
-        targets.AddRange(effect.extraTargets);
-
-        foreach (var ally in targets)
-        {
-            for (int i = 2; i < effect.cachedValues.Count; i++)
-            {
-                stats[i].SetGameStat(ally, -effect.cachedValues[i]);
-            }
-        }
-
-        effect.cachedValues.Clear();
-
-        foreach (var ally in targets)
-        {
-            for (int i = 0; i < stats.Length; i++)
-            {
-                var amount = GetValue(stats[i], effect.values[i + 2], ally) * effect.Stacks;
-
-                stats[i].SetGameStat(ally, amount);
-
-                effect.cachedValues.Add(amount);
-            }
-        }
-    }
-
-    public override string GetEffectDescription(AppliedEffect effect)
-    {
-        string d = "For each stack: Increase " + 
-            RSMConstants.Keywords.Short.ATTACK + " by " + 
-            effect.values[0].multiplier.FormatPercentage() +
-            " and " + RSMConstants.Keywords.Short.DEFENSE + " by " + 
-            effect.values[1].multiplier.FormatPercentage() +
-            " for " + TargetModeDescriptor(TargetMode.AllAllies).TrimEnd() + ". " +
-            "At the start of your turn, " + TargetModeDescriptor(TargetMode.AllAllies) + "recover " + 
-            RSMConstants.Keywords.Short.HEALTH + " equal to " + 
-            effect.values[2].multiplier.FormatPercentage() + " of your " +
-            RSMConstants.Keywords.Short.MAX_HEALTH + 
-            " and receive a Shield with a strength of " + 
-            effect.values[3].multiplier.FormatPercentage() + " of your " + 
-            RSMConstants.Keywords.Short.MAX_HEALTH + ".";
-
-        return d;
+        
     }
 }

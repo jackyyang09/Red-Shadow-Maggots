@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Shield Effect", menuName = "ScriptableObjects/Game Effects/Shield", order = 1)]
-public class BaseShieldEffect : BaseStatScaledEffect
+public class BaseShieldEffect : BaseGameEffect
 {
     [SerializeField] GameObject forceFieldPrefab;
 
@@ -37,14 +37,14 @@ public class BaseShieldEffect : BaseStatScaledEffect
 
         if (effect.cachedValues.Count > 0)
         {
-            target.GiveShield(effect.cachedValues[0], effect);
+            target.GiveShield(effect.cachedValues[0].Value, effect);
         }
         else
         {
-            float value = GetValue(stat, effect.values[0], effect.Caster);
+            float value = effect.value.GetValue(effect.targetProps);
 
             target.GiveShield(value, effect);
-            effect.cachedValues.Add(value);
+            effect.cachedValues.Add(new() { Value = value, Type = ValueType.Value });
         }
 
         return true;
@@ -65,33 +65,9 @@ public class BaseShieldEffect : BaseStatScaledEffect
 
     public override string GetEffectDescription(AppliedEffect effect)
     {
-        return ExplainerDescription;
-    }
+        var d = base.GetEffectDescription(effect);
+        d = d.Replace("$SHIELD", effect.cachedValues[0].String());
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = TargetModeDescriptor(targetMode);
-
-        switch (targetMode)
-        {
-            case TargetMode.None:
-            case TargetMode.Self:
-                s = "Receive ";
-                break;
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-                s += "receives ";
-                break;
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "receive ";
-                break;
-        }
-
-        s += EffectValueDescriptor(props.effectValues[0], "your", stat);
-
-        s += "as a <u>Shield</u> ";
-
-        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
+        return d;
     }
 }

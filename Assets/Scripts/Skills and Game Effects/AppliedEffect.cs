@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public class CachedValue
 {
     public float Value;
     public ValueType Type;
+    public string String() => Value.FormatTo(Type);
 }
 
 /// <summary>
@@ -15,8 +17,6 @@ public class AppliedEffect
 {
     public BaseCharacter Caster => targetProps.Caster;
     public BaseCharacter Target => targetProps.Targets[0];
-    public List<BaseCharacter> extraTargets = new List<BaseCharacter>();
-    public TargetMode TargetMode => targetProps.TargetMode;
     public TargetProps targetProps;
 
     public BaseEffectTarget effectTarget;
@@ -27,7 +27,8 @@ public class AppliedEffect
     public bool HasStacks => stackEffect != null;
 
     int maxStacks;
-    int stacks;
+    // Set stacks here if we don't want to trigger OnStacksChanged
+    public int stacks;
     public int Stacks
     {
         get => stacks;
@@ -40,20 +41,20 @@ public class AppliedEffect
 
             if (value != stacks)
             {
+                var prev = stacks;
                 stacks = value;
-                OnStacksChanged();
+                OnStacksChanged(prev);
             }
         }
     }
 
-    public EffectProperties.OldValue[] values;
-    public ValueGroup valueGroup;
     public int startingTurns;
     public int remainingTurns;
-    public int remainingActivations;
+    public int startingUses;
+    public int remainingUses;
     public string description;
-    public List<float> cachedValues = new List<float>();
-    public List<CachedValue> valueCache = new List<CachedValue>();
+    public List<CachedValue> cachedValues = new List<CachedValue>();
+    public BaseEffectValue value;
     public System.Action[] customCallbacks;
     public GameObject[] instantiatedObjects;
 
@@ -69,8 +70,7 @@ public class AppliedEffect
             {
                 effect = referenceEffect,
                 effectDuration = startingTurns,
-                effectValues = values,
-                maxStacks = maxStacks
+                maxStacks = maxStacks,
             };
         }
     }
@@ -84,29 +84,26 @@ public class AppliedEffect
     public AppliedEffect(TargetProps targets, EffectProperties props)
     {
         targetProps = targets;
-        extraTargets = new List<BaseCharacter>(targets.Targets);
-        extraTargets.RemoveAt(0);
-
-        valueGroup = props.valueGroup.ShallowCopy();
 
         referenceEffect = props.effect;
         stackEffect = referenceEffect as IStackableEffect;
 
         remainingTurns = props.effectDuration;
         startingTurns = props.effectDuration;
-        remainingActivations = props.activationLimit;
+        remainingUses = props.activationLimit;
+        startingUses = props.activationLimit;
         // Internal variable rather than Property is used to prevent invokation of event
         stacks = props.stacks;
         maxStacks = props.maxStacks;
-        values = props.effectValues;
+
+        value = props.value;
     }
 
     public void Apply()
     {
         Activate();
 
-        if (HasStacks) OnStacksChanged();
-        else
+        //if (!HasStacks)
         {
             RefreshDescription();
         }
@@ -118,18 +115,19 @@ public class AppliedEffect
     /// <returns>bool - True if still active</returns>
     public bool Activate()
     {
-        var active = referenceEffect.Activate(this);
-        if (active && remainingActivations > 0)
+        return referenceEffect.Activate(this);
+    }
+
+    public void UseOnce()
+    {
+        if (startingUses <= 0) return;
+
+        remainingUses--;
+        if (remainingUses == 0)
         {
-            remainingActivations--;
-            if (remainingActivations == 0)
-            {
-                Target.RemoveEffect(this);
-                active = false;
-            }
-            RefreshDescription();
+            Target.RemoveEffect(this);
         }
-        return active;
+        RefreshDescription();
     }
 
     /// <summary>
@@ -170,10 +168,10 @@ public class AppliedEffect
         RefreshDescription();
     }
 
-    void OnStacksChanged()
+    void OnStacksChanged(int previous)
     {
         var s = referenceEffect as IStackableEffect;
-        s.OnStacksChanged(this);
+        s.OnStacksChanged(this, previous);
         RefreshDescription();
     }
 
@@ -192,10 +190,10 @@ public class AppliedEffect
         referenceEffect.OnDeath(this);
         if (referenceEffect.activateOnDeath)
         {
-            if (remainingActivations > 0)
+            if (remainingUses > 0)
             {
-                remainingActivations--;
-                if (remainingActivations == 0)
+                remainingUses--;
+                if (remainingUses == 0)
                 {
                     Remove();
                 }

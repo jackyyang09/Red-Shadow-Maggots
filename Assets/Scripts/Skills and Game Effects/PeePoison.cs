@@ -14,39 +14,14 @@ public class PeePoison : DamagePerTurnEffect
 
     public override float TickAnimationTime => 0.5f;
 
-    public override void Tick(AppliedEffect effect)
+    public override bool Activate(AppliedEffect effect)
     {
-        ConsumeHealth(effect.cachedValues[0], effect.Target);
+        return true; // No need to cache values
     }
 
-    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    //{
-    //    string s = TargetModeDescriptor(targetMode);
-    //
-    //    switch (targetMode)
-    //    {
-    //        case TargetMode.Self:
-    //            s += "<u>Pee</u> ";
-    //            break;
-    //        case TargetMode.OneAlly:
-    //        case TargetMode.OneEnemy:
-    //            s += "<u>Pees</u> ";
-    //            break;
-    //        case TargetMode.AllAllies:
-    //        case TargetMode.AllEnemies:
-    //            s += "<u>Pee</u> ";
-    //            break;
-    //    }
-    //
-    //    s += "at " + props.effectValues[0].multiplier.FormatPercentage() + " strength ";
-    //
-    //    return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    //}
-
-    public override string GetEffectDescription(AppliedEffect effect)
+    public override void Tick(AppliedEffect effect)
     {
-        var d = "Urinate every turn, losing " + RSMConstants.Keywords.Short.HEALTH +
-            " equal to " + EffectValueDescriptor(effect.values[0], "your", stat);
-        return d;
+        var value = effect.value.GetValue(effect.targetProps);
+        ConsumeHealth(effect.Target.CurrentHealth * value, effect.Target);
     }
 }

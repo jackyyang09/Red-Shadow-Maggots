@@ -11,18 +11,17 @@ public class DamagePerTurnEffect : BaseDamageEffect
     {
         if (effect.cachedValues.Count == 0)
         {
-            //var value = GetValue(stat, effect.values[0], effect.Caster);
-            var value = effect.valueGroup.GetValue(effect.targetProps);
-            effect.cachedValues.Add(value);
+            var value = effect.value.GetValue(effect.targetProps);
+            effect.cachedValues.Add(new() { Value = value, Type = effect.value.ValueType});
         }
 
         return base.Activate(effect);
     }
 
-    //public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    //{
-    //    var s = base.GetSkillDescription(targetMode, props);
-    //
-    //    return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    //}
+    public override string GetEffectDescription(AppliedEffect effect)
+    {
+        var d = base.GetEffectDescription(effect);
+        d = d.Replace("$VALUE", effect.cachedValues[0].Value.FormatToDecimal());
+        return d;
+    }
 }

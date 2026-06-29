@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "DEF WINDOW", menuName = "ScriptableObjects/Game Stats/DEF WINDOW", order = 1)]
+[System.Serializable]
 public class DefenseWindowStat : BaseGameStat
 {
     public override string Name => RSMConstants.Keywords.Short.DEFENSE_WINDOW;

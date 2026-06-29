@@ -12,14 +12,45 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 971f573a1d81f60478e7c48d967106ba, type: 3}
   m_Name: Sniper Gang Revive
   m_EditorClassIdentifier: 
-  effectIcon: {fileID: 0}
-  effectName: 
-  effectText: 
-  effectType: 0
-  activateOnDeath: 0
-  particlePrefab: {fileID: 0}
+  effectIcon: {fileID: 21300000, guid: 0a2fb37889f2af64e875a3484dedbc16, type: 3}
+  effectName: Spare Parts
+  effectText: Spare Parts
+  effectType: 2
+  activateOnDeath: 1
+  particlePrefab: {fileID: 4335457655553992257, guid: a097de64e3031d848816f5ae888f1986, type: 3}
   tickPrefab: {fileID: 0}
-  activationSound: {fileID: 0}
+  activationSound: {fileID: 11400000, guid: d5d1da69a98cdae459683a52ce043646, type: 2}
   tickSound: {fileID: 0}
-  effectDescription: 
-  stat: {fileID: 0}
+  skillDescription: Apply $STACKS stack(s) of Spare Parts
+  effectDescription: "Increases WAIT LIMIT by 5 (Max 4)\nThe following effect triggers
+    on death or at the end of battle: \r\nWith 2+ stacks, consume all stacks to revive
+    with 1 HP, then for each stack consumed, heal self equal to 10% of MAX HP."
+  waitAmount: -0.05
+  waitStat:
+    rid: 5603165579534663697
+  healPerStack:
+    rid: 5603165579534663699
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165579534663697
+      type: {class: WaitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165579534663699
+      type: {class: MultiplyValueOp, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Left:
+          rid: 5603165579534663701
+        Right:
+          rid: 5603165579534663700
+    - rid: 5603165579534663700
+      type: {class: MaxHealthStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+    - rid: 5603165579534663701
+      type: {class: FlatValue, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Flat: 0.1

@@ -21,7 +21,14 @@ MonoBehaviour:
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: b945bad89b5c3784caf83ad582610d57, type: 2}
   tickSound: {fileID: 0}
+  skillDescription: 
   effectDescription: Reduce $STAT by $FLAT
-  stats:
-  - {fileID: 11400000, guid: 8809b31ff18ec6148856733d17683ac8, type: 2}
-  stat: {fileID: 11400000, guid: 8809b31ff18ec6148856733d17683ac8, type: 2}
+  stat:
+    rid: 5603165443679846428
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165443679846428
+      type: {class: WaitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

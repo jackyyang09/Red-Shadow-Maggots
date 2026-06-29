@@ -4,16 +4,21 @@ using UnityEngine;
 
 public class DamageReductionRenderer : BaseStatRenderer
 {
+    public override void RenderState(PlayerSave.MaggotState state, CharacterObject character, bool isEnemy)
+    {
+        ValueText = 0f.FormatPercentage();
+    }
+
     public override void RenderInBattle(BaseCharacter character)
     {
         var modifier = character.DamageAbsorptionModifier;
         if (modifier > 0)
         {
-            ValueText += POS_COLOUR + modifier.FormatPercentage() + END_BRACKET;
+            ValueText = POS_COLOUR + modifier.FormatPercentage() + END_BRACKET;
         }
         else if (modifier < 0)
         {
-            ValueText += POS_COLOUR + modifier.FormatPercentage() + END_BRACKET;
+            ValueText = POS_COLOUR + modifier.FormatPercentage() + END_BRACKET;
         }
         else
         {

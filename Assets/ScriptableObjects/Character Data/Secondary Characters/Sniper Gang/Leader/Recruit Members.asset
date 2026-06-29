@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267f808a279359a4d9d0c9d298c3afab, type: 3}
+  m_Name: Recruit Members
+  m_EditorClassIdentifier: 
+  abilityName: Recruit Members
+  coolDown: 0
+  condition:
+    rid: 5603165723367571480
+  sprite: {fileID: 21300000, guid: fe682e7efb3ce644aa3be37dec2bcd72, type: 3}
+  targetMode: 3
+  effects:
+  - rid: 3276119856843849919
+  - rid: 5603165723367571476
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 2246025679671132173
+      type: {class: TargetTarget, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 3276119856843849919
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        effectProps:
+          rid: 5603165723367571474
+        attackProps:
+          rid: -2
+        appStyle:
+          rid: 3276119856843849920
+        effectTarget:
+          rid: 2246025679671132173
+    - rid: 3276119856843849920
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 5603165723367571474
+      type: {class: EffectProperties, ns: , asm: Assembly-CSharp}
+      data:
+        effect: {fileID: 11400000, guid: d9a3d541d3925bd48842d4ced4331177, type: 2}
+        value:
+          rid: 5603165723367571475
+        effectDuration: -1
+        activationLimit: 0
+        stacks: -2
+        maxStacks: -1
+    - rid: 5603165723367571475
+      type: {class: FlatValue, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0
+        Flat: 0.3
+    - rid: 5603165723367571476
+      type: {class: EffectGroup, ns: , asm: Assembly-CSharp}
+      data:
+        effectProps:
+          rid: 5603165723367571477
+        attackProps:
+          rid: -2
+        appStyle:
+          rid: 5603165723367571487
+        effectTarget:
+          rid: 5603165723367571479
+    - rid: 5603165723367571477
+      type: {class: EffectProperties, ns: , asm: Assembly-CSharp}
+      data:
+        effect: {fileID: 11400000, guid: 96a5ed1f10c9370408a760f000a61046, type: 2}
+        value:
+          rid: 5603165723367571478
+        effectDuration: -1
+        activationLimit: 0
+        stacks: 0
+        maxStacks: -1
+    - rid: 5603165723367571478
+      type: {class: FlatValue, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 1
+        Flat: 1
+    - rid: 5603165723367571479
+      type: {class: TargetSelf, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 5603165723367571480
+      type: {class: AppliedEffectCondition, ns: , asm: Assembly-CSharp}
+      data:
+        effects:
+        - effect: {fileID: 11400000, guid: d9a3d541d3925bd48842d4ced4331177, type: 2}
+          stacks: 2
+    - rid: 5603165723367571487
+      type: {class: BaseApplicationStyle, ns: , asm: Assembly-CSharp}
+      data: 

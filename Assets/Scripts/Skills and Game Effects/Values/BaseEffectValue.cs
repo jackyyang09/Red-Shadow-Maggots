@@ -2,40 +2,88 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ValueOperator
+[System.Serializable]
+public abstract class BaseEffectValue
 {
-    Addition,
-    Multiplication
+    public ValueType ValueType;
+
+    public abstract float GetValue(TargetProps targetProps);
+
+    public abstract string ProcessSkillDescription(BaseEffectTarget target, string description);
+
+    public abstract string Descriptor { get; }
+
+    public abstract BattleState.SerializedValue Serialize();
+
+    public virtual string GetEffectDescription(AppliedEffect effect)
+    {
+        //var value = GetValue(effect.targetProps);
+        return effect.cachedValues[0].Value.FormatTo(effect.cachedValues[0].Type);
+    }
+
+    /// <summary>
+    /// Shallow-Copy
+    /// </summary>
+    /// <returns></returns>
+    public virtual BaseEffectValue Clone()
+    {
+        return MemberwiseClone() as BaseEffectValue;
+    }
 }
 
 [System.Serializable]
-public class BaseEffectValue
+public class FlatValue : BaseEffectValue
 {
-    public float FlatValue;
-    public ValueType ValueType;
-    public ValueOperator Operator = ValueOperator.Addition;
+    public float Flat;
 
-    public virtual float GetValue(TargetProps targetProps)
+    public override float GetValue(TargetProps targetProps)
     {
-        return FlatValue;
+        return Flat;
     }
 
-    public virtual string ProcessSkillDescription(string description, int index)
-    {
-        string key = "$FLAT" + index;
+    public override string Descriptor => Flat.FormatTo(ValueType);
 
-        if (description.Contains(key))
-        {
-            description = description.Replace(key, FlatValue.FormatTo(ValueType));
-        }
+    public override string ProcessSkillDescription(BaseEffectTarget target, string description)
+    {
+        description = description.Replace("$VALUE", Descriptor);
 
         return description;
     }
 
-    public virtual string GetEffectDescription(TargetProps targetProps)
+    public override BattleState.SerializedValue Serialize()
     {
-        var value = GetValue(targetProps);
+        return new()
+        { 
+            Type = nameof(FlatValue),
+            Values = new[] { Flat.ToString(), ((int)ValueType).ToString() }
+        };
+    }
+}
 
-        return value.FormatTo(ValueType);
+public static class ValueExtensions
+{
+    public static string FormatTo(this float value, ValueType valueType)
+    {
+        string valueString = "";
+        switch (valueType)
+        {
+            case ValueType.Percentage:
+                {
+                    var abs = Mathf.Abs(value);
+                    valueString = abs.FormatPercentage();
+                }
+                break;
+            case ValueType.Value:
+                var val = Mathf.FloorToInt(value);
+                valueString = Mathf.Abs(val).ToString();
+                break;
+            case ValueType.Decimal:
+                {
+                    var abs = Mathf.Abs(value);
+                    valueString = abs.FormatToDecimal();
+                }
+                break;
+        }
+        return valueString;
     }
 }

@@ -123,21 +123,21 @@ public class CharacterLoader : BasicSingleton<CharacterLoader>
     {
         enemiesLoaded = 0;
 
-        var currentWave = BattleData.EnemyGUIDs[BattleData.WaveCount];
+        var currentWave = BattleData.EnemyWaves[BattleData.WaveCount];
 
-        float enemyCount = currentWave.Count(e => e != null);
+        float enemyCount = currentWave.EnemyGUIDs.Count(e => e != null);
         float increment = 1f / (enemyCount + 1);
 
-        for (int i = 0; i < currentWave.Count; i++)
+        for (int i = 0; i < currentWave.EnemyGUIDs.Count; i++)
         {
-            string guid = currentWave[i];
+            string guid = currentWave.EnemyGUIDs[i];
 
             if (guid.IsNullEmptyOrWhiteSpace()) continue;
 
             float percentage = increment * (i + 1);
             var spawnPos = GetEnemySpawns(percentage);
 
-            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave[i]);
+            var opHandle = Addressables.LoadAssetAsync<CharacterObject>(currentWave.EnemyGUIDs[i]);
             StartCoroutine(LoadEnemy(i, spawnPos, opHandle));
             enemyHandleToIndex.Add(opHandle);
         }

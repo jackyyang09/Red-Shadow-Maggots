@@ -34,8 +34,9 @@ public class UIStatusDescription : MonoBehaviour
         }
 
         nameLabel.text = effect.referenceEffect.effectName;
+        Debug.Log(effect.description);
         description.text = effect.description.Trim() + " " +
-                BaseGameEffect.DurationAndActivationDescriptor(effect.remainingTurns, effect.remainingActivations);
+                BaseGameEffect.DurationAndActivationDescriptor(effect.remainingTurns, effect.remainingUses);
 
         stackLabel.enabled = effect.HasStacks;
         stackLabel.text = effect.Stacks.ToString();

@@ -26,7 +26,7 @@ public class PlayerCharacter : BaseCharacter
 
         maxHealth = characterReference.GetMaxHealth(currentLevel, false)/* * RarityMultiplier*/;
 
-        superCritSkill = new GameSkill(characterReference.superCritical, 
+        superCritSkill = new GameSkill(this, characterReference.superCritical, 
             () => Mathf.Max(superCritSkill.CooldownTimer - canteensBorrowed, 0));
 
         if (stateInfo != null)
@@ -57,7 +57,7 @@ public class PlayerCharacter : BaseCharacter
         waitEntity.IsPlayerControlled = true;
         waitEntity.MovesOnPlayerTurn = true;
 
-        battleSystem.AddPlayerToWaitList(this, waitEntity);
+        battleSystem.AddPlayerToWaitList(this, waitEntity, false);
     }
 
     protected override IEnumerator CreateBillboardUI()
@@ -129,7 +129,11 @@ public class PlayerCharacter : BaseCharacter
 
     public override void BeginAttack(BaseCharacter target)
     {
-        IncomingAttack = Reference.attackAnimations[0];
+        var a = Reference.basicAttack;
+        IncomingAttack.Ability = a;
+        var t = Reference.basicAttack.effects[0].effectTarget.GetTargets(target, battleSystem.ActiveEnemy);
+        IncomingAttack.Targets.Caster = this;
+        IncomingAttack.Targets.Targets = t;
 
         OnPlayerQTEAttack?.Invoke(this);
 

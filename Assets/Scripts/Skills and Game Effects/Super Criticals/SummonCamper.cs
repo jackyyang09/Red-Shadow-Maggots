@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SummonCamper : SuperCriticalEffect
 {
-    public override void BeginSuperCritEffect()
+    public override void BeginSuperCritEffect(int startIndex)
     {
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Wait Limit Down
   m_EditorClassIdentifier: 
   effectIcon: {fileID: 21300000, guid: 1e12e2453da9d614a83635255b86da25, type: 3}
-  effectName: Wait LImit-
+  effectName: Wait Limit-
   effectText: WAIT LIMIT DOWN!
   effectType: 3
   activateOnDeath: 0
@@ -21,7 +21,14 @@ MonoBehaviour:
   tickPrefab: {fileID: 0}
   activationSound: {fileID: 11400000, guid: b945bad89b5c3784caf83ad582610d57, type: 2}
   tickSound: {fileID: 0}
-  effectDescription: Reduce $STAT by $FLAT0
-  stats:
-  - {fileID: 11400000, guid: 3c2dc630517c1b2419affdb95a96ae7b, type: 2}
-  stat: {fileID: 11400000, guid: 3c2dc630517c1b2419affdb95a96ae7b, type: 2}
+  skillDescription: 
+  effectDescription: Reduce $STAT by $VALUE
+  stat:
+    rid: 5603165244957917350
+  references:
+    version: 2
+    RefIds:
+    - rid: 5603165244957917350
+      type: {class: WaitLimitStat, ns: , asm: Assembly-CSharp}
+      data:
+        ValueType: 0

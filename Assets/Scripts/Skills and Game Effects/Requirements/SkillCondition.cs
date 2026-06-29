@@ -7,7 +7,7 @@ using UnityEditor;
 [System.Serializable]
 public class SkillCondition
 {
-    public virtual bool CanUse() => true;
+    public virtual bool CanUse(BaseCharacter character) => true;
 }
 
 [System.Serializable]
@@ -22,35 +22,48 @@ public class AppliedEffectCondition : SkillCondition
 
     [SerializeField] public List<EffectStacks> effects;
 
-    public override bool CanUse()
+    public override bool CanUse(BaseCharacter c)
     {
-        //foreach (var item in effects)
-        //{
-        //    if (item.stacks)
-        //}
-        return base.CanUse();
+        if (c)
+        {
+            int pass = 0;
+            foreach (var item in effects)
+            {
+                if (!c.EffectDictionary.ContainsKey(item.effect))
+                {
+                    return false;
+                }
+                if (c.EffectDictionary[item.effect].Count >= item.stacks)
+                {
+                    pass++;
+                }
+            }
+            return effects.Count == pass;
+        }
+
+        return base.CanUse(c);
     }
 }
 
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(SkillCondition))]
-public class SkillConditionDrawer : PropertyDrawer
-{
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        return EditorGUI.GetPropertyHeight(property, true);
-    }
-
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        EditorGUI.BeginProperty(position, label, property);
-
-        EditorGUI.PropertyField(
-            position,
-            property,
-            true);
-
-        EditorGUI.EndProperty();
-    }
-}
-#endif
+//#if UNITY_EDITOR
+//[CustomPropertyDrawer(typeof(SkillCondition))]
+//public class SkillConditionDrawer : PropertyDrawer
+//{
+//    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+//    {
+//        return EditorGUI.GetPropertyHeight(property, true);
+//    }
+//
+//    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+//    {
+//        EditorGUI.BeginProperty(position, label, property);
+//
+//        EditorGUI.PropertyField(
+//            position,
+//            property,
+//            true);
+//
+//        EditorGUI.EndProperty();
+//    }
+//}
+//#endif

@@ -22,7 +22,6 @@ public class InGameSettingsUI : BaseGameUI
 
     private void OnEnable()
     {
-        AudioManager.OnAudioManagerInitialized += UpdateVolumeSliders;
         AudioManager.OnMasterVolumeChanged += UpdateMaster;
         AudioManager.OnMusicVolumeChanged += UpdateMusic;
         AudioManager.OnSoundVolumeChanged += UpdateSound;
@@ -32,10 +31,10 @@ public class InGameSettingsUI : BaseGameUI
 
     private void OnDisable()
     {
-        AudioManager.OnAudioManagerInitialized -= UpdateVolumeSliders;
         AudioManager.OnMasterVolumeChanged -= UpdateMaster;
         AudioManager.OnMusicVolumeChanged -= UpdateMusic;
         AudioManager.OnSoundVolumeChanged -= UpdateSound;
+        AudioManager.InternalInstance.SaveVolumeSettings();
     }
 
     public override void ShowUI()
@@ -98,5 +97,29 @@ public class InGameSettingsUI : BaseGameUI
         UpdateMusic(AudioManager.MusicVolume);
         UpdateSound(AudioManager.SoundVolume);
         UpdateVoice(AudioManager.VoiceVolume);
+    }
+
+    public void SetMasterVolume(float val)
+    {
+        if (!optimizedCanvas.IsVisible) return;
+        AudioManager.MasterVolume = val;
+    }
+
+    public void SetSoundVolume(float val)
+    {
+        if (!optimizedCanvas.IsVisible) return;
+        AudioManager.SoundVolume = val;
+    }
+
+    public void SetMusicVolume(float val)
+    {
+        if (!optimizedCanvas.IsVisible) return;
+        AudioManager.MusicVolume = val;
+    }
+
+    public void SetVoiceVolume(float val)
+    {
+        if (!optimizedCanvas.IsVisible) return;
+        AudioManager.VoiceVolume = val;
     }
 }

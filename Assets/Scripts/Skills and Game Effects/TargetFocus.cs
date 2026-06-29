@@ -39,23 +39,6 @@ public class TargetFocus : BaseGameEffect
         }
     }
 
-    public override string GetSkillDescription(TargetMode targetMode, EffectProperties props)
-    {
-        string s = "Apply <u>Taunt </u>";
-
-        switch (targetMode)
-        {
-            case TargetMode.OneAlly:
-            case TargetMode.OneEnemy:
-            case TargetMode.AllAllies:
-            case TargetMode.AllEnemies:
-                s += "to " + TargetModeDescriptor(targetMode);
-                break;
-        }
-
-        return s + DurationAndActivationDescriptor(props.effectDuration, props.activationLimit);
-    }
-
     public override string GetEffectDescription(AppliedEffect effect)
     {
         return ExplainerDescription;

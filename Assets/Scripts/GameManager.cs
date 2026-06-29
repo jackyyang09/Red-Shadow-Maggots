@@ -45,13 +45,13 @@ public class GameManager : BasicSingleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        DiscordWrapper.Instance.UpdateActivity(
-            state: "In-Battle",
-            largeImageKey: "morshu",
-            partySize: waveManager.WaveCount + 1,
-            partyMax: waveManager.TotalWaves,
-            startTime: DiscordWrapper.CurrentTime
-            );
+        //DiscordWrapper.Instance.UpdateActivity(
+        //    state: "In-Battle",
+        //    largeImageKey: "morshu",
+        //    partySize: waveManager.WaveCount + 1,
+        //    partyMax: waveManager.TotalWaves,
+        //    startTime: DiscordWrapper.CurrentTime
+        //    );
     }
 
     public void SaveBattleState()
@@ -77,13 +77,14 @@ public class GameManager : BasicSingleton<GameManager>
             {
                 p = new BattleState.PlayerState
                 {
-                    Index = BattleData.PlayerStates[i].Index,
+                    //Index = BattleData.PlayerStates[i].Index,
+                    Index = PlayerData.Party[i],
                     Health = player.CurrentHealth,
-                    WaitTimer = player.Wait,
+                    WaitTimer = player.WaitTimer,
                     Effects = new List<BattleState.SerializedEffect>()
                 };
 
-                foreach (var item in player.AppliedEffects)
+                foreach (var item in player.Effects)
                 {
                     var se = gameEffectLoader.SerializeGameEffect(item);
                     p.Effects.Add(se);
@@ -110,11 +111,11 @@ public class GameManager : BasicSingleton<GameManager>
                 {
                     Health = enemy.CurrentHealth,
                     Crit = enemy.CritLevel,
-                    WaitTimer = enemy.Wait,
+                    WaitTimer = enemy.WaitTimer,
                     Effects = new List<BattleState.SerializedEffect>()
                 };
 
-                foreach (var item in enemy.AppliedEffects)
+                foreach (var item in enemy.Effects)
                 {
                     var se = gameEffectLoader.SerializeGameEffect(item);
                     d.Effects.Add(se);
