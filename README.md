@@ -1,16 +1,17 @@
-# RED: Shadow Maggots
+# RED: Shadow Maggots Project Repo
 
-## Overview
-You control three menacing mercenaries on your quest to defeat the boss in this fan-adaption of Eltorro64Rus's spoof of a Raid: Shadow Legends ad!
+# To those who wish to tinker with these files
+Contents of this repo are still technically work-in-progress and may change slowly over time. Everything is provided as-is with no guides.
 
-[itch.io](https://brogrammist.itch.io/red-shadow-maggots)
+Please do not use the assets in this repository for any endeavours or projects without first consulting the people who created them in the first place. 
 
-This project was originally developed as part of TF2 Map's 2020 72hr Content Jam.  The jam build contains a limited amount of functionality and can be found [here](https://tf2maps.net/downloads/red-shadow-maggots-fan-game.10289/).
+Project may require use of additional image files not tracked in the repo. These files can be downloaded [here](https://drive.google.com/file/d/1MILYpOyo2TbRR9TqDPlIIotegZ2r7kN_/view?usp=sharing)
 
 # Credits
 
 ## Programming
 Brogrammist - Everything
+
 [Zimennik](https://github.com/Zimennik) - Healthbar Visuals and some Skill UI Logic
 
 ## 2D Art
